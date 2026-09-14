@@ -1,0 +1,607 @@
+/* Homepage-only phone artwork and hero motion. Regular layout stays in
+   Tailwind utilities; dense illustration selectors remain locally scoped. */
+.homePage {
+  --home-scope: 1;
+}
+
+.icon10 { width: 10px; height: 10px; flex: none; }
+.icon12 { width: 12px; height: 12px; flex: none; }
+.icon14 { width: 14px; height: 14px; flex: none; }
+.icon16 { width: 16px; height: 16px; flex: none; }
+
+/* ------------------------------------------------------------ phone art
+   The app mock-ups below stay in CSS on purpose: they are dense pieces of
+   drawing (layered gradients, pseudo-element props, nth-child runs) that
+   utility classes can only express as long strings of arbitrary values. */
+.detailPhone {
+  position: relative;
+  width: 196px;
+  height: 374px;
+  padding: 26px 12px 10px;
+  border: 5px solid #16171a;
+  border-bottom: 0;
+  border-radius: 26px 26px 0 0;
+  background: #fff;
+  overflow: hidden;
+  font-size: 8.5px;
+  color: var(--color-body);
+}
+
+/* ---------------------------------------------------------- phone mocks */
+.phone {
+  position: relative;
+  width: 210px;
+  padding: 22px 11px 34px;
+  border: 5px solid #16171a;
+  border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(20, 20, 25, 0.18);
+  overflow: hidden;
+  font-size: 7.5px;
+  line-height: 1.35;
+  color: var(--color-ink);
+}
+
+.phoneLg {
+  width: 236px;
+}
+
+.phoneTall {
+  width: 244px;
+  height: 430px;
+  padding-bottom: 0;
+  border-bottom: 0;
+  border-radius: 30px 30px 0 0;
+}
+
+/* screenshot-backed phones: the frame is pure bezel, the image is the screen */
+.phoneShot {
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.phoneShot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.phoneIsland {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 62px;
+  height: 17px;
+  border-radius: 999px;
+  background: #0c0d0f;
+  z-index: 2;
+}
+
+.phoneStatus {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 8.5px;
+  font-weight: 700;
+}
+
+.phoneSignal {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  fill: #16181c;
+  stroke: #16181c;
+}
+
+.phoneSignal svg { height: 7px; width: auto; }
+
+.phoneHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.phoneBrand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.phoneBrand b {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-brand);
+}
+
+.phoneBrand b em {
+  font-style: normal;
+  color: #f0932b;
+}
+
+.phoneBrand b i {
+  display: block;
+  font-style: normal;
+  font-size: 4.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  margin-top: 1px;
+}
+
+.phoneBrand small {
+  font-size: 6.5px;
+  line-height: 1.25;
+  color: var(--color-muted);
+}
+
+.phoneBrand strong {
+  display: block;
+  font-size: 7.5px;
+  color: var(--color-ink);
+}
+
+.phoneMode {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 6px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.phoneMode .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-brand);
+}
+
+.phoneAddress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 9px 0;
+  color: var(--color-body);
+}
+
+.phoneAddress > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.phoneAddress b { color: var(--color-ink); }
+
+.phoneAddressActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-ink);
+}
+
+.cartDot {
+  position: relative;
+  display: inline-flex;
+}
+
+.cartDot::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-brand);
+}
+
+.phoneSearch {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 9px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: #f7f8fa;
+  color: var(--color-muted);
+}
+
+.phoneSearchFilter {
+  margin-left: auto;
+  color: var(--color-ink);
+}
+
+.phoneChips {
+  display: flex;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.phoneChips span {
+  padding: 4px 9px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+}
+
+.phoneHeroOffer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 9px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(100deg, #a5102a, #7d0a1e);
+  color: #fff;
+  min-height: 62px;
+}
+
+.phoneHeroOffer > span {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0 10px 11px;
+}
+
+.phoneHeroOffer i {
+  font-style: normal;
+  font-size: 5.5px;
+  letter-spacing: 0.16em;
+  opacity: 0.9;
+}
+
+.phoneHeroOffer b {
+  font-family: var(--font-heading);
+  font-size: 23px;
+  font-weight: 800;
+  line-height: 0.95;
+}
+
+.phoneHeroOffer em {
+  font-style: normal;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  margin-top: 2px;
+}
+
+/* burger photo, cropped out of the shared food collage */
+.phoneHeroArt {
+  position: absolute;
+  inset: 0 0 0 46%;
+  background: url("/food-collage.png") no-repeat 74% 24% / 260% auto;
+}
+
+.phoneHeroArt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #8b0d22 0%, rgba(139, 13, 34, 0) 42%);
+}
+
+.phoneHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 9px 0 6px;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.phoneHeading em {
+  font-style: normal;
+  font-size: 7px;
+  color: var(--color-brand);
+}
+
+.phoneDeals {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 5px;
+}
+
+.phoneDeals > div {
+  position: relative;
+  overflow: hidden;
+  padding: 9px;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.dealMark {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  opacity: 0.55;
+}
+
+.dealOrange { background: linear-gradient(120deg, #ff9f43, #f0752b); }
+.dealGreen { background: linear-gradient(120deg, #17a45f, #0b7a45); }
+
+.phoneDeals b {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.phoneDeals small {
+  font-size: 6px;
+  opacity: 0.9;
+}
+
+.phoneCategories {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 9px;
+}
+
+.phoneCategories span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  text-align: center;
+}
+
+.phoneCategories i {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 9px;
+  background: #fdeaee;
+  color: var(--color-brand);
+  font-style: normal;
+}
+
+.phoneCategories small {
+  font-size: 5.5px;
+  color: var(--color-body);
+}
+
+.phoneTrending {
+  display: flex;
+  gap: 6px;
+}
+
+.phoneTrending span {
+  flex: 1;
+  height: 34px;
+  border-radius: 7px;
+  background: linear-gradient(140deg, #f5c98d, #e08a4f);
+}
+
+.phoneTrending span:nth-child(2) {
+  background: linear-gradient(140deg, #f0a3a3, #c95c5c);
+}
+
+.phoneTrending span:nth-child(3) {
+  background: linear-gradient(140deg, #b7dba0, #6ea45a);
+}
+
+.phoneNav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 2px 8px;
+  border-top: 1px solid var(--color-line);
+  background: #fff;
+  color: var(--color-brand);
+}
+
+.phoneNav span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.phoneNav span { color: var(--color-muted); }
+.phoneNav span.on { color: var(--color-brand); }
+
+.phoneNav small {
+  font-size: 4.6px;
+  color: inherit;
+}
+
+/* ------------------------------------------------------- hero carousel
+   Two independent layers of motion live here. `hero-slide` governs the
+   carousel itself (which slide is on screen), while everything prefixed
+   `hero-in`, `hero-card`, `hero-bob`, `hero-node` and `hero-dash` governs
+   the animation *inside* a slide. Slide-level motion is driven purely by
+   the `data-active` flag the carousel sets, so the entrance replays every
+   time a slide comes round again and nothing has to be re-timed in JS. */
+
+.heroSlide {
+  grid-column: 1;
+  grid-row: 1;
+  /* Slides share one grid cell, so the hero is always as tall as the tallest
+     of them; centring keeps the shorter slides from sitting top-heavy. */
+  display: grid;
+  align-content: center;
+  /* A grid item defaults to min-width:auto, which would let a slide's
+     min-content width stretch the shared cell past the page gutter. */
+  min-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 10px, 0);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease,
+    visibility 0s linear 0.55s;
+}
+
+.heroSlide[data-active="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease,
+    visibility 0s;
+}
+
+/* Entrance for text, buttons and stat blocks. `--d` staggers each one. */
+.heroIn {
+  opacity: 0;
+}
+
+.heroSlide[data-active="true"] .heroIn {
+  animation: hero-rise 0.6s cubic-bezier(0.22, 0.8, 0.3, 1) var(--d, 0ms) both;
+}
+
+/* Floating cards over the hero art: a pop on entrance, then a slow drift.
+   The two are on separate elements so neither transform fights the other. */
+.heroSlide[data-active="true"] .heroCard {
+  animation: hero-pop 0.55s cubic-bezier(0.22, 0.9, 0.3, 1) var(--d, 0ms) both;
+}
+
+.heroBob {
+  animation: hero-bob 6.5s ease-in-out var(--float-delay, 0s) infinite;
+}
+
+/* Ecosystem pills: same drift, kept small enough that the composition
+   never visibly shifts. */
+.heroNode {
+  animation: hero-node 7s ease-in-out var(--float-delay, 0s) infinite;
+}
+
+/* The dashes march outward along each spoke, so the ecosystem reads as a
+   live connection rather than a static diagram. */
+.heroDash {
+  stroke-dasharray: 9 9;
+  animation: hero-dash 1.9s linear infinite;
+}
+
+/* These use the individual `translate` / `scale` properties rather than
+   `transform`, so an element that is already positioned with a transform
+   (the centred crest, the anchored ecosystem pills) keeps its placement
+   while it animates. */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes hero-pop {
+  from {
+    opacity: 0;
+    scale: 0.94;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes hero-bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -7px;
+  }
+}
+
+@keyframes hero-node {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -3.5px;
+  }
+}
+
+@keyframes hero-dash {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+/* The rule under the accent word on the service slides. Drawn as a real
+   underline so it tracks the text box and stays clear of the line below it,
+   rather than being painted at the very bottom of the inline box where it
+   would run into the next line of the headline. */
+.heroUnderline {
+  text-decoration: underline;
+  text-decoration-thickness: 0.055em;
+  text-underline-offset: 0.1em;
+  text-decoration-skip-ink: none;
+}
+
+/* Legacy short phones (~667px tall). The regular mobile rhythm already fits
+   a modern handset; here the hero is trimmed just enough to still land on a
+   single screen instead of spilling over. */
+@media (max-width: 560px) and (max-height: 760px) {
+  .homePage :global(#top) {
+    padding-block: 4px;
+  }
+
+  .homePage :global(#top) h1 {
+    font-size: 26px;
+    margin-bottom: 10px;
+  }
+
+  .homePage :global(#top) p {
+    margin-bottom: 12px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .homePage :global(#top) .heroMedia {
+    max-height: 13svh;
+  }
+
+  .homePage :global(#top) .heroSlide > div {
+    gap: 12px;
+  }
+
+  .homePage :global(#top) ul,
+  .homePage :global(#top) dl {
+    margin-top: 12px;
+  }
+
+  .homePage :global(#top) .heroDots {
+    margin-top: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroSlide,
+  .heroSlide[data-active="true"] .heroIn,
+  .heroSlide[data-active="true"] .heroCard,
+  .heroBob,
+  .heroNode,
+  .heroDash {
+    animation: none;
+    transition: opacity 0.2s ease, visibility 0s;
+  }
+
+  .heroSlide {
+    transform: none;
+  }
+
+  .heroIn {
+    opacity: 1;
+  }
+}

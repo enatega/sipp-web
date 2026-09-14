@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Global design tokens shared by every route and business module. */
+@theme {
+  --color-brand: #b7182f;
+  --color-brand-deep: #9c0f26;
+  --color-brand-soft: #e07a8c;
+  --color-gold: #b98d45;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-body: var(--body-copy);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-blush: #fff6f1;
+  --color-pinkbar: #fbdfe4;
+
+  --font-heading: var(--font-display), "Poppins", system-ui, sans-serif;
+  --font-crest: var(--font-wordmark), Georgia, serif;
+
+  --shadow-card: var(--elevated-shadow);
+  --shadow-pop: var(--elevated-shadow);
+  --shadow-rail-card: var(--rail-card-shadow);
+
+  --breakpoint-sm: 561px;
+  --breakpoint-md: 861px;
+  --breakpoint-lg: 1101px;
+}
+
+:root {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #14161a;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --ink: #14161a;
+  --body-copy: #55585f;
+  --muted: #747983;
+  --line: #ecedf1;
+  --success: #177456;
+  --success-soft: #e8f5ef;
+  --warning: #94620a;
+  --warning-soft: #fff5dc;
+  --danger: #b7182f;
+  --danger-soft: #fff0f2;
+  --soft-surface: #f4f6f9;
+  --elevated-shadow: 0 10px 34px rgba(35, 22, 26, 0.08);
+  --rail-card-shadow: 0 7px 22px rgba(35, 22, 26, 0.055);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #111316;
+  --foreground: #f6f7f8;
+  --surface: #171a1f;
+  --card: #1d2127;
+  --ink: #f6f7f8;
+  --body-copy: #c7cbd1;
+  --muted: #aeb4bd;
+  --line: #30353d;
+  --success: #67d6a9;
+  --success-soft: #17352c;
+  --warning: #f0c56c;
+  --warning-soft: #382e18;
+  --danger: #ff91a1;
+  --danger-soft: #3d1e25;
+  --soft-surface: #242930;
+  --elevated-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+  --rail-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    overflow-x: hidden;
+    background: var(--background);
+    color: var(--color-ink);
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: var(--font-heading);
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-brand) 28%, transparent);
+    color: var(--foreground);
+  }
+
+  :focus-visible {
+    outline-color: var(--color-brand);
+  }
+
+  * {
+    scrollbar-color: var(--line) transparent;
+    scrollbar-width: thin;
+  }
+}
+
+/* Shared responsive page gutter used by the shell and public layouts. */
+@utility section-wrap {
+  width: calc(100% - 36px);
+  margin-inline: auto;
+
+  @variant sm {
+    width: min(100% - 48px, 900px);
+  }
+
+  @variant lg {
+    width: min(1200px, 100% - 64px);
+  }
+}
