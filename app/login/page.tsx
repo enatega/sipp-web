@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { AuthExperience } from "@/modules/account";
 
 export const metadata: Metadata = {
-  title: "Login | Shaaneiol",
-  description: "Sign in or create your Shaaneiol customer account.",
+  title: "Login | SIPP",
+  description: "Sign in or create your SIPP customer account.",
 };
 
 interface LoginPageProps {

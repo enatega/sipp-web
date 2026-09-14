@@ -81,7 +81,7 @@ export function OrdersExperience() {
       <ProfileSidebar />
       <main className="min-w-0 overflow-y-auto overflow-x-hidden bg-background px-4 py-6 min-[600px]:px-5 min-[900px]:px-10">
         <div className="mx-auto max-w-[980px]">
-          <section className="mb-7 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-brand px-5 py-5 text-white shadow-card min-[600px]:px-6">
+          <section className="mb-7 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-brand px-5 py-5 text-ink shadow-card min-[600px]:px-6">
             <div className="flex items-center gap-3">
               <span className="grid size-11 place-items-center rounded-xl bg-white/15">
                 <ReceiptText aria-hidden="true" className="size-5" />
@@ -150,7 +150,7 @@ export function OrdersExperience() {
           {query.isError && !query.data ? (
             <div className="rounded-xl bg-card p-8 text-center shadow-card">
               <p className="text-sm font-medium text-danger">{t("loadError")}</p>
-              <button className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-deep" onClick={() => void query.refetch()} type="button">
+              <button className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-brand px-5 text-sm font-semibold text-ink transition-colors hover:bg-brand/85" onClick={() => void query.refetch()} type="button">
                 <RefreshCw aria-hidden="true" className="size-4" />
                 {t("retry")}
               </button>
@@ -285,7 +285,7 @@ function OrderRow({ order, past, scheduled, expanded, onToggle, onRate }: OrderR
       </div>
 
       <div className="flex flex-wrap items-center gap-2 border-t border-line px-4 py-3">
-        <Link className="inline-flex min-h-9 items-center gap-2 rounded-full bg-brand px-4 text-[11px] font-bold text-white transition-colors hover:bg-brand-deep" href={`/orders/${order.orderId}`}>
+        <Link className="inline-flex min-h-9 items-center gap-2 rounded-full bg-brand px-4 text-[11px] font-bold text-ink transition-colors hover:bg-brand/85" href={`/orders/${order.orderId}`}>
           <Eye aria-hidden="true" className="size-3.5" />
           {t("viewDetails")}
         </Link>
@@ -390,7 +390,7 @@ function ReviewModal({ order, readOnly = false, onClose }: ReviewModalProps) {
         ) : readOnly && existing.isError ? (
           <div className="py-14 text-center">
             <p className="font-semibold text-danger">{t("reviewLoadError")}</p>
-            <button className="mt-4 min-h-10 rounded-full bg-brand px-5 text-sm font-semibold text-white" onClick={() => void existing.refetch()} type="button">{t("retry")}</button>
+            <button className="mt-4 min-h-10 rounded-full bg-brand px-5 text-sm font-semibold text-ink" onClick={() => void existing.refetch()} type="button">{t("retry")}</button>
           </div>
         ) : isConfirmation ? (
           <div className="pb-2 pt-7 text-center">
@@ -412,7 +412,7 @@ function ReviewModal({ order, readOnly = false, onClose }: ReviewModalProps) {
                 {Array.from({ length: displayStars }, (_, index) => <Star aria-hidden="true" className="size-4 fill-current" key={index} />)}
               </span>
             </div>
-            <button className="mt-6 min-h-11 w-full rounded-full bg-brand px-5 text-sm font-bold text-white transition-colors hover:bg-brand-deep" onClick={closeModal} type="button">{t("done")}</button>
+            <button className="mt-6 min-h-11 w-full rounded-full bg-brand px-5 text-sm font-bold text-ink transition-colors hover:bg-brand/85" onClick={closeModal} type="button">{t("done")}</button>
           </div>
         ) : (
           <>
@@ -434,7 +434,7 @@ function ReviewModal({ order, readOnly = false, onClose }: ReviewModalProps) {
             <label className="sr-only" htmlFor="order-review-text">{t("reviewLabel")}</label>
             <textarea className="mt-5 min-h-28 w-full resize-y rounded-xl border border-line bg-card p-3 text-base text-ink outline-none transition-[border-color,box-shadow] placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/15" disabled={submitting} id="order-review-text" maxLength={500} onChange={(event) => setText(event.target.value)} placeholder={t("reviewPlaceholder")} value={text} />
             {hasSubmitError ? <p className="mt-3 rounded-xl bg-danger-soft px-4 py-3 text-sm font-medium text-danger" role="alert">{t("reviewSubmitError")}</p> : null}
-            <button className="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-white transition-colors hover:bg-brand-deep disabled:cursor-wait disabled:opacity-65" disabled={submitting} onClick={() => void submit()} type="button">
+            <button className="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-65" disabled={submitting} onClick={() => void submit()} type="button">
               {submitting ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : null}
               {submitting ? t("submittingReview") : t("submitReview")}
             </button>

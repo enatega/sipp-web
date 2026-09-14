@@ -245,7 +245,7 @@ export function WalletDashboard() {
           <div>
             <RefreshCw aria-hidden="true" className="mx-auto size-7 text-danger" />
             <p className="mt-3 font-semibold text-ink">{t("sessionError")}</p>
-            <button className="mt-4 min-h-10 rounded-full bg-brand px-5 text-xs font-bold text-white" onClick={() => void session.refetch()} type="button">{t("retry")}</button>
+            <button className="mt-4 min-h-10 rounded-full bg-brand px-5 text-xs font-bold text-ink" onClick={() => void session.refetch()} type="button">{t("retry")}</button>
           </div>
         </div>
       </main>
@@ -279,7 +279,7 @@ export function WalletDashboard() {
           </header>
 
           <div className="mt-7 grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
-            <section className="relative min-h-52 overflow-hidden rounded-2xl bg-brand p-6 text-white shadow-card sm:p-7">
+            <section className="relative min-h-52 overflow-hidden rounded-2xl bg-brand p-6 text-ink shadow-card sm:p-7">
               <span aria-hidden="true" className="absolute -right-14 -top-16 size-52 rounded-full border-[30px] border-white/10" />
               <span aria-hidden="true" className="absolute -bottom-20 right-24 size-44 rounded-full border-[22px] border-white/5" />
               <div className="relative flex h-full flex-col justify-between">
@@ -297,7 +297,7 @@ export function WalletDashboard() {
                   {wallet.isPending ? (
                     <div className="mt-2 h-10 w-40 animate-pulse rounded-lg bg-white/15" />
                   ) : wallet.isError ? (
-                    <button className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-brand" onClick={() => void wallet.refetch()} type="button">
+                    <button className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-brand bg-white px-4 text-xs font-bold text-brand" onClick={() => void wallet.refetch()} type="button">
                       <RefreshCw aria-hidden="true" className="size-4" />
                       {t("retryBalance")}
                     </button>
@@ -353,7 +353,7 @@ export function WalletDashboard() {
 
               {cardActionError ? <p className="mt-3 text-xs font-medium text-danger" role="alert">{cardActionError}</p> : null}
               <div className="mt-4 flex flex-wrap gap-2">
-                <button className="inline-flex min-h-10 items-center gap-2 rounded-full bg-brand px-4 text-xs font-bold text-white transition-colors hover:bg-brand-deep disabled:cursor-wait disabled:opacity-65" disabled={setupIntent.isPending} onClick={openAddCard} type="button">
+                <button className="inline-flex min-h-10 items-center gap-2 rounded-full bg-brand px-4 text-xs font-bold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-65" disabled={setupIntent.isPending} onClick={openAddCard} type="button">
                   {setupIntent.isPending ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : <Plus aria-hidden="true" className="size-4" />}
                   {setupIntent.isPending ? t("preparingCard") : t("addCard")}
                 </button>
@@ -390,7 +390,7 @@ export function WalletDashboard() {
               <div className="py-12 text-center" role="alert">
                 <RefreshCw aria-hidden="true" className="mx-auto size-7 text-danger" />
                 <p className="mt-3 text-sm font-semibold text-ink">{t("transactionsError")}</p>
-                <button className="mt-4 min-h-10 rounded-full bg-brand px-5 text-xs font-bold text-white" onClick={() => void transactions.refetch()} type="button">{t("retry")}</button>
+                <button className="mt-4 min-h-10 rounded-full bg-brand px-5 text-xs font-bold text-ink" onClick={() => void transactions.refetch()} type="button">{t("retry")}</button>
               </div>
             ) : allTransactions.length ? (
               <div>

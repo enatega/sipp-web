@@ -70,7 +70,7 @@ export function HeroMedia({
         <span
           role="img"
           aria-label={image.alt}
-          className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_60%_40%,rgba(183,24,47,0.16),transparent_64%)] text-brand/25"
+          className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_60%_40%,rgba(102,192,242,0.16),transparent_64%)] text-brand/25"
         >
           <Icon name={fallbackIcon} className="size-1/4" />
         </span>

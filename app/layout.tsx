@@ -25,9 +25,9 @@ const cinzel = Cinzel({
 });
 
 export const metadata: Metadata = {
-  title: "Shaaneiol — Makes Life Easier",
+  title: "SIPP — Local delivery in Costa Rica",
   description:
-    "One platform for food, shopping, rides, local businesses, farmers, communities, learning and digital services.",
+    "Order food, groceries, drinks, and everyday essentials from local businesses in Costa Rica's coastal communities.",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

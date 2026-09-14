@@ -336,7 +336,7 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
                   className="mb-4 flex min-h-14 w-full items-center gap-3 rounded-xl bg-brand/8 px-4 text-brand transition-colors duration-200 hover:bg-brand/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                   href="/cart"
                 >
-                  <span className="relative grid size-9 shrink-0 place-items-center rounded-full bg-brand text-white">
+                  <span className="relative grid size-9 shrink-0 place-items-center rounded-full bg-brand text-ink">
                     <ShoppingCart aria-hidden="true" className="size-4" />
                     <span className="absolute -right-1.5 -top-1.5 grid min-h-4 min-w-4 place-items-center rounded-full border-2 border-surface bg-ink px-1 text-[9px] font-extrabold leading-none text-surface tabular-nums">
                       {cart.data.totalItems > 99 ? "99+" : cart.data.totalItems}
@@ -372,7 +372,7 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
                   )}
                 </div>
               </div>
-              <button className="flex h-13 w-full items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white transition hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-50" disabled={isInteractionLocked} type="submit">
+              <button className="flex h-13 w-full items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-ink transition hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-50" disabled={isInteractionLocked} type="submit">
                 {isConfigurationLoading || (isAuthenticated && cart.isPending) || isMutationPending ? <LoaderCircle aria-hidden="true" className="mr-2 size-4 animate-spin" /> : null}
                 {isConfigurationLoading || (isAuthenticated && cart.isPending)
                   ? isConfigurationLoading
@@ -396,7 +396,7 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
             <p className="mt-2 text-sm leading-6 text-body">{t("cartConflictMessage", { store: storeName })}</p>
             <div className="mt-5 flex gap-3">
               <button className="h-11 flex-1 rounded-xl border border-line text-sm font-bold text-ink" disabled={isMutationPending} onClick={() => setIsConflictOpen(false)} type="button">{t("keepCart")}</button>
-              <button className="h-11 flex-1 rounded-xl bg-brand text-sm font-bold text-white" disabled={isMutationPending} onClick={() => void replaceCart()} type="button">{t("replaceCart")}</button>
+              <button className="h-11 flex-1 rounded-xl bg-brand text-sm font-bold text-ink" disabled={isMutationPending} onClick={() => void replaceCart()} type="button">{t("replaceCart")}</button>
             </div>
           </div>
         </div>

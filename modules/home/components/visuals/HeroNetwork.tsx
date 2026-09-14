@@ -79,12 +79,12 @@ export function HeroNetwork() {
   return (
     <div
       className="relative mx-auto aspect-[31/26] w-full max-w-[360px] sm:max-w-[620px]"
-      aria-label="The Shaaneiol service ecosystem"
+      aria-label="The SIPP service ecosystem"
     >
       <div className="absolute inset-0">
         {/* dashed spokes radiating from the crest out to each service pill */}
         <svg
-          className="absolute inset-0 size-full fill-none stroke-[#c77d89] stroke-[1.5]"
+          className="absolute inset-0 size-full fill-none stroke-brand stroke-[1.5]"
           viewBox={`0 0 ${BOX_W} ${BOX_H}`}
           aria-hidden="true"
         >
@@ -101,17 +101,15 @@ export function HeroNetwork() {
           ))}
         </svg>
 
-        <div className={cn(styles.heroCard, "absolute left-1/2 top-1/2 grid w-[27%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-card shadow-pop before:col-start-1 before:row-start-1 before:block before:pb-[100%] before:content-['']")}>
-          {/* the lockup is cropped just below the wordmark so the strapline,
-              which would render illegibly small at this size, is left out */}
-          <span className="col-start-1 row-start-1 block aspect-[111/99] w-[71.5%] overflow-hidden">
+        <div className={cn(styles.heroCard, "absolute left-1/2 top-1/2 grid w-[30%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white shadow-pop before:col-start-1 before:row-start-1 before:block before:pb-[100%] before:content-['']")}>
+          <span className="col-start-1 row-start-1 grid w-[68%] place-items-center ">
             <Image
-              src="/brand/shaaneiol-logo.png"
-              alt="Shaaneiol"
-              width={228}
-              height={220}
-              sizes="160px"
-              className="w-full"
+              src="/brand/sip-transparent-logo.png"
+              alt="SIPP"
+              width={384}
+              height={256}
+              sizes="140px"
+              className="h-auto w-full object-contain"
             />
           </span>
         </div>

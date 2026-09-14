@@ -21,7 +21,7 @@ export default function Home() {
         <FoodSection />
         <EverythingSection />
         <ValueSection />
-        <ProductsSection />
+        {/* <ProductsSection /> */}
         <AppSection />
       </HomePage>
       <Footer />

@@ -27,7 +27,7 @@ export function ServiceSlideView({ slide }: { slide: ServiceSlide }) {
           className={cn(styles.heroIn, "mb-4 inline-flex items-center gap-2.5 rounded-full bg-card py-1.5 pl-1.5 pr-4 shadow-card md:mb-[22px]")}
           style={delay(0)}
         >
-          <span className="rounded-full bg-brand px-2.5 py-1 text-[10px] font-bold tracking-[0.06em] text-white">
+          <span className="rounded-full bg-brand px-2.5 py-1 text-[10px] font-bold tracking-[0.06em] text-ink">
             {slide.badge.flag}
           </span>
           <span className="text-[13px] font-medium text-ink">
@@ -52,7 +52,7 @@ export function ServiceSlideView({ slide }: { slide: ServiceSlide }) {
         ) : (
           <a
             href={href}
-            className={cn(styles.heroIn, "inline-flex items-center gap-2.5 rounded-full bg-brand px-6 py-3 font-heading text-[14px] font-semibold text-white shadow-pop transition-transform duration-200 hover:-translate-y-0.5 md:px-7 md:py-3.5 md:text-[15px]")}
+            className={cn(styles.heroIn, "inline-flex items-center gap-2.5 rounded-full bg-brand px-6 py-3 font-heading text-[14px] font-semibold text-ink shadow-pop transition-transform duration-200 hover:-translate-y-0.5 md:px-7 md:py-3.5 md:text-[15px]")}
             style={delay(3)}
           >
             <Glyph glyph={slide.cta.glyph} className="size-5" />

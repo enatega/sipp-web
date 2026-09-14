@@ -84,7 +84,7 @@ function SettingsGroup({
   return (
     <section className="rounded-xl bg-card px-5 py-5 shadow-card sm:px-6">
       <header className="mb-3 flex items-center gap-3">
-        <span className="grid size-9 flex-none place-items-center rounded-lg bg-[#fde7eb] p-2 dark:bg-[#401d25]">
+        <span className="grid size-9 flex-none place-items-center rounded-lg bg-brand/10 p-2">
           <Image src={icon} alt="" width={20} height={20} className="size-full object-contain" />
         </span>
         <div>
@@ -169,7 +169,7 @@ export function NotificationSettings() {
           ) : settings.isError ? (
             <div role="alert" className="rounded-xl bg-card p-6 text-[13px] text-brand shadow-card">
               {t("loadError")}
-              <button type="button" onClick={() => void settings.refetch()} className="mt-4 block rounded-full bg-brand px-5 py-2 text-[11px] font-semibold text-white">
+              <button type="button" onClick={() => void settings.refetch()} className="mt-4 block rounded-full bg-brand px-5 py-2 text-[11px] font-semibold text-ink">
                 {t("retry")}
               </button>
             </div>
@@ -193,7 +193,7 @@ export function NotificationSettings() {
                   <div className="rounded-lg border border-line bg-[var(--soft-surface)] p-4 text-[10px] leading-relaxed text-body">
                     {t("offersDescription")}
                   </div>
-                  <p className="mt-4 rounded-lg bg-[#fde1e6] p-3 text-[9px] leading-relaxed text-brand dark:bg-[#401d25]">
+                  <p className="mt-4 rounded-lg bg-secondary/10 p-3 text-[9px] leading-relaxed text-secondary">
                     {t("offersNote")}
                   </p>
                 </SettingsGroup>
@@ -205,7 +205,7 @@ export function NotificationSettings() {
                   {formik.status === "saved" ? <span className="text-[10px] font-semibold text-[#15935f]">{t("saved")}</span> : null}
                   {formik.status && formik.status !== "saved" ? <span role="alert" className="text-[10px] text-brand">{formik.status}</span> : null}
                   <button type="button" onClick={() => formik.resetForm()} className="text-[11px] font-semibold text-foreground hover:text-brand">{t("discard")}</button>
-                  <button type="submit" disabled={update.isPending} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-brand px-6 text-[11px] font-semibold text-white hover:bg-brand-deep disabled:cursor-wait disabled:opacity-60">
+                  <button type="submit" disabled={update.isPending} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-brand px-6 text-[11px] font-semibold text-ink hover:bg-brand/85 disabled:cursor-wait disabled:opacity-60">
                     {update.isPending ? <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" /> : null}
                     {update.isPending ? t("saving") : t("save")}
                   </button>

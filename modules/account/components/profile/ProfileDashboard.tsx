@@ -33,7 +33,7 @@ const SETTINGS: Array<{
     descriptionKey: "addressBookDescription",
     icon: "pin",
     iconClass: "text-brand",
-    iconWrap: "bg-[#fde7eb]",
+    iconWrap: "bg-brand/10",
   },
   {
     titleKey: "savedCards",
@@ -135,7 +135,7 @@ export function ProfileDashboard() {
         <div className="mx-auto grid w-full max-w-[1400px] gap-4 p-3 sm:gap-5 sm:p-7 min-[1100px]:overflow-y-auto xl:grid-cols-[minmax(0,2fr)_minmax(250px,0.94fr)] xl:gap-6 xl:p-9">
         <div className="min-w-0 space-y-6">
           <section className="relative overflow-hidden rounded-xl bg-card p-5 shadow-card sm:p-7">
-            <span className="absolute right-0 top-0 h-16 w-16 rounded-bl-[60px] bg-[#fff5f6]" />
+            <span className="absolute right-0 top-0 h-16 w-16 rounded-bl-[60px] bg-brand/10" />
             <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start">
               <div className="relative mx-auto size-[118px] flex-none rounded-full border-[4px] border-[#e4f2ee] bg-[#f5f7f8] p-1 sm:mx-0">
                 <div className="grid size-full place-items-center overflow-hidden rounded-full bg-[#eef2f4] text-3xl font-bold text-brand">
@@ -151,7 +151,7 @@ export function ProfileDashboard() {
                     userInitials(user.name)
                   )}
                 </div>
-                <span className="absolute bottom-1 right-0 grid size-7 place-items-center rounded-full border-[3px] border-white bg-brand text-white">
+                <span className="absolute bottom-1 right-0 grid size-7 place-items-center rounded-full border-[3px] border-white bg-brand text-ink">
                   <Icon name="shield" className="size-3.5" />
                 </span>
               </div>
@@ -160,7 +160,7 @@ export function ProfileDashboard() {
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                   <div>
                     <h1 className="text-[22px] font-semibold leading-tight tracking-[-0.025em] sm:text-[27px]">
-                      {user.name || "Shaaneiol User"}
+                      {user.name || "SIPP User"}
                     </h1>
                     <p className="mt-1 break-words text-[12px] text-body sm:text-[13px]">
                       {user.email || t("emailMissing")}
@@ -172,7 +172,7 @@ export function ProfileDashboard() {
                   <button
                     type="button"
                     onClick={() => router.push("/profile/personal-information/edit")}
-                    className="inline-flex h-9 items-center justify-center gap-2 self-center rounded-full bg-brand px-5 text-[12px] font-semibold text-white transition-colors hover:bg-brand-deep sm:self-start"
+                    className="inline-flex h-9 items-center justify-center gap-2 self-center rounded-full bg-brand px-5 text-[12px] font-semibold text-ink transition-colors hover:bg-brand/85 sm:self-start"
                   >
                     <svg viewBox="0 0 20 20" className="size-3 fill-current" aria-hidden="true">
                       <path d="m13.9 2.7 3.4 3.4-9.6 9.6-4.1.8.8-4.1 9.5-9.7Zm1.2-1.2a1.2 1.2 0 0 1 1.7 0l1.7 1.7a1.2 1.2 0 0 1 0 1.7l-.7.7-3.4-3.4.7-.7Z" />
@@ -234,13 +234,13 @@ export function ProfileDashboard() {
         <aside className="grid content-start gap-5 sm:grid-cols-2 xl:grid-cols-1">
           <section className="rounded-xl bg-card p-5 shadow-card">
             <div className="flex items-start justify-between">
-              <span className="grid size-9 place-items-center rounded-full bg-[#fff4f5] text-brand">
+              <span className="grid size-9 place-items-center rounded-full bg-brand/10 text-brand">
                 <Image src="/icons/order-icon.png" alt="" width={18} height={18} className="size-[17px] object-contain" />
               </span>
               {summary.isPending ? (
-                <span className="h-5 w-20 animate-pulse rounded-full bg-[#fff4f5]" />
+                <span className="h-5 w-20 animate-pulse rounded-full bg-brand/10" />
               ) : (
-                <span className="rounded-full bg-[#fff4f5] px-2.5 py-1 text-[9px] font-semibold text-brand">
+                <span className="rounded-full bg-brand/10 px-2.5 py-1 text-[9px] font-semibold text-brand">
                   {summary.isError
                     ? "—"
                     : t("thisMonth", { change: formattedOrderChange })}
@@ -263,12 +263,12 @@ export function ProfileDashboard() {
             )}
           </section>
 
-          <section className="rounded-xl bg-brand p-5 text-white shadow-[0_8px_24px_rgba(183,24,47,0.18)]">
+          <section className="rounded-xl bg-brand p-5 text-ink shadow-[0_8px_24px_rgba(102,192,242,0.18)]">
             <div className="flex items-start justify-between">
               <span className="grid size-9 place-items-center rounded-full bg-white/15">
                 <Image src="/icons/wallet-icon.png" alt="" width={18} height={18} className="size-[17px] brightness-0 invert" />
               </span>
-              <button type="button" className="rounded-full bg-white px-3 py-1 text-[9px] font-semibold text-brand">
+              <button type="button" className="rounded-full border border-brand bg-white px-3 py-1 text-[9px] font-semibold text-brand">
                 {t("topUp")}
               </button>
             </div>
@@ -284,7 +284,7 @@ export function ProfileDashboard() {
             )}
           </section>
 
-          <section className="relative overflow-hidden rounded-xl bg-[#fde1e6] p-5 text-[#4a2229] shadow-[0_5px_22px_rgba(37,49,63,0.04)] sm:col-span-2 xl:col-span-1">
+          <section className="relative overflow-hidden rounded-xl bg-secondary/10 p-5 text-ink shadow-[0_5px_22px_rgba(37,49,63,0.04)] sm:col-span-2 xl:col-span-1">
             <Image
               src="/icons/customer-support-icon.png"
               alt=""
@@ -298,7 +298,7 @@ export function ProfileDashboard() {
             </p>
             <Link
               href="/help"
-              className="relative mt-5 inline-flex h-10 w-full items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-white transition-colors hover:bg-brand-deep"
+              className="relative mt-5 inline-flex h-10 w-full items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-ink transition-colors hover:bg-brand/85"
             >
               {t("contactSupport")}
             </Link>

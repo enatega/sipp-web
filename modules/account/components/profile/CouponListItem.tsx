@@ -45,7 +45,7 @@ export function CouponListItem({ coupon, isBusy = false, onToggle, compact = fal
   return (
     <article className={`relative overflow-hidden rounded-2xl bg-card ${coupon.is_active ? "ring-2 ring-brand/25" : "border border-line"}`}>
       <div className="flex min-w-0">
-        <div className={`grid w-[82px] flex-none place-items-center bg-brand text-center text-white sm:w-[104px] ${compact ? "min-h-40" : "min-h-48"}`}>
+        <div className={`grid w-[82px] flex-none place-items-center bg-brand text-center text-ink sm:w-[104px] ${compact ? "min-h-40" : "min-h-48"}`}>
           <div className="px-2">
             <Tag className="mx-auto size-5 opacity-80" aria-hidden="true" />
             <strong className="mt-2 block text-base leading-tight tracking-[-0.02em] sm:text-lg">{value}</strong>
@@ -74,7 +74,7 @@ export function CouponListItem({ coupon, isBusy = false, onToggle, compact = fal
           </div>
 
           {disabledReason ? <p className="mt-3 text-[11px] font-medium leading-5 text-amber-700 dark:text-amber-300">{disabledReason}</p> : null}
-          <button type="button" onClick={() => onToggle(coupon)} disabled={isBusy || unavailable || (Boolean(disabledReason) && !coupon.is_active)} className={`mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-5 text-xs font-bold transition-[background-color,color,transform] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/15 disabled:cursor-not-allowed disabled:opacity-50 ${coupon.is_active ? "border border-line text-ink hover:bg-[var(--soft-surface)]" : "bg-brand text-white hover:-translate-y-0.5 hover:bg-brand-deep"}`}>
+          <button type="button" onClick={() => onToggle(coupon)} disabled={isBusy || unavailable || (Boolean(disabledReason) && !coupon.is_active)} className={`mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-5 text-xs font-bold transition-[background-color,color,transform] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/15 disabled:cursor-not-allowed disabled:opacity-50 ${coupon.is_active ? "border border-line text-ink hover:bg-[var(--soft-surface)]" : "bg-brand text-ink hover:-translate-y-0.5 hover:bg-brand/85"}`}>
             {isBusy ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}
             {coupon.is_active ? t("deactivate") : t("activate")}
           </button>

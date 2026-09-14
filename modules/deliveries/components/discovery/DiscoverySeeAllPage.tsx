@@ -167,7 +167,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
               {supportsFilters ? (
                 <button className="relative inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-card px-4 text-xs font-bold text-ink hover:border-brand/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" onClick={() => setFiltersOpen((value) => !value)} type="button">
                   <Filter aria-hidden="true" className="size-4 text-brand" />{t("filters")}
-                  {activeFilterCount ? <span className="grid size-5 place-items-center rounded-full bg-brand text-[10px] text-white">{activeFilterCount}</span> : null}
+                  {activeFilterCount ? <span className="grid size-5 place-items-center rounded-full bg-brand text-[10px] text-ink">{activeFilterCount}</span> : null}
                 </button>
               ) : null}
               {isStoreKind ? (
@@ -175,7 +175,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
                   {(["grid", "map"] as const).map((option) => {
                     const Icon = option === "grid" ? LayoutGrid : Map;
                     return (
-                      <button aria-label={t(option === "grid" ? "gridView" : "mapView")} aria-pressed={view === option} className={`grid size-9 place-items-center rounded-lg focus-visible:outline-2 focus-visible:outline-brand ${view === option ? "bg-brand text-white" : "text-muted hover:text-ink"}`} key={option} onClick={() => setView(option)} type="button">
+                      <button aria-label={t(option === "grid" ? "gridView" : "mapView")} aria-pressed={view === option} className={`grid size-9 place-items-center rounded-lg focus-visible:outline-2 focus-visible:outline-brand ${view === option ? "bg-brand text-ink" : "text-muted hover:text-ink"}`} key={option} onClick={() => setView(option)} type="button">
                         <Icon aria-hidden="true" className="size-4" />
                       </button>
                     );
@@ -217,7 +217,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
               <div className="grid min-h-80 place-items-center"><LoaderCircle aria-hidden="true" className="size-7 animate-spin text-brand" /><span className="sr-only">{t("loading")}</span></div>
             ) : query.isError ? (
               <div className="grid min-h-72 place-items-center rounded-2xl bg-danger-soft p-8 text-center" role="alert">
-                <div><SlidersHorizontal className="mx-auto size-7 text-danger" /><h2 className="mt-4 font-bold text-ink">{t("errorTitle")}</h2><p className="mt-2 text-sm text-body">{t("errorDescription")}</p><button className="mt-5 rounded-xl bg-brand px-5 py-3 text-xs font-bold text-white" onClick={() => void query.refetch()} type="button">{t("retry")}</button></div>
+                <div><SlidersHorizontal className="mx-auto size-7 text-danger" /><h2 className="mt-4 font-bold text-ink">{t("errorTitle")}</h2><p className="mt-2 text-sm text-body">{t("errorDescription")}</p><button className="mt-5 rounded-xl bg-brand px-5 py-3 text-xs font-bold text-ink" onClick={() => void query.refetch()} type="button">{t("retry")}</button></div>
               </div>
             ) : !items.length ? (
               <div className="grid min-h-72 place-items-center rounded-2xl bg-card p-8 text-center shadow-sm">
@@ -234,7 +234,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
 
           {query.hasNextPage ? (
             <div className="mt-8 text-center">
-              <button className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-brand px-7 text-sm font-bold text-white shadow-[0_8px_20px_rgba(183,24,47,0.18)] hover:bg-brand-deep disabled:opacity-55" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()} type="button">
+              <button className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-brand px-7 text-sm font-bold text-ink shadow-[0_8px_20px_rgba(102,192,242,0.18)] hover:bg-brand/85 disabled:opacity-55" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()} type="button">
                 {query.isFetchingNextPage ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : null}{t("loadMore")}
               </button>
             </div>

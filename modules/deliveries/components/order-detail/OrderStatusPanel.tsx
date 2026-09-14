@@ -16,7 +16,7 @@ interface Props {
 }
 
 const toneClasses = {
-  active: "bg-brand text-white",
+  active: "bg-brand text-ink",
   success: "bg-success-soft text-success",
   warning: "bg-warning-soft text-warning",
   danger: "bg-danger-soft text-danger",

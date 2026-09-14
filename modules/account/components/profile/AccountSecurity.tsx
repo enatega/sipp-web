@@ -133,7 +133,7 @@ export function AccountSecurity() {
                 {passwordStage === "idle" ? (
                   <div className="mt-6 flex flex-col gap-4 rounded-xl bg-[var(--soft-surface)] p-4 sm:flex-row sm:items-center sm:justify-between">
                     <span className="flex min-w-0 items-center gap-3 text-[12px]"><Mail className="size-4 flex-none text-muted" /><span className="truncate">{email || t("emailMissing")}</span></span>
-                    <button type="button" onClick={() => void requestPasswordOtp()} disabled={passwordBusy || !email} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand px-5 text-[12px] font-semibold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-55">
+                    <button type="button" onClick={() => void requestPasswordOtp()} disabled={passwordBusy || !email} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand px-5 text-[12px] font-semibold text-ink hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-55">
                       {sendOtp.isPending ? <LoaderCircle className="size-4 animate-spin" /> : null}{sendOtp.isPending ? t("sending") : t("sendCode")}
                     </button>
                   </div>
@@ -158,7 +158,7 @@ export function AccountSecurity() {
                       </>
                     )}
                     {passwordError ? <p role="alert" className="rounded-lg bg-danger-soft px-4 py-3 text-[12px] text-danger">{passwordError}</p> : null}
-                    <button type="submit" disabled={passwordBusy} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand px-5 text-[12px] font-semibold text-white hover:bg-brand-deep disabled:cursor-wait disabled:opacity-60">{passwordBusy ? <LoaderCircle className="size-4 animate-spin" /> : null}{passwordStage === "otp" ? t("verifyCode") : t("savePassword")}</button>
+                    <button type="submit" disabled={passwordBusy} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand px-5 text-[12px] font-semibold text-ink hover:bg-brand/85 disabled:cursor-wait disabled:opacity-60">{passwordBusy ? <LoaderCircle className="size-4 animate-spin" /> : null}{passwordStage === "otp" ? t("verifyCode") : t("savePassword")}</button>
                   </form>
                 )}
                 {passwordStage === "idle" && passwordError ? <p role="alert" className="mt-4 rounded-lg bg-danger-soft px-4 py-3 text-[12px] text-danger">{passwordError}</p> : null}
@@ -178,7 +178,7 @@ export function AccountSecurity() {
                     <div className="grid gap-2">{(["understandOrders", "understandAccess"] as const).map((name) => <label key={name} className="flex cursor-pointer items-start gap-3 text-[12px] leading-relaxed text-body"><input type="checkbox" name={name} checked={deleteForm.values[name]} onChange={deleteForm.handleChange} className="mt-0.5 size-4 accent-[var(--color-brand)]" />{t(name)}</label>)}</div>
                     <label className="block"><span className={fieldLabel}>{t("confirmEmailLabel")}</span><p className="mt-1 text-[11px] text-muted">{t("confirmEmailHelp", { email })}</p><input className={`${fieldInput} mt-2`} name="confirmationEmail" value={deleteForm.values.confirmationEmail} onChange={deleteForm.handleChange} type="email" autoComplete="off" spellCheck={false} /></label>
                     {deleteForm.status ? <p role="alert" className="rounded-lg bg-danger-soft px-4 py-3 text-[12px] text-danger">{deleteForm.status}</p> : null}
-                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" onClick={() => { setDeleteOpen(false); deleteForm.resetForm(); }} className="min-h-11 rounded-lg px-5 text-[12px] font-semibold text-foreground hover:bg-[var(--soft-surface)]">{t("cancel")}</button><button type="submit" disabled={!canDelete || deleteAccount.isPending} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-danger px-5 text-[12px] font-semibold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-45">{deleteAccount.isPending ? <LoaderCircle className="size-4 animate-spin" /> : null}{t("deleteForever")}</button></div>
+                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" onClick={() => { setDeleteOpen(false); deleteForm.resetForm(); }} className="min-h-11 rounded-lg px-5 text-[12px] font-semibold text-foreground hover:bg-[var(--soft-surface)]">{t("cancel")}</button><button type="submit" disabled={!canDelete || deleteAccount.isPending} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-danger px-5 text-[12px] font-semibold text-white hover:bg-secondary/85 disabled:cursor-not-allowed disabled:opacity-45">{deleteAccount.isPending ? <LoaderCircle className="size-4 animate-spin" /> : null}{t("deleteForever")}</button></div>
                   </form>
                 )}
               </section>

@@ -331,9 +331,9 @@ export function LocationModal({
               type="button"
               onClick={useCurrentLocation}
               disabled={currentBusy === "locate"}
-              className="mt-3 flex w-full items-center gap-3 rounded-xl border border-[#f6dfe3] bg-[#fff5f6] px-3.5 py-3 text-left disabled:opacity-70"
+              className="mt-3 flex w-full items-center gap-3 rounded-xl border border-brand bg-brand/10 px-3.5 py-3 text-left disabled:opacity-70"
             >
-              <span className="grid size-9 flex-none place-items-center rounded-full bg-[#fbe3e7] text-brand">
+              <span className="grid size-9 flex-none place-items-center rounded-full bg-brand-soft text-brand">
                 <svg
                   viewBox="0 0 24 24"
                   aria-hidden="true"
@@ -357,7 +357,7 @@ export function LocationModal({
             {displayedError ? (
               <p
                 role="alert"
-                className="mt-3 rounded-lg bg-[#fff0f2] px-3.5 py-2.5 text-xs leading-relaxed text-[#9d1429]"
+                className="mt-3 rounded-lg bg-danger-soft px-3.5 py-2.5 text-xs leading-relaxed text-danger"
               >
                 {displayedError}
               </p>
@@ -390,9 +390,9 @@ export function LocationModal({
                     {savedAddresses.map((address) => (
                       <li key={address.id}>
                         <div
-                          className={`flex w-full items-center rounded-xl border transition-colors hover:border-[#efbcc4] hover:bg-[#fffafa] ${
+                          className={`flex w-full items-center rounded-xl border transition-colors hover:border-brand hover:bg-brand/10 ${
                             address.is_selected
-                              ? "border-[#efbcc4] bg-[#fff7f8]"
+                              ? "border-brand bg-brand/10"
                               : "border-line bg-card"
                           }`}
                         >
@@ -402,7 +402,7 @@ export function LocationModal({
                             disabled={currentBusy === "resolve"}
                             className="flex min-w-0 flex-1 items-center gap-3 px-3.5 py-3 text-left"
                           >
-                            <span className="grid size-9 flex-none place-items-center rounded-full bg-[#fbe3e7] text-brand">
+                            <span className="grid size-9 flex-none place-items-center rounded-full bg-brand-soft text-brand">
                               {pinIcon("w-4")}
                             </span>
                             <span className="min-w-0 flex-1">
@@ -412,7 +412,7 @@ export function LocationModal({
                                     address.type.toLowerCase()}
                                 </b>
                                 {address.is_selected ? (
-                                  <small className="rounded-full bg-[#f8dfe3] px-2 py-0.5 text-[10px] font-semibold text-brand">
+                                  <small className="rounded-full bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand">
                                     {t("selected")}
                                   </small>
                                 ) : null}
@@ -425,7 +425,7 @@ export function LocationModal({
                           <button
                             type="button"
                             onClick={() => editSavedAddress(address)}
-                            className="mr-2 flex-none rounded-md px-2 py-1 text-xs font-semibold text-brand outline-none hover:bg-[#fbe3e7] focus-visible:ring-2 focus-visible:ring-brand"
+                            className="mr-2 flex-none rounded-md px-2 py-1 text-xs font-semibold text-brand outline-none hover:bg-brand-softfocus-visible:ring-2 focus-visible:ring-brand"
                             aria-label={t("editAddress", {
                               name: address.location_name || address.type.toLowerCase(),
                             })}
@@ -539,7 +539,7 @@ export function LocationModal({
                 type="button"
                 onClick={confirm}
                 disabled={currentBusy === "resolve"}
-                className="h-12 flex-1 rounded-lg bg-brand text-sm font-semibold text-white transition-colors hover:bg-brand-deep"
+                className="h-12 flex-1 rounded-lg bg-brand text-sm font-semibold text-ink transition-colors hover:bg-brand/85"
               >
                 {t("confirm")}
               </button>

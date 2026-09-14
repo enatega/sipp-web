@@ -321,12 +321,12 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
           : "login";
 
   return (
-    <main className="min-h-[100svh] bg-[#fbdfe4] text-[#151619] md:h-[100svh] md:overflow-hidden md:bg-background">
+    <main className="min-h-[100svh] bg-brand-soft text-[#151619] md:h-[100svh] md:overflow-hidden md:bg-background">
       <section
         className="relative grid min-h-[100svh] w-full grid-cols-1 grid-rows-[auto_1fr] overflow-hidden md:h-full md:min-h-0 md:grid-cols-2 md:grid-rows-1"
         aria-label={t("accountAccess")}
       >
-        <div className="relative overflow-hidden bg-[#fbdfe4] md:z-[1] md:-mr-[2.5vw]">
+        <div className="relative overflow-hidden bg-brand-soft md:z-[1] md:-mr-[2.5vw]">
           {view === "otp" ? (
             <Image
               src="/auth/two-factor.webp"
@@ -342,7 +342,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                 {t("heroTitle")} {" "}
                 <em className="not-italic text-brand">{t("heroEmphasis")}</em>
               </h1>
-              <p className="mx-auto mt-[clamp(18px,2.6vh,40px)] max-w-[42ch] text-[clamp(12px,3.2vw,15px)] leading-[1.65] text-[#6b585c] md:mx-0 md:max-w-[27em] md:text-[clamp(10px,0.7vw,12px)]">
+              <p className="mx-auto mt-[clamp(18px,2.6vh,40px)] max-w-[42ch] text-[clamp(12px,3.2vw,15px)] leading-[1.65] text-[#346582] md:mx-0 md:max-w-[27em] md:text-[clamp(10px,0.7vw,12px)]">
                 {t("heroDescription")}
               </p>
             </div>
@@ -381,7 +381,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
           {view !== "login" ? (
             <button
               type="button"
-              className="absolute left-4 top-4 grid h-[38px] w-[38px] place-items-center rounded-full bg-white text-brand shadow-[0_6px_18px_rgba(63,20,30,0.14)] md:left-[clamp(20px,2.4vw,34px)] md:top-[clamp(20px,3vh,34px)] md:bg-[#fff0f2] md:shadow-none"
+              className="absolute left-4 top-4 grid h-[38px] w-[38px] place-items-center rounded-full border border-brand bg-white text-brand shadow-[0_6px_18px_rgba(63,20,30,0.14)] md:left-[clamp(20px,2.4vw,34px)] md:top-[clamp(20px,3vh,34px)] md:bg-brand/10 md:shadow-none"
               onClick={() => goTo(backTarget)}
               aria-label={t("goBack")}
             >
@@ -478,7 +478,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                   {t("forgotPassword")}
                 </button>
                 <p className={footNote}>
-                  {t("newToShaaneiol")} {" "}
+                  {t("newToSipp")} {" "}
                   <button className={inlineAction} type="button" onClick={() => goTo("signup")}>
                     {t("createAccount")}
                   </button>
@@ -501,7 +501,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                 </header>
                 <label className={fieldShell}>
                   <span className={fieldLabel}>{t("mobile")}</span>
-                  <span className={`relative flex h-[clamp(48px,3vw,58px)] items-center rounded-[9px] border bg-[#fbfbfc] focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(183,24,47,0.11)] ${phoneIsInvalid ? "border-danger" : phoneValidation.isValid ? "border-emerald-500" : "border-[#eceef1] focus-within:border-[#cf5265]"}`}>
+                  <span className={`relative flex h-[clamp(48px,3vw,58px)] items-center rounded-[9px] border bg-[#fbfbfc] focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(102,192,242,0.1)] ${phoneIsInvalid ? "border-danger" : phoneValidation.isValid ? "border-emerald-500" : "border-brand focus-within:border-brand"}`}>
                     <CountrySelect
                       value={country}
                       onChange={changeCountry}
@@ -626,7 +626,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                     className={`relative flex h-[clamp(42px,5.2vh,48px)] items-center rounded-[9px] border ${
                       lockedField === "phone"
                         ? "border-[#e6e8ec] bg-[#f1f2f4]"
-                        : `${phoneIsInvalid ? "border-danger" : phoneValidation.isValid ? "border-emerald-500" : "border-[#eceef1] focus-within:border-[#cf5265]"} bg-[#fbfbfc] focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(183,24,47,0.11)]`
+                        : `${phoneIsInvalid ? "border-danger" : phoneValidation.isValid ? "border-emerald-500" : "border-brand focus-within:border-brand"} bg-[#fbfbfc] focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(102,192,242,0.1)]`
                     }`}
                   >
                     <CountrySelect

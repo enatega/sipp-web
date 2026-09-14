@@ -37,7 +37,7 @@ required add-on error state.
   use same-origin BFF routes backed by the production delivery APIs.
 - Required customization groups expose `aria-invalid`, an inline translated
   error, and focus/scroll recovery after an invalid Add to Cart attempt.
-- Light/dark styling uses the existing Shaaneiol semantic tokens. Images use
+- Light/dark styling uses the existing SIPP semantic tokens. Images use
   the existing `next/image` delivery-image component.
 
 ### Required fidelity surfaces
@@ -46,7 +46,7 @@ required add-on error state.
   tokens; browser comparison blocked.
 - Spacing and layout rhythm: implemented against the 220 px navigation and
   390 px configurator proportions from the source; browser comparison blocked.
-- Colors and tokens: burgundy brand, semantic surfaces, borders, text, and
+- Colors and tokens: light-blue brand, red secondary, semantic surfaces, borders, text, and
   status colors are used in both themes; browser comparison blocked.
 - Image quality and assets: live restaurant/product image URLs are rendered
   with cover/contain behavior matching their slots; runtime crop comparison
@@ -75,7 +75,7 @@ required add-on error state.
 - Post-fix visual evidence: unavailable because browser capture is blocked.
 - Follow-up card reference: the user's attached compact product-card image was
   used as directional guidance rather than a clone. The implementation keeps
-  live Shaaneiol imagery and data, reduces the media to a 16:9 banner, uses a
+  live SIPP imagery and data, reduces the media to a 16:9 banner, uses a
   denser responsive 2/3/4-column grid, and does not invent badges, ratings,
   favourites, or ETA fields absent from the product contract.
 - Follow-up interaction pass: the free-delivery tile was removed, long category

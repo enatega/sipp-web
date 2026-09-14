@@ -75,7 +75,7 @@ export function OffersCarousel({
   const activeHref = bannerHref(activeBanner);
   const feature = (
     <article
-      className={`${styles.featuredEnter} group relative min-h-[320px] overflow-hidden rounded-2xl bg-brand text-white shadow-sm sm:min-h-[380px] lg:min-h-[410px]`}
+      className={`${styles.featuredEnter} group relative min-h-[320px] overflow-hidden rounded-2xl bg-brand text-ink shadow-sm sm:min-h-[380px] lg:min-h-[410px]`}
       key={activeBanner.id}
     >
       <BannerMedia banner={activeBanner} />
@@ -160,7 +160,7 @@ export function OffersCarousel({
         {hasLoop ? (
           <button
             aria-label={nextLabel}
-            className={`${styles.previewEnter} group relative my-6 hidden min-h-[332px] overflow-hidden rounded-2xl bg-brand text-left text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand md:block lg:my-7 lg:min-h-[354px]`}
+            className={`${styles.previewEnter} group relative my-6 hidden min-h-[332px] overflow-hidden rounded-2xl bg-brand text-left text-ink shadow-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand md:block lg:my-7 lg:min-h-[354px]`}
             key={`preview-${nextBanner.id}`}
             onClick={() => move(1)}
             type="button"
@@ -201,7 +201,7 @@ export function OffersCarousel({
           </button>
           <button
             aria-label={nextLabel}
-            className="grid size-11 place-items-center rounded-full bg-brand text-white shadow-sm transition hover:translate-x-0.5 hover:bg-brand-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="grid size-11 place-items-center rounded-full bg-brand text-ink shadow-sm transition hover:translate-x-0.5 hover:bg-brand/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             onClick={() => move(1)}
             type="button"
           >

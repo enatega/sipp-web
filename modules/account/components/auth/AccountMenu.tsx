@@ -95,7 +95,7 @@ export function AccountMenu({
       <div className="relative ml-0.5 sm:ml-1" ref={wrapRef}>
         <button
           type="button"
-          className="grid size-9 place-items-center overflow-hidden rounded-full bg-brand text-white transition-colors hover:bg-brand-deep sm:size-11"
+          className="grid size-9 place-items-center overflow-hidden rounded-full bg-brand text-ink transition-colors hover:bg-brand/85 sm:size-11"
           aria-expanded={open}
           aria-haspopup="menu"
           aria-label={user.name ? `Account menu for ${user.name}` : "Account menu"}

@@ -73,7 +73,7 @@ function PaymentCard({
     <article
       className={`relative flex h-[170px] min-h-0 flex-col overflow-hidden rounded-xl border p-4 shadow-[0_10px_30px_rgba(35,22,26,0.07)] transition-transform hover:-translate-y-0.5 sm:p-4 ${
         card.isDefault
-          ? "border-brand bg-[linear-gradient(180deg,var(--color-brand-deep),var(--color-brand))] text-white"
+          ? "border-brand bg-brand text-ink"
           : "border-brand bg-card text-foreground"
       }`}
     >
@@ -124,7 +124,7 @@ function PaymentCard({
             type="button"
             onClick={onSetDefault}
             disabled={isBusy}
-            className="inline-flex min-h-6 items-center gap-1 rounded-full px-1.5 text-[7px] font-semibold text-brand transition-colors hover:bg-[#fff4f5] disabled:opacity-50 dark:hover:bg-[#401d25]"
+            className="inline-flex min-h-6 items-center gap-1 rounded-full px-1.5 text-[7px] font-semibold text-brand transition-colors hover:bg-brand/10 disabled:opacity-50"
           >
             <Check className="size-3" aria-hidden="true" />
             {t("setPrimary")}
@@ -137,7 +137,7 @@ function PaymentCard({
           className={`inline-flex min-h-6 items-center gap-1 rounded-full px-1.5 text-[7px] font-semibold transition-colors disabled:opacity-50 ${
             card.isDefault
               ? "text-white hover:bg-white/10"
-              : "text-brand hover:bg-[#fff4f5] dark:hover:bg-[#401d25]"
+              : "text-brand hover:bg-brand/10"
           }`}
         >
           <Trash2 className="size-3" aria-hidden="true" />
@@ -219,7 +219,7 @@ export function SavedCards() {
               <button
                 type="button"
                 onClick={() => void cards.refetch()}
-                className="mt-4 rounded-full bg-brand px-5 py-2.5 text-[11px] font-semibold text-white"
+                className="mt-4 rounded-full bg-brand px-5 py-2.5 text-[11px] font-semibold text-ink"
               >
                 {t("retry")}
               </button>
@@ -233,9 +233,9 @@ export function SavedCards() {
                 <button
                   type="button"
                   onClick={openAddCard}
-                  className="group flex h-[170px] min-h-0 flex-col items-center justify-center rounded-xl border border-dashed border-[#9bb1cb] bg-card px-4 text-center transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-brand hover:bg-[#fffafb] dark:border-[#526579] dark:hover:bg-[#241a1d]"
+                  className="group flex h-[170px] min-h-0 flex-col items-center justify-center rounded-xl border border-dashed border-brand bg-card px-4 text-center transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:bg-brand/10"
                 >
-                  <span className="grid size-9 place-items-center rounded-full bg-[#fde7eb] text-brand transition-transform group-hover:scale-105 dark:bg-[#401d25]">
+                  <span className="grid size-9 place-items-center rounded-full bg-brand/10 text-brand transition-transform group-hover:scale-105">
                     <Plus className="size-5" aria-hidden="true" />
                   </span>
                   <strong className="mt-4 text-[13px] font-semibold">

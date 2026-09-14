@@ -4,7 +4,7 @@ import { rejectCrossSiteRequest, readJsonObject, sessionEmail } from "@/services
 import { clearSession } from "@/services/auth/session";
 
 const deletionReasons = {
-  no_longer_needed: "I no longer need my Shaaneiol account",
+  no_longer_needed: "I no longer need my SIPP account",
   cannot_find_stores: "I cannot find the stores or products I need",
   privacy_concerns: "I have privacy or security concerns",
   poor_experience: "I had a poor experience with the service",

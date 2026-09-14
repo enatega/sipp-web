@@ -112,7 +112,7 @@ function ProfileDetails({ user }: { user: ProfileUser }) {
       <div className="mb-6 flex justify-end">
         <Link
           href="/profile/personal-information/edit"
-          className="inline-flex min-h-10 items-center gap-2 rounded-full bg-brand px-5 text-[12px] font-semibold text-white transition-colors hover:bg-brand-deep"
+          className="inline-flex min-h-10 items-center gap-2 rounded-full bg-brand px-5 text-[12px] font-semibold text-ink transition-colors hover:bg-brand/85"
         >
           <Icon name="avatar" className="size-3.5" />
           {t("editProfile")}
@@ -264,7 +264,7 @@ function EditProfileForm({ user }: { user: ProfileUser }) {
       </div>
 
       {(formik.touched.name && formik.errors.name) || formik.status ? (
-        <p role="alert" className="mt-5 rounded-xl bg-[#fde7eb] px-4 py-3 text-[12px] font-medium text-brand dark:bg-[#401d25]">
+        <p role="alert" className="mt-5 rounded-xl bg-danger-soft px-4 py-3 text-[12px] font-medium text-danger">
           {formik.status || formik.errors.name}
         </p>
       ) : null}
@@ -279,7 +279,7 @@ function EditProfileForm({ user }: { user: ProfileUser }) {
         <button
           type="submit"
           disabled={formik.isSubmitting}
-          className="inline-flex min-h-11 min-w-40 items-center justify-center rounded-full bg-brand px-6 text-[12px] font-semibold text-white transition-colors hover:bg-brand-deep disabled:cursor-wait disabled:opacity-60"
+          className="inline-flex min-h-11 min-w-40 items-center justify-center rounded-full bg-brand px-6 text-[12px] font-semibold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-60"
         >
           {formik.isSubmitting ? t("savingChanges") : t("saveChanges")}
         </button>
@@ -301,7 +301,7 @@ function SummaryCards({
   return (
     <div className="grid gap-5 sm:grid-cols-2">
       <section className="flex min-h-32 gap-4 rounded-xl bg-card p-5 shadow-card">
-        <span className="grid size-10 flex-none place-items-center rounded-xl bg-[#fde7eb] text-brand dark:bg-[#401d25]">
+        <span className="grid size-10 flex-none place-items-center rounded-xl bg-brand/10 text-brand">
           <Icon name="pin" className="size-4" />
         </span>
         <div className="min-w-0">

@@ -138,7 +138,7 @@ export function HeroLocationSearch({
       className={cn("relative z-30 w-full max-w-[500px]", className)}
       style={style}
     >
-      <div className="flex min-h-13 min-w-0 items-center rounded-[14px] border border-brand/20 bg-card transition-[border-color,box-shadow] duration-200 hover:border-brand/35 focus-within:border-brand focus-within:shadow-[0_8px_24px_rgba(183,24,47,0.12)]">
+      <div className="flex min-h-13 min-w-0 items-center rounded-[14px] border border-brand/20 bg-card transition-[border-color,box-shadow] duration-200 hover:border-brand/35 focus-within:border-brand focus-within:shadow-[0_8px_24px_rgba(102,192,242,0.12)]">
           <Icon name="pin" className="ml-3.5 size-[18px] flex-none text-brand" />
           <input
             value={query}
@@ -176,7 +176,7 @@ export function HeroLocationSearch({
             type="button"
             onClick={useCurrentLocation}
             disabled={busy !== null}
-            className="inline-flex h-8 flex-none items-center justify-center gap-1.5 border-l border-brand/20 bg-transparent px-2.5 text-xs font-semibold text-brand transition-colors duration-200 hover:bg-danger-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-wait disabled:opacity-55 sm:px-3.5"
+            className="inline-flex h-8 flex-none items-center justify-center gap-1.5 border-l border-brand/20 bg-transparent px-2.5 text-xs font-semibold text-brand transition-colors duration-200 hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-wait disabled:opacity-55 sm:px-3.5"
             aria-label={t("currentLocation")}
           >
             <Icon name="locate" className="size-4" />

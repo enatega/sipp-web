@@ -1,5 +1,5 @@
 /**
- * Stylised Shaaneiol eagle crest: gold spread wings around a serif "S".
+ * Legacy SIPP eagle crest retained for compatibility with older compositions.
  * Rendered as inline SVG so it stays crisp at every size the brand lockup uses.
  */
 const FEATHERS = [
@@ -10,13 +10,13 @@ const FEATHERS = [
 ];
 
 export function EagleCrest({ className }: { className?: string }) {
-  const gradientId = "shaaneiol-crest-gold";
+  const gradientId = "sipp-crest-gold";
   return (
     <svg
       viewBox="0 0 120 66"
       className={className}
       role="img"
-      aria-label="Shaaneiol eagle crest"
+      aria-label="SIPP eagle crest"
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -40,7 +40,7 @@ export function EagleCrest({ className }: { className?: string }) {
         x="60"
         y="40"
         textAnchor="middle"
-        fill="#8c1225"
+        fill="#66c0f2"
         fontFamily="var(--font-wordmark), Georgia, serif"
         fontSize="17"
         fontWeight="700"

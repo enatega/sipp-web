@@ -57,7 +57,7 @@ export function OrderDetailExperience({ orderId }: Props) {
             <h1 className="mt-5 text-2xl font-bold text-ink">{t("loadErrorTitle")}</h1>
             <p className="mt-2 text-sm leading-6 text-body">{t("loadErrorMessage")}</p>
             <button
-              className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand px-6 text-sm font-bold text-white transition-colors hover:bg-brand-deep"
+              className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand px-6 text-sm font-bold text-ink transition-colors hover:bg-brand/85"
               onClick={() => void orderQuery.refetch()}
               type="button"
             >
@@ -105,7 +105,7 @@ export function OrderDetailExperience({ orderId }: Props) {
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(183,24,47,0.2)] transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-brand-deep disabled:cursor-wait disabled:opacity-55"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_8px_20px_rgba(102,192,242,0.2)] transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-brand/85 disabled:cursor-wait disabled:opacity-55"
                 disabled={orderAgain.isRunning}
                 onClick={() => orderAgain.start(order)}
                 type="button"
@@ -196,7 +196,7 @@ export function OrderDetailExperience({ orderId }: Props) {
                 {t("keepCart")}
               </button>
               <button
-                className="min-h-10 rounded-full bg-brand px-5 text-sm font-bold text-white transition-colors hover:bg-brand-deep"
+                className="min-h-10 rounded-full bg-brand px-5 text-sm font-bold text-ink transition-colors hover:bg-brand/85"
                 onClick={orderAgain.confirmConflict}
                 type="button"
               >

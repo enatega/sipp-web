@@ -3,7 +3,7 @@ import { serviceStrip } from "@/modules/home/data/site-data";
 
 export function ServiceStrip() {
   return (
-    <nav className="bg-brand text-white" aria-label="Shaaneiol products">
+    <nav className="bg-brand text-ink" aria-label="SIPP products">
       <div className="section-wrap flex flex-nowrap items-center justify-start gap-8 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:h-[46px] md:justify-between md:gap-5 md:overflow-visible md:py-0">
         {serviceStrip.map((label) => (
           <a

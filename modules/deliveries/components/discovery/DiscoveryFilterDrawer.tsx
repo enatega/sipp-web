@@ -215,7 +215,7 @@ export function DiscoveryFilterDrawer({
               {t("clearAll")}
             </button>
             <button
-              className="min-h-12 flex-1 rounded-xl bg-brand px-6 text-sm font-bold text-white shadow-[0_8px_22px_rgba(183,24,47,0.2)] transition-colors hover:bg-brand-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              className="min-h-12 flex-1 rounded-xl bg-brand px-6 text-sm font-bold text-ink shadow-[0_8px_22px_rgba(102,192,242,0.2)] transition-colors hover:bg-brand/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               onClick={() => finishClose(() => onApply(draft))}
               type="button"
             >

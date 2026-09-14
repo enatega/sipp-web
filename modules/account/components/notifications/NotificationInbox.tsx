@@ -96,7 +96,7 @@ export function NotificationInbox() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href="/profile/notification-settings" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-line bg-card px-4 text-xs font-bold text-ink hover:border-brand/30"><Settings2 className="size-4 text-brand" aria-hidden="true" />{t("settings")}</Link>
-            <button type="button" onClick={() => void markEverythingRead()} disabled={unread === 0 || markAll.isPending} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand px-4 text-xs font-bold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-45">{markAll.isPending ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <CheckCheck className="size-4" aria-hidden="true" />}{t("markAll")}</button>
+            <button type="button" onClick={() => void markEverythingRead()} disabled={unread === 0 || markAll.isPending} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand px-4 text-xs font-bold text-ink hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-45">{markAll.isPending ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <CheckCheck className="size-4" aria-hidden="true" />}{t("markAll")}</button>
           </div>
         </header>
 

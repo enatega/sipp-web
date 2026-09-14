@@ -155,7 +155,7 @@ export function SectionState({
       </div>
       {actionLabel && onAction ? (
         <button
-          className="shrink-0 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-deep focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="shrink-0 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-ink transition-colors hover:bg-brand/85 focus-visible:outline-2 focus-visible:outline-offset-2"
           onClick={onAction}
           type="button"
         >

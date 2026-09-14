@@ -11,7 +11,7 @@ export function DetailPhone() {
     <div
       className={cn(styles.detailPhone, styles.phoneShot)}
       role="img"
-      aria-label="Ordering a beef burger in the Shaaneiol app"
+      aria-label="Ordering a beef burger in the SIPP app"
     >
       <Image
         src="/app/screen-product.png"

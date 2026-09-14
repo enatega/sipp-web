@@ -80,7 +80,7 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
         />
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/65 to-transparent" />
         {offer ? (
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-brand px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-brand px-2.5 py-1 text-[10px] font-bold text-ink shadow-sm">
             <Tag aria-hidden="true" className="size-3" />
             {offer}
           </span>

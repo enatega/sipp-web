@@ -4,9 +4,9 @@
 
 /* Global design tokens shared by every route and business module. */
 @theme {
-  --color-brand: #b7182f;
-  --color-brand-deep: #9c0f26;
-  --color-brand-soft: #e07a8c;
+  --color-brand: #66c0f2;
+  --color-brand-soft: rgba(102, 192, 242, 0.1);
+  --color-secondary: #e33935;
   --color-gold: #b98d45;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -22,8 +22,8 @@
   --color-warning-soft: var(--warning-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
-  --color-blush: #fff6f1;
-  --color-pinkbar: #fbdfe4;
+  --color-blush: rgba(102, 192, 242, 0.1);
+  --color-pinkbar: rgba(102, 192, 242, 0.1);
 
   --font-heading: var(--font-display), "Poppins", system-ui, sans-serif;
   --font-crest: var(--font-wordmark), Georgia, serif;
@@ -51,8 +51,8 @@
   --success-soft: #e8f5ef;
   --warning: #94620a;
   --warning-soft: #fff5dc;
-  --danger: #b7182f;
-  --danger-soft: #fff0f2;
+  --danger: #e33935;
+  --danger-soft: rgba(102, 192, 242, 0.1);
   --soft-surface: #f4f6f9;
   --elevated-shadow: 0 10px 34px rgba(35, 22, 26, 0.08);
   --rail-card-shadow: 0 7px 22px rgba(35, 22, 26, 0.055);
@@ -73,7 +73,8 @@
   --warning: #f0c56c;
   --warning-soft: #382e18;
   --danger: #ff91a1;
-  --danger-soft: #3d1e25;
+  --danger-soft: #1c3744;
+  /* --danger-soft: #3d1e25; */
   --soft-surface: #242930;
   --elevated-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
   --rail-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
@@ -104,6 +105,27 @@
 
   button {
     cursor: pointer;
+  }
+
+  input,
+  select,
+  textarea {
+    border-color: var(--color-brand) !important;
+  }
+
+  input[aria-invalid="true"],
+  select[aria-invalid="true"],
+  textarea[aria-invalid="true"],
+  input[class~="border-danger"],
+  select[class~="border-danger"],
+  textarea[class~="border-danger"] {
+    border-color: var(--color-secondary) !important;
+  }
+
+  input[class~="border-emerald-500"],
+  select[class~="border-emerald-500"],
+  textarea[class~="border-emerald-500"] {
+    border-color: var(--color-success) !important;
   }
 
   ::selection {

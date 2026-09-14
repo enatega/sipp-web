@@ -27,17 +27,16 @@ export function AppSection() {
 
         <div className="order-first self-center pb-10 md:order-none">
           <h2 className="mb-1 font-crest text-[clamp(30px,3.4vw,46px)] font-bold tracking-[0.05em] text-brand">
-            SHAANEIOL
+            SIPP
           </h2>
           <h3 className="mb-4 text-[clamp(28px,3.2vw,44px)] font-extrabold tracking-[-0.025em]">
             Install the app
           </h3>
           <p className="mx-auto mb-[26px] max-w-[400px] text-sm text-body md:mx-0">
-            <b className="text-ink">One Platform. Multiple Solutions.</b>
+            <b className="text-ink">One platform for local delivery.</b>
             <br />
-            From ordering food to managing stores and completing deliveries,
-            Shaaneiol brings every experience together in one connected
-            ecosystem.
+            Order food, groceries, drinks, and daily essentials from nearby
+            businesses across SIPP service areas.
           </p>
           <StoreButtons className="justify-center md:justify-start" />
         </div>

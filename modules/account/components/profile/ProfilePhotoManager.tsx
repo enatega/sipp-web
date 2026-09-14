@@ -102,7 +102,7 @@ export function ProfilePhotoManager({ user }: Props) {
     <>
       <section
         className={`rounded-xl bg-card px-4 py-5 text-center shadow-card transition-[box-shadow,background-color] sm:px-6 sm:py-7 ${
-          isDragging ? "bg-danger-soft shadow-[0_10px_28px_rgba(183,24,47,0.14)]" : ""
+          isDragging ? "bg-danger-soft shadow-[0_10px_28px_rgba(102,192,242,0.14)]" : ""
         }`}
         onDragEnter={(event) => {
           event.preventDefault();
@@ -181,7 +181,7 @@ export function ProfilePhotoManager({ user }: Props) {
                 type="button"
                 onClick={() => void uploadPhoto()}
                 disabled={updateImage.isPending}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-brand px-5 text-[11px] font-semibold text-white transition-colors hover:bg-brand-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-wait disabled:opacity-60"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-brand px-5 text-[11px] font-semibold text-ink transition-colors hover:bg-brand/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-wait disabled:opacity-60"
               >
                 {updateImage.isPending ? (
                   <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" />
@@ -195,7 +195,7 @@ export function ProfilePhotoManager({ user }: Props) {
             type="button"
             onClick={() => inputRef.current?.click()}
             aria-describedby={`${inputId}-requirements`}
-            className="mx-auto mt-5 inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-brand px-5 text-[11px] font-semibold text-white transition-colors hover:bg-brand-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="mx-auto mt-5 inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-brand px-5 text-[11px] font-semibold text-ink transition-colors hover:bg-brand/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <ImageUp className="size-4" aria-hidden="true" />
             {currentPhoto ? t("changePhoto") : t("addPhoto")}

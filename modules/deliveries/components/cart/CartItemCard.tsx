@@ -52,7 +52,7 @@ export function CartItemCard({ item, isUpdating, onQuantityChange, onRemove }: P
                 {item.quantity === 1 ? <Trash2 aria-hidden="true" className="size-3.5" /> : <Minus aria-hidden="true" className="size-3.5" />}
               </button>
               <span className="min-w-8 text-center text-sm font-bold tabular-nums text-ink" aria-live="polite">{item.quantity}</span>
-              <button type="button" disabled={isUpdating || item.quantity >= 99 || !item.inStock} onClick={() => onQuantityChange(item.quantity + 1)} aria-label={t("increaseQuantity")} className="grid size-8 place-items-center rounded-full bg-brand text-white transition-colors hover:bg-brand-deep disabled:opacity-40">
+              <button type="button" disabled={isUpdating || item.quantity >= 99 || !item.inStock} onClick={() => onQuantityChange(item.quantity + 1)} aria-label={t("increaseQuantity")} className="grid size-8 place-items-center rounded-full bg-brand text-ink transition-colors hover:bg-brand/85 disabled:opacity-40">
                 <Plus aria-hidden="true" className="size-3.5" />
               </button>
             </div>
@@ -62,4 +62,3 @@ export function CartItemCard({ item, isUpdating, onQuantityChange, onRemove }: P
     </article>
   );
 }
-

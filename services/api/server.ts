@@ -73,7 +73,7 @@ export async function callApi(path: string, options: CallOptions = {}) {
     return NextResponse.json(data);
   } catch {
     return NextResponse.json(
-      { message: "The Shaaneiol service is unavailable right now." },
+      { message: "The SIPP service is unavailable right now." },
       { status: 503 },
     );
   }
@@ -103,7 +103,7 @@ export async function callPublicApi(path: string, payload: unknown) {
     return NextResponse.json(data);
   } catch {
     return NextResponse.json(
-      { message: "The Shaaneiol service is unavailable right now." },
+      { message: "The SIPP service is unavailable right now." },
       { status: 503 },
     );
   }
@@ -125,7 +125,7 @@ export async function getPublicApi(path: string) {
     return NextResponse.json(data);
   } catch {
     return NextResponse.json(
-      { message: "The Shaaneiol service is unavailable right now." },
+      { message: "The SIPP service is unavailable right now." },
       { status: 503 },
     );
   }
@@ -152,7 +152,7 @@ export async function callPublicMultipart(path: string, body: FormData) {
     return NextResponse.json(data);
   } catch {
     return NextResponse.json(
-      { message: "The Shaaneiol service is unavailable right now." },
+      { message: "The SIPP service is unavailable right now." },
       { status: 503 },
     );
   }
@@ -189,7 +189,7 @@ export async function callAuthenticatedMultipart(
     return NextResponse.json(data);
   } catch {
     return NextResponse.json(
-      { message: "The Shaaneiol service is unavailable right now." },
+      { message: "The SIPP service is unavailable right now." },
       { status: 503 },
     );
   }

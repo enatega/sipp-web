@@ -104,26 +104,26 @@ export const heroSlides: HeroSlide[] = [
   {
     type: "ecosystem",
     id: "ecosystem",
-    name: "The Shaaneiol ecosystem",
-    eyebrow: "THE SHAANEIOL ECOSYSTEM",
+    name: "The SIPP ecosystem",
+    eyebrow: "LOCAL DELIVERY IN COSTA RICA",
     title: (
       <>
-        One Platform.
+        Food, Groceries,
         <br />
         <span className="text-brand">
-          Endless
+          Drinks &
           <br />
-          Possibilities.
+          Essentials.
         </span>
       </>
     ),
     description:
-      "Connect with food, shopping, rides, local businesses, farmers, communities, learning and digital services all from one ecosystem, one account, one app.",
+      "SIPP brings local restaurants, supermarkets, drinks, and everyday essentials together for convenient delivery in Costa Rica's coastal communities.",
     stats: [
-      { value: "15+", label: "Services" },
-      { value: "1,000+", label: "Businesses" },
-      { value: "50K+", label: "Customers" },
-      { value: "AU & IN", label: "Now live in" },
+      { value: "SANTA", label: "Teresa first" },
+      { value: "LOCAL", label: "Businesses" },
+      { value: "COASTAL", label: "Communities" },
+      { value: "ONE", label: "Platform" },
     ],
     animation: { hold: 8000, stagger: 90 },
   },
@@ -131,18 +131,18 @@ export const heroSlides: HeroSlide[] = [
     type: "service",
     id: "food",
     name: "Food delivery",
-    badge: { flag: "NEW", text: "Traveller Mode is now live", icon: "spark" },
+    badge: { flag: "LOCAL", text: "Now serving Santa Teresa", icon: "spark" },
     title: (
       <>
-        Delicious Food,
+        Local Food,
         <br />
         <span className={cn(styles.heroUnderline, "text-brand")}>Delivered</span>
         <br />
-        To Your Door.
+        Around Town.
       </>
     ),
     description:
-      "Order from restaurants, home chefs, SHG units, farms and more all in one place. Powered by ShaaneioL delivery across India & Australia.",
+      "Order meals, groceries, drinks, and essentials from local businesses in Santa Teresa, Playa Carmen, Mal Pais, Playa Hermosa, Manzanillo, and Santiago.",
     cta: {
       label: "Order Now",
       glyph: { img: "/images/order-now-pizza.png" },
@@ -156,12 +156,12 @@ export const heroSlides: HeroSlide[] = [
       aspect: "13 / 11",
     },
     fallbackIcon: "food",
-    panel: "linear-gradient(150deg,#b7182f,#8d1024)",
+    panel: "linear-gradient(150deg,#66c0f2,rgba(102,192,242,0.72))",
     cards: [
       {
         spot: "topLeft",
         kind: "status",
-        title: "Driver on the way",
+        title: "Courier on the way",
         floatDelay: 0,
       },
       {
@@ -175,7 +175,7 @@ export const heroSlides: HeroSlide[] = [
       {
         spot: "bottomLeft",
         kind: "rating",
-        title: "4.9 · 12,400+ reviews",
+        title: "Local picks nearby",
         icon: { img: "/images/star-icon.png", alt: "" },
         floatDelay: 1.6,
       },
@@ -189,36 +189,36 @@ export const heroSlides: HeroSlide[] = [
       },
     ],
     benefits: [
-      { glyph: { img: "/images/clock.png" }, label: "Fast Delivery", tone: "peach" },
-      { glyph: { img: "/images/star-icon.png" }, label: "Top Rated", tone: "amber" },
-      { glyph: { img: "/images/secure-logo.png" }, label: "100% Secure", tone: "mint" },
+      { glyph: { img: "/images/clock.png" }, label: "Convenient Delivery", tone: "peach" },
+      { glyph: { img: "/images/star-icon.png" }, label: "Local Favorites", tone: "amber" },
+      { glyph: { img: "/images/secure-logo.png" }, label: "Secure Checkout", tone: "mint" },
     ],
     animation: { hold: 8000, stagger: 90 },
   },
   {
     type: "service",
     id: "ride",
-    name: "Ride booking",
+    name: "Local commerce",
     badge: {
-      flag: "NEW",
-      text: "City Traveller Mode is now live",
+      flag: "SIPP",
+      text: "More than food delivery",
       icon: "arrow-out",
     },
     title: (
       <>
-        Your Reliable
+        Restaurants &
         <br />
-        <span className={cn(styles.heroUnderline, "text-brand")}>Ride, Anytime.</span>
+        <span className={cn(styles.heroUnderline, "text-brand")}>Local Shops.</span>
         <br />
-        Anywhere in Town.
+        One Checkout.
       </>
     ),
     description:
-      "Book rides with certified local captains. Fast, dependable pickups, transparent pricing, and secure travel across your favorite spots.",
-    cta: { label: "Book Now", glyph: { name: "ride" }, href: "#services" },
+      "Explore everyday needs from nearby merchants and keep delivery simple, whether you are at home, at work, or staying near the beach.",
+    cta: { label: "Explore SIPP", glyph: { name: "ride" }, href: "#services" },
     image: {
       src: "/images/hero-drive-logo.png",
-      alt: "Passenger enjoying a city ride at sunset",
+      alt: "SIPP local commerce service",
       width: 1024,
       height: 1024,
       aspect: "13 / 14",
@@ -229,21 +229,21 @@ export const heroSlides: HeroSlide[] = [
       {
         spot: "topLeft",
         kind: "status",
-        title: "Driver is on the way",
+        title: "Order is on the way",
         floatDelay: 0,
       },
       {
         spot: "right",
         kind: "metric",
-        caption: "ARRIVAL ETA",
-        title: "5 mins",
+        caption: "DELIVERY ETA",
+        title: "Soon",
         icon: { name: "clock" },
         floatDelay: 0.8,
       },
       {
         spot: "bottomLeft",
         kind: "rating",
-        title: "4.9 · 18,200+ rides",
+        title: "Restaurants, groceries, essentials",
         icon: { name: "star" },
         floatDelay: 1.6,
       },
@@ -251,15 +251,15 @@ export const heroSlides: HeroSlide[] = [
         spot: "bottomRight",
         kind: "place",
         title: "Destination",
-        caption: "reached safely",
+        caption: "ready for delivery",
         icon: { name: "pin" },
         floatDelay: 2.4,
       },
     ],
     benefits: [
-      { glyph: { img: "/images/clock.png" }, label: "Fast Pickup", tone: "peach" },
-      { glyph: { img: "/images/star-icon.png" }, label: "Top Rated", tone: "amber" },
-      { glyph: { img: "/images/secure-logo.png" }, label: "100% Safe", tone: "mint" },
+      { glyph: { img: "/images/clock.png" }, label: "Easy Ordering", tone: "peach" },
+      { glyph: { img: "/images/star-icon.png" }, label: "Nearby Stores", tone: "amber" },
+      { glyph: { img: "/images/secure-logo.png" }, label: "Secure Payments", tone: "mint" },
     ],
     animation: { hold: 8000, stagger: 90 },
   },

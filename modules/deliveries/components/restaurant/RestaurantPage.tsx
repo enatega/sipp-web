@@ -116,7 +116,7 @@ export function RestaurantPage({ storeId }: Props) {
 
   if (restaurant.isError || !restaurant.data) {
     return (
-      <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="section-wrap grid min-h-[60vh] place-items-center py-16 text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button className="mt-5 rounded-xl bg-brand px-5 py-3 text-sm font-bold text-white" onClick={() => void restaurant.refetch()} type="button">{t("retry")}</button></div></main></>
+      <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="section-wrap grid min-h-[60vh] place-items-center py-16 text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button className="mt-5 rounded-xl bg-brand px-5 py-3 text-sm font-bold text-ink" onClick={() => void restaurant.refetch()} type="button">{t("retry")}</button></div></main></>
     );
   }
 
@@ -145,7 +145,7 @@ export function RestaurantPage({ storeId }: Props) {
             {productsQuery.isPending ? (
               <div className="grid min-h-80 place-items-center text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loadingProducts")}</span></div>
             ) : productsQuery.isError ? (
-              <div className="rounded-2xl border border-brand/20 bg-brand/5 p-8 text-center"><h3 className="font-bold text-ink">{t("productsErrorTitle")}</h3><p className="mt-2 text-sm text-body">{t("productsErrorMessage")}</p><button className="mt-4 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-white" onClick={() => void productsQuery.refetch()} type="button">{t("retry")}</button></div>
+              <div className="rounded-2xl border border-brand/20 bg-brand/5 p-8 text-center"><h3 className="font-bold text-ink">{t("productsErrorTitle")}</h3><p className="mt-2 text-sm text-body">{t("productsErrorMessage")}</p><button className="mt-4 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-ink" onClick={() => void productsQuery.refetch()} type="button">{t("retry")}</button></div>
             ) : products.length === 0 ? (
               <div className="rounded-2xl border border-line bg-card p-10 text-center"><h3 className="font-bold text-ink">{t("noProductsTitle")}</h3><p className="mt-2 text-sm text-body">{search ? t("noSearchResults") : t("noProductsMessage")}</p></div>
             ) : (
@@ -168,7 +168,7 @@ export function RestaurantPage({ storeId }: Props) {
                         <div aria-label={t("subcategoryFilter", { category: category.name })} className="-mx-1 mb-5 flex snap-x gap-2 overflow-x-auto px-1 pb-1" role="group">
                           <button
                             aria-pressed={selectedSubcategoryId === null}
-                            className={`min-h-10 shrink-0 snap-start rounded-full border px-4 text-sm font-semibold transition-[background-color,border-color,color] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${selectedSubcategoryId === null ? "border-brand bg-brand text-white" : "border-line bg-card text-body hover:border-brand/40 hover:text-ink"}`}
+                            className={`min-h-10 shrink-0 snap-start rounded-full border px-4 text-sm font-semibold transition-[background-color,border-color,color] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${selectedSubcategoryId === null ? "border-brand bg-brand text-ink" : "border-line bg-card text-body hover:border-brand/40 hover:text-ink"}`}
                             onClick={() => setSelectedSubcategories((current) => ({ ...current, [category.id]: null }))}
                             type="button"
                           >
@@ -179,7 +179,7 @@ export function RestaurantPage({ storeId }: Props) {
                             return (
                               <button
                                 aria-pressed={isSelected}
-                                className={`min-h-10 shrink-0 snap-start rounded-full border px-4 text-sm font-semibold transition-[background-color,border-color,color] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${isSelected ? "border-brand bg-brand text-white" : "border-line bg-card text-body hover:border-brand/40 hover:text-ink"}`}
+                                className={`min-h-10 shrink-0 snap-start rounded-full border px-4 text-sm font-semibold transition-[background-color,border-color,color] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${isSelected ? "border-brand bg-brand text-ink" : "border-line bg-card text-body hover:border-brand/40 hover:text-ink"}`}
                                 key={subcategory.id}
                                 onClick={() => setSelectedSubcategories((current) => ({ ...current, [category.id]: subcategory.id }))}
                                 type="button"

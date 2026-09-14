@@ -1,6 +1,6 @@
-# Shaaneiol Super Web
+# SIPP Super Web
 
-Customer-facing Next.js application for Shaaneiol. The current commerce scope
+Customer-facing Next.js application for SIPP. The current commerce scope
 is Multi Vendor food delivery, with architecture that can add Single Vendor
 and independent future service modules without coupling them to delivery
 internals.
@@ -21,7 +21,7 @@ defines the active module boundaries and the required extension points.
 ## Getting started
 
 Install dependencies, copy the environment template, and point it at the
-Shaaneiol backend:
+SIPP backend:
 
 Node.js 20.9 or newer is required by Next.js 16.
 

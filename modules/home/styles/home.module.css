@@ -237,7 +237,7 @@
   margin-top: 9px;
   border-radius: 10px;
   overflow: hidden;
-  background: linear-gradient(100deg, #a5102a, #7d0a1e);
+  background: linear-gradient(100deg, #66c0f2, rgba(102, 192, 242, 0.72));
   color: #fff;
   min-height: 62px;
 }
@@ -284,7 +284,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #8b0d22 0%, rgba(139, 13, 34, 0) 42%);
+  background: linear-gradient(90deg, #66c0f2 0%, rgba(102, 192, 242, 0) 42%);
 }
 
 .phoneHeading {

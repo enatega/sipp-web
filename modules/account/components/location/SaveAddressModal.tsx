@@ -25,7 +25,7 @@ const TYPE_CHOICES: Array<{ label: string; value: AddressType }> = [
 ];
 
 const FIELD =
-  "h-12 w-full rounded-lg border border-line bg-[var(--soft-surface)] px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-[#cf5265] focus:bg-card";
+  "h-12 w-full rounded-lg border border-brand bg-[var(--soft-surface)] px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-brand focus:bg-card";
 
 const LABEL = "text-xs font-medium text-foreground";
 
@@ -126,7 +126,7 @@ export function SaveAddressModal({
             <button
               type="button"
               onClick={onClose}
-              className="h-8 flex-none rounded-full bg-brand px-4 text-xs font-semibold text-white"
+              className="h-8 flex-none rounded-full bg-brand px-4 text-xs font-semibold text-ink"
             >
               {t("edit")}
             </button>
@@ -144,7 +144,7 @@ export function SaveAddressModal({
                 aria-pressed={formik.values.type === choice.value}
                 className={`h-10 flex-1 rounded-lg border text-sm font-semibold transition-colors ${
                   formik.values.type === choice.value
-                    ? "border-brand bg-[#fff5f6] text-brand"
+                    ? "border-brand bg-brand/10 text-brand"
                     : "border-line bg-card text-body"
                 }`}
               >
@@ -195,7 +195,7 @@ export function SaveAddressModal({
           {formik.status ? (
             <p
               role="alert"
-              className="mt-3 rounded-lg bg-[#fff0f2] px-3.5 py-2.5 text-xs leading-relaxed text-[#9d1429]"
+              className="mt-3 rounded-lg bg-danger-soft px-3.5 py-2.5 text-xs leading-relaxed text-danger"
             >
               {formik.status}
             </p>
@@ -206,7 +206,7 @@ export function SaveAddressModal({
           <button
             type="submit"
             disabled={formik.isSubmitting}
-            className="h-12 w-full rounded-lg bg-brand text-sm font-semibold text-white transition-colors hover:bg-brand-deep disabled:cursor-wait disabled:opacity-70"
+            className="h-12 w-full rounded-lg bg-brand text-sm font-semibold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-70"
           >
             {formik.isSubmitting
               ? addressToEdit

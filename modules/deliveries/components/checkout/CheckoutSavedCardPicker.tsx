@@ -49,14 +49,14 @@ export function CheckoutSavedCardPicker({ cards, selectedCardId, isLoading, load
                 role="radio"
                 type="button"
               >
-                <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${selected ? "bg-brand text-white" : "bg-[var(--soft-surface)] text-brand"}`}>
+                <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${selected ? "bg-brand text-ink" : "bg-[var(--soft-surface)] text-brand"}`}>
                   <CreditCard aria-hidden="true" className="size-4" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <strong className="block truncate text-sm text-ink">{card.brand.toUpperCase()} •••• {card.last4}</strong>
                   <small className="mt-0.5 block text-xs text-muted">{labels.expires} {String(card.expMonth).padStart(2, "0")}/{String(card.expYear).slice(-2)}{card.isDefault ? ` · ${labels.defaultCard}` : ""}</small>
                 </span>
-                <span className={`grid size-5 shrink-0 place-items-center rounded-full border ${selected ? "border-brand bg-brand text-white" : "border-line"}`}>
+                <span className={`grid size-5 shrink-0 place-items-center rounded-full border ${selected ? "border-brand bg-brand text-ink" : "border-line"}`}>
                   {selected ? <Check aria-hidden="true" className="size-3" strokeWidth={3} /> : null}
                 </span>
               </button>
@@ -72,7 +72,7 @@ export function CheckoutSavedCardPicker({ cards, selectedCardId, isLoading, load
           >
             <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[var(--soft-surface)] text-brand"><Plus aria-hidden="true" className="size-4" /></span>
             <span className="min-w-0 flex-1"><strong className="block text-sm text-ink">{labels.anotherCard}</strong><small className="mt-0.5 block text-xs text-muted">{labels.anotherCardHint}</small></span>
-            <span className={`grid size-5 shrink-0 place-items-center rounded-full border ${selectedCardId === null ? "border-brand bg-brand text-white" : "border-line"}`}>{selectedCardId === null ? <Check aria-hidden="true" className="size-3" strokeWidth={3} /> : null}</span>
+            <span className={`grid size-5 shrink-0 place-items-center rounded-full border ${selectedCardId === null ? "border-brand bg-brand text-ink" : "border-line"}`}>{selectedCardId === null ? <Check aria-hidden="true" className="size-3" strokeWidth={3} /> : null}</span>
           </button>
         </div>
       )}

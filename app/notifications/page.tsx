@@ -3,8 +3,8 @@ import { Header } from "@/components/shared/app-shell/Header";
 import { NotificationInbox } from "@/modules/account/components/notifications/NotificationInbox";
 
 export const metadata: Metadata = {
-  title: "Notifications | Shaaneiol",
-  description: "View recent Shaaneiol notifications.",
+  title: "Notifications | SIPP",
+  description: "View recent SIPP notifications.",
 };
 
 export default function NotificationsPage() {
