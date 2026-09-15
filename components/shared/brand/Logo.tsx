@@ -14,8 +14,8 @@ const LAYOUT = {
 };
 
 const MARK = {
-  row: "h-[42px] md:h-12",
-  stack: "h-16",
+  row: "h-10 md:h-14",
+  stack: "h-14 md:h-16",
 };
 
 export function Logo({
@@ -26,12 +26,12 @@ export function Logo({
   const content = (
     <Image
       className={`w-auto flex-none object-contain ${MARK[layout]}`}
-      src="/brand/shaaneiol-logo.png"
-      alt="Shaaneiol — Makes Life Easier"
-      width={228}
-      height={220}
+      src="/brand/sip-transparent-logo.png"
+      alt="SIPP"
+      width={394}
+      height={266}
       priority
-      sizes="120px"
+      sizes={layout === "row" ? "280px" : "267px"}
     />
   );
 
@@ -39,13 +39,13 @@ export function Logo({
 
   if (!href) {
     return (
-      <span className={classes} aria-label="Shaaneiol">
+      <span className={classes} aria-label="SIPP">
         {content}
       </span>
     );
   }
   return (
-    <Link href={href} className={classes} aria-label="Shaaneiol home">
+    <Link href={href} className={classes} aria-label="SIPP home">
       {content}
     </Link>
   );

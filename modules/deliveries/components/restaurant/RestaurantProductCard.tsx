@@ -1,5 +1,6 @@
 import { Check, Plus } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import type { RestaurantProduct } from "../../types/restaurant";
 
@@ -49,15 +50,15 @@ export function RestaurantProductCard({
           <div className="mt-2 flex items-end justify-between gap-2">
             <div className="flex min-w-0 items-center gap-1.5">
               <b className="text-[13px] text-brand">
-                {format.number(price, { style: "currency", currency: "INR" })}
+                {formatAppCurrency(format, price)}
               </b>
               {product.deal ? (
                 <span className="truncate text-[9px] text-muted line-through">
-                  {format.number(product.price, { style: "currency", currency: "INR" })}
+                  {formatAppCurrency(format, product.price)}
                 </span>
               ) : null}
             </div>
-            <span className={`relative grid size-7 shrink-0 place-items-center rounded-full border transition duration-200 group-hover:scale-105 ${isInCart ? "border-brand bg-brand text-white" : "border-brand/25 bg-brand/8 text-brand group-hover:border-brand group-hover:bg-brand group-hover:text-white"}`}>
+            <span className={`relative grid size-7 shrink-0 place-items-center rounded-full border transition duration-200 group-hover:scale-105 ${isInCart ? "border-brand bg-brand text-ink" : "border-brand/25 bg-brand/8 text-brand group-hover:border-brand group-hover:bg-brand group-hover:text-ink"}`}>
               {isInCart ? <Check aria-hidden="true" className="size-3.5" /> : <Plus aria-hidden="true" className="size-3.5" />}
               {isInCart ? <span aria-hidden="true" className="absolute -right-1.5 -top-1.5 grid min-h-4 min-w-4 place-items-center rounded-full border-2 border-card bg-surface px-0.5 text-[8px] font-extrabold leading-none text-brand tabular-nums">{cartQuantity > 99 ? "99+" : cartQuantity}</span> : null}
             </span>

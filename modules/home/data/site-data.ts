@@ -1,8 +1,8 @@
 import type { IconName } from "@/components/shared/brand/Icon";
 
 export const navServices = [
-  { group: "MOVE", links: ["Ride", "Courier"] },
-  { group: "EAT", links: ["Food Delivery", "Restaurants", "Home Made"] },
+  { group: "SHOP", links: ["Groceries", "Drinks", "Essentials"] },
+  { group: "EAT", links: ["Food Delivery", "Restaurants", "Local Picks"] },
 ];
 
 /** Pills orbiting the hero crest. `pos` maps to a placement class in globals.css. */
@@ -12,23 +12,23 @@ export const ecosystemServices: {
   tone: string;
   pos: string;
 }[] = [
-  { label: "Ride Booking", icon: "ride", tone: "blue", pos: "ride" },
-  { label: "Marketplace", icon: "market", tone: "orange", pos: "market" },
-  { label: "Business", icon: "business", tone: "pink", pos: "business" },
-  { label: "Farmers", icon: "farmers", tone: "green", pos: "farmers" },
-  { label: "Community", icon: "community", tone: "pink", pos: "community" },
-  { label: "Courier", icon: "courier", tone: "purple", pos: "courier" },
-  { label: "AI Recs", icon: "ai", tone: "blue", pos: "ai" },
-  { label: "Payments", icon: "payments", tone: "green", pos: "payments" },
+  { label: "Restaurants", icon: "food", tone: "blue", pos: "ride" },
+  { label: "Groceries", icon: "market", tone: "orange", pos: "market" },
+  { label: "Local Shops", icon: "business", tone: "pink", pos: "business" },
+  { label: "Fresh Finds", icon: "farmers", tone: "green", pos: "farmers" },
+  { label: "Beach Towns", icon: "community", tone: "pink", pos: "community" },
+  { label: "Local Delivery", icon: "courier", tone: "purple", pos: "courier" },
+  { label: "Easy Reorders", icon: "ai", tone: "blue", pos: "ai" },
+  { label: "Secure Payments", icon: "payments", tone: "green", pos: "payments" },
   { label: "Food Delivery", icon: "food", tone: "blue", pos: "food" },
 ];
 
 export const serviceStrip = [
-  "SHAANEIOL",
-  "SHAANEIOL FOOD IN",
-  "SHAANEIOL DRIVER",
-  "SHAANEIOL RIDER",
-  "SHAANEIOL STORE",
+  "SIPP",
+  "LOCAL RESTAURANTS",
+  "GROCERIES",
+  "DRINKS",
+  "ESSENTIALS",
 ];
 
 export const foodStats: {
@@ -37,9 +37,9 @@ export const foodStats: {
   value: string;
   label: string;
 }[] = [
-  { icon: "store", tone: "rose", value: "50k", label: "RESTAURANTS" },
-  { icon: "pin", tone: "azure", value: "100+", label: "CITIES" },
-  { icon: "orders", tone: "navy", value: "1B+", label: "ORDERS" },
+  { icon: "store", tone: "rose", value: "LOCAL", label: "BUSINESSES" },
+  { icon: "pin", tone: "azure", value: "COASTAL", label: "AREAS" },
+  { icon: "orders", tone: "navy", value: "DAILY", label: "ESSENTIALS" },
 ];
 
 export const benefits: {
@@ -53,39 +53,39 @@ export const benefits: {
   {
     icon: "utensils",
     tone: "mint",
-    title: "Nutritious Eats",
-    copy: "Chef-crafted healthy bowls delivered to your door.",
+    title: "Local Favorites",
+    copy: "Order meals from nearby restaurants and cafes.",
   },
   {
     icon: "dining",
     tone: "peach",
-    title: "Fine Dining",
-    copy: "Exclusive table bookings at top-tier establishments.",
+    title: "Groceries & Drinks",
+    copy: "Stock up from supermarkets and local shops.",
   },
   {
     icon: "leaf",
     tone: "forest",
-    title: "Green Choice",
-    copy: "Eco-friendly packaging and carbon-neutral delivery.",
+    title: "Coastal Coverage",
+    copy: "Starting in Santa Teresa and nearby communities.",
     toggle: true,
   },
   {
     icon: "tag",
     tone: "periwinkle",
-    title: "Exclusive Deals",
-    copy: "Premium discounts for Shaaneiol elite members.",
+    title: "Useful Deals",
+    copy: "Find offers from participating local businesses.",
   },
   {
     icon: "catering",
     tone: "sky",
-    title: "Group Catering",
-    copy: "Effortless event planning and bulk orders.",
+    title: "Everyday Essentials",
+    copy: "Get the basics delivered when your day is full.",
   },
   {
     icon: "wallet",
     tone: "sky",
-    title: "Digital Credits",
-    copy: "Unified wallet for instant payments and global transfers.",
+    title: "Simple Payments",
+    copy: "Pay securely and keep checkout moving.",
   },
 ];
 
@@ -98,26 +98,26 @@ export const valueProps: { icon: string; title: string }[] = [
 export const products = [
   {
     tone: "food",
-    title: "Shaaneiol Food",
+    title: "SIPP Food",
     icon: "/brand/shaaneiol-food.png",
-    copy: "Get the app and discover delicious meals delivered to your door.",
+    copy: "Discover local restaurants and order food across town.",
   },
   {
     tone: "store",
-    title: "Shaaneiol Store",
+    title: "SIPP Store",
     icon: "/brand/shaaneiol-store.png",
-    copy: "Everything you need to manage your store in one app.",
+    copy: "Bring your restaurant, supermarket, or shop to local customers.",
   },
   {
     tone: "driver",
-    title: "Shaaneiol Driver",
+    title: "SIPP Driver",
     icon: "/brand/shaaneiol-driver.png",
-    copy: "Manage deliveries efficiently with the Shaaneiol Driver app.",
+    copy: "Deliver orders across SIPP service areas with clear order flow.",
   },
   {
     tone: "rider",
-    title: "Shaaneiol Rider",
+    title: "SIPP Rider",
     icon: "/brand/shaaneiol-rider.png",
-    copy: "Discover restaurants and enjoy fast doorstep delivery.",
+    copy: "Find food, groceries, drinks, and essentials in one place.",
   },
 ] as const;

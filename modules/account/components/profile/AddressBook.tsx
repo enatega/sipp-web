@@ -68,14 +68,14 @@ function AddressCard({
     <article
       className={`group flex min-h-52 flex-col rounded-xl border shadow-[0_8px_28px_rgba(35,22,26,0.06)] transition-[border-color,transform,box-shadow] hover:-translate-y-0.5 hover:shadow-card ${
         address.is_selected
-          ? "border-brand bg-[linear-gradient(180deg,var(--color-brand-deep),var(--color-brand))] text-white"
+          ? "border-brand bg-brand text-ink"
           : "border-transparent bg-card"
       }`}
     >
       <div className="flex flex-1 flex-col px-5 pb-4 pt-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
-            <span className={`grid size-8 flex-none place-items-center rounded-lg p-1.5 ${address.is_selected ? "bg-white" : "bg-[#fde7eb] dark:bg-[#401d25]"}`}>
+            <span className={`grid size-8 flex-none place-items-center rounded-lg p-1.5 ${address.is_selected ? "bg-white" : "bg-brand/10"}`}>
               <Image
                 src={TYPE_ICONS[address.type]}
                 alt=""
@@ -109,7 +109,7 @@ function AddressCard({
           onClick={onEdit}
           disabled={!chosenPlaceFromAddress(address)}
           aria-label={t("editAddress", { name })}
-          className={`inline-flex min-h-12 items-center justify-center gap-2 border-r text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${address.is_selected ? "border-white/20 text-white hover:bg-white/10" : "border-line text-brand hover:bg-[#fff7f8] dark:hover:bg-[#2a1d21]"}`}
+          className={`inline-flex min-h-12 items-center justify-center gap-2 border-r text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${address.is_selected ? "border-ink/20 text-ink hover:bg-white/20" : "border-line text-brand hover:bg-brand/10"}`}
         >
           <Pencil className="size-3.5" aria-hidden="true" />
           {t("edit")}
@@ -118,7 +118,7 @@ function AddressCard({
           type="button"
           onClick={onRemove}
           aria-label={t("removeAddress", { name })}
-          className={`inline-flex min-h-12 items-center justify-center gap-2 text-[11px] font-semibold transition-colors ${address.is_selected ? "text-white hover:bg-white/10" : "text-brand hover:bg-[#fff7f8] dark:hover:bg-[#2a1d21]"}`}
+          className={`inline-flex min-h-12 items-center justify-center gap-2 text-[11px] font-semibold transition-colors ${address.is_selected ? "text-ink hover:bg-white/20" : "text-brand hover:bg-brand/10"}`}
         >
           <Trash2 className="size-3.5" aria-hidden="true" />
           {t("remove")}
@@ -162,7 +162,7 @@ function RemoveAddressDialog({
       }}
     >
       <div className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-[0_24px_70px_rgba(20,10,14,0.3)]">
-        <span className="grid size-11 place-items-center rounded-full bg-[#fde7eb] text-brand dark:bg-[#401d25]">
+        <span className="grid size-11 place-items-center rounded-full bg-brand/10 text-brand">
           <Icon name="pin" className="size-5" />
         </span>
         <h2 id="remove-address-title" className="mt-4 text-lg font-semibold">
@@ -193,7 +193,7 @@ function RemoveAddressDialog({
             onClick={onConfirm}
             disabled={isRemoving}
             autoFocus
-            className="min-h-10 rounded-full bg-brand px-5 text-xs font-semibold text-white hover:bg-brand-deep disabled:cursor-wait disabled:opacity-60"
+            className="min-h-10 rounded-full bg-brand px-5 text-xs font-semibold text-ink hover:bg-brand/85 disabled:cursor-wait disabled:opacity-60"
           >
             {isRemoving ? t("removing") : t("confirmRemove")}
           </button>
@@ -264,9 +264,9 @@ export function AddressBook() {
                 <button
                   type="button"
                   onClick={() => setIsAdding(true)}
-                  className="group flex min-h-52 flex-col items-center justify-center rounded-xl border border-dashed border-[#9bb1cb] bg-card px-6 text-center transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-brand hover:bg-[#fffafb] dark:border-[#526579] dark:hover:bg-[#241a1d]"
+                  className="group flex min-h-52 flex-col items-center justify-center rounded-xl border border-dashed border-brand bg-card px-6 text-center transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:bg-brand/10"
                 >
-                  <span className="grid size-10 place-items-center rounded-full bg-[#fde7eb] text-brand transition-transform group-hover:scale-105 dark:bg-[#401d25]">
+                  <span className="grid size-10 place-items-center rounded-full bg-brand/10 text-brand transition-transform group-hover:scale-105">
                     <Icon name="pin" className="size-4" />
                   </span>
                   <strong className="mt-4 text-[13px] font-semibold">{t("addNew")}</strong>

@@ -5,30 +5,30 @@ import { PhoneStatus } from "./PhoneChrome";
 
 const CATEGORIES = [
   ["Restaurants", "store"],
-  ["Home Chefs", "dining"],
-  ["Catering", "catering"],
-  ["Sweets & Cakes", "tag"],
+  ["Groceries", "market"],
+  ["Drinks", "tag"],
+  ["Essentials", "catering"],
 ] as const;
 
 const TABS = [
   ["Home", "store"],
   ["Category", "market"],
-  ["Book a Table", "dining"],
+  ["Deals", "dining"],
   ["Cart", "tag"],
   ["Account", "community"],
 ] as const;
 
-/** The Foodin consumer app mock shown beside the "Everything You Need" copy. */
+/** The SIPP consumer app mock shown beside the "Everything You Need" copy. */
 export function AppPhone() {
   return (
-    <div className={cn(styles.phone, styles.phoneLg)} role="img" aria-label="The Shaaneiol Foodin app">
+    <div className={cn(styles.phone, styles.phoneLg)} role="img" aria-label="The SIPP customer app">
       <PhoneStatus />
 
       <div className={styles.phoneHead}>
         <div className={styles.phoneBrand}>
           <b>
-            Food<em>in</em>
-            <i>For Food and Beyond</i>
+            SIPP<em>.</em>
+            <i>Local delivery</i>
           </b>
           <small>
             Good Morning
@@ -36,14 +36,14 @@ export function AppPhone() {
           </small>
         </div>
         <span className={styles.phoneMode}>
-          <i className={styles.dot} /> Food
+          <i className={styles.dot} /> SIPP
           <Icon name="chevron" className={styles.icon10} />
         </span>
       </div>
 
       <div className={styles.phoneAddress}>
         <span>
-          Deliver to <Icon name="pin" className={styles.icon10} /> <b>Home</b> FL 32401
+          Deliver to <Icon name="pin" className={styles.icon10} /> <b>Home</b> Santa Teresa
         </span>
         <span className={styles.phoneAddressActions}>
           <Icon name="community" className={styles.icon12} />
@@ -55,12 +55,12 @@ export function AppPhone() {
 
       <div className={styles.phoneSearch}>
         <Icon name="search" className={styles.icon12} />
-        Search food, cuisine, restaurant...
+        Search food, groceries, drinks...
         <Icon name="filter" className={cn(styles.icon12, styles.phoneSearchFilter)} />
       </div>
 
       <div className={styles.phoneChips}>
-        {["Veg", "Non-Veg", "Cakes", "Fr"].map((chip) => (
+        {["Food", "Groceries", "Drinks", "Essentials"].map((chip) => (
           <span key={chip}>{chip}</span>
         ))}
       </div>
@@ -70,7 +70,7 @@ export function AppPhone() {
           <i>UP TO</i>
           <b>70%</b>
           <em>
-            OFF FIRST
+            OFF LOCAL
             <br />
             ORDER
           </em>
@@ -82,7 +82,7 @@ export function AppPhone() {
       <div className={styles.phoneDeals}>
         <div className={styles.dealOrange}>
           <b>FLAT 20% OFF</b>
-          <small>On selected Restaurants</small>
+          <small>At selected SIPP businesses</small>
           <Icon name="tag" className={cn(styles.icon16, styles.dealMark)} />
         </div>
         <div className={styles.dealGreen}>
@@ -90,7 +90,7 @@ export function AppPhone() {
           <small>
             Delivery
             <br />
-            $30
+            orders
           </small>
         </div>
       </div>

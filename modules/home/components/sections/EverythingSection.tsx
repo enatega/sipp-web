@@ -24,9 +24,9 @@ export function EverythingSection() {
             <span className="text-brand">All in One Place.</span>
           </h2>
           <p className="mb-[30px] max-w-[560px] text-body">
-            A seamless ecosystem designed to simplify your daily life, from
-            gourmet dining to global rewards. Experience the future of urban
-            lifestyle services today.
+            SIPP makes everyday ordering easier for coastal communities,
+            bringing local restaurants, supermarkets, drinks, and essentials
+            into one clear delivery experience.
           </p>
           <div className="grid grid-cols-1 gap-x-[22px] gap-y-4 md:grid-cols-2">
             {benefits.map(({ icon, tone, title, copy, toggle }) => (

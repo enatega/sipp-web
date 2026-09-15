@@ -2,7 +2,8 @@
 
 import { ChevronDown, LoaderCircle, TicketPercent } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { CouponListItem } from "@/modules/account/components/profile/CouponListItem";
 import { useClaimCouponMutation, useClaimedCouponsQuery, useCouponActivationMutation } from "@/modules/account/queries/useCouponQueries";
 import { ApiError } from "@/services/api/client";
@@ -18,6 +19,7 @@ interface Props {
 export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCouponId }: Props) {
   const t = useTranslations("deliveries.checkout");
   const couponT = useTranslations("coupons");
+  const format = useFormatter();
   const coupons = useClaimedCouponsQuery(enabled);
   const claim = useClaimCouponMutation();
   const activation = useCouponActivationMutation();
@@ -28,7 +30,7 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
   const activeCoupon = items.find((coupon) => coupon.id === appliedCouponId && !disabledReason(coupon));
 
   function disabledReason(coupon: ClaimedCoupon) {
-    if (coupon.min_order_value > subtotal) return t("couponMinimumNotMet", { amount: coupon.min_order_value });
+    if (coupon.min_order_value > subtotal) return t("couponMinimumNotMet", { amount: formatAppCurrency(format, coupon.min_order_value) });
     if (coupon.offered_by?.length && !coupon.offered_by.some((store) => store.store_id === storeId)) return t("couponWrongStore");
     return undefined;
   }
@@ -73,7 +75,7 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
       <div className="mt-5 flex flex-col gap-2 sm:flex-row">
         <label className="sr-only" htmlFor="checkout-coupon-code">{t("couponCode")}</label>
         <input id="checkout-coupon-code" value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void claimCode(); } }} maxLength={64} autoComplete="off" spellCheck={false} placeholder={t("couponCodePlaceholder")} className="min-h-12 min-w-0 flex-1 rounded-xl border border-line bg-surface px-4 font-mono text-sm font-bold uppercase tracking-[0.08em] text-ink outline-none placeholder:font-sans placeholder:font-normal placeholder:tracking-normal placeholder:text-muted focus:border-brand focus:ring-4 focus:ring-brand/10" />
-        <button type="button" onClick={() => void claimCode()} disabled={claim.isPending || !code.trim()} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-50">{claim.isPending ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}{t("claimCoupon")}</button>
+        <button type="button" onClick={() => void claimCode()} disabled={claim.isPending || !code.trim()} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-ink hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-50">{claim.isPending ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}{t("claimCoupon")}</button>
       </div>
 
       {notice ? <p role={notice.kind === "error" ? "alert" : "status"} className={`mt-3 rounded-xl px-4 py-3 text-xs font-medium ${notice.kind === "error" ? "bg-danger-soft text-danger" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"}`}>{notice.text}</p> : null}

@@ -2,7 +2,7 @@
 
 ## Platform and audience
 
-`super-web` is the customer-facing Shaaneiol web application. It serves
+`super-web` is the customer-facing SIPP web application. It serves
 visitors and authenticated customers using the public site and food-delivery
 journey.
 
@@ -42,7 +42,7 @@ backend business rules with guessed client logic.
 - Chain delivery mode and Drive/Ride Sharing are out of scope unless product
   scope is explicitly revised.
 
-The public homepage may describe the broader Shaaneiol ecosystem, but its copy
+The public homepage may describe the broader SIPP ecosystem, but its copy
 does not authorize implementation of an out-of-scope service.
 
 ## Existing behavior to preserve
@@ -71,8 +71,18 @@ these behaviors accidentally.
 
 ## Brand, accessibility, and localization
 
-- Product name: Shaaneiol.
-- Preserve the existing burgundy customer brand; do not copy the admin theme.
+- Product name: SIPP.
+- Brand color: `#66C0F2`; use it for CTAs, button backgrounds, input borders,
+  focus states, and bordered white buttons.
+- Brand soft color: `rgba(102, 192, 242, 0.1)`; do not introduce a deep brand
+  variant.
+- Secondary color: `#E33935`; use the semantic secondary/danger token where a
+  balancing red accent or destructive state is appropriate.
+- Shared brand artwork uses `/public/brand/sipp-logo.png`; keep it clearly
+  readable in the header and footer.
+- Existing cookie, storage, and browser-event keys are compatibility
+  identifiers rather than user-facing copy; rename them only with a migration
+  that preserves active sessions and saved preferences.
 - Support responsive mobile, tablet, and desktop layouts.
 - All journeys are keyboard operable, visibly focused, screen-reader labelled,
   and usable in light and dark mode.

@@ -32,7 +32,7 @@ export function OtpInput({ value, onChange, disabled, length = 6 }: OtpInputProp
       {digits.map((digit, index) => (
         <input
           key={index}
-          className="aspect-square w-full rounded-full border border-[#e4e7eb] bg-[#f7f8fa] text-center font-heading text-[clamp(16px,1.5vw,21px)] font-semibold text-brand outline-none focus:border-brand focus:bg-white focus:shadow-[0_0_0_3px_rgba(183,24,47,0.1)]"
+          className="aspect-square w-full rounded-full border border-[#e4e7eb] bg-[#f7f8fa] text-center font-heading text-[clamp(16px,1.5vw,21px)] font-semibold text-brand outline-none focus:border-brand focus:bg-white focus:shadow-[0_0_0_3px_rgba(102,192,242,0.1)]"
           ref={(node) => {
             refs.current[index] = node;
           }}

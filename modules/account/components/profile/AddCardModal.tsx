@@ -48,7 +48,7 @@ function AddCardForm({ clientSecret, onClose, onSaved }: AddCardFormProps) {
             color: resolvedTheme === "dark" ? "#aeb4bd" : "#747983",
           },
         },
-        invalid: { color: "#b7182f" },
+        invalid: { color: "#e33935" },
       },
     }),
     [resolvedTheme],
@@ -176,7 +176,7 @@ function AddCardForm({ clientSecret, onClose, onSaved }: AddCardFormProps) {
         <button
           type="submit"
           disabled={!stripe || !elements || formik.isSubmitting}
-          className="inline-flex min-h-11 flex-[2] items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[12px] font-semibold text-white transition-colors hover:bg-brand-deep disabled:cursor-wait disabled:opacity-55"
+          className="inline-flex min-h-11 flex-[2] items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[12px] font-semibold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-55"
         >
           {formik.isSubmitting ? (
             <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />

@@ -1,6 +1,6 @@
 # Super Web Architecture
 
-This is the canonical target architecture for the Shaaneiol customer web
+This is the canonical target architecture for the SIPP customer web
 application. It adapts the reusable patterns in `super-admin` to a secure,
 customer-facing Next.js application and the modular delivery model in
 `super-app`.

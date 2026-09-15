@@ -4,14 +4,14 @@ export const appStoreLinks = {
 } as const;
 
 export const footerColumns = [
-  { title: "COMPANY", links: ["About Shaaneiol", "Careers", "Blog"] },
+  { title: "COMPANY", links: ["About SIPP", "Partner with us", "How it works"] },
   {
     title: "ALL IN ONE PLACE",
     links: [
-      "Shaaneiol Food In",
-      "Shaaneiol Driver",
-      "Shaaneiol Store",
-      "Shaaneiol Rider",
+      "Restaurants",
+      "Groceries",
+      "Drinks",
+      "Essentials",
     ],
   },
   {

@@ -4,7 +4,7 @@ import { proxyDiscoveryRequest } from "@/services/deliveries/discovery";
 export const dynamic = "force-dynamic";
 
 export function GET(request: NextRequest) {
-  return proxyDiscoveryRequest(request, "/apps/deliveries/public/deals/home", {
+  return proxyDiscoveryRequest(request, "/apps/deliveries/deals/home", {
     requiresAuth: false,
   });
 }

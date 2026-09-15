@@ -1,5 +1,6 @@
 import { AlertCircle } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { cn } from "@/lib/utils";
 import type { ProductCustomizationSection } from "../../types/restaurant";
 
@@ -69,7 +70,7 @@ export function CustomizationGroup({
               <span className="min-w-0 flex-1 text-ink">{option.title}</span>
               {option.price > 0 ? (
                 <span className="shrink-0 text-muted">
-                  + {format.number(option.price, { style: "currency", currency: "INR" })}
+                  + {formatAppCurrency(format, option.price)}
                 </span>
               ) : null}
             </label>

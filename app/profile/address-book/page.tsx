@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AddressBook } from "@/modules/account";
 
 export const metadata: Metadata = {
-  title: "Address Book | Shaaneiol",
+  title: "Address Book | SIPP",
 };
 
 export default function AddressBookPage() {

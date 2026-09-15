@@ -9,7 +9,7 @@ export function ValueSection() {
           {valueProps.map(({ icon, title }, index) => (
             <div
               key={title}
-              className={`flex flex-col items-center justify-center gap-1 text-center sm:gap-2 md:flex-row md:gap-5 md:text-left md:border-r md:border-[rgba(183,24,47,0.16)] ${
+              className={`flex flex-col items-center justify-center gap-1 text-center sm:gap-2 md:flex-row md:gap-5 md:text-left md:border-r md:border-[rgba(102,192,242,0.16)] ${
                 index === valueProps.length - 1 ? "md:border-r-0" : ""
               }`}
             >
@@ -30,10 +30,10 @@ export function ValueSection() {
           ))}
         </div>
         <h2 className="mb-3.5 mt-8 font-crest text-[32px] font-bold tracking-[0.05em] text-brand sm:mt-[52px] sm:text-[clamp(34px,4vw,54px)]">
-          SHAANEIOL
+          SIPP
         </h2>
         <p className="text-[10px] font-medium tracking-[0.18em] text-muted sm:text-[11px] sm:tracking-[0.24em]">
-          EMPOWERING INDIA&apos;S &amp; AUSTRALIA&apos;S CHANGING LIFESTYLES
+          CONNECTING COSTA RICA&apos;S COASTAL COMMUNITIES TO LOCAL EVERYDAY DELIVERY
         </p>
       </div>
     </section>

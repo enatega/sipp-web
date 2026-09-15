@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { CouponsPage } from "@/modules/account";
 
 export const metadata: Metadata = {
-  title: "Coupons | Shaaneiol",
-  description: "Claim and manage your Shaaneiol coupons.",
+  title: "Offers | SIPP",
+  description: "Claim and manage your SIPP offers.",
 };
 
 export default function CustomerCouponsPage() {

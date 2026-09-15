@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
 import {
   Rail,
@@ -69,10 +70,7 @@ export function OrderAgainSection({ items, isLoading, isError, onRetry, seeAllHr
                     </p>
                   </div>
                   <b className="shrink-0 text-xs text-brand">
-                    {format.number(order.orderTotal, {
-                      style: "currency",
-                      currency: "INR",
-                    })}
+                    {formatAppCurrency(format, order.orderTotal)}
                   </b>
                 </div>
                 <p className="mt-3 text-[10px] font-medium text-muted">

@@ -5,6 +5,7 @@ import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-
 import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
 import { CreditCard, LoaderCircle, LockKeyhole, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import type { SavedCard } from "@/modules/account";
@@ -105,7 +106,7 @@ function PaymentForm({
         </p>
       ) : null}
       <button
-        className="mt-5 inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-white transition-colors hover:bg-brand-deep disabled:cursor-wait disabled:opacity-55"
+        className="mt-5 inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-55"
         disabled={!stripe || (!selectedCard && !elements) || isSubmitting}
         type="submit"
       >
@@ -113,10 +114,7 @@ function PaymentForm({
         {isSubmitting
           ? t("processingCard")
           : t("payNow", {
-              total: format.number(total, {
-                style: "currency",
-                currency: "INR",
-              }),
+              total: formatAppCurrency(format, total),
             })}
       </button>
     </form>
@@ -161,10 +159,10 @@ export function StripePaymentModal({
       appearance: {
         theme: isDark ? "night" : "stripe",
         variables: {
-          colorPrimary: "#b7182f",
+          colorPrimary: "#66c0f2",
           colorBackground: isDark ? "#1d2127" : "#ffffff",
           colorText: isDark ? "#f6f7f8" : "#14161a",
-          colorDanger: "#b7182f",
+          colorDanger: "#e33935",
           borderRadius: "12px",
           fontFamily: "system-ui, sans-serif",
           spacingUnit: "4px",
@@ -175,8 +173,8 @@ export function StripePaymentModal({
             boxShadow: "none",
           },
           ".Input:focus": {
-            borderColor: "#b7182f",
-            boxShadow: "0 0 0 3px rgba(183, 24, 47, 0.12)",
+            borderColor: "#66c0f2",
+            boxShadow: "0 0 0 3px rgba(102, 192, 242, 0.1)",
           },
         },
       },

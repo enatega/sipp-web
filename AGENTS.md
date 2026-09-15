@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Shaaneiol Super Web Agent Guide
+# SIPP Super Web Agent Guide
 
 This file is the mandatory entrypoint for every task in this repository. It
 applies to the entire `super-web` tree. More specific `AGENTS.md` files may add

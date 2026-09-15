@@ -25,7 +25,8 @@ export function LocaleSwitcher() {
             router.refresh();
           });
         }}
-        className="h-9 rounded-full border border-line bg-surface px-2 text-xs font-semibold text-foreground outline-none focus:border-brand"
+        className="h-9 text-center  rounded-full border border-line bg-surface px-2 text-xs font-semibold text-foreground outline-none focus:border-brand"
+        
         aria-label={t("language")}
       >
         {locales.map((locale) => (

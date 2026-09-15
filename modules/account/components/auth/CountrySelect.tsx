@@ -81,7 +81,7 @@ export function CountrySelect({ value, onChange, disabled }: CountrySelectProps)
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search country or code"
               aria-label="Search countries"
-              className="h-10 w-full rounded-lg border border-[#eceef1] bg-[#fbfbfc] px-3 text-sm text-[#181a1e] outline-none placeholder:text-[#9a9da4] focus:border-[#cf5265] focus:bg-white"
+              className="h-10 w-full rounded-lg border border-brand bg-[#fbfbfc] px-3 text-sm text-[#181a1e] outline-none placeholder:text-[#9a9da4] focus:border-brand focus:bg-white"
             />
           </div>
           <ul role="listbox" className="max-h-64 overflow-y-auto pb-2">

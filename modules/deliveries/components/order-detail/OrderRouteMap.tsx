@@ -160,7 +160,7 @@ export function OrderRouteMap({ order, storeName }: Props) {
             zoom={13}
           >
             <MarkerF
-              icon={createMarkerIcon("#b7182f")}
+              icon={createMarkerIcon("#66c0f2")}
               label={{ color: "#ffffff", fontSize: "12px", fontWeight: "700", text: "S" }}
               position={storePoint}
               title={t("mapStore")}
@@ -178,7 +178,7 @@ export function OrderRouteMap({ order, storeName }: Props) {
                     directions={directions}
                     options={{
                       polylineOptions: {
-                        strokeColor: "#b7182f",
+                        strokeColor: "#66c0f2",
                         strokeOpacity: 0.9,
                         strokeWeight: 5,
                       },
@@ -190,7 +190,7 @@ export function OrderRouteMap({ order, storeName }: Props) {
                   <PolylineF
                     options={{
                       geodesic: true,
-                      strokeColor: "#b7182f",
+                      strokeColor: "#66c0f2",
                       strokeOpacity: 0.5,
                       strokeWeight: 3,
                     }}
@@ -215,7 +215,7 @@ export function OrderRouteMap({ order, storeName }: Props) {
         {canRenderMap ? (
           <div className="pointer-events-none absolute left-3 top-3 flex gap-2 rounded-full bg-card/95 p-1.5 shadow-card">
             <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-bold text-body">
-              <span className="grid size-5 place-items-center rounded-full bg-brand text-[9px] text-white">S</span>
+              <span className="grid size-5 place-items-center rounded-full bg-brand text-[9px] text-ink">S</span>
               {t("mapStore")}
             </span>
             {!isSamePoint ? (

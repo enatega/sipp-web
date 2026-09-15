@@ -93,7 +93,7 @@ export function VendorOnboardingExperience() {
             <h2 className="mt-8 text-xl font-bold text-ink">{t("nextTitle")}</h2>
             <p className="mt-2 text-sm leading-6 text-body">{t("nextText")}</p>
             <div className="mt-9 flex flex-wrap gap-3">
-              <Link href="/" className="rounded-full bg-brand px-6 py-3 text-sm font-bold text-white hover:bg-brand-deep">
+              <Link href="/" className="rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink hover:bg-brand/85">
                 {t("backHome")}
               </Link>
               <Link href="/help" className="rounded-full border border-line px-6 py-3 text-sm font-bold text-ink hover:border-brand hover:text-brand">
@@ -108,7 +108,7 @@ export function VendorOnboardingExperience() {
 
   return (
     <main className="bg-[var(--soft-surface)]">
-      <section className="bg-brand py-14 text-white sm:py-20 lg:py-24">
+      <section className="bg-brand py-14 text-ink sm:py-20 lg:py-24">
         <div className="section-wrap grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-20">
           <div>
             <h1 className="max-w-[760px] text-balance text-4xl font-extrabold leading-[1.04] tracking-[-0.035em] sm:text-6xl lg:text-[4.75rem]">
@@ -119,7 +119,7 @@ export function VendorOnboardingExperience() {
             </p>
             <a
               href="#vendor-application"
-              className="mt-8 inline-flex min-h-12 items-center gap-3 rounded-full bg-white px-6 text-sm font-extrabold text-brand transition-[translate,background-color] hover:-translate-y-0.5 hover:bg-danger-soft focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              className="mt-8 inline-flex min-h-12 items-center gap-3 rounded-full border border-brand bg-white px-6 text-sm font-extrabold text-brand transition-[translate,background-color] hover:-translate-y-0.5 hover:bg-black hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
               {t("startApplication")}
               <ArrowDown className="size-4" />
@@ -316,7 +316,7 @@ export function VendorOnboardingExperience() {
                   <button
                     type="submit"
                     disabled={isSubmitting || options.isPending || options.isError}
-                    className="inline-flex min-h-12 w-full flex-none items-center justify-center gap-2 rounded-full bg-brand px-7 text-sm font-bold text-white shadow-card transition-[translate,background-color] hover:-translate-y-0.5 hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none sm:w-auto"
+                    className="inline-flex min-h-12 w-full flex-none items-center justify-center gap-2 rounded-full bg-brand px-7 text-sm font-bold text-ink shadow-card transition-[translate,background-color] hover:-translate-y-0.5 hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none sm:w-auto"
                   >
                     {isSubmitting ? t("submitting") : t("submit")}
                     {!isSubmitting ? <ArrowDown className="size-4 -rotate-90" /> : null}

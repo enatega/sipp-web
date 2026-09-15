@@ -8,7 +8,7 @@ import styles from "@/modules/home/styles/home.module.css";
  */
 export function ServicesPhone() {
   return (
-    <div className={cn(styles.phone, styles.phoneShot, styles.phoneTall)} role="img" aria-label="The Shaaneiol services app home screen">
+    <div className={cn(styles.phone, styles.phoneShot, styles.phoneTall)} role="img" aria-label="The SIPP services app home screen">
       <Image
         src="/app/screen-services.png"
         alt=""

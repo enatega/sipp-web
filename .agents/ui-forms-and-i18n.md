@@ -1,7 +1,7 @@
 # UI, Forms, Styling, Themes, and Internationalization
 
 The customer web application follows the reuse discipline of `super-admin`
-while retaining Shaaneiol's burgundy customer brand and customer-facing UX.
+while retaining SIPP's light-blue customer brand and customer-facing UX.
 
 ## Component hierarchy
 
@@ -29,8 +29,12 @@ subcomponents and hooks.
   use semantic tokens declared in global CSS.
 - Every semantic color token must have light and dark values.
 - Do not use arbitrary color literals in feature components.
-- Brand tokens retain Shaaneiol burgundy; do not copy the admin's yellow
-  primary palette.
+- Use `#66C0F2` through the semantic brand token for CTAs, button backgrounds,
+  input borders, focus states, and bordered white buttons.
+- Use `rgba(102, 192, 242, 0.1)` for soft brand surfaces. Do not add or use a
+  deep brand variant.
+- Use `#E33935` through the semantic secondary/danger token for balancing red
+  accents and destructive states.
 - Put reusable variants on primitives with a typed variant utility. Do not
   repeat long button/input/card class strings across features.
 - Keep `app/globals.css` limited to Tailwind setup, application-wide tokens,

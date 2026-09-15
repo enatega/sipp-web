@@ -54,14 +54,14 @@ export function AuthMenu({ cartCount = 0 }: { cartCount?: number }) {
     return (
       <div className="flex items-center gap-2">
         <Link
-          className="inline-flex min-h-[42px] items-center justify-center rounded-full border border-brand px-5 text-sm font-bold text-brand transition-colors hover:bg-danger-soft max-sm:min-h-10 max-sm:px-3 max-sm:text-xs"
+          className="inline-flex min-h-[42px] items-center justify-center rounded-full border border-brand px-5 text-sm font-bold text-brand transition-colors hover:bg-brand hover:text-white max-sm:min-h-10 max-sm:px-3 max-sm:text-xs"
           href="/become-a-vendor"
         >
           <span className="max-sm:hidden">{navigation("becomeVendor")}</span>
           <span className="sm:hidden">{navigation("becomeVendorShort")}</span>
         </Link>
         <Link
-          className="inline-flex min-h-[42px] min-w-[108px] items-center justify-center rounded-full bg-brand px-6 text-sm font-bold text-white transition-[translate,background-color,box-shadow] duration-[180ms] hover:-translate-y-px hover:bg-brand-deep hover:shadow-[0_9px_20px_rgba(183,24,47,0.18)] max-sm:min-h-10 max-sm:min-w-0 max-sm:px-4 max-sm:text-xs"
+          className="inline-flex min-h-[42px] min-w-[108px] items-center justify-center rounded-full bg-brand px-6 text-sm font-bold text-ink transition-[translate,background-color,box-shadow] duration-[180ms] hover:-translate-y-px hover:bg-brand/85 hover:shadow-[0_9px_20px_rgba(102,192,242,0.18)] max-sm:min-h-10 max-sm:min-w-0 max-sm:px-4 max-sm:text-xs"
           href={loginHref(pathname)}
           onClick={(event) => {
             event.preventDefault();
@@ -110,7 +110,7 @@ export function AuthMenu({ cartCount = 0 }: { cartCount?: number }) {
             {logoutError ? <p className="mt-4 rounded-xl bg-danger-soft px-4 py-3 text-sm font-medium text-danger" role="alert">{logoutError}</p> : null}
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button type="button" disabled={logout.isPending} onClick={() => setConfirmingLogout(false)} className="min-h-11 rounded-full border border-line px-4 text-sm font-bold text-ink transition-colors hover:bg-[var(--soft-surface)] disabled:cursor-wait disabled:opacity-50">{common("cancel")}</button>
-              <button type="button" disabled={logout.isPending} onClick={() => void confirmLogout()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand px-4 text-sm font-bold text-white transition-colors hover:bg-brand-deep disabled:cursor-wait disabled:opacity-65">
+              <button type="button" disabled={logout.isPending} onClick={() => void confirmLogout()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand px-4 text-sm font-bold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-65">
                 {logout.isPending ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}
                 {logout.isPending ? common("loggingOut") : common("logout")}
               </button>

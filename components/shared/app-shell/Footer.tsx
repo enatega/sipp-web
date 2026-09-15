@@ -2,6 +2,12 @@ import { Logo } from "@/components/shared/brand/Logo";
 import { StoreButtons } from "@/components/shared/brand/StoreButtons";
 import { footerColumns } from "@/config/public-site";
 
+const FOOTER_LINK_HREFS: Record<string, string> = {
+  "About SIPP": "/about",
+  "Partner with us": "/partners",
+  "How it works": "/how-it-works",
+};
+
 const SOCIALS = [
   ["X", "M4 4l12 12M16 4L4 16"],
   ["Facebook", "M12.5 5H14V2.7h-2c-1.9 0-3 1.2-3 3.1V8H7v2.3h2V18h2.4v-7.7h2L15.7 8h-2.3V6.2c0-.8.4-1.2 1.1-1.2z"],
@@ -14,13 +20,13 @@ export function Footer() {
       <div className="section-wrap">
         <div className="grid grid-cols-1 gap-[30px] sm:grid-cols-2 md:grid-cols-[2fr_1fr_1.2fr_1fr] md:gap-10">
           <div className="col-span-full md:col-span-1">
-            <Logo className="[&_img]:h-[62px]" />
+            <Logo className="[&_img]:h-14 md:[&_img]:h-20" />
             <p className="my-4 max-w-[250px] text-xs leading-[1.5] text-body">
-              A global multi-vendor food marketplace powered by Shaaneiol,
-              delivery across India &amp; Australia.
+              Local delivery for food, groceries, drinks, and everyday
+              essentials across Costa Rica&apos;s coastal communities.
             </p>
             <div className="flex gap-2">
-              {["foodin.in", "foodin.com.au"].map((domain) => (
+              {["Santa Teresa", "Playa Carmen"].map((domain) => (
                 <span
                   key={domain}
                   className="rounded-lg border border-line px-2.5 py-[5px] text-[10px] text-muted"
@@ -36,7 +42,7 @@ export function Footer() {
               {links.map((link) => (
                 <a
                   key={link}
-                  href="#top"
+                  href={FOOTER_LINK_HREFS[link] ?? "#top"}
                   className="text-xs text-body hover:text-brand"
                 >
                   {link}
@@ -47,7 +53,7 @@ export function Footer() {
         </div>
 
         <div className="mt-[34px] flex flex-col items-start justify-between gap-5 border-t border-line pt-[18px] text-[11px] text-muted md:flex-row md:items-center">
-          <span>&copy; 2026 Shaaneiol &middot; All rights reserved</span>
+          <span>&copy; 2026 SIPP &middot; All rights reserved</span>
           <span className="inline-flex items-center gap-3">
             <small className="text-[10px] tracking-[0.12em]">DOWNLOAD APP</small>
             <StoreButtons size="sm" />

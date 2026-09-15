@@ -117,7 +117,7 @@ export function CheckoutAddressPicker({
                   onClick={() => onSelect(address)}
                   type="button"
                 >
-                  <span className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg ${isSelected ? "bg-brand text-white" : "bg-brand/10 text-brand"}`}>
+                  <span className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg ${isSelected ? "bg-brand text-ink" : "bg-brand/10 text-brand"}`}>
                     {isValidating ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : isSelected ? <Check aria-hidden="true" className="size-4" /> : <MapPin aria-hidden="true" className="size-4" />}
                   </span>
                   <span className="min-w-0 flex-1">

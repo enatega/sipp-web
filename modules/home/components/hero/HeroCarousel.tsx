@@ -77,7 +77,7 @@ export function HeroCarousel({ items }: { items: CarouselItem[] }) {
         className="grid grid-cols-1"
         aria-live="off"
         aria-roledescription="carousel"
-        aria-label="Shaaneiol services"
+        aria-label="SIPP services"
       >
         {items.map((item, index) => (
           <div

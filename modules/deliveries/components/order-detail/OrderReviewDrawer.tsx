@@ -127,7 +127,7 @@ export function OrderReviewDrawer({ orderId, review, storeName, onClose }: Props
               </p>
             ) : null}
             <button
-              className="mt-8 min-h-11 rounded-full bg-brand px-6 text-sm font-bold text-white transition-colors hover:bg-brand-deep"
+              className="mt-8 min-h-11 rounded-full bg-brand px-6 text-sm font-bold text-ink transition-colors hover:bg-brand/85"
               onClick={onClose}
               type="button"
             >
@@ -183,7 +183,7 @@ export function OrderReviewDrawer({ orderId, review, storeName, onClose }: Props
             ) : null}
 
             <button
-              className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-white transition-colors hover:bg-brand-deep disabled:cursor-wait disabled:opacity-55"
+              className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-55"
               disabled={!formik.isValid || mutation.isPending}
               type="submit"
             >

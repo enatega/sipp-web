@@ -88,7 +88,7 @@ export function MobileCategoryNavigation({
           className={cn(
             "shrink-0 rounded-full px-4 py-2 text-xs font-bold transition",
             activeCategoryId === category.id
-              ? "bg-brand text-white"
+              ? "bg-brand text-ink"
               : "bg-[var(--soft-surface)] text-body",
           )}
           key={category.id}
