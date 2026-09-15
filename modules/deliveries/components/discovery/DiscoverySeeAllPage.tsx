@@ -3,6 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Filter, LayoutGrid, LoaderCircle, Map, Search, SlidersHorizontal, Tag, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -71,7 +72,7 @@ function OrderAgainCard({ order }: { order: DeliveryOrderAgainOrder }) {
       <div className="p-4">
         <div className="flex justify-between gap-3">
           <h2 className="truncate text-sm font-bold text-ink">{order.storeName}</h2>
-          <strong className="shrink-0 text-xs text-brand">{format.number(order.orderTotal, { style: "currency", currency: "INR" })}</strong>
+          <strong className="shrink-0 text-xs text-brand">{formatAppCurrency(format, order.orderTotal)}</strong>
         </div>
         <p className="mt-1 truncate text-xs text-body">{order.itemNames.join(", ")}</p>
         <time className="mt-3 block text-[10px] text-muted">{format.dateTime(new Date(order.orderedAt), { day: "numeric", month: "short", year: "numeric" })}</time>

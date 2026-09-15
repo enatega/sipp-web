@@ -2,6 +2,7 @@
 
 import { ImageOff, Minus, Plus, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import type { CartItem } from "../../types/cart";
 
 interface Props {
@@ -14,7 +15,7 @@ interface Props {
 export function CartItemCard({ item, isUpdating, onQuantityChange, onRemove }: Props) {
   const t = useTranslations("deliveries.cart");
   const format = useFormatter();
-  const price = (value: number) => format.number(value, { style: "currency", currency: "INR" });
+  const price = (value: number) => formatAppCurrency(format, value);
   const optionNames = item.selectedOptions.map((option) => option.optionName).filter(Boolean);
 
   return (

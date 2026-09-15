@@ -2,6 +2,7 @@
 
 import { LoaderCircle, LockKeyhole } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import type { CheckoutPreview } from "../../types/checkout";
 import type { CheckoutPaymentMethod } from "../../types/checkout";
 
@@ -16,7 +17,7 @@ interface Props {
 export function CheckoutSummary({ preview, isLoading, isPlacing, disabled, paymentMethod }: Props) {
   const t = useTranslations("deliveries.checkout");
   const format = useFormatter();
-  const price = (value: number) => format.number(value, { style: "currency", currency: "INR" });
+  const price = (value: number) => formatAppCurrency(format, value);
   const pricing = preview?.pricing;
   const hasValue = (value: number) => Math.abs(value) > 0.0001;
 

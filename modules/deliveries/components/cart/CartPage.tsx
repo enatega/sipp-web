@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, LoaderCircle, ShoppingBag, ShoppingCart, Sparkles, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
 import { loginHref } from "@/modules/account/utils/authRedirect";
@@ -50,7 +51,7 @@ export function CartPage() {
     if (!session.isPending && !authenticated) router.replace(loginHref("/cart"));
   }, [authenticated, router, session.isPending]);
 
-  const price = (value: number) => format.number(value, { style: "currency", currency: "INR" });
+  const price = (value: number) => formatAppCurrency(format, value);
   const isMutating = mutations.updateQuantity.isPending || mutations.removeItem.isPending || mutations.clear.isPending;
 
   function updateQuantity(itemId: string, quantity: number) {

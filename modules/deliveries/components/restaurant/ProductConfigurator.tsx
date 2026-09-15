@@ -4,6 +4,7 @@ import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "
 import Link from "next/link";
 import { Check, ChevronRight, LoaderCircle, Minus, Plus, ShoppingCart, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { ApiError } from "@/services/api/client";
 import { cn } from "@/lib/utils";
 import { DeliveryNotice } from "../feedback/DeliveryNotice";
@@ -237,7 +238,7 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
             <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted">{product?.description}</p>
             {product ? (
               <b className="mt-2 block text-lg text-brand">
-                {format.number(product.deal?.discountedPrice ?? product.price, { style: "currency", currency: "INR" })}
+                {formatAppCurrency(format, product.deal?.discountedPrice ?? product.price)}
               </b>
             ) : null}
             {cartQuantity > 0 ? (
@@ -306,7 +307,7 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
                         <label className="flex cursor-pointer items-center gap-3 py-2.5 text-xs" key={key}>
                           <input checked={effectiveVariationKey === key} className="size-4 accent-[var(--color-brand)]" disabled={isInteractionLocked} name="variation" onChange={() => { setSelectedVariationKey(key); setIsAdded(false); }} type="radio" />
                           <span className="flex-1 text-ink">{choice.title}</span>
-                          <span className="text-muted">{format.number(choice.price, { style: "currency", currency: "INR" })}</span>
+                          <span className="text-muted">{formatAppCurrency(format, choice.price)}</span>
                         </label>
                       );
                     })}
@@ -349,10 +350,7 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
                     </span>
                   </span>
                   <b className="shrink-0 text-sm tabular-nums">
-                    {format.number(cart.data.finalPrice, {
-                      style: "currency",
-                      currency: "INR",
-                    })}
+                    {formatAppCurrency(format, cart.data.finalPrice)}
                   </b>
                   <ChevronRight aria-hidden="true" className="size-4 shrink-0" />
                 </Link>
@@ -368,7 +366,7 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
                   {isConfigurationLoading ? (
                     <span aria-hidden="true" className="mt-1 block h-5 w-24 animate-pulse rounded bg-[var(--soft-surface)]" />
                   ) : (
-                    <b className="text-lg text-brand">{format.number(total, { style: "currency", currency: "INR" })}</b>
+                    <b className="text-lg text-brand">{formatAppCurrency(format, total)}</b>
                   )}
                 </div>
               </div>
@@ -382,7 +380,7 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
                     ? t("addingToCart")
                     : product && !product.inStock
                       ? t("outOfStock")
-                      : t("addToCart", { price: format.number(total, { style: "currency", currency: "INR" }) })}
+                      : t("addToCart", { price: formatAppCurrency(format, total) })}
               </button>
             </div>
           </form>

@@ -2,6 +2,7 @@
 
 import { ShoppingBag } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import type { OrderProduct } from "../../types/orders";
 
@@ -13,7 +14,7 @@ export function OrderItemsPanel({ products }: Props) {
   const t = useTranslations("deliveries.orderDetails");
   const format = useFormatter();
   const money = (value: number) =>
-    format.number(value, { style: "currency", currency: "INR" });
+    formatAppCurrency(format, value);
 
   return (
     <section className="rounded-2xl bg-card p-5 shadow-card sm:p-6">

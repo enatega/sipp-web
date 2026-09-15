@@ -1179,7 +1179,7 @@
       "couponApplied": "Angebot angewendet. Der Gesamtbetrag wurde aktualisiert.",
       "couponRemoved": "Angebot entfernt. Der Gesamtbetrag wurde aktualisiert.",
       "couponNotApplicable": "Dieses Angebot gilt nicht für den aktuellen Warenkorb.",
-      "couponMinimumNotMet": "Fügen Sie weitere Artikel hinzu, um den Mindestwert von ₹{amount} zu erreichen.",
+      "couponMinimumNotMet": "Fügen Sie weitere Artikel hinzu, um den Mindestwert von {amount} zu erreichen.",
       "couponWrongStore": "Dieses Angebot ist bei diesem Unternehmen nicht verfügbar.",
       "loadingCoupons": "Angebote werden geladen…",
       "retryCoupons": "Angebote konnten nicht geladen werden. Erneut versuchen.",

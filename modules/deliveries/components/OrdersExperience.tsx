@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, CalendarClock, Check, Eye, LoaderCircle, ReceiptText, RefreshCw, Star, X } from "lucide-react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 
 import { Icon } from "@/components/shared/brand/Icon";
 import { profileApi } from "@/modules/account/api/profile";
@@ -89,10 +90,10 @@ export function OrdersExperience() {
               <div>
                 <p className="text-sm font-medium text-white/80">{t("totalSpent")}</p>
                 <strong className="mt-0.5 block text-2xl font-bold tabular-nums">
-                  {format.number(Number(summary.data?.data?.delivered_spend ?? 0), {
-                    style: "currency",
-                    currency: "INR",
-                  })}
+                  {formatAppCurrency(
+                    format,
+                    Number(summary.data?.data?.delivered_spend ?? 0),
+                  )}
                 </strong>
               </div>
             </div>
@@ -279,7 +280,7 @@ function OrderRow({ order, past, scheduled, expanded, onToggle, onRate }: OrderR
         </div>
         <div className="min-[800px]:text-right">
           <p className="text-[10px] text-muted">{t("totalAmount")}</p>
-          <p className="font-bold tabular-nums text-ink">{format.number(Number(order.totalAmount ?? order.orderPrice ?? 0), { style: "currency", currency: "INR" })}</p>
+          <p className="font-bold tabular-nums text-ink">{formatAppCurrency(format, Number(order.totalAmount ?? order.orderPrice ?? 0))}</p>
           <span className="mt-1 inline-flex rounded-full bg-brand/10 px-2.5 py-1 text-[9px] font-bold uppercase text-brand">{status}</span>
         </div>
       </div>

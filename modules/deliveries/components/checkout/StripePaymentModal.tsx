@@ -5,6 +5,7 @@ import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-
 import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
 import { CreditCard, LoaderCircle, LockKeyhole, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import type { SavedCard } from "@/modules/account";
@@ -113,10 +114,7 @@ function PaymentForm({
         {isSubmitting
           ? t("processingCard")
           : t("payNow", {
-              total: format.number(total, {
-                style: "currency",
-                currency: "INR",
-              }),
+              total: formatAppCurrency(format, total),
             })}
       </button>
     </form>

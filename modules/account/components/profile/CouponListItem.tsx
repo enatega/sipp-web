@@ -2,6 +2,7 @@
 
 import { Check, Copy, LoaderCircle, Store, Tag } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { useState } from "react";
 import type { ClaimedCoupon } from "@/modules/account/types/coupons";
 
@@ -29,7 +30,7 @@ export function CouponListItem({ coupon, isBusy = false, onToggle, compact = fal
   const unavailable = usability !== "available" && !coupon.is_active;
   const value = coupon.discount_type === "PERCENTAGE"
     ? t("percentOff", { value: coupon.discount_value })
-    : t("amountOff", { value: format.number(coupon.discount_value, { style: "currency", currency: "INR", maximumFractionDigits: 2 }) });
+    : t("amountOff", { value: formatAppCurrency(format, coupon.discount_value) });
   const storeNames = coupon.offered_by?.map((store) => store.store_name).filter(Boolean) ?? [];
 
   async function copyCode() {
@@ -69,7 +70,7 @@ export function CouponListItem({ coupon, isBusy = false, onToggle, compact = fal
 
           <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[11px] text-muted">
             <span>{t("validUntil", { date: format.dateTime(new Date(coupon.end_date), { day: "numeric", month: "short", year: "numeric" }) })}</span>
-            {coupon.min_order_value > 0 ? <span>{t("minimumOrder", { value: format.number(coupon.min_order_value, { style: "currency", currency: "INR", maximumFractionDigits: 2 }) })}</span> : null}
+            {coupon.min_order_value > 0 ? <span>{t("minimumOrder", { value: formatAppCurrency(format, coupon.min_order_value) })}</span> : null}
             <span className="inline-flex min-w-0 items-center gap-1.5"><Store className="size-3.5 flex-none" aria-hidden="true" />{storeNames.length ? t("selectedStores", { stores: storeNames.slice(0, 2).join(", ") }) : t("allStores")}</span>
           </div>
 

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Icon, type IconName } from "@/components/shared/brand/Icon";
+import { formatAppCurrency } from "@/config/currency";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import {
   useProfileQuery,
@@ -100,11 +101,10 @@ export function ProfileDashboard() {
     locale,
     { maximumFractionDigits: 2 },
   ).format(orderChange)}%`;
-  const formattedWalletBalance = new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 2,
-  }).format(Number(summaryData?.wallet_balance ?? 0));
+  const formattedWalletBalance = formatAppCurrency(
+    { number: (value, options) => new Intl.NumberFormat(locale, options).format(value) },
+    Number(summaryData?.wallet_balance ?? 0),
+  );
   const loading = session.isPending || (authenticated && profile.isPending);
 
   if (loading || !user) {

@@ -1,14 +1,19 @@
 import Link from "next/link";
 import { Bike, Clock3, MapPin, Star, Tag } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
 import type { DeliveryStore } from "@/modules/deliveries/types/discovery";
 
-function offerLabel(store: DeliveryStore, currency: string, off: string) {
+function offerLabel(
+  store: DeliveryStore,
+  amount: (value: number) => string,
+  off: string,
+) {
   if (store.dealAmount && store.dealAmount > 0) {
     return store.dealType?.toLowerCase() === "percentage"
       ? `${store.dealAmount}% ${off}`
-      : `${currency} ${store.dealAmount} ${off}`;
+      : `${amount(store.dealAmount)} ${off}`;
   }
   return store.deal?.trim() || null;
 }
@@ -31,15 +36,17 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
   const t = useTranslations("deliveries.discovery");
   const format = useFormatter();
   const isClosed = store.isOpen === false || store.isAvailable === false;
-  const offer = offerLabel(store, "INR", t("off"));
+  const offer = offerLabel(
+    store,
+    (value) => formatAppCurrency(format, value),
+    t("off"),
+  );
   const hasFeeDetails =
     typeof store.baseFee === "number" && Number.isFinite(store.baseFee);
   const fee =
     hasFeeDetails && store.baseFee === 0
       ? t("freeDelivery")
-      : format.number(store.baseFee ?? 0, {
-          style: "currency",
-          currency: "INR",
+      : formatAppCurrency(format, store.baseFee ?? 0, {
           maximumFractionDigits: 0,
         });
   const deliveryTime = deliveryTimeLabel(store.deliveryTime, (count) =>

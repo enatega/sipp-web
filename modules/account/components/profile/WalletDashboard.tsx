@@ -17,6 +17,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 
 import { AddCardModal } from "@/modules/account/components/profile/AddCardModal";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
@@ -181,7 +182,7 @@ function TransactionRow({ transaction }: { transaction: WalletTransaction }) {
           }`}
         >
           {isCredit ? "+" : "−"}
-          {format.number(amount, { style: "currency", currency: "INR" })}
+          {formatAppCurrency(format, amount)}
         </p>
         <p className="mt-0.5 text-[10px] font-semibold uppercase text-muted">
           {status}
@@ -303,7 +304,7 @@ export function WalletDashboard() {
                     </button>
                   ) : (
                     <strong className="mt-1 block text-4xl font-bold tracking-[-0.03em] tabular-nums sm:text-5xl">
-                      {format.number(Number(wallet.data?.data?.wallet_balance ?? 0), { style: "currency", currency: "INR" })}
+                      {formatAppCurrency(format, Number(wallet.data?.data?.wallet_balance ?? 0))}
                     </strong>
                   )}
                 </div>

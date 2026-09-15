@@ -2,6 +2,7 @@
 
 import { BadgePercent, CreditCard, ReceiptText } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import type { OrderDetail } from "../../types/orders";
 import { hasAmount } from "../../utils/orderDetail";
 
@@ -17,7 +18,7 @@ export function OrderSummaryPanel({ order }: Props) {
     summary?.couponCode && hasAmount(summary.discountAmount),
   );
   const money = (value?: number | null) =>
-    format.number(value ?? 0, { style: "currency", currency: "INR" });
+    formatAppCurrency(format, value ?? 0);
   const rows = [
     { label: t("subtotal"), value: summary?.itemSubtotal ?? summary?.subtotal ?? 0 },
     ...(hasAmount(summary?.discountAmount)

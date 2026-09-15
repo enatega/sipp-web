@@ -2,7 +2,8 @@
 
 import { ChevronDown, LoaderCircle, TicketPercent } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { CouponListItem } from "@/modules/account/components/profile/CouponListItem";
 import { useClaimCouponMutation, useClaimedCouponsQuery, useCouponActivationMutation } from "@/modules/account/queries/useCouponQueries";
 import { ApiError } from "@/services/api/client";
@@ -18,6 +19,7 @@ interface Props {
 export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCouponId }: Props) {
   const t = useTranslations("deliveries.checkout");
   const couponT = useTranslations("coupons");
+  const format = useFormatter();
   const coupons = useClaimedCouponsQuery(enabled);
   const claim = useClaimCouponMutation();
   const activation = useCouponActivationMutation();
@@ -28,7 +30,7 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
   const activeCoupon = items.find((coupon) => coupon.id === appliedCouponId && !disabledReason(coupon));
 
   function disabledReason(coupon: ClaimedCoupon) {
-    if (coupon.min_order_value > subtotal) return t("couponMinimumNotMet", { amount: coupon.min_order_value });
+    if (coupon.min_order_value > subtotal) return t("couponMinimumNotMet", { amount: formatAppCurrency(format, coupon.min_order_value) });
     if (coupon.offered_by?.length && !coupon.offered_by.some((store) => store.store_id === storeId)) return t("couponWrongStore");
     return undefined;
   }

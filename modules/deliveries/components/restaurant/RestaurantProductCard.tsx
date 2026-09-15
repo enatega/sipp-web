@@ -1,5 +1,6 @@
 import { Check, Plus } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { formatAppCurrency } from "@/config/currency";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import type { RestaurantProduct } from "../../types/restaurant";
 
@@ -49,11 +50,11 @@ export function RestaurantProductCard({
           <div className="mt-2 flex items-end justify-between gap-2">
             <div className="flex min-w-0 items-center gap-1.5">
               <b className="text-[13px] text-brand">
-                {format.number(price, { style: "currency", currency: "INR" })}
+                {formatAppCurrency(format, price)}
               </b>
               {product.deal ? (
                 <span className="truncate text-[9px] text-muted line-through">
-                  {format.number(product.price, { style: "currency", currency: "INR" })}
+                  {formatAppCurrency(format, product.price)}
                 </span>
               ) : null}
             </div>
