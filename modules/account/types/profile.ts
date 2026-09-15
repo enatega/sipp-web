@@ -44,6 +44,7 @@ export type WalletTransactionType =
   | "Deposit"
   | "Debit"
   | "Credit"
+  | "MigrationOpeningBalance"
   | "Withdrawal";
 
 export type WalletTransaction = {

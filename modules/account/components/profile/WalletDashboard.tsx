@@ -54,6 +54,8 @@ function transactionTitle(
       return t("transactionOrderPayment");
     case "credit":
       return t("transactionRefund");
+    case "migrationopeningbalance":
+      return t("transactionMigratedOpeningBalance");
     case "withdrawal":
       return t("transactionWithdrawal");
     default:
