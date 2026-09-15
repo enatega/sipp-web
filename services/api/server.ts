@@ -5,8 +5,8 @@ import { authCookieNames } from "@/services/auth/session";
 
 function apiBaseUrl() {
   const configured =
-    process.env.SHAANIEOL_API_BASE_URL ??
-    "http://localhost:8080/api/v1";
+    process.env.API_BASE_URL ??
+    "http://localhost:3000/api/v1";
   return configured.replace(/\/$/, "");
 }
 

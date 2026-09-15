@@ -432,6 +432,7 @@
     "transactionTopUp": "Wallet-Aufladung",
     "transactionOrderPayment": "Bestellzahlung",
     "transactionRefund": "Bestellerstattung",
+    "transactionMigratedOpeningBalance": "Migriertes Anfangsguthaben",
     "transactionWithdrawal": "Wallet-Auszahlung",
     "transactionFallback": "Wallet-Transaktion",
     "dateUnavailable": "Datum nicht verfügbar",

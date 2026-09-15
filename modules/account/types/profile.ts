@@ -40,10 +40,20 @@ export type WalletPayload = {
   data?: { wallet_balance?: number };
 };
 
+export type ActiveCurrency = {
+  id: string;
+  code: string;
+  name: string;
+  symbol: string;
+  rateToBase: number | string;
+  isActive: boolean;
+};
+
 export type WalletTransactionType =
   | "Deposit"
   | "Debit"
   | "Credit"
+  | "MigrationOpeningBalance"
   | "Withdrawal";
 
 export type WalletTransaction = {

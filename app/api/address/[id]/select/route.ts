@@ -9,7 +9,7 @@ export async function PATCH(
   if (unauthorized) return unauthorized;
 
   const { id } = await context.params;
-  return callApi(`/address/${encodeURIComponent(id)}/select`, {
+  return callApi(`/apps/deliveries/profile/address/${encodeURIComponent(id)}/select`, {
     method: "PATCH",
     request,
   });

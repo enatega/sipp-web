@@ -169,6 +169,15 @@ export function useWalletQuery(enabled = true) {
   });
 }
 
+export function useActiveCurrencyQuery(enabled = true) {
+  return useQuery({
+    queryKey: accountQueryKeys.currency(),
+    queryFn: ({ signal }) => profileApi.activeCurrency(signal),
+    enabled,
+    staleTime: 5 * 60_000,
+  });
+}
+
 export function useWalletTransactionsQuery(enabled = true) {
   return useInfiniteQuery({
     queryKey: accountQueryKeys.walletTransactions(),

@@ -432,6 +432,7 @@
     "transactionTopUp": "Wallet top-up",
     "transactionOrderPayment": "Order payment",
     "transactionRefund": "Order refund",
+    "transactionMigratedOpeningBalance": "Migrated opening balance",
     "transactionWithdrawal": "Wallet withdrawal",
     "transactionFallback": "Wallet transaction",
     "dateUnavailable": "Date unavailable",

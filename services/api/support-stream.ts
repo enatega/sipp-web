@@ -12,7 +12,7 @@ export async function supportStream(request: NextRequest) {
   const body = await profile.json();
   const userId = body?.data?.user?.id;
   if (typeof userId !== "string" || !userId) return NextResponse.json({ message: "Sign in to continue." }, { status: 401 });
-  const origin = new URL(process.env.SHAANIEOL_API_BASE_URL ?? "http://localhost:8080/api/v1").origin;
+  const origin = new URL(process.env.API_BASE_URL ?? "http://localhost:3000/api/v1").origin;
   let cleanup = () => {};
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {

@@ -6,6 +6,7 @@ export const accountQueryKeys = {
   wallet: () => [...accountQueryKeys.all, "wallet"] as const,
   walletTransactions: () =>
     [...accountQueryKeys.wallet(), "transactions"] as const,
+  currency: () => [...accountQueryKeys.all, "currency"] as const,
   savedCards: () => [...accountQueryKeys.all, "saved-cards"] as const,
   notificationSettings: () =>
     [...accountQueryKeys.all, "notification-settings"] as const,
