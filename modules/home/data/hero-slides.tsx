@@ -217,12 +217,12 @@ export const heroSlides: HeroSlide[] = [
       "Explore everyday needs from nearby merchants and keep delivery simple, whether you are at home, at work, or staying near the beach.",
     cta: { label: "Explore SIPP", glyph: { name: "ride" }, href: "#services" },
     image: {
-      src: "/images/hero-drive-logo.png",
+      src: "/images/hero-woman-eating-burger.jpeg",
       alt: "SIPP local commerce service",
       width: 1024,
       height: 1024,
       aspect: "13 / 14",
-      mirrored: true,
+      // mirrored: true,
     },
     fallbackIcon: "ride",
     cards: [
