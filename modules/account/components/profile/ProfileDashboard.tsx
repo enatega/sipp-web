@@ -284,7 +284,7 @@ export function ProfileDashboard() {
             )}
           </section>
 
-          <section className="relative overflow-hidden rounded-xl bg-secondary/10 p-5 text-ink shadow-[0_5px_22px_rgba(37,49,63,0.04)] sm:col-span-2 xl:col-span-1">
+          <section className="relative overflow-hidden rounded-xl bg-brand-soft p-5 text-ink shadow-[0_5px_22px_rgba(37,49,63,0.04)] sm:col-span-2 xl:col-span-1">
             <Image
               src="/icons/customer-support-icon.png"
               alt=""

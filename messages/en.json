@@ -1201,5 +1201,119 @@
       "placingOrder": "Placing order…",
       "securePayment": "Secure payment and backend-confirmed pricing"
     }
+  },
+  "about": {
+    "metaTitle": "About SIPP",
+    "metaDescription": "SIPP is building the delivery infrastructure of Costa Rica's coast.",
+    "hero": {
+      "eyebrow": "About SIPP",
+      "title": "Building the delivery infrastructure of Costa Rica's coast.",
+      "subtitle": "So many options. Zero effort."
+    },
+    "origin": {
+      "title": "Why we started",
+      "paragraphs": [
+        "SIPP is a local delivery platform built for one simple reason: to make ordering food, groceries, and essentials effortless — in places where traditional delivery never really worked.",
+        "We started in Santa Teresa, Costa Rica, where tourists, locals, villas, and restaurants all face the same problem: great food, great places — but fragmented, unreliable, and outdated delivery systems.",
+        "SIPP changes that.",
+        "We connect restaurants, grocery suppliers, and local businesses into one intelligent platform that allows customers to order everything they need in one place — from meals and snacks to drinks, groceries, and daily essentials — with fast, organized, and trackable delivery."
+      ]
+    },
+    "different": {
+      "title": "What makes SIPP different",
+      "intro": "SIPP is not just a food delivery app. It is a local commerce and logistics platform designed specifically for coastal and high-tourism regions.",
+      "focusLabel": "We focus on",
+      "items": [
+        "A wide selection of restaurants and local partners",
+        "Grocery and essentials delivery alongside prepared food",
+        "Reliable late-night operations",
+        "Clear, user-friendly ordering",
+        "Secure card payments",
+        "Fast, coordinated local logistics",
+        "Strong support for restaurants and partners"
+      ],
+      "outro": "Instead of forcing global delivery models into small markets, we built SIPP around how these towns actually work — seasonality, tourism peaks, local suppliers, and short-distance logistics.",
+      "result": "The result is a platform that benefits everyone: customers get convenience and variety, restaurants get more orders and visibility, and local communities get modern delivery infrastructure."
+    },
+    "local": {
+      "title": "Built locally. Designed to scale.",
+      "paragraphs": [
+        "SIPP was founded and is operated in Costa Rica. Our team works on the ground with restaurants, couriers, supermarkets, and villas every day.",
+        "That local presence allows us to control quality, delivery times, onboarding, and customer experience — while continuously improving the platform.",
+        "At the same time, SIPP is built with scale in mind. Our technology, logistics model, and partner structure are designed to expand across coastal regions, tourism hubs, and emerging delivery markets."
+      ]
+    },
+    "mission": {
+      "title": "Our mission",
+      "statement": "To become the leading delivery and local commerce platform across Costa Rica's coastal areas — and a long-term regional player in high-tourism markets.",
+      "paragraphs": [
+        "We are building more than an app.",
+        "We are building the system that powers everyday life: food, groceries, restaurants, and local businesses — all in one place."
+      ]
+    },
+    "tagline": {
+      "label": "SIPP in one sentence",
+      "value": "So many options. Zero effort."
+    }
+  },
+  "partners": {
+    "metaTitle": "Partner With SIPP",
+    "metaDescription": "Join Santa Teresa's first delivery platform — already connecting hungry locals and tourists with top restaurants in town.",
+    "hero": {
+      "eyebrow": "🍽️ Partner With SIPP",
+      "title": "Join Santa Teresa's first delivery platform — already connecting hungry locals and tourists with top restaurants in town.",
+      "subtitle": "We're growing fast and expanding to more coastal areas soon.",
+      "highlight": "No setup fees. No hassle. Just more orders."
+    },
+    "cta": {
+      "title": "👉 Let's team up and deliver together.",
+      "applyButton": "Start your application",
+      "contactLabel": "📩 Contact us now",
+      "phone": "+506 7044 5484",
+      "email": "support@sippdelivery.com"
+    },
+    "closing": {
+      "title": "We SIPP. You cook.",
+      "subtitle": "Let's grow your business — one delivery at a time."
+    }
+  },
+  "howItWorks": {
+    "metaTitle": "How It Works | SIPP",
+    "metaDescription": "See how SIPP brings your town's favorite restaurants, cafés, bars, and grocery stores straight to your doorstep in four easy steps.",
+    "hero": {
+      "eyebrow": "How It Works",
+      "title": "How it works?",
+      "subtitle": "SIPP is an online delivery platform that brings your town's favorite spots straight to your doorstep. We connect customers with local businesses – restaurants, cafés, bars, grocery stores – and handle delivery through our logistics crew to get you what you need, when you need it."
+    },
+    "steps": {
+      "title": "Here's how SIPP works in four easy steps",
+      "items": [
+        {
+          "title": "1. Browse & Order",
+          "description": "Pop into our platform from any device (phone, tablet, or computer) and see what tickles your fancy. Browse by category or search for a specific restaurant, store, dish or product. Sign in, add items to your cart and place your order with a few clicks. You can pay securely with your credit card – easy, fast, and cash-free."
+        },
+        {
+          "title": "2. We Confirm & Prep",
+          "description": "The moment you order, we automatically send the request over to the chosen restaurant or shop. They'll give it a thumbs up and start prepping your items with love and care. Whether it's a hot meal being cooked or groceries being packed, we keep things moving quickly. That's when your order status will change from Pending, to Accepted and then, to Preparing."
+        },
+        {
+          "title": "3. Out for Delivery",
+          "description": "As soon as your order is ready to roll, one of our SIPP couriers springs into action. They'll pick up your order and head straight to your location. You can track your delivery in real time on our platform. Feel free to do a little happy dance; your goods are on the way!"
+        },
+        {
+          "title": "4. Delivered & Enjoy",
+          "description": "Ding-dong! Delivery has arrived. Our courier will hand off your order at your door. Now all that's left is to dig in and enjoy."
+        }
+      ]
+    },
+    "deliveryArea": {
+      "title": "Where do we deliver?",
+      "paragraphs": [
+        "Currently, SIPP operates in and around Santa Teresa, Costa Rica, covering the nearby locations – from Manzanillo to Santiago, Playa Hermosa, Playa Carmen, and Mal País. We're a local service, so we know these roads like the back of our hand (yes, that shortcut past the surf shop? We know it). Good news: we're expanding soon! SIPP will be coming to Nosara next, so stay tuned."
+      ]
+    },
+    "closing": {
+      "body": "In short, SIPP works just like those big delivery apps – but with extra Pura Vida flair. We pride ourselves on being fast, reliable, and just a bit awesome (if we do say so ourselves). Hungry? Thirsty? Out of toothpaste? Whatever you need – just SIPP it."
+    }
   }
 }

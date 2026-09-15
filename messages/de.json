@@ -1243,5 +1243,119 @@
       "placingOrder": "Bestellung wird aufgegeben…",
       "securePayment": "Sichere Zahlung und bestätigte Preise"
     }
+  },
+  "about": {
+    "metaTitle": "Über SIPP",
+    "metaDescription": "SIPP baut die Lieferinfrastruktur für die Küste Costa Ricas auf.",
+    "hero": {
+      "eyebrow": "Über SIPP",
+      "title": "Wir bauen die Lieferinfrastruktur für die Küste Costa Ricas auf.",
+      "subtitle": "So viele Optionen. Null Aufwand."
+    },
+    "origin": {
+      "title": "Warum wir gestartet sind",
+      "paragraphs": [
+        "SIPP ist eine lokale Lieferplattform mit einem einfachen Ziel: das Bestellen von Essen, Lebensmitteln und Alltagsprodukten dort mühelos zu machen, wo herkömmliche Lieferdienste nie wirklich funktioniert haben.",
+        "Wir haben in Santa Teresa, Costa Rica, begonnen, wo Touristen, Einheimische, Villen und Restaurants alle vor demselben Problem stehen: großartiges Essen, großartige Orte — aber fragmentierte, unzuverlässige und veraltete Liefersysteme.",
+        "SIPP ändert das.",
+        "Wir verbinden Restaurants, Lebensmittelhändler und lokale Unternehmen zu einer intelligenten Plattform, auf der Kunden alles, was sie brauchen, an einem Ort bestellen können — von Mahlzeiten und Snacks bis hin zu Getränken, Lebensmitteln und Alltagsartikeln — mit schneller, organisierter und nachverfolgbarer Lieferung."
+      ]
+    },
+    "different": {
+      "title": "Was SIPP anders macht",
+      "intro": "SIPP ist nicht nur eine App für Essenslieferungen. Es ist eine Plattform für lokalen Handel und Logistik, die speziell für Küsten- und stark touristische Regionen entwickelt wurde.",
+      "focusLabel": "Unser Fokus liegt auf",
+      "items": [
+        "Einer breiten Auswahl an Restaurants und lokalen Partnern",
+        "Lebensmittel- und Alltagslieferungen neben frisch zubereitetem Essen",
+        "Zuverlässigem Betrieb auch spät in der Nacht",
+        "Klarer, benutzerfreundlicher Bestellung",
+        "Sicheren Kartenzahlungen",
+        "Schneller, koordinierter lokaler Logistik",
+        "Starker Unterstützung für Restaurants und Partner"
+      ],
+      "outro": "Statt globale Liefermodelle in kleine Märkte zu zwingen, haben wir SIPP danach ausgerichtet, wie diese Orte wirklich funktionieren — Saisonalität, touristische Spitzenzeiten, lokale Lieferanten und kurze Lieferwege.",
+      "result": "Das Ergebnis ist eine Plattform, von der alle profitieren: Kunden erhalten Komfort und Vielfalt, Restaurants erhalten mehr Bestellungen und Sichtbarkeit, und lokale Gemeinden erhalten eine moderne Lieferinfrastruktur."
+    },
+    "local": {
+      "title": "Lokal aufgebaut. Für Wachstum konzipiert.",
+      "paragraphs": [
+        "SIPP wurde in Costa Rica gegründet und wird dort betrieben. Unser Team arbeitet täglich vor Ort mit Restaurants, Kurieren, Supermärkten und Villen zusammen.",
+        "Diese lokale Präsenz erlaubt es uns, Qualität, Lieferzeiten, Onboarding und Kundenerlebnis zu kontrollieren — während wir die Plattform kontinuierlich verbessern.",
+        "Gleichzeitig ist SIPP auf Wachstum ausgelegt. Unsere Technologie, unser Logistikmodell und unsere Partnerstruktur sind darauf ausgelegt, sich über Küstenregionen, touristische Zentren und neue Liefermärkte hinweg zu erweitern."
+      ]
+    },
+    "mission": {
+      "title": "Unsere Mission",
+      "statement": "Die führende Liefer- und Handelsplattform entlang der Küste Costa Ricas zu werden — und langfristig ein regionaler Akteur in stark touristischen Märkten.",
+      "paragraphs": [
+        "Wir bauen mehr als nur eine App.",
+        "Wir bauen das System, das den Alltag antreibt: Essen, Lebensmittel, Restaurants und lokale Unternehmen — alles an einem Ort."
+      ]
+    },
+    "tagline": {
+      "label": "SIPP in einem Satz",
+      "value": "So viele Optionen. Null Aufwand."
+    }
+  },
+  "partners": {
+    "metaTitle": "Partner werden mit SIPP",
+    "metaDescription": "Werden Sie Teil von Santa Teresas erster Lieferplattform — schon jetzt verbinden wir hungrige Einheimische und Touristen mit den besten Restaurants der Stadt.",
+    "hero": {
+      "eyebrow": "🍽️ Partner werden mit SIPP",
+      "title": "Werden Sie Teil von Santa Teresas erster Lieferplattform — schon jetzt verbinden wir hungrige Einheimische und Touristen mit den besten Restaurants der Stadt.",
+      "subtitle": "Wir wachsen schnell und expandieren bald in weitere Küstenregionen.",
+      "highlight": "Keine Einrichtungsgebühren. Kein Aufwand. Nur mehr Bestellungen."
+    },
+    "cta": {
+      "title": "👉 Lassen Sie uns zusammen liefern.",
+      "applyButton": "Jetzt bewerben",
+      "contactLabel": "📩 Jetzt kontaktieren",
+      "phone": "+506 7044 5484",
+      "email": "support@sippdelivery.com"
+    },
+    "closing": {
+      "title": "Wir SIPPen. Sie kochen.",
+      "subtitle": "Lassen Sie uns Ihr Geschäft ausbauen — eine Lieferung nach der anderen."
+    }
+  },
+  "howItWorks": {
+    "metaTitle": "So funktioniert's | SIPP",
+    "metaDescription": "Erfahren Sie, wie SIPP die beliebtesten Restaurants, Cafés, Bars und Lebensmittelgeschäfte Ihrer Stadt in vier einfachen Schritten zu Ihnen nach Hause bringt.",
+    "hero": {
+      "eyebrow": "So funktioniert's",
+      "title": "Wie funktioniert SIPP?",
+      "subtitle": "SIPP ist eine Online-Lieferplattform, die die beliebtesten Orte Ihrer Stadt direkt zu Ihnen nach Hause bringt. Wir verbinden Kunden mit lokalen Unternehmen – Restaurants, Cafés, Bars, Lebensmittelgeschäften – und übernehmen die Lieferung durch unser Logistikteam, damit Sie bekommen, was Sie brauchen, wann Sie es brauchen."
+    },
+    "steps": {
+      "title": "So funktioniert SIPP in vier einfachen Schritten",
+      "items": [
+        {
+          "title": "1. Durchstöbern & Bestellen",
+          "description": "Besuchen Sie unsere Plattform von jedem Gerät aus (Handy, Tablet oder Computer) und sehen Sie, was Ihnen gefällt. Durchsuchen Sie nach Kategorie oder suchen Sie nach einem bestimmten Restaurant, Geschäft, Gericht oder Produkt. Melden Sie sich an, legen Sie Artikel in Ihren Warenkorb und geben Sie Ihre Bestellung mit wenigen Klicks auf. Sie können sicher mit Ihrer Kreditkarte bezahlen – einfach, schnell und bargeldlos."
+        },
+        {
+          "title": "2. Wir bestätigen & bereiten vor",
+          "description": "Sobald Sie bestellen, senden wir die Anfrage automatisch an das ausgewählte Restaurant oder Geschäft. Diese bestätigen die Bestellung und beginnen, Ihre Artikel mit Sorgfalt vorzubereiten. Egal ob eine warme Mahlzeit gekocht oder Lebensmittel gepackt werden, wir sorgen für zügige Abläufe. In dieser Zeit ändert sich Ihr Bestellstatus von Ausstehend zu Angenommen und dann zu In Zubereitung."
+        },
+        {
+          "title": "3. Unterwegs zu Ihnen",
+          "description": "Sobald Ihre Bestellung fertig ist, macht sich einer unserer SIPP-Kuriere auf den Weg. Er holt Ihre Bestellung ab und bringt sie direkt zu Ihnen. Sie können Ihre Lieferung in Echtzeit auf unserer Plattform verfolgen. Ihre Sachen sind unterwegs!"
+        },
+        {
+          "title": "4. Geliefert & Genießen",
+          "description": "Klingeling! Die Lieferung ist angekommen. Unser Kurier übergibt Ihnen die Bestellung an Ihrer Tür. Jetzt bleibt nur noch, zuzugreifen und zu genießen."
+        }
+      ]
+    },
+    "deliveryArea": {
+      "title": "Wohin liefern wir?",
+      "paragraphs": [
+        "Derzeit ist SIPP in und um Santa Teresa, Costa Rica, tätig und deckt die nahegelegenen Orte ab – von Manzanillo über Santiago, Playa Hermosa, Playa Carmen bis Mal País. Wir sind ein lokaler Service und kennen diese Straßen wie unsere Westentasche (ja, die Abkürzung am Surfshop vorbei? Die kennen wir). Gute Nachrichten: Wir expandieren bald! SIPP kommt als Nächstes nach Nosara, bleiben Sie also gespannt."
+      ]
+    },
+    "closing": {
+      "body": "Kurz gesagt, SIPP funktioniert genau wie die großen Lieferdienste – nur mit extra Pura-Vida-Flair. Wir sind stolz darauf, schnell, zuverlässig und ein bisschen großartig zu sein (wenn wir das mal so sagen dürfen). Hungrig? Durstig? Keine Zahnpasta mehr? Was auch immer Sie brauchen – SIPPen Sie es einfach."
+    }
   }
 }

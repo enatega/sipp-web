@@ -4,7 +4,7 @@ export const appStoreLinks = {
 } as const;
 
 export const footerColumns = [
-  { title: "COMPANY", links: ["About SIPP", "Partner with us", "Help"] },
+  { title: "COMPANY", links: ["About SIPP", "Partner with us", "How it works"] },
   {
     title: "ALL IN ONE PLACE",
     links: [

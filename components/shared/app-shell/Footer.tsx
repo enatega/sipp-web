@@ -2,6 +2,12 @@ import { Logo } from "@/components/shared/brand/Logo";
 import { StoreButtons } from "@/components/shared/brand/StoreButtons";
 import { footerColumns } from "@/config/public-site";
 
+const FOOTER_LINK_HREFS: Record<string, string> = {
+  "About SIPP": "/about",
+  "Partner with us": "/partners",
+  "How it works": "/how-it-works",
+};
+
 const SOCIALS = [
   ["X", "M4 4l12 12M16 4L4 16"],
   ["Facebook", "M12.5 5H14V2.7h-2c-1.9 0-3 1.2-3 3.1V8H7v2.3h2V18h2.4v-7.7h2L15.7 8h-2.3V6.2c0-.8.4-1.2 1.1-1.2z"],
@@ -36,7 +42,7 @@ export function Footer() {
               {links.map((link) => (
                 <a
                   key={link}
-                  href="#top"
+                  href={FOOTER_LINK_HREFS[link] ?? "#top"}
                   className="text-xs text-body hover:text-brand"
                 >
                   {link}
