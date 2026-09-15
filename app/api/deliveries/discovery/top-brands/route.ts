@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export function GET(request: NextRequest) {
   return proxyDiscoveryRequest(
     request,
-    "/apps/deliveries/discovery/public/top-brands",
-    { acceptsLocation: true, requiresAuth: false },
+    "/apps/deliveries/discovery/top-brands",
+    { acceptsLocation: true },
   );
 }

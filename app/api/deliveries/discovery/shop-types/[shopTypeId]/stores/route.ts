@@ -20,7 +20,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
   }
   return proxyDiscoveryRequest(
     request,
-    `/apps/deliveries/discovery/public/shop-types/${shopTypeId}/stores`,
-    { acceptsLocation: true, acceptsFilters: true, requiresAuth: false },
+    `/apps/deliveries/discovery/shop-types/${shopTypeId}/stores`,
+    { acceptsLocation: true, acceptsFilters: true },
   );
 }
