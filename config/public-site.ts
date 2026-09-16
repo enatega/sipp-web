@@ -6,21 +6,7 @@ export const appStoreLinks = {
 export const footerColumns = [
   { title: "COMPANY", links: ["About SIPP", "Partner with us", "How it works"] },
   {
-    title: "ALL IN ONE PLACE",
-    links: [
-      "Restaurants",
-      "Groceries",
-      "Drinks",
-      "Essentials",
-    ],
-  },
-  {
-    title: "LEGAL",
-    links: [
-      "Terms & Condition",
-      "Cookie Policy",
-      "Privacy Policy",
-      "Help & Support",
-    ],
+    title: "LEGAL & SUPPORT",
+    links: ["Terms & Condition", "Contact Us"],
   },
 ] as const;
