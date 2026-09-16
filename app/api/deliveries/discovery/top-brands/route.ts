@@ -7,6 +7,6 @@ export function GET(request: NextRequest) {
   return proxyDiscoveryRequest(
     request,
     "/apps/deliveries/discovery/top-brands",
-    { acceptsLocation: true },
+    { acceptsLocation: true, requiresAuth: false },
   );
 }

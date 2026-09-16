@@ -5,6 +5,7 @@ import type { AbstractIntlMessages } from "next-intl";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
+import { AuthRequiredModal } from "@/components/shared/AuthRequiredModal";
 
 export function AppProviders({
   children,
@@ -18,7 +19,7 @@ export function AppProviders({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <QueryProvider>
-        <ThemeProvider>{children}<SessionExpiredModal /></ThemeProvider>
+        <ThemeProvider>{children}<SessionExpiredModal /><AuthRequiredModal /></ThemeProvider>
       </QueryProvider>
     </NextIntlClientProvider>
   );

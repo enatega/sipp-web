@@ -7,6 +7,6 @@ export function GET(request: NextRequest) {
   return proxyDiscoveryRequest(
     request,
     "/apps/deliveries/discovery/nearby-stores",
-    { requiresLocation: true, acceptsFilters: true },
+    { requiresLocation: true, acceptsFilters: true, requiresAuth: false },
   );
 }

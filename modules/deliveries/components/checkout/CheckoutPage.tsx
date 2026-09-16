@@ -9,7 +9,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Header } from "@/components/shared/app-shell/Header";
 import { appCurrency } from "@/config/currency";
 import { useAddressesQuery, useSavedCardsQuery, useSessionQuery, useStoredPlace, type ChosenPlace, type SavedAddress, type SavedCard } from "@/modules/account";
-import { loginHref } from "@/modules/account/utils/authRedirect";
+import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { ApiError } from "@/services/api/client";
 import { checkoutSchema, type CheckoutFormValues } from "../../schemas/checkoutSchema";
 import { useCartQuery } from "../../hooks/useCart";
@@ -206,7 +206,10 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
   const scheduleOptions = useMemo(() => schedule.data?.days.flatMap((day) => day.slots.filter((slot) => slot.isOpen !== false && slot.isAvailable !== false).map((slot) => ({ value: buildScheduledAt(day.date, slot.start), label: `${day.label || day.dayName} · ${formatSlotTime(slot.start, locale)}–${formatSlotTime(slot.end, locale)}` })).filter((slot) => new Date(slot.value).getTime() > Date.now())) ?? [], [locale, schedule.data]);
 
   useEffect(() => {
-    if (!session.isPending && !authenticated) router.replace(loginHref("/checkout"));
+    if (!session.isPending && !authenticated) {
+      openAuthRequiredDialog("/checkout");
+      router.replace("/cart");
+    }
   }, [authenticated, router, session.isPending]);
 
   useEffect(() => {

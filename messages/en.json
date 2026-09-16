@@ -14,7 +14,11 @@
     "themeLight": "Use light theme",
     "themeDark": "Use dark theme",
     "back": "Back",
-    "genericError": "Something went wrong. Please try again."
+    "genericError": "Something went wrong. Please try again.",
+    "authRequiredTitle": "Sign in to continue",
+    "authRequiredDescription": "Create an account or log in to add items, place orders, and track deliveries.",
+    "authRequiredLogin": "Log in",
+    "authRequiredClose": "Keep browsing"
   },
   "navigation": {
     "services": "What you can order",

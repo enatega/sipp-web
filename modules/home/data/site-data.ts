@@ -23,14 +23,6 @@ export const ecosystemServices: {
   { label: "Food Delivery", icon: "food", tone: "blue", pos: "food" },
 ];
 
-export const serviceStrip = [
-  "SIPP",
-  "LOCAL RESTAURANTS",
-  "GROCERIES",
-  "DRINKS",
-  "ESSENTIALS",
-];
-
 export const foodStats: {
   icon: IconName;
   tone: string;

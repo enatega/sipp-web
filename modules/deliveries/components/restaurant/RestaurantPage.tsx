@@ -3,10 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { LoaderCircle, Search, UtensilsCrossed } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
-import { loginHref } from "@/modules/account/utils/authRedirect";
+import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { CategoryNavigation, MobileCategoryNavigation } from "./CategoryNavigation";
 import { ProductConfigurator } from "./ProductConfigurator";
 import { RestaurantHero } from "./RestaurantHero";
@@ -27,7 +26,6 @@ interface Props {
 
 export function RestaurantPage({ storeId }: Props) {
   const t = useTranslations("deliveries.restaurant");
-  const router = useRouter();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const { location, isReady } = useRestaurantLocation();
@@ -99,7 +97,7 @@ export function RestaurantPage({ storeId }: Props) {
 
   function requireSignIn() {
     const returnTo = `${window.location.pathname}${window.location.search}`;
-    router.push(loginHref(returnTo));
+    openAuthRequiredDialog(returnTo);
   }
 
   if (!isReady || restaurant.isPending) {

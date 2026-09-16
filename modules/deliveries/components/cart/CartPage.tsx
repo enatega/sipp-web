@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, LoaderCircle, ShoppingBag, ShoppingCart, Sparkles, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { formatAppCurrency } from "@/config/currency";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
-import { loginHref } from "@/modules/account/utils/authRedirect";
+import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { CartItemCard } from "./CartItemCard";
 import { useCartMutations, useCartQuery } from "../../hooks/useCart";
 
@@ -39,7 +38,6 @@ function EmptyCart() {
 export function CartPage() {
   const t = useTranslations("deliveries.cart");
   const format = useFormatter();
-  const router = useRouter();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const cart = useCartQuery(authenticated);
@@ -48,8 +46,8 @@ export function CartPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!session.isPending && !authenticated) router.replace(loginHref("/cart"));
-  }, [authenticated, router, session.isPending]);
+    if (!session.isPending && !authenticated) openAuthRequiredDialog("/cart");
+  }, [authenticated, session.isPending]);
 
   const price = (value: number) => formatAppCurrency(format, value);
   const isMutating = mutations.updateQuantity.isPending || mutations.removeItem.isPending || mutations.clear.isPending;
@@ -65,7 +63,7 @@ export function CartPage() {
   }
 
   if (session.isPending || (authenticated && cart.isPending)) return <><Header /><LoadingState /></>;
-  if (!authenticated) return <><Header /><LoadingState /></>;
+  if (!authenticated) return <><Header cartCount={0} /><EmptyCart /></>;
   if (cart.isError) {
     return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center py-12 text-center"><div><ShoppingCart className="mx-auto size-10 text-brand" aria-hidden="true" /><h1 className="mt-4 text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button type="button" onClick={() => void cart.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink hover:bg-brand/85">{t("retry")}</button></div></main></>;
   }

@@ -14,7 +14,11 @@
     "themeLight": "Helles Design verwenden",
     "themeDark": "Dunkles Design verwenden",
     "back": "Zurück",
-    "genericError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    "genericError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+    "authRequiredTitle": "Zum Fortfahren anmelden",
+    "authRequiredDescription": "Erstellen Sie ein Konto oder melden Sie sich an, um Artikel hinzuzufügen, Bestellungen aufzugeben und Lieferungen zu verfolgen.",
+    "authRequiredLogin": "Anmelden",
+    "authRequiredClose": "Weiter stöbern"
   },
   "navigation": {
     "services": "Was Sie bestellen können",

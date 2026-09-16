@@ -2,7 +2,6 @@ import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
 import { callApi } from "@/services/api/server";
-import { authCookieNames } from "@/services/auth/session";
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -70,11 +69,8 @@ export function proxyRestaurantRequest(request: NextRequest, storeId: string) {
   }
 
   const suffix = hasProductQuery ? "/products" : "";
-  const storeBasePath = request.cookies.get(authCookieNames.token)?.value
-    ? "/apps/deliveries/stores"
-    : "/apps/deliveries/public/stores";
   return callApi(
-    `${storeBasePath}/${encodeURIComponent(storeId)}/view${suffix}?${query}`,
+    `/apps/deliveries/stores/${encodeURIComponent(storeId)}/view${suffix}?${query}`,
     { request },
   );
 }
@@ -85,11 +81,8 @@ export function proxyProductRequest(
   customizations = false,
 ) {
   if (!UUID_PATTERN.test(productId)) return invalid("Invalid product identifier.");
-  const productBasePath = request.cookies.get(authCookieNames.token)?.value
-    ? "/apps/deliveries/products/mobile"
-    : "/apps/deliveries/public/products";
   return callApi(
-    `${productBasePath}/${encodeURIComponent(productId)}${customizations ? "/customizations" : ""}`,
+    `/apps/deliveries/products/mobile/${encodeURIComponent(productId)}${customizations ? "/customizations" : ""}`,
     { request },
   );
 }
