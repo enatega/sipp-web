@@ -44,7 +44,8 @@
     "placeholder": "Search delivery address",
     "currentLocation": "Current location",
     "searching": "Searching addresses…",
-    "noResults": "No matching addresses found. Try a more specific search."
+    "noResults": "No matching addresses found. Try a more specific search.",
+    "popularCities": "Popular:"
   },
   "auth": {
     "title": "Sign in or create account",
@@ -319,6 +320,8 @@
     "nearbyAreas": "Nearby areas",
     "searching": "Searching…",
     "keepTyping": "Keep typing to search addresses.",
+    "noResults": "No matching addresses found. Try a more specific search.",
+    "popularCities": "Popular:",
     "geolocationUnsupported": "This browser cannot share your location.",
     "permissionBlocked": "Location access is blocked. Enable it for this site in your browser's address-bar settings, then try again.",
     "reverseError": "We could not name that location.",

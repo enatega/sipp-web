@@ -5,7 +5,7 @@ import { FloatingCards } from "@/modules/home/components/hero/FloatingCard";
 import { Glyph } from "@/modules/home/components/hero/Glyph";
 import { HeroMedia } from "@/modules/home/components/hero/HeroMedia";
 import { HeroLocationSearch } from "@/modules/home/components/hero/HeroLocationSearch";
-import { resolveCtaHref, type ServiceSlide } from "@/modules/home/data/hero-slides";
+import type { ServiceSlide } from "@/modules/home/data/hero-slides";
 import styles from "@/modules/home/styles/home.module.css";
 
 const BENEFIT_TONE: Record<string, string> = {
@@ -18,7 +18,6 @@ const BENEFIT_TONE: Record<string, string> = {
 export function ServiceSlideView({ slide }: { slide: ServiceSlide }) {
   const step = slide.animation.stagger ?? 90;
   const delay = (index: number) => ({ "--d": `${index * step}ms` }) as CSSProperties;
-  const href = resolveCtaHref(slide.cta.href);
 
   return (
     <div className="section-wrap grid grid-cols-1 items-center gap-6 md:grid-cols-[minmax(0,46%)_minmax(0,54%)] md:gap-6">
@@ -47,18 +46,7 @@ export function ServiceSlideView({ slide }: { slide: ServiceSlide }) {
         >
           {slide.description}
         </p>
-        {slide.id === "food" ? (
-          <HeroLocationSearch className={styles.heroIn} style={delay(3)} />
-        ) : (
-          <a
-            href={href}
-            className={cn(styles.heroIn, "inline-flex items-center gap-2.5 rounded-full bg-brand px-6 py-3 font-heading text-[14px] font-semibold text-ink shadow-pop transition-transform duration-200 hover:-translate-y-0.5 md:px-7 md:py-3.5 md:text-[15px]")}
-            style={delay(3)}
-          >
-            <Glyph glyph={slide.cta.glyph} className="size-5" />
-            {slide.cta.label}
-          </a>
-        )}
+        <HeroLocationSearch className={styles.heroIn} style={delay(3)} />
         <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-3 sm:gap-x-7 md:mt-9">
           {slide.benefits.map(({ glyph, label, tone }, index) => (
             <li

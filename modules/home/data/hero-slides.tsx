@@ -56,7 +56,6 @@ export type EcosystemSlide = BaseSlide & {
 export type ServiceSlide = BaseSlide & {
   type: "service";
   badge: { flag: string; text: string; icon: IconName };
-  cta: { label: string; glyph: Glyph; href?: string };
   image: {
     src: string;
     alt: string;
@@ -76,29 +75,6 @@ export type ServiceSlide = BaseSlide & {
 };
 
 export type HeroSlide = EcosystemSlide | ServiceSlide;
-
-/** Where a CTA lands when its own destination is missing or unroutable. */
-export const CTA_FALLBACK = "#app";
-
-/** Anchors this build can actually scroll to. Anything else falls back rather
-    than sending the visitor to a dead URL. */
-const KNOWN_ANCHORS = new Set([
-  "#top",
-  "#food",
-  "#services",
-  "#about",
-  "#products",
-  "#app",
-]);
-
-export function resolveCtaHref(href?: string): string {
-  if (!href) return CTA_FALLBACK;
-  if (/^https?:\/\//.test(href)) return href;
-  if (href.startsWith("#")) {
-    return KNOWN_ANCHORS.has(href) ? href : CTA_FALLBACK;
-  }
-  return CTA_FALLBACK;
-}
 
 export const heroSlides: HeroSlide[] = [
   {
@@ -143,11 +119,6 @@ export const heroSlides: HeroSlide[] = [
     ),
     description:
       "Order meals, groceries, drinks, and essentials from local businesses in Santa Teresa, Playa Carmen, Mal Pais, Playa Hermosa, Manzanillo, and Santiago.",
-    cta: {
-      label: "Order Now",
-      glyph: { img: "/images/order-now-pizza.png" },
-      href: "/discovery",
-    },
     image: {
       src: "/images/image 22.png",
       alt: "Customer holding a slice of pizza",
@@ -215,7 +186,6 @@ export const heroSlides: HeroSlide[] = [
     ),
     description:
       "Explore everyday needs from nearby merchants and keep delivery simple, whether you are at home, at work, or staying near the beach.",
-    cta: { label: "Explore SIPP", glyph: { name: "ride" }, href: "#services" },
     image: {
       src: "/images/hero-woman-eating-burger.jpeg",
       alt: "SIPP local commerce service",

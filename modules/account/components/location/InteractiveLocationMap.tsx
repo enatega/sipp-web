@@ -33,19 +33,6 @@ function markerPositionToLiteral(
   return null;
 }
 
-function createLocationMarker() {
-  const image = document.createElement("img");
-  image.src = "/images/maps-location-icon.png";
-  image.width = 52;
-  image.height = 52;
-  image.alt = "";
-  image.style.width = "52px";
-  image.style.height = "52px";
-  image.style.objectFit = "contain";
-  image.style.userSelect = "none";
-  return image;
-}
-
 export function InteractiveLocationMap({
   latitude,
   longitude,
@@ -132,8 +119,11 @@ export function InteractiveLocationMap({
     if (!map || !point || !isMarkerReady || !markerLibraryRef.current) return;
 
     if (!markerRef.current) {
+      const pin = new markerLibraryRef.current.PinElement({
+        scale: 0.85,
+      });
       const marker = new markerLibraryRef.current.AdvancedMarkerElement({
-        content: createLocationMarker(),
+        content: pin.element,
         gmpDraggable: true,
         map,
         position: point,
@@ -164,7 +154,7 @@ export function InteractiveLocationMap({
 
   if (!apiKey) {
     return (
-      <div role="alert" className="grid h-48 place-items-center rounded-xl bg-[var(--soft-surface)] px-6 text-center text-xs text-body">
+      <div role="alert" className="grid h-56 place-items-center rounded-xl bg-[var(--soft-surface)] px-6 text-center text-xs text-body">
         {t("mapNotConfigured")}
       </div>
     );
@@ -172,7 +162,7 @@ export function InteractiveLocationMap({
 
   if (loadError) {
     return (
-      <div role="alert" className="grid h-48 place-items-center rounded-xl bg-[var(--soft-surface)] px-6 text-center text-xs text-body">
+      <div role="alert" className="grid h-56 place-items-center rounded-xl bg-[var(--soft-surface)] px-6 text-center text-xs text-body">
         {t("mapLoadError")}
       </div>
     );
@@ -182,7 +172,7 @@ export function InteractiveLocationMap({
     return (
       <div
         role="status"
-        className="h-48 animate-pulse rounded-xl bg-[var(--soft-surface)]"
+        className="h-56 animate-pulse rounded-xl bg-[var(--soft-surface)]"
         aria-label={t("mapLoading")}
       />
     );
@@ -192,16 +182,18 @@ export function InteractiveLocationMap({
     <GoogleMap
       center={selectedPoint ?? userLocation ?? DEFAULT_CENTER}
       zoom={selectedPoint ? 17 : userLocation ? 15 : 10}
-      mapContainerClassName="h-48 w-full overflow-hidden rounded-xl"
+      mapContainerClassName="h-56 w-full overflow-hidden rounded-xl"
       onClick={handleMapClick}
       onLoad={setMap}
       onUnmount={() => setMap(null)}
       options={{
         fullscreenControl: false,
         mapId: MAP_ID,
+        controlSize: 22,
         mapTypeControl: true,
         mapTypeControlOptions: {
           position: google.maps.ControlPosition.LEFT_BOTTOM,
+          style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
         },
         streetViewControl: false,
         zoomControl: true,

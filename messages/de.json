@@ -44,7 +44,8 @@
     "placeholder": "Lieferadresse suchen",
     "currentLocation": "Aktueller Standort",
     "searching": "Adressen werden gesucht…",
-    "noResults": "Keine passende Adresse gefunden. Versuchen Sie eine genauere Suche."
+    "noResults": "Keine passende Adresse gefunden. Versuchen Sie eine genauere Suche.",
+    "popularCities": "Beliebt:"
   },
   "auth": {
     "title": "Anmelden oder Konto erstellen",
@@ -319,6 +320,8 @@
     "nearbyAreas": "Gebiete in der Nähe",
     "searching": "Suche…",
     "keepTyping": "Tippen Sie weiter, um Adressen zu suchen.",
+    "noResults": "Keine passende Adresse gefunden. Versuchen Sie eine genauere Suche.",
+    "popularCities": "Beliebt:",
     "geolocationUnsupported": "Dieser Browser kann Ihren Standort nicht teilen.",
     "permissionBlocked": "Der Standortzugriff ist blockiert. Aktivieren Sie ihn in den Website-Einstellungen Ihres Browsers und versuchen Sie es erneut.",
     "reverseError": "Dieser Standort konnte nicht benannt werden.",
