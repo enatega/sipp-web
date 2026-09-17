@@ -1142,6 +1142,8 @@
       "changeAddress": "Ändern",
       "chooseAddress": "Lieferadresse auswählen",
       "chooseAddressHint": "Vor dem Wechsel prüfen wir, ob dieses Unternehmen dorthin liefert.",
+      "confirmAddressTitle": "Lieferadresse bestätigen",
+      "confirmAddressHint": "Wählen Sie die gespeicherte Adresse für diese Bestellung, bevor wir sie aufgeben.",
       "closeAddressPicker": "Adressauswahl schließen",
       "selected": "Ausgewählt",
       "manageAddresses": "Adressen verwalten oder hinzufügen",

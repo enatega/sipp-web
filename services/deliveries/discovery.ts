@@ -53,7 +53,7 @@ export function proxyDiscoveryRequest(
   upstreamPath: string,
   options: QueryOptions = {},
 ) {
-  if (options.requiresAuth !== false) {
+  if (options.requiresAuth === true) {
     const unauthorized = requireSession(request);
     if (unauthorized) return unauthorized;
   }

@@ -1100,6 +1100,8 @@
       "changeAddress": "Change",
       "chooseAddress": "Choose a delivery address",
       "chooseAddressHint": "We will confirm that this business can deliver before switching.",
+      "confirmAddressTitle": "Confirm your delivery location",
+      "confirmAddressHint": "Select the saved address you want this order delivered to before we place it.",
       "closeAddressPicker": "Close address picker",
       "selected": "Selected",
       "manageAddresses": "Manage or add addresses",

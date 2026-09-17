@@ -7,5 +7,6 @@ export function GET(request: NextRequest) {
   return proxyDiscoveryRequest(
     request,
     "/apps/deliveries/discovery/order-again",
+    { requiresAuth: true },
   );
 }
