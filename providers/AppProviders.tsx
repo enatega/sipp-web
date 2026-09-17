@@ -11,13 +11,19 @@ export function AppProviders({
   children,
   locale,
   messages,
+  timeZone,
 }: {
   children: React.ReactNode;
   locale: string;
   messages: AbstractIntlMessages;
+  timeZone: string;
 }) {
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={messages}
+      timeZone={timeZone}
+    >
       <QueryProvider>
         <ThemeProvider>{children}<SessionExpiredModal /><AuthRequiredModal /></ThemeProvider>
       </QueryProvider>
