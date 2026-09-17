@@ -11,6 +11,8 @@ export { AccountSecurity } from "./components/profile/AccountSecurity";
 export { CouponsPage } from "./components/profile/CouponsPage";
 export { readStoredPlace, storePlace } from "./api/location";
 export { useStoredPlace } from "./hooks/useStoredPlace";
+export { POPULAR_CITIES } from "./data/popularCities";
+export type { PopularCity } from "./data/popularCities";
 export type { ChosenPlace, Prediction, SavedAddress, SavedCard } from "./types";
 export {
   useAddressesQuery,

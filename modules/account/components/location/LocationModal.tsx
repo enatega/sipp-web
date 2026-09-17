@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { storePlace } from "@/modules/account/api/location";
+import { POPULAR_CITIES } from "@/modules/account/data/popularCities";
 import type {
   ChosenPlace,
   Prediction,
@@ -208,6 +209,17 @@ export function LocationModal({
     }
   };
 
+  const pickPopularCity = (city: (typeof POPULAR_CITIES)[number]) => {
+    setError("");
+    setChosen({
+      address: city.address,
+      latitude: city.latitude,
+      longitude: city.longitude,
+      label: city.name,
+    });
+    setQuery("");
+  };
+
   const placeFromAddress = (address: SavedAddress): ChosenPlace | null => {
     const [longitude, latitude] = address.location?.coordinates ?? [];
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
@@ -308,7 +320,22 @@ export function LocationModal({
           </header>
 
           <div className="flex-1 overflow-y-auto px-5 pb-4 pt-4">
-            <label className="flex h-11 items-center gap-2.5 rounded-lg bg-[var(--soft-surface)] px-3.5">
+            <InteractiveLocationMap
+              latitude={chosen?.latitude}
+              longitude={chosen?.longitude}
+              onSelect={(latitude, longitude) =>
+                void pickMapPoint(latitude, longitude)
+              }
+              onInitialLocation={(latitude, longitude) => {
+                if (!chosen) void pickMapPoint(latitude, longitude);
+              }}
+              ariaLabel={t("interactiveMap")}
+            />
+            <p className="mt-2 text-[10px] leading-relaxed text-muted">
+              {t("mapInstruction")}
+            </p>
+
+            <label className="mt-4 flex h-11 items-center gap-2.5 rounded-lg bg-[var(--soft-surface)] px-3.5">
               <svg
                 viewBox="0 0 20 20"
                 aria-hidden="true"
@@ -326,6 +353,24 @@ export function LocationModal({
                 className="w-full border-0 bg-transparent text-sm text-ink outline-none placeholder:text-[#9a9da4]"
               />
             </label>
+
+            <div className="mt-2.5 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-semibold text-[#9a9da4]">
+                {t("popularCities")}
+              </span>
+              {POPULAR_CITIES.map((city) => (
+                <button
+                  key={city.name}
+                  type="button"
+                  onClick={() => pickPopularCity(city)}
+                  disabled={currentBusy === "resolve"}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-card px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:border-brand hover:bg-brand/10 disabled:opacity-60"
+                >
+                  {pinIcon("w-3.5 text-brand")}
+                  {city.name}
+                </button>
+              ))}
+            </div>
 
             <button
               type="button"
@@ -444,24 +489,58 @@ export function LocationModal({
               </section>
             ) : null}
 
-            <div className="mt-4">
-              <InteractiveLocationMap
-                latitude={chosen?.latitude}
-                longitude={chosen?.longitude}
-                onSelect={(latitude, longitude) =>
-                  void pickMapPoint(latitude, longitude)
-                }
-                onInitialLocation={(latitude, longitude) => {
-                  if (!chosen) void pickMapPoint(latitude, longitude);
-                }}
-                ariaLabel={t("interactiveMap")}
-              />
-              <p className="mt-2 text-[10px] leading-relaxed text-muted">
-                {t("mapInstruction")}
-              </p>
-            </div>
-
-            {chosen ? (
+            {query.trim() ? (
+              visiblePredictions.length ? (
+                <>
+                  <p className={`${SECTION_LABEL} mt-4`}>{t("nearbyAreas")}</p>
+                  <ul className="mt-1">
+                    {visiblePredictions.map((prediction) => (
+                      <li key={prediction.place_id}>
+                        <button
+                          type="button"
+                          onClick={() => pickPrediction(prediction)}
+                          disabled={currentBusy === "resolve"}
+                          className="flex w-full items-start gap-2.5 border-b border-[#f4f5f7] py-3 text-left disabled:opacity-60"
+                        >
+                          <span className="mt-0.5 text-[#9a9da4]">
+                            {pinIcon("w-4")}
+                          </span>
+                          <span className="min-w-0">
+                            <b className="block truncate text-sm font-medium text-ink">
+                              {prediction.structured_formatting?.main_text ??
+                                prediction.description}
+                            </b>
+                            <small className="block truncate text-xs text-[#8a8d94]">
+                              {prediction.structured_formatting?.secondary_text ??
+                                prediction.description}
+                            </small>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <div className="grid place-items-center py-6">
+                  <Image
+                    src="/images/maps.png"
+                    alt=""
+                    width={2000}
+                    height={1400}
+                    className="h-auto w-[min(70%,220px)]"
+                  />
+                  {currentBusy === "search" ? (
+                    <p className="mt-2 text-xs text-[#8a8d94]">{t("searching")}</p>
+                  ) : query.trim().length < 3 ? (
+                    <p className="mt-2 text-xs text-[#8a8d94]">
+                      {t("keepTyping")}
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-xs text-[#8a8d94]">{t("noResults")}</p>
+                  )}
+                </div>
+              )
+            ) : chosen ? (
               <>
                 <p className={`${SECTION_LABEL} mt-4`}>{t("selectedLocation")}</p>
                 <div className="mt-2 flex items-start gap-2.5 border-t border-[#f0f1f4] pt-3">
@@ -476,37 +555,7 @@ export function LocationModal({
                   </span>
                 </div>
               </>
-            ) : visiblePredictions.length ? (
-              <>
-                <p className={`${SECTION_LABEL} mt-4`}>{t("nearbyAreas")}</p>
-                <ul className="mt-1">
-                  {visiblePredictions.map((prediction) => (
-                    <li key={prediction.place_id}>
-                      <button
-                        type="button"
-                        onClick={() => pickPrediction(prediction)}
-                        disabled={currentBusy === "resolve"}
-                        className="flex w-full items-start gap-2.5 border-b border-[#f4f5f7] py-3 text-left disabled:opacity-60"
-                      >
-                        <span className="mt-0.5 text-[#9a9da4]">
-                          {pinIcon("w-4")}
-                        </span>
-                        <span className="min-w-0">
-                          <b className="block truncate text-sm font-medium text-ink">
-                            {prediction.structured_formatting?.main_text ??
-                              prediction.description}
-                          </b>
-                          <small className="block truncate text-xs text-[#8a8d94]">
-                            {prediction.structured_formatting?.secondary_text ??
-                              prediction.description}
-                          </small>
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : showSavedAddresses && savedAddresses.length && !query.trim() ? null : (
+            ) : showSavedAddresses && savedAddresses.length ? null : (
               <div className="grid place-items-center py-6">
                 <Image
                   src="/images/maps.png"
@@ -515,13 +564,6 @@ export function LocationModal({
                   height={1400}
                   className="h-auto w-[min(70%,220px)]"
                 />
-                {currentBusy === "search" ? (
-                  <p className="mt-2 text-xs text-[#8a8d94]">{t("searching")}</p>
-                ) : query.trim().length > 0 && query.trim().length < 3 ? (
-                  <p className="mt-2 text-xs text-[#8a8d94]">
-                  {t("keepTyping")}
-                  </p>
-                ) : null}
               </div>
             )}
           </div>

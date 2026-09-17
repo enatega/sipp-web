@@ -23,10 +23,17 @@ interface Props {
   onRetry: () => void;
   seeAllHref?: string;
   seeAllLabel?: string;
+  /** Overrides the default in-page anchor link for each card. */
+  getItemHref?: (item: DeliveryShopType) => string;
+}
+
+function defaultItemHref(item: DeliveryShopType) {
+  return `#shop-type-${item.id}`;
 }
 
 export function ShopTypesSection(props: Props) {
   const showSeeAll = !props.isLoading && !props.isError && props.items.length > 0;
+  const getItemHref = props.getItemHref ?? defaultItemHref;
   return (
     <section className="space-y-4" aria-labelledby="shop-types-title">
       <div id="shop-types-title">
@@ -54,7 +61,7 @@ export function ShopTypesSection(props: Props) {
           {props.items.map((item) => (
             <Link
               className="group w-40 shrink-0 snap-start focus-visible:rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand sm:w-44"
-              href={`#shop-type-${item.id}`}
+              href={getItemHref(item)}
               key={item.id}
             >
               <article className="overflow-hidden rounded-2xl bg-card shadow-sm transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-md">

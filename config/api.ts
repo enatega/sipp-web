@@ -52,4 +52,5 @@ export const apiRoutes = {
     details: "/api/maps/place-details",
     reverse: "/api/maps/reverse",
   },
+  contact: "/api/contact",
 } as const;

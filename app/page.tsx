@@ -1,5 +1,6 @@
 import { Header } from "@/components/shared/app-shell/Header";
 import { Footer } from "@/components/shared/app-shell/Footer";
+import { LandingShopTypesSection } from "@/modules/deliveries";
 import {
   AppSection,
   EverythingSection,
@@ -7,7 +8,6 @@ import {
   HeroSection,
   HomePage,
   ProductsSection,
-  ServiceStrip,
   ValueSection,
 } from "@/modules/home";
 
@@ -17,7 +17,7 @@ export default function Home() {
       <Header />
       <HomePage>
         <HeroSection />
-        <ServiceStrip />
+        <LandingShopTypesSection />
         <FoodSection />
         <EverythingSection />
         <ValueSection />

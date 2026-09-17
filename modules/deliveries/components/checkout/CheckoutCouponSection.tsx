@@ -14,9 +14,10 @@ interface Props {
   storeId: string | null;
   subtotal: number;
   appliedCouponId: string | null;
+  appliedCouponCode: string | null;
 }
 
-export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCouponId }: Props) {
+export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCouponId, appliedCouponCode }: Props) {
   const t = useTranslations("deliveries.checkout");
   const couponT = useTranslations("coupons");
   const format = useFormatter();
@@ -28,6 +29,7 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const items = useMemo(() => coupons.data?.pages.flatMap((page) => page.data) ?? [], [coupons.data]);
   const activeCoupon = items.find((coupon) => coupon.id === appliedCouponId && !disabledReason(coupon));
+  const activeCouponCode = activeCoupon?.code ?? appliedCouponCode ?? "";
 
   function disabledReason(coupon: ClaimedCoupon) {
     if (coupon.min_order_value > subtotal) return t("couponMinimumNotMet", { amount: formatAppCurrency(format, coupon.min_order_value) });
@@ -65,6 +67,20 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
     }
   }
 
+  async function removeAppliedCoupon() {
+    if (!appliedCouponId) return;
+    setNotice(null);
+    setBusyId(appliedCouponId);
+    try {
+      await activation.mutateAsync({ id: appliedCouponId, isActive: false });
+      setNotice({ kind: "success", text: t("couponRemoved") });
+    } catch {
+      setNotice({ kind: "error", text: couponT("genericError") });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   return (
     <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6" aria-labelledby="checkout-coupon-title">
       <div className="flex items-center gap-3">
@@ -80,10 +96,27 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
 
       {notice ? <p role={notice.kind === "error" ? "alert" : "status"} className={`mt-3 rounded-xl px-4 py-3 text-xs font-medium ${notice.kind === "error" ? "bg-danger-soft text-danger" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"}`}>{notice.text}</p> : null}
 
+      {appliedCouponId ? (
+        <div className="mt-4 flex flex-col gap-3 rounded-xl border border-brand/20 bg-brand/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-xs font-bold text-ink">
+            {t("activeCoupon", { code: activeCouponCode || "..." })}
+          </span>
+          <button
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 text-xs font-bold text-ink hover:bg-[var(--soft-surface)] disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={activation.isPending && busyId === appliedCouponId}
+            onClick={() => void removeAppliedCoupon()}
+            type="button"
+          >
+            {activation.isPending && busyId === appliedCouponId ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}
+            {couponT("deactivate")}
+          </button>
+        </div>
+      ) : null}
+
       {coupons.isPending ? <div className="mt-4 flex items-center gap-2 text-xs text-muted" role="status"><LoaderCircle className="size-4 animate-spin text-brand" aria-hidden="true" />{t("loadingCoupons")}</div> : coupons.isError ? <button type="button" onClick={() => void coupons.refetch()} className="mt-4 text-xs font-bold text-brand">{t("retryCoupons")}</button> : items.length ? (
         <details className="group mt-4">
           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 rounded-xl bg-[var(--soft-surface)] px-4 text-xs font-bold text-ink outline-none focus-visible:ring-4 focus-visible:ring-brand/10 [&::-webkit-details-marker]:hidden">
-            <span>{activeCoupon ? t("activeCoupon", { code: activeCoupon.code }) : t("chooseCoupon", { count: items.length })}</span>
+            <span>{t("chooseCoupon", { count: items.length })}</span>
             <ChevronDown className="size-4 text-brand transition-transform group-open:rotate-180" aria-hidden="true" />
           </summary>
           <div className="mt-3 grid gap-3">

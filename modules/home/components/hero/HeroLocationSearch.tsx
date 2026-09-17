@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/brand/Icon";
 import { cn } from "@/lib/utils";
 import {
+  POPULAR_CITIES,
   storePlace,
   usePlaceDetailsMutation,
   usePlaceSearchQuery,
@@ -81,6 +82,15 @@ export function HeroLocationSearch({
       setError(caught instanceof Error ? caught.message : locationT("placeError"));
       setBusy(null);
     }
+  };
+
+  const selectPopularCity = (city: (typeof POPULAR_CITIES)[number]) => {
+    acceptLocation({
+      address: city.address,
+      latitude: city.latitude,
+      longitude: city.longitude,
+      label: city.name,
+    });
   };
 
   const useCurrentLocation = () => {
@@ -184,6 +194,22 @@ export function HeroLocationSearch({
               {busy === "location" ? locationT("findingYou") : t("currentLocation")}
             </span>
           </button>
+      </div>
+
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-medium text-muted">{t("popularCities")}</span>
+        {POPULAR_CITIES.map((city) => (
+          <button
+            key={city.name}
+            type="button"
+            onClick={() => selectPopularCity(city)}
+            disabled={busy !== null}
+            className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-card px-3 py-1.5 text-xs font-semibold text-ink transition-colors duration-200 hover:border-brand/40 hover:bg-brand-soft disabled:cursor-wait disabled:opacity-55"
+          >
+            <Icon name="pin" className="size-3 flex-none text-brand" />
+            {city.name}
+          </button>
+        ))}
       </div>
 
       {displayedError && !(suggestionsOpen && query.trim().length >= 3) ? (
