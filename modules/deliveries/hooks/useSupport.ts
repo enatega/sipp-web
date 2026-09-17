@@ -1,17 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { io } from "socket.io-client";
 import { supportApi } from "../api/support";
 import { deliveryQueryKeys as keys } from "../queries/queryKeys";
+import type { SupportTickets } from "../types/support";
 
 export function useSupport(userId: string, chatId: string) {
   const client = useQueryClient();
   const [isLive, setIsLive] = useState(false);
-  // Real-time updates arrive via the support-updated push (see the
-  // EventSource effect below), so polling only serves as a fallback while
-  // that channel is down.
-  const tickets = useQuery({ queryKey: keys.supportTickets(userId), queryFn: ({ signal }) => supportApi.tickets(signal), enabled: !!userId, staleTime: 10000, refetchInterval: isLive ? false : 15000 });
-  const thread = useQuery({ queryKey: keys.supportThread(userId, chatId), queryFn: ({ signal }) => supportApi.thread(chatId, signal), enabled: !!userId && !!chatId, refetchInterval: isLive ? false : 5000 });
+  const tickets = useQuery({ queryKey: keys.supportTickets(userId), queryFn: ({ signal }) => supportApi.tickets(signal), enabled: !!userId, staleTime: 10000 });
+  const thread = useQuery({ queryKey: keys.supportThread(userId, chatId), queryFn: ({ signal }) => supportApi.thread(chatId, signal), enabled: !!userId && !!chatId });
   const create = useMutation({ mutationFn: supportApi.create, onSuccess: () => client.invalidateQueries({ queryKey: keys.supportTickets(userId) }) });
   const send = useMutation({ mutationFn: ({ id, text }: { id: string; text: string }) => supportApi.send(id, text), onSuccess: async (_, { id }) => {
     await Promise.all([client.invalidateQueries({ queryKey: keys.supportThread(userId, id) }), client.invalidateQueries({ queryKey: keys.supportTickets(userId) })]);
@@ -25,17 +24,48 @@ export function useSupport(userId: string, chatId: string) {
   }, [thread.isSuccess, thread.dataUpdatedAt, userId]);
   useEffect(() => {
     if (!userId) return;
-    const events = new EventSource("/api/support/events");
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let closed = false;
+    let socket: ReturnType<typeof io> | undefined;
     const refresh = () => {
       if (timer) return;
       timer = setTimeout(() => { timer = undefined; void client.invalidateQueries({ queryKey: keys.support(userId) }); }, 150);
     };
-    events.addEventListener("ready", () => { setIsLive(true); refresh(); });
-    events.addEventListener("support-updated", refresh);
-    events.addEventListener("reconnecting", () => setIsLive(false));
-    events.onerror = () => setIsLive(false);
-    return () => { events.close(); clearTimeout(timer); setIsLive(false); };
-  }, [client, userId]);
+    void fetch("/api/support/socket-session", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to start support socket");
+        return response.json() as Promise<{ token: string; userId: string; url: string; path: string }>;
+      })
+      .then((session) => {
+        if (closed) return;
+        socket = io(session.url, { transports: ["websocket"], autoConnect: false, path: session.path, auth: { token: session.token } });
+        socket.on("connect", () => {
+          socket?.emit("add-user", session.userId);
+          setIsLive(true);
+          refresh();
+        });
+        socket.on("disconnect", () => setIsLive(false));
+        socket.on("connect_error", () => setIsLive(false));
+        socket.on("support-updated", (payload: { chatBoxId?: string; message?: { sender_id?: string } } | undefined) => {
+          if (payload?.chatBoxId && payload.chatBoxId !== chatId && payload.message?.sender_id !== userId) {
+            client.setQueryData<SupportTickets>(keys.supportTickets(userId), (current) => current ? {
+              ...current,
+              tickets: current.tickets.map((ticket) => ticket.chatBoxId === payload.chatBoxId ? { ...ticket, unreadCount: ticket.unreadCount + 1 } : ticket),
+            } : current);
+          }
+          refresh();
+        });
+        socket.on("receive-message", refresh);
+        socket.connect();
+      })
+      .catch(() => setIsLive(false));
+
+    return () => {
+      closed = true;
+      socket?.disconnect();
+      clearTimeout(timer);
+      setIsLive(false);
+    };
+  }, [chatId, client, userId]);
   return { tickets, thread, create, send, isLive };
 }

@@ -22,6 +22,7 @@ export interface SupportTicket {
   subtitle: string;
   status: { key: string; label: string };
   date: { day: string; month: string };
+  createdAt: string;
   unreadCount: number;
 }
 export interface SupportMessage {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Poppins, Cinzel } from "next/font/google";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { AppProviders } from "@/providers/AppProviders";
 import "./globals.css";
 
@@ -33,6 +33,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const timeZone = await getTimeZone();
 
   return (
     <html
@@ -42,7 +43,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body>
-        <AppProviders locale={locale} messages={messages}>
+        <AppProviders
+          locale={locale}
+          messages={messages}
+          timeZone={timeZone}
+        >
           {children}
         </AppProviders>
       </body>
