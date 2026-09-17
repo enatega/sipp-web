@@ -121,7 +121,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
   const activeAddressOverride =
     addressOverride?.sourcePlace === storedPlace.place ? addressOverride : null;
   const deliveryPlace = activeAddressOverride?.place ?? storedPlace.place;
-  const selectedSavedAddressId = activeAddressOverride?.savedAddressId ?? null;
+  const selectedSavedAddressId = activeAddressOverride?.savedAddressId ?? storedPlace.place?.savedAddressId ?? null;
   const availableSavedCards = savedCards.data?.cards ?? [];
   const resolvedPaymentMethodId = selectedCardChoice === null
     ? null
@@ -197,7 +197,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
     formik.values.orderType === "delivery" &&
     preview.error instanceof ApiError &&
     preview.error.status === 400 &&
-    /address|delivery area|outside/i.test(preview.error.message);
+    /outside.*delivery area|does not deliver/i.test(preview.error.message);
   const hasPreviewError =
     preview.isError &&
     !isAddressPreviewError &&
@@ -230,11 +230,12 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
       return t("offlineError");
     }
     if (error instanceof ApiError) {
+      if (/store is currently closed/i.test(error.message)) return t("storeClosedMessage");
       if (error.status === 401) return t("sessionError");
       if (error.status === 403) return t("permissionError");
       if (
         error.status === 400 &&
-        /address|delivery area|outside/i.test(error.message)
+        /outside.*delivery area|does not deliver/i.test(error.message)
       ) {
         return t("addressUnavailable");
       }
@@ -293,7 +294,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
     } catch (error) {
       const isOutsideDeliveryArea =
         error instanceof ApiError &&
-        /address|delivery area|outside/i.test(error.message);
+        /outside.*delivery area|does not deliver/i.test(error.message);
       setAddressPickerError(
         isOutsideDeliveryArea
           ? t("addressUnavailable")
@@ -313,8 +314,8 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
     ...(hasPreviewError
       ? [{
           id: "preview",
-          title: t("previewErrorTitle"),
-          message: t("previewErrorMessage"),
+          title: preview.error instanceof ApiError && /store is currently closed/i.test(preview.error.message) ? t("storeClosedTitle") : t("previewErrorTitle"),
+          message: checkoutErrorMessage(preview.error),
           onDismiss: () => setDismissedPreviewError(preview.error),
         }]
       : []),
@@ -350,7 +351,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
                 </div>
               </section>
 
-              {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MapPin aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("addressTitle")}</h2><p className="text-xs text-muted">{t("addressDescription")}</p></div></div>{deliveryPlace ? <button ref={addressTriggerRef} type="button" onClick={() => { setAddressPickerError(""); setIsAddressPickerOpen(true); }} className={`mt-5 flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-[border-color,background-color] hover:border-brand/30 hover:bg-[var(--soft-surface)] ${isAddressPreviewError ? "border-brand/40 bg-brand/5" : "border-line"}`}><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand"><MapPin aria-hidden="true" className="size-4" /></span><span className="min-w-0 flex-1"><strong className="block text-sm text-ink">{deliveryPlace.label || t("delivery")}</strong><span className="mt-1 block line-clamp-2 text-xs leading-5 text-body">{deliveryPlace.address}</span></span><span className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-brand">{t("changeAddress")}<ChevronRight aria-hidden="true" className="size-4" /></span></button> : <div className="mt-5 rounded-xl border border-dashed border-line p-5 text-center"><p className="text-sm text-body">{t("noAddress")}</p><Link href="/profile/address-book" className="mt-3 inline-flex text-sm font-bold text-brand">{t("addAddress")}</Link></div>}{isAddressPreviewError ? <p role="alert" className="mt-3 rounded-xl bg-brand/5 p-3 text-xs font-medium leading-5 text-brand">{t("addressUnavailable")}</p> : null}<FieldError message={formik.touched.deliveryLocationKey ? formik.errors.deliveryLocationKey : undefined} /><label className={`mt-4 flex items-center gap-3 rounded-xl bg-[var(--soft-surface)] p-4 ${store?.stripeAllowed === false ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}><input type="checkbox" name="leaveAtDoor" checked={formik.values.leaveAtDoor} disabled={store?.stripeAllowed === false} onChange={(event) => { void formik.setFieldValue("leaveAtDoor", event.target.checked); if (event.target.checked) void formik.setFieldValue("paymentMethod", "stripe"); }} className="size-4 accent-[var(--color-brand)]" /><span><strong className="block text-sm text-ink">{t("leaveAtDoor")}</strong><small className="text-xs text-muted">{t("leaveAtDoorHint")}</small></span></label></section> : null}
+              {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MapPin aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("addressTitle")}</h2><p className="text-xs text-muted">{t("addressDescription")}</p></div></div>{deliveryPlace ? <button ref={addressTriggerRef} type="button" onClick={() => { setAddressPickerError(""); setIsAddressPickerOpen(true); }} className={`mt-5 flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-[border-color,background-color] hover:border-brand/30 hover:bg-[var(--soft-surface)] ${isAddressPreviewError ? "border-red-300 bg-red-50" : "border-line"}`}><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand"><MapPin aria-hidden="true" className="size-4" /></span><span className="min-w-0 flex-1"><strong className="block text-sm text-ink">{deliveryPlace.label || t("delivery")}</strong><span className="mt-1 block line-clamp-2 text-xs leading-5 text-body">{deliveryPlace.address}</span></span><span className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-brand">{t("changeAddress")}<ChevronRight aria-hidden="true" className="size-4" /></span></button> : <div className="mt-5 rounded-xl border border-dashed border-line p-5 text-center"><p className="text-sm text-body">{t("noAddress")}</p><Link href="/profile/address-book" className="mt-3 inline-flex text-sm font-bold text-brand">{t("addAddress")}</Link></div>}{isAddressPreviewError ? <p role="alert" className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium leading-5 text-red-700">{t("addressUnavailable")}</p> : null}<FieldError message={formik.touched.deliveryLocationKey ? formik.errors.deliveryLocationKey : undefined} /><label className={`mt-4 flex items-center gap-3 rounded-xl bg-[var(--soft-surface)] p-4 ${store?.stripeAllowed === false ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}><input type="checkbox" name="leaveAtDoor" checked={formik.values.leaveAtDoor} disabled={store?.stripeAllowed === false} onChange={(event) => { void formik.setFieldValue("leaveAtDoor", event.target.checked); if (event.target.checked) void formik.setFieldValue("paymentMethod", "stripe"); }} className="size-4 accent-[var(--color-brand)]" /><span><strong className="block text-sm text-ink">{t("leaveAtDoor")}</strong><small className="text-xs text-muted">{t("leaveAtDoorHint")}</small></span></label></section> : null}
 
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6">
                 <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><Clock3 aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("timeTitle")}</h2><p className="text-xs text-muted">{t("timeDescription")}</p></div></div>
