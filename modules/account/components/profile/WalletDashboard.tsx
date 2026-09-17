@@ -22,6 +22,7 @@ import { formatAppCurrency } from "@/config/currency";
 import { AddCardModal } from "@/modules/account/components/profile/AddCardModal";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import {
+  useActiveCurrencyQuery,
   useCreateSavedCardSetupIntentMutation,
   useSavedCardsQuery,
   useSessionQuery,
@@ -34,13 +35,30 @@ import type {
   WalletTransaction,
 } from "@/modules/account/types";
 
+const FALLBACK_CURRENCY_SYMBOL = "₡";
+
 function formatExpiry(month: number, year: number) {
   return `${String(month).padStart(2, "0")}/${String(year).slice(-2)}`;
 }
 
+function formatMoney(
+  amount: number,
+  symbol: string,
+  format: ReturnType<typeof useFormatter>,
+) {
+  return `${format.number(amount, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}${symbol}`;
+}
+
 function isCreditTransaction(type: string) {
   const normalized = type.toLowerCase();
-  return normalized === "deposit" || normalized === "credit";
+  return (
+    normalized === "deposit" ||
+    normalized === "credit" ||
+    normalized === "migrationopeningbalance"
+  );
 }
 
 function transactionTitle(
@@ -54,6 +72,8 @@ function transactionTitle(
       return t("transactionOrderPayment");
     case "credit":
       return t("transactionRefund");
+    case "migrationopeningbalance":
+      return t("transactionMigratedOpeningBalance");
     case "withdrawal":
       return t("transactionWithdrawal");
     default:
@@ -116,7 +136,13 @@ function SavedCardRow({
   );
 }
 
-function TransactionRow({ transaction }: { transaction: WalletTransaction }) {
+function TransactionRow({
+  currencySymbol,
+  transaction,
+}: {
+  currencySymbol: string;
+  transaction: WalletTransaction;
+}) {
   const t = useTranslations("wallet");
   const format = useFormatter();
   const isCredit = isCreditTransaction(transaction.type);
@@ -182,7 +208,7 @@ function TransactionRow({ transaction }: { transaction: WalletTransaction }) {
           }`}
         >
           {isCredit ? "+" : "−"}
-          {formatAppCurrency(format, amount)}
+          {formatMoney(amount, currencySymbol, format)}
         </p>
         <p className="mt-0.5 text-[10px] font-semibold uppercase text-muted">
           {status}
@@ -199,6 +225,7 @@ export function WalletDashboard() {
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const wallet = useWalletQuery(authenticated);
+  const currency = useActiveCurrencyQuery(authenticated);
   const cards = useSavedCardsQuery(authenticated);
   const transactions = useWalletTransactionsQuery(authenticated);
   const setupIntent = useCreateSavedCardSetupIntentMutation();
@@ -221,6 +248,8 @@ export function WalletDashboard() {
   }, [transactions.data?.pages]);
   const totalTransactions = transactions.data?.pages[0]?.total ?? 0;
   const savedCards = cards.data?.cards ?? [];
+  const currencySymbol =
+    currency.data?.symbol?.trim() || FALLBACK_CURRENCY_SYMBOL;
 
   function openAddCard() {
     setCardActionError("");
@@ -304,7 +333,11 @@ export function WalletDashboard() {
                     </button>
                   ) : (
                     <strong className="mt-1 block text-4xl font-bold tracking-[-0.03em] tabular-nums sm:text-5xl">
-                      {formatAppCurrency(format, Number(wallet.data?.data?.wallet_balance ?? 0))}
+                      {formatMoney(
+                        Number(wallet.data?.data?.wallet_balance ?? 0),
+                        currencySymbol,
+                        format,
+                      )}
                     </strong>
                   )}
                 </div>
@@ -395,7 +428,13 @@ export function WalletDashboard() {
               </div>
             ) : allTransactions.length ? (
               <div>
-                {allTransactions.map((transaction) => <TransactionRow key={transaction.id} transaction={transaction} />)}
+                {allTransactions.map((transaction) => (
+                  <TransactionRow
+                    currencySymbol={currencySymbol}
+                    key={transaction.id}
+                    transaction={transaction}
+                  />
+                ))}
                 {transactions.hasNextPage ? (
                   <div className="pt-5 text-center">
                     {transactions.isFetchNextPageError ? <p className="mb-3 text-xs font-medium text-danger" role="alert">{t("moreTransactionsError")}</p> : null}

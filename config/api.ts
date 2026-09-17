@@ -20,6 +20,7 @@ export const apiRoutes = {
   profileSummary: "/api/profile/summary",
   profileWallet: "/api/profile/wallet",
   profileWalletTransactions: "/api/profile/wallet/transactions",
+  currency: "/api/currency",
   savedCards: "/api/profile/saved-cards",
   notificationSettings: "/api/profile/notifications",
   notifications: "/api/notifications",

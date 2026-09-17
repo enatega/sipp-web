@@ -129,6 +129,7 @@ export function RestaurantPage({ storeId }: Props) {
         <div className="mx-auto grid min-h-[700px] max-w-[1540px] grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)]">
           <CategoryNavigation activeCategoryId={activeCategoryId} categories={categories} categoryLabel={t("categories")} onSelect={scrollToCategory} />
           <section className="min-w-0 px-[18px] py-6 sm:px-7 lg:px-7 xl:px-9">
+            {!store.isAvailable ? <div role="status" className="mb-6 rounded-xl border border-line bg-soft-surface p-4 text-body"><strong className="block text-ink">{t("closed")}</strong><p className="mt-1 text-sm">{t("closedMessage")}</p><button type="button" className="mt-3 text-sm font-semibold text-brand underline underline-offset-4" onClick={() => void restaurant.refetch()}>{t("checkAvailability")}</button></div> : null}
             <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-2xl font-bold text-ink">{t("menu")}</h2>
               <div className="flex items-center gap-2">
@@ -203,7 +204,7 @@ export function RestaurantPage({ storeId }: Props) {
             )}
           </section>
 
-          {selectedProductId ? <ProductConfigurator isAuthenticated={authenticated} key={selectedProductId} onClose={() => setSelectedProductId(null)} onRequireSignIn={requireSignIn} productId={selectedProductId} storeName={store.name} /> : null}
+          {selectedProductId ? <ProductConfigurator isStoreAvailable={store.isAvailable} isAuthenticated={authenticated} key={selectedProductId} onClose={() => setSelectedProductId(null)} onRequireSignIn={requireSignIn} productId={selectedProductId} storeName={store.name} /> : null}
         </div>
       </main>
     </>

@@ -7,7 +7,7 @@ const localeFiles = ["en", "de"];
 function flatten(value, prefix = "", output = new Map()) {
   for (const [key, child] of Object.entries(value)) {
     const path = prefix ? `${prefix}.${key}` : key;
-    if (child && typeof child === "object" && !Array.isArray(child)) {
+    if (child && typeof child === "object") {
       flatten(child, path, output);
     } else {
       output.set(path, child);

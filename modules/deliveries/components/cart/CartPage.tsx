@@ -10,6 +10,7 @@ import { useSessionQuery } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { CartItemCard } from "./CartItemCard";
 import { useCartMutations, useCartQuery } from "../../hooks/useCart";
+import { useRestaurantLocation, useRestaurantQuery } from "../../hooks/useRestaurantQueries";
 
 function LoadingState() {
   const t = useTranslations("deliveries.cart");
@@ -37,10 +38,14 @@ function EmptyCart() {
 
 export function CartPage() {
   const t = useTranslations("deliveries.cart");
+  const restaurantText = useTranslations("deliveries.restaurant");
   const format = useFormatter();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const cart = useCartQuery(authenticated);
+  const { location } = useRestaurantLocation();
+  const restaurant = useRestaurantQuery(cart.data?.storeId ?? "", location);
+  const isStoreClosed = restaurant.data?.isAvailable === false;
   const mutations = useCartMutations();
   const [clearOpen, setClearOpen] = useState(false);
   const [error, setError] = useState("");
@@ -75,6 +80,7 @@ export function CartPage() {
       <Header cartCount={data.totalItems} />
       <main className="min-h-[calc(100vh-76px)] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_300px)] pb-28 pt-7 sm:pb-12 sm:pt-10">
         <div className="section-wrap">
+          {isStoreClosed ? <div role="status" className="mb-5 rounded-xl border border-line bg-soft-surface p-4 text-body"><strong className="block text-ink">{restaurantText("closed")}</strong><p className="mt-1 text-sm">{restaurantText("closedMessage")}</p></div> : null}
           <Link href={data.storeId ? `/restaurants/${data.storeId}` : "/discovery"} className="inline-flex items-center gap-2 text-sm font-semibold text-body transition-colors hover:text-brand"><ArrowLeft aria-hidden="true" className="size-4" />{t("continueShopping")}</Link>
           <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
             <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand">{t("eyebrow")}</p><h1 className="mt-1 text-3xl font-bold text-ink sm:text-4xl">{t("title")}</h1><p className="mt-2 text-sm text-body">{t("itemCount", { count: data.totalItems })}</p></div>
@@ -95,7 +101,7 @@ export function CartPage() {
               </div>
               <div className="my-5 border-t border-dashed border-line" />
               <div className="flex items-end justify-between gap-4"><div><p className="font-bold text-ink">{t("cartTotal")}</p><p className="mt-1 text-[11px] text-muted">{t("feesAtCheckout")}</p></div><strong className="text-2xl text-brand">{price(data.finalPrice)}</strong></div>
-              <Link href="/checkout" className="mt-6 inline-flex min-h-13 w-full items-center justify-center rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_10px_24px_rgba(102,192,242,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-brand/85">{t("checkout")}</Link>
+              {isStoreClosed ? <button type="button" disabled className="mt-6 min-h-13 w-full rounded-full bg-brand px-5 text-sm font-bold text-ink opacity-50">{restaurantText("closed")}</button> : <Link href="/checkout" className="mt-6 inline-flex min-h-13 w-full items-center justify-center rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_10px_24px_rgba(102,192,242,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-brand/85">{t("checkout")}</Link>}
               <p className="mt-3 text-center text-[11px] leading-relaxed text-muted">{t("secureCheckout")}</p>
             </aside>
           </div>

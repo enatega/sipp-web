@@ -87,7 +87,7 @@ export function parseStores(value: unknown): DeliveryStore[] {
       latitude: optionalNumber(source.latitude),
       longitude: optionalNumber(source.longitude),
       isAvailable: optionalBoolean(source.isAvailable),
-      isOpen: optionalBoolean(source.isOpen),
+      isOpen: optionalBoolean(source.isClosed) !== undefined ? source.isClosed === false : optionalBoolean(source.isOpen),
       deal: optionalString(source.deal),
       dealType: optionalString(source.dealType),
       dealAmount: optionalNumber(source.dealAmount),
@@ -151,7 +151,7 @@ export function parseBanners(value: unknown): DeliveryBanner[] {
         storeImage: optionalString(store.source.storeImage),
         coverImage: optionalString(store.source.coverImage),
         isAvailable: optionalBoolean(store.source.isAvailable),
-        isOpen: optionalBoolean(store.source.isOpen),
+        isOpen: optionalBoolean(store.source.isClosed) !== undefined ? store.source.isClosed === false : optionalBoolean(store.source.isOpen),
       } : null,
       product: product ? {
         id: product.id,
