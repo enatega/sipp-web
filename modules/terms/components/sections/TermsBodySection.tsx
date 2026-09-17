@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 interface TermsSectionItem {
   heading: string;
   paragraphs: string[];
-  isPart?: boolean;
 }
 
 export async function TermsBodySection() {
@@ -14,7 +13,7 @@ export async function TermsBodySection() {
     <section className="py-14 sm:py-16">
       <div className="section-wrap flex max-w-3xl flex-col gap-8">
         {sections.map((item) =>
-          item.isPart ? (
+          item.paragraphs.length === 0 ? (
             <h2
               key={item.heading}
               className="mt-4 border-t border-line pt-8 font-heading text-[13px] font-bold uppercase tracking-[0.14em] text-brand first:mt-0 first:border-t-0 first:pt-0"
