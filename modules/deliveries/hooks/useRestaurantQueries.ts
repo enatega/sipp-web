@@ -41,6 +41,7 @@ export function useRestaurantQuery(
     queryFn: ({ signal }) => restaurantApi.detail(storeId, location!, signal),
     enabled: Boolean(storeId && location),
     staleTime: RESTAURANT_STALE_TIME,
+    refetchInterval: 30_000,
   });
 }
 

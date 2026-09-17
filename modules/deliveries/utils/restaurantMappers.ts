@@ -88,7 +88,7 @@ export function parseRestaurantStore(value: unknown): RestaurantStore {
     shopTypeName: text(source.shopTypeName),
     tagLine: optionalText(source.tagLine),
     description: optionalText(source.description),
-    isAvailable: source.isAvailable !== false,
+    isAvailable: source.isAvailable !== false && source.isClosed !== true,
     isFavorited: source.isFavorited === true,
     categories,
     subcategories,

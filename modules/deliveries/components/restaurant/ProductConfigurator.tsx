@@ -19,6 +19,7 @@ import {
 import styles from "./restaurant-transitions.module.css";
 
 interface Props {
+  isStoreAvailable: boolean;
   isAuthenticated: boolean;
   onClose: () => void;
   onRequireSignIn: () => void;
@@ -26,7 +27,7 @@ interface Props {
   storeName: string;
 }
 
-export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn, productId, storeName }: Props) {
+export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose, onRequireSignIn, productId, storeName }: Props) {
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
   const { info, customizations } = useProductConfiguration(productId);
@@ -95,13 +96,14 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
   const isConfigurationLoading = info.isPending || customizations.isPending;
   const isMutationPending = addItem.isPending || clear.isPending;
   const isInteractionLocked =
-    isConfigurationLoading || (isAuthenticated && cart.isPending) || isMutationPending || !product || !product.inStock;
+    !isStoreAvailable || isConfigurationLoading || (isAuthenticated && cart.isPending) || isMutationPending || !product || !product.inStock;
 
   function cartErrorMessage(error: unknown) {
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       return t("cartOfflineError");
     }
     if (error instanceof ApiError) {
+      if (/store is currently closed/i.test(error.message)) return t("closedMessage");
       if (error.status === 401) return t("cartSignInError");
       if (error.status === 409) return t("cartConflictError");
       if (error.status === 408) return t("cartTimeoutError");
@@ -161,11 +163,20 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
 
   async function addConfiguredProduct() {
     if (!product) return;
-    await addItem.mutateAsync({
+    if (!isStoreAvailable) throw new ApiError("Store is currently closed", 400);
+    const updatedCart = await addItem.mutateAsync({
       productId: product.productId,
       quantity,
       selectedOptions: cartSelections(selectedVariation, selectedByGroup),
     });
+    const updatedQuantity = updatedCart.items.reduce(
+      (total, item) => item.productId === product.productId ? total + item.quantity : total,
+      0,
+    );
+    // A 2xx response may report a skipped/unavailable item instead of adding it.
+    if (updatedQuantity < cartQuantity + quantity) {
+      throw new ApiError("Cart item was not added.", 422);
+    }
     setIsAdded(true);
     setSubmitError(null);
   }
