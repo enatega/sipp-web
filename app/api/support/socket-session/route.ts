@@ -6,7 +6,7 @@ function socketBaseUrl() {
   const configured =
     process.env.SHAANIEOL_SOCKET_URL ??
     process.env.NEXT_PUBLIC_SOCKET_URL ??
-    process.env.SHAANIEOL_API_BASE_URL ??
+    process.env.API_BASE_URL ??
     "http://localhost:8080/api/v1";
   return new URL(configured).origin;
 }

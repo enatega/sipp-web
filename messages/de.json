@@ -1627,6 +1627,11 @@
         "title": "📩 Schreiben Sie uns",
         "subtitle": "Lieber alles ausführlich tippen?",
         "address": "support@sippdelivery.com"
+      },
+      "support": {
+        "title": "🎫 Probleme mit einer Bestellung?",
+        "subtitle": "Haben Sie ein Problem oder eine Frage zu Ihrem Konto oder einer Bestellung? Eröffnen Sie ein Support-Ticket – unser Team kümmert sich darum.",
+        "cta": "Ticket erstellen"
       }
     },
     "form": {

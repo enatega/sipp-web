@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Headphones, LoaderCircle, MessageSquare, Plus, Search } from "lucide-react";
 import { useSessionQuery } from "@/modules/account";
@@ -14,9 +15,10 @@ export function SupportExperience() {
   const t = useTranslations("deliveries.support");
   const session = useSessionQuery();
   const now = useNow();
+  const searchParams = useSearchParams();
   const user = session.data?.authenticated ? session.data.user : null;
   const [selectedId, setSelectedId] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, setIsCreating] = useState(() => searchParams.get("action") === "create");
   const [isExpanded, setIsExpanded] = useState(false);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
