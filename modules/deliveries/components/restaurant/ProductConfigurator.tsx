@@ -161,11 +161,19 @@ export function ProductConfigurator({ isAuthenticated, onClose, onRequireSignIn,
 
   async function addConfiguredProduct() {
     if (!product) return;
-    await addItem.mutateAsync({
+    const updatedCart = await addItem.mutateAsync({
       productId: product.productId,
       quantity,
       selectedOptions: cartSelections(selectedVariation, selectedByGroup),
     });
+    const updatedQuantity = updatedCart.items.reduce(
+      (total, item) => item.productId === product.productId ? total + item.quantity : total,
+      0,
+    );
+    // A 2xx response may report a skipped/unavailable item instead of adding it.
+    if (updatedQuantity < cartQuantity + quantity) {
+      throw new ApiError("Cart item was not added.", 422);
+    }
     setIsAdded(true);
     setSubmitError(null);
   }
