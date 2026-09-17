@@ -1585,6 +1585,11 @@
         "title": "📩 Email Us",
         "subtitle": "Prefer typing it all out?",
         "address": "support@sippdelivery.com"
+      },
+      "support": {
+        "title": "🎫 Need Help With An Order?",
+        "subtitle": "Got an issue or a question about your account or an order? Open a support ticket and our team will sort it out.",
+        "cta": "Create a ticket"
       }
     },
     "form": {
