@@ -14,10 +14,10 @@ export function DetailPhone() {
       aria-label="Ordering a beef burger in the SIPP app"
     >
       <Image
-        src="/app/screen-product.png"
+        src="/app/discovery-mockup.png"
         alt=""
-        width={560}
-        height={1217}
+        width={1170}
+        height={2532}
         sizes="(max-width: 860px) 48vw, 200px"
       />
     </div>

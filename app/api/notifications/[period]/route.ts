@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callApi, requireSession } from "@/services/api/server";
+import { authCookieNames, decodeSessionUser } from "@/services/auth/session";
 
 const PERIODS = new Set(["today", "past"]);
 
@@ -14,5 +15,10 @@ export async function GET(request: NextRequest, context: RouteContext<"/api/noti
     return NextResponse.json({ message: "Invalid notification query." }, { status: 400 });
   }
 
-  return callApi(`/apps/deliveries/users-notifications/${period}?offset=${offset}&limit=${limit}`, { request });
+  const user = decodeSessionUser(request.cookies.get(authCookieNames.user)?.value);
+  if (!user?.id) {
+    return NextResponse.json({ message: "Your session is missing user details. Please sign in again." }, { status: 401 });
+  }
+
+  return callApi(`/apps/deliveries/users-notifications/user/${period}/${encodeURIComponent(user.id)}?offset=${offset}&limit=${limit}`, { request });
 }

@@ -10,10 +10,10 @@ export function ServicesPhone() {
   return (
     <div className={cn(styles.phone, styles.phoneShot, styles.phoneTall)} role="img" aria-label="The SIPP services app home screen">
       <Image
-        src="/app/screen-services.png"
+        src="/app/store-mockup.jpg"
         alt=""
-        width={560}
-        height={1217}
+        width={719}
+        height={1600}
         sizes="(max-width: 860px) 60vw, 250px"
       />
     </div>
