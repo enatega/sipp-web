@@ -82,7 +82,7 @@ export function OffersCarousel({
       <div className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/46 to-black/10" />
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/55 to-transparent" />
       <div className="relative flex min-h-[320px] max-w-[37rem] flex-col justify-end px-6 pb-12 pt-7 sm:min-h-[380px] sm:px-9 sm:pb-14 lg:min-h-[410px] lg:px-11">
-        <h2 className="text-balance font-heading text-[2rem] font-extrabold leading-[1.04] tracking-[-0.04em] sm:text-[2.7rem] lg:text-5xl">
+        <h2 className="text-balance font-heading text-[2rem] font-extrabold leading-[1.04] tracking-[-0.04em] sm:text-[2.7rem] lg:text-5xl text-white">
           {activeBanner.title}
         </h2>
         {activeBanner.description ? (

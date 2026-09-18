@@ -3,7 +3,7 @@ import * as yup from "yup";
 export interface CheckoutFormValues {
   orderType: "delivery" | "pickup";
   deliveryLocationKey: string;
-  paymentMethod: "cod" | "stripe";
+  paymentMethod: "wallet" | "stripe";
   deliveryTime: "standard" | "scheduled";
   scheduledAt: string;
   restaurantNote: string;
@@ -25,7 +25,7 @@ export function checkoutSchema(messages: {
       then: (schema) => schema.required(messages.addressRequired),
       otherwise: (schema) => schema.default(""),
     }),
-    paymentMethod: yup.mixed<CheckoutFormValues["paymentMethod"]>().oneOf(["cod", "stripe"]).required(),
+    paymentMethod: yup.mixed<CheckoutFormValues["paymentMethod"]>().oneOf(["wallet", "stripe"]).required(),
     deliveryTime: yup.mixed<CheckoutFormValues["deliveryTime"]>().oneOf(["standard", "scheduled"]).required(),
     scheduledAt: yup.string().when("deliveryTime", {
       is: "scheduled",

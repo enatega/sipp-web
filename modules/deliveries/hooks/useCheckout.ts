@@ -56,7 +56,7 @@ export function usePlaceOrderMutation() {
   return useMutation({
     mutationFn: (input: PlaceOrderInput) => checkoutApi.placeOrder(input),
     onSuccess: async (response) => {
-      if (response.mode === "cod") {
+      if (response.mode === "wallet") {
         await queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.cart() });
       }
     },

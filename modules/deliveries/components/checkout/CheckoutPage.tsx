@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useFormik } from "formik";
-import { ArrowLeft, Banknote, Bike, CalendarClock, ChevronRight, Clock3, CreditCard, LoaderCircle, MapPin, MessageSquareText, ShoppingBag, Store, Truck } from "lucide-react";
+import { ArrowLeft, Bike, CalendarClock, ChevronRight, Clock3, CreditCard, LoaderCircle, MapPin, MessageSquareText, ShoppingBag, Store, Truck, WalletCards } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Header } from "@/components/shared/app-shell/Header";
 import { appCurrency } from "@/config/currency";
-import { useAddressesQuery, useSavedCardsQuery, useSessionQuery, useStoredPlace, type ChosenPlace, type SavedAddress, type SavedCard } from "@/modules/account";
+import { useAddressesQuery, useSavedCardsQuery, useSessionQuery, useStoredPlace, useWalletQuery, type ChosenPlace, type SavedAddress, type SavedCard } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { ApiError } from "@/services/api/client";
 import { checkoutSchema, type CheckoutFormValues } from "../../schemas/checkoutSchema";
@@ -96,6 +96,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
   const refetchCart = cart.refetch;
   const addresses = useAddressesQuery(authenticated);
   const savedCards = useSavedCardsQuery(authenticated);
+  const wallet = useWalletQuery(authenticated);
   const storedPlace = useStoredPlace();
   const placeOrder = usePlaceOrderMutation();
   const validateAddress = useValidateCheckoutAddressMutation();
@@ -116,6 +117,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
     paymentStatus: string;
   } | null>(null);
   const [isStripeConfirmed, setIsStripeConfirmed] = useState(false);
+  const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
   const addressTriggerRef = useRef<HTMLButtonElement>(null);
   const checkoutAlertRegionRef = useRef<HTMLDivElement>(null);
   const [pendingPlaceOrder, setPendingPlaceOrder] = useState(false);
@@ -136,11 +138,21 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
 
   const formik = useFormik<CheckoutFormValues>({
     enableReinitialize: true,
-    initialValues: { orderType: "delivery", deliveryLocationKey: locationKey(storedPlace.place), paymentMethod: "cod", deliveryTime: "standard", scheduledAt: "", restaurantNote: "", courierNote: "", leaveAtDoor: false, riderTip: 0 },
+    initialValues: { orderType: "delivery", deliveryLocationKey: locationKey(storedPlace.place), paymentMethod: "wallet", deliveryTime: "standard", scheduledAt: "", restaurantNote: "", courierNote: "", leaveAtDoor: false, riderTip: 0 },
     validationSchema: checkoutSchema({ addressRequired: t("addressRequired"), scheduleRequired: t("scheduleRequired"), noteTooLong: t("noteTooLong"), invalidTip: t("invalidTip") }),
     onSubmit: async (values) => {
       if (!cart.data?.bucketId || !cart.data.storeId) return;
       if (values.orderType === "delivery" && !deliveryPlace) return;
+      if (values.paymentMethod === "wallet") {
+        if (wallet.isPending) {
+          showSubmitError(t("walletLoading"));
+          return;
+        }
+        if (wallet.isError || Number(wallet.data?.data?.wallet_balance ?? 0) < Number(preview.data?.pricing.totalAmount ?? 0)) {
+          setIsWalletDialogOpen(true);
+          return;
+        }
+      }
       setSubmitError("");
       try {
         const response = await placeOrder.mutateAsync({
@@ -234,8 +246,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
     if (!store) return;
     if (formik.values.orderType === "delivery" && !store.deliveryAllowed && store.pickupAllowed) void formik.setFieldValue("orderType", "pickup");
     if (formik.values.orderType === "pickup" && !store.pickupAllowed && store.deliveryAllowed) void formik.setFieldValue("orderType", "delivery");
-    if (formik.values.paymentMethod === "cod" && !store.codAllowed && store.stripeAllowed) void formik.setFieldValue("paymentMethod", "stripe");
-    if (formik.values.paymentMethod === "stripe" && !store.stripeAllowed && store.codAllowed) void formik.setFieldValue("paymentMethod", "cod");
+    if (formik.values.paymentMethod === "stripe" && !store.stripeAllowed) void formik.setFieldValue("paymentMethod", "wallet");
   }, [formik, preview.data?.store]);
 
   function checkoutErrorMessage(error: unknown) {
@@ -253,6 +264,10 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
         return t("addressUnavailable");
       }
       if (error.status === 409) return t("orderChangedError");
+      if (/insufficient.*wallet|wallet.*balance/i.test(error.message)) {
+        setIsWalletDialogOpen(true);
+        return t("walletInsufficientMessage");
+      }
       if (error.status === 408) return t("timeoutError");
       if (error.status === 429) return t("rateLimitError");
       if (error.status >= 500) return t("serviceUnavailableError");
@@ -411,7 +426,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
 
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6">
                 <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><CreditCard aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("paymentTitle")}</h2><p className="text-xs text-muted">{t("paymentDescription")}</p></div></div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">{(["cod", "stripe"] as const).map((method) => { const disabled = method === "cod" ? store?.codAllowed === false || formik.values.leaveAtDoor : store?.stripeAllowed === false; const Icon = method === "cod" ? Banknote : CreditCard; return <label key={method} className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-colors ${disabled ? "cursor-not-allowed opacity-40" : ""} ${formik.values.paymentMethod === method ? "border-brand bg-brand/5" : "border-line"}`}><input type="radio" name="paymentMethod" value={method} checked={formik.values.paymentMethod === method} disabled={disabled} onChange={formik.handleChange} className="accent-[var(--color-brand)]" /><Icon aria-hidden="true" className="size-5 text-brand" /><span><strong className="block text-sm text-ink">{t(method)}</strong><small className="text-xs text-muted">{t(`${method}Hint`)}</small></span></label>; })}</div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">{(["wallet", "stripe"] as const).map((method) => { const disabled = method === "stripe" && store?.stripeAllowed === false; const Icon = method === "wallet" ? WalletCards : CreditCard; return <label key={method} className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-colors ${disabled ? "cursor-not-allowed opacity-40" : ""} ${formik.values.paymentMethod === method ? "border-brand bg-brand/5" : "border-line"}`}><input type="radio" name="paymentMethod" value={method} checked={formik.values.paymentMethod === method} disabled={disabled} onChange={formik.handleChange} className="accent-[var(--color-brand)]" /><Icon aria-hidden="true" className="size-5 text-brand" /><span><strong className="block text-sm text-ink">{t(method)}</strong><small className="text-xs text-muted">{t(`${method}Hint`)}</small></span></label>; })}</div>
                 {formik.values.paymentMethod === "stripe" ? (
                   <CheckoutSavedCardPicker
                     cards={savedCards.data?.cards ?? []}
@@ -475,6 +490,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
           total={preview.data.pricing.totalAmount}
         />
       ) : null}
+      {isWalletDialogOpen ? <div className="fixed inset-0 z-[90] grid place-items-center bg-black/55 p-4" role="dialog" aria-modal="true" aria-labelledby="wallet-insufficient-title"><div className="w-full max-w-sm rounded-3xl border border-line bg-card p-6 shadow-pop"><span className="grid size-11 place-items-center rounded-full bg-brand/10 text-brand"><WalletCards aria-hidden="true" className="size-5" /></span><h2 id="wallet-insufficient-title" className="mt-4 text-lg font-bold text-ink">{t("walletInsufficientTitle")}</h2><p className="mt-2 text-sm leading-6 text-body">{t("walletInsufficientMessage")}</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setIsWalletDialogOpen(false)} className="min-h-10 rounded-full px-4 text-sm font-semibold text-body hover:bg-[var(--soft-surface)]">{t("close")}</button><Link href="/wallet" onClick={() => setIsWalletDialogOpen(false)} className="inline-flex min-h-10 items-center rounded-full bg-brand px-5 text-sm font-bold text-ink">{t("upgradeWallet")}</Link></div></div></div> : null}
     </>
   );
 }

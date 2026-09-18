@@ -21,4 +21,5 @@ export {
   useReverseGeocodeMutation,
   useSavedCardsQuery,
   useSessionQuery,
+  useWalletQuery,
 } from "./queries/useAccountQueries";
