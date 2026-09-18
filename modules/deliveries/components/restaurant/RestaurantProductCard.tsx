@@ -27,7 +27,6 @@ export function RestaurantProductCard({
       <button
         aria-label={isInCart ? t("configureProductInCart", { name: product.name, count: cartQuantity }) : t("configureProduct", { name: product.name })}
         className="flex min-h-[110px] w-full text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand"
-        disabled={!isStoreAvailable}
         onClick={() => onSelect(product.id)}
         type="button"
       >
