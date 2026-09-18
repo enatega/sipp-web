@@ -5,7 +5,7 @@ import { callApi, requireSession } from "@/services/api/server";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ORDER_TYPES = ["delivery", "pickup"] as const;
-const PAYMENT_METHODS = ["cod", "stripe"] as const;
+const PAYMENT_METHODS = ["wallet", "stripe"] as const;
 const PAYMENT_METHOD_ID_PATTERN = /^pm_[A-Za-z0-9]+$/;
 
 function invalid(message: string) {
@@ -102,10 +102,13 @@ export async function proxyPlaceOrder(request: NextRequest) {
   const unauthorized = requireSession(request);
   if (unauthorized) return unauthorized;
   const source = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-  if (!source) return invalid("Invalid order details.");
+  if (!source) return invalid("Your order details could not be read. Please refresh checkout and try again.");
   const input = commonInput(source);
-  if (!input || !PAYMENT_METHODS.includes(source.paymentMethod as (typeof PAYMENT_METHODS)[number])) {
-    return invalid("Invalid order details.");
+  if (!input) {
+    return invalid("Please check your cart, store, delivery address, and delivery details before placing the order.");
+  }
+  if (!PAYMENT_METHODS.includes(source.paymentMethod as (typeof PAYMENT_METHODS)[number])) {
+    return invalid("Please select Wallet or Card as your payment method.");
   }
   const customerNote = typeof source.customerNote === "string" ? source.customerNote.trim() : "";
   if (customerNote.length > 500) return invalid("Order notes are too long.");

@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { Icon } from "@/components/shared/brand/Icon";
 import { localeNames, locales, type Locale } from "@/i18n/config";
 import { setUserLocale } from "@/lib/locale";
 
@@ -13,7 +14,7 @@ export function LocaleSwitcher() {
   const [pending, startTransition] = useTransition();
 
   return (
-    <label className="inline-flex items-center">
+    <label className="relative inline-flex items-center">
       <span className="sr-only">{t("language")}</span>
       <select
         value={activeLocale}
@@ -25,8 +26,7 @@ export function LocaleSwitcher() {
             router.refresh();
           });
         }}
-        className="h-9 text-center  rounded-full border border-line bg-surface px-2 text-xs font-semibold text-foreground outline-none focus:border-brand"
-        
+        className="h-9 appearance-none rounded-full border border-line bg-surface py-1 pl-3 pr-8 text-xs font-semibold text-foreground outline-none transition-colors focus:border-brand"
         aria-label={t("language")}
       >
         {locales.map((locale) => (
@@ -35,6 +35,10 @@ export function LocaleSwitcher() {
           </option>
         ))}
       </select>
+      <Icon
+        name="chevron"
+        className="pointer-events-none absolute right-2.5 size-3 text-foreground"
+      />
     </label>
   );
 }

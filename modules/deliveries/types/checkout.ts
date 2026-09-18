@@ -1,5 +1,5 @@
 export type CheckoutOrderType = "delivery" | "pickup";
-export type CheckoutPaymentMethod = "cod" | "stripe";
+export type CheckoutPaymentMethod = "wallet" | "stripe";
 
 export interface CheckoutPreviewInput {
   storeId: string;
@@ -83,5 +83,5 @@ export interface StripeOrderDraftStatus {
 }
 
 export type PlaceOrderResponse =
-  | { mode: "cod"; orderId: string; status: string; paymentStatus: string; paymentMethod: "cash" | "card"; orderType: CheckoutOrderType; totalAmount: number; scheduledAt: string | null; createdAt: string }
+  | { mode: "wallet"; orderId: string; status: string; paymentStatus: string; paymentMethod: "wallet"; orderType: CheckoutOrderType; totalAmount: number; scheduledAt: string | null; createdAt: string }
   | { mode: "stripe"; draftId: string; clientSecret: string; paymentIntentId: string; paymentStatus: string };
