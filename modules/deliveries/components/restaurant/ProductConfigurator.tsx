@@ -187,6 +187,10 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
       onRequireSignIn();
       return;
     }
+    if (!isStoreAvailable) {
+      setSubmitError(t("closedMessage"));
+      return;
+    }
     setHasSubmitted(true);
     setIsAdded(false);
     setSubmitError(null);
@@ -381,18 +385,20 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
                   )}
                 </div>
               </div>
-              <button className="flex h-13 w-full items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-ink transition hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-50" disabled={isInteractionLocked} type="submit">
-                {isConfigurationLoading || (isAuthenticated && cart.isPending) || isMutationPending ? <LoaderCircle aria-hidden="true" className="mr-2 size-4 animate-spin" /> : null}
-                {isConfigurationLoading || (isAuthenticated && cart.isPending)
-                  ? isConfigurationLoading
-                    ? t("loadingProduct")
-                    : t("preparingCart")
-                  : isMutationPending
-                    ? t("addingToCart")
-                    : product && !product.inStock
-                      ? t("outOfStock")
-                      : t("addToCart", { price: formatAppCurrency(format, total) })}
-              </button>
+              {isStoreAvailable ? (
+                <button className="flex h-13 w-full items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-ink transition hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-50" disabled={isInteractionLocked} type="submit">
+                  {isConfigurationLoading || (isAuthenticated && cart.isPending) || isMutationPending ? <LoaderCircle aria-hidden="true" className="mr-2 size-4 animate-spin" /> : null}
+                  {isConfigurationLoading || (isAuthenticated && cart.isPending)
+                    ? isConfigurationLoading
+                      ? t("loadingProduct")
+                      : t("preparingCart")
+                    : isMutationPending
+                      ? t("addingToCart")
+                      : product && !product.inStock
+                        ? t("outOfStock")
+                        : t("addToCart", { price: formatAppCurrency(format, total) })}
+                </button>
+              ) : null}
             </div>
           </form>
         )}
