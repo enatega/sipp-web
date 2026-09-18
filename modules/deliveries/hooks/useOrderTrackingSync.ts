@@ -125,18 +125,18 @@ export function useOrderTrackingSync(
                         payload.riderUserId ?? current.rider?.userId ?? null,
                     }
                   : current.rider;
-                const hasChangedStatus =
-                  Boolean(payload.status) && payload.status !== current.status;
+                const nextStatus = payload.status ?? current.status;
+                const hasChangedStatus = nextStatus !== current.status;
 
                 return {
                   ...current,
                   eta: payload.eta ?? current.eta,
-                  status: payload.status ?? current.status,
+                  status: nextStatus,
                   rider: nextRider,
                   orderLogs: hasChangedStatus
                     ? [
                         {
-                          status: payload.status!,
+                          status: nextStatus,
                           actor: null,
                           timestamp:
                             payload.updatedAt ?? new Date().toISOString(),

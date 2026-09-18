@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   GoogleMap,
   MarkerF,
@@ -108,7 +108,7 @@ export function OrderRouteMap({ order, storeName }: Props) {
     libraries: LIBRARIES,
   });
   const mapRef = useRef<google.maps.Map | null>(null);
-  const fitCoordinatesRef = useRef<Coordinate[]>([]);
+  const lastFitSignatureRef = useRef("");
   const details = order.deliveryDetails;
   const store = useMemo(
     () => point(details?.storeLatitude, details?.storeLongitude),
@@ -150,7 +150,6 @@ export function OrderRouteMap({ order, storeName }: Props) {
         : visibleEndpoints,
     [routePath, visibleEndpoints],
   );
-  fitCoordinatesRef.current = fitCoordinates;
   const fitSignature = fitCoordinates
     .map(({ lat, lng }) => `${lat.toFixed(3)}:${lng.toFixed(3)}`)
     .join("|");
@@ -163,6 +162,7 @@ export function OrderRouteMap({ order, storeName }: Props) {
         { lat: 0, lng: 0 },
       )
     : null;
+  const [initialCenter] = useState(center);
   const isSamePoint = Boolean(
     routeOrigin &&
       routeDestination &&
@@ -179,27 +179,38 @@ export function OrderRouteMap({ order, storeName }: Props) {
       (store || rider),
   );
 
-  const handleMapLoad = useCallback((map: google.maps.Map) => {
-    mapRef.current = map;
-    fitMap(map, fitCoordinatesRef.current);
-  }, []);
+  const handleMapLoad = useCallback(
+    (map: google.maps.Map) => {
+      mapRef.current = map;
+      lastFitSignatureRef.current = fitSignature;
+      fitMap(map, fitCoordinates);
+    },
+    [fitCoordinates, fitSignature],
+  );
 
   const handleMapUnmount = useCallback(() => {
     mapRef.current = null;
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !fitSignature) return;
-    fitMap(mapRef.current, fitCoordinatesRef.current);
-  }, [fitSignature]);
+    if (
+      !mapRef.current ||
+      !fitSignature ||
+      lastFitSignatureRef.current === fitSignature
+    ) {
+      return;
+    }
+    lastFitSignatureRef.current = fitSignature;
+    fitMap(mapRef.current, fitCoordinates);
+  }, [fitCoordinates, fitSignature]);
 
   return (
     <section className="mt-7 overflow-hidden rounded-2xl bg-card shadow-card">
       <div className="relative h-52 bg-[var(--soft-surface)] sm:h-64 lg:h-72">
-        {canRenderMap && center ? (
+        {canRenderMap && initialCenter ? (
           <GoogleMap
             aria-label={t("routeMapAlt", { store: storeName })}
-            center={center}
+            center={initialCenter}
             mapContainerClassName="size-full"
             onLoad={handleMapLoad}
             onUnmount={handleMapUnmount}
