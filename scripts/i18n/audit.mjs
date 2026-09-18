@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { isTermsPartFlag, isValidCatalogValue } from "./catalog-values.mjs";
 
 const root = process.cwd();
 const localeFiles = ["en", "de"];
@@ -27,12 +28,16 @@ let failed = false;
 for (const [locale, catalog] of catalogs) {
   const missing = [...reference.keys()].filter((key) => !catalog.has(key));
   const extra = [...catalog.keys()].filter((key) => !reference.has(key));
-  const invalid = [...catalog].filter(([, value]) => typeof value !== "string");
-  if (missing.length || extra.length || invalid.length) {
+  const invalid = [...catalog].filter(([key, value]) => !isValidCatalogValue(key, value));
+  const mismatchedFlags = [...catalog].filter(([key, value]) =>
+    isTermsPartFlag(key) && reference.has(key) && value !== reference.get(key),
+  );
+  if (missing.length || extra.length || invalid.length || mismatchedFlags.length) {
     failed = true;
     if (missing.length) console.error(`${locale}: missing ${missing.join(", ")}`);
     if (extra.length) console.error(`${locale}: extra ${extra.join(", ")}`);
     if (invalid.length) console.error(`${locale}: non-string ${invalid.map(([key]) => key).join(", ")}`);
+    if (mismatchedFlags.length) console.error(`${locale}: terms layout mismatch ${mismatchedFlags.map(([key]) => key).join(", ")}`);
   }
 }
 

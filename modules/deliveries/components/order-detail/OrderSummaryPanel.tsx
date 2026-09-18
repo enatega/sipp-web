@@ -24,9 +24,7 @@ export function OrderSummaryPanel({ order }: Props) {
     ...(hasAmount(summary?.discountAmount)
       ? [{ label: t("discount"), value: -(summary?.discountAmount ?? 0), discount: true }]
       : []),
-    ...(hasAmount(summary?.taxAmount)
-      ? [{ label: t("tax"), value: summary?.taxAmount ?? 0 }]
-      : []),
+    { label: t("includedTax"), value: summary?.taxAmount ?? 0 },
     ...(hasAmount(summary?.packingCharges)
       ? [{ label: t("packingCharges"), value: summary?.packingCharges ?? 0 }]
       : []),
