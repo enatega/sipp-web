@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
-  DirectionsRenderer,
   GoogleMap,
   MarkerF,
   PolylineF,
@@ -12,6 +11,7 @@ import { MapPin, Navigation, Store } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { DeliveryImage } from "../discovery/DeliveryImage";
+import { useOrderRoutePath } from "../../hooks/useOrderRoutePath";
 import type { OrderDetail } from "../../types/orders";
 
 interface Props {
@@ -19,7 +19,18 @@ interface Props {
   storeName: string;
 }
 
+interface Coordinate {
+  lat: number;
+  lng: number;
+}
+
 const LIBRARIES: ("geometry" | "places")[] = ["places", "geometry"];
+const POST_PICKUP_STATUSES = new Set([
+  "picked_up",
+  "out_for_delivery",
+  "arrived",
+  "delivered",
+]);
 const DARK_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { elementType: "geometry", stylers: [{ color: "#242930" }] },
   { elementType: "labels.text.fill", stylers: [{ color: "#c7cbd1" }] },
@@ -30,8 +41,28 @@ const DARK_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
 ];
 
-function isCoordinate(value?: number | null) {
+function isCoordinate(value?: number | null): value is number {
   return typeof value === "number" && Number.isFinite(value);
+}
+
+function point(latitude?: number | null, longitude?: number | null) {
+  return isCoordinate(latitude) && isCoordinate(longitude)
+    ? { lat: latitude, lng: longitude }
+    : null;
+}
+
+function riderPoint(order: OrderDetail) {
+  return (
+    point(
+      order.rider?.currentLocation?.latitude,
+      order.rider?.currentLocation?.longitude,
+    ) ??
+    point(order.rider?.latitude, order.rider?.longitude) ??
+    point(
+      order.eta?.riderLocation?.latitude,
+      order.eta?.riderLocation?.longitude,
+    )
+  );
 }
 
 function createMarkerIcon(color: string) {
@@ -44,6 +75,29 @@ function createMarkerIcon(color: string) {
   };
 }
 
+function fitMap(map: google.maps.Map, coordinates: Coordinate[]) {
+  if (!coordinates.length) return;
+
+  if (coordinates.length === 1) {
+    map.setCenter(coordinates[0]);
+    map.setZoom(15);
+    return;
+  }
+
+  const bounds = new google.maps.LatLngBounds();
+  coordinates.forEach((coordinate) => bounds.extend(coordinate));
+  map.fitBounds(bounds, {
+    bottom: 58,
+    left: 56,
+    right: 56,
+    top: 42,
+  });
+  google.maps.event.addListenerOnce(map, "idle", () => {
+    const zoom = map.getZoom();
+    if (typeof zoom === "number" && zoom > 16) map.setZoom(16);
+  });
+}
+
 export function OrderRouteMap({ order, storeName }: Props) {
   const t = useTranslations("deliveries.orderDetails");
   const { resolvedTheme } = useTheme();
@@ -53,95 +107,96 @@ export function OrderRouteMap({ order, storeName }: Props) {
     googleMapsApiKey: apiKey,
     libraries: LIBRARIES,
   });
-  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
+  const fitCoordinatesRef = useRef<Coordinate[]>([]);
   const details = order.deliveryDetails;
-  const hasCoordinates =
-    isCoordinate(details?.storeLatitude) &&
-    isCoordinate(details?.storeLongitude) &&
-    isCoordinate(details?.latitude) &&
-    isCoordinate(details?.longitude);
-  const storePoint = useMemo(
-    () => ({ lat: details?.storeLatitude ?? 0, lng: details?.storeLongitude ?? 0 }),
+  const store = useMemo(
+    () => point(details?.storeLatitude, details?.storeLongitude),
     [details?.storeLatitude, details?.storeLongitude],
   );
   const destinationPoint = useMemo(
-    () => ({ lat: details?.latitude ?? 0, lng: details?.longitude ?? 0 }),
+    () => point(details?.latitude, details?.longitude),
     [details?.latitude, details?.longitude],
   );
-  const isSamePoint = storePoint.lat === destinationPoint.lat && storePoint.lng === destinationPoint.lng;
-  const isPickup = order.orderType === "pickup";
-  const destination = details?.address || t("notAvailable");
-  const center = {
-    lat: (storePoint.lat + destinationPoint.lat) / 2,
-    lng: (storePoint.lng + destinationPoint.lng) / 2,
-  };
-
-  const handleMapLoad = useCallback(
-    (map: google.maps.Map) => {
-      mapRef.current = map;
-      if (!hasCoordinates) return;
-      if (isSamePoint) {
-        map.setCenter(storePoint);
-        map.setZoom(15);
-        return;
-      }
-      const bounds = new google.maps.LatLngBounds();
-      bounds.extend(storePoint);
-      bounds.extend(destinationPoint);
-      map.fitBounds(bounds, 64);
-    },
-    [destinationPoint, hasCoordinates, isSamePoint, storePoint],
+  const rider = useMemo(
+    () => riderPoint(order),
+    [
+      order.eta?.riderLocation?.latitude,
+      order.eta?.riderLocation?.longitude,
+      order.rider?.currentLocation?.latitude,
+      order.rider?.currentLocation?.longitude,
+      order.rider?.latitude,
+      order.rider?.longitude,
+    ],
   );
+  const isPickup = order.orderType === "pickup";
+  const isPostPickup =
+    order.orderType === "delivery" &&
+    POST_PICKUP_STATUSES.has(order.status.trim().toLowerCase());
+  const routeOrigin = isPostPickup ? rider : store;
+  const routeDestination = destinationPoint;
+  const routePathQuery = useOrderRoutePath(routeOrigin, routeDestination, {
+    staleTime: order.orderType === "delivery" ? 2 * 60 * 1_000 : 10 * 60 * 1_000,
+  });
+  const routePath = routePathQuery.data ?? [];
+  const visibleEndpoints = useMemo(
+    () => [routeOrigin, routeDestination].filter(Boolean) as Coordinate[],
+    [routeDestination, routeOrigin],
+  );
+  const fitCoordinates = useMemo(
+    () =>
+      routePath.length >= 2
+        ? [...routePath, ...visibleEndpoints]
+        : visibleEndpoints,
+    [routePath, visibleEndpoints],
+  );
+  fitCoordinatesRef.current = fitCoordinates;
+  const fitSignature = fitCoordinates
+    .map(({ lat, lng }) => `${lat.toFixed(3)}:${lng.toFixed(3)}`)
+    .join("|");
+  const center = visibleEndpoints.length
+    ? visibleEndpoints.reduce(
+        (result, coordinate) => ({
+          lat: result.lat + coordinate.lat / visibleEndpoints.length,
+          lng: result.lng + coordinate.lng / visibleEndpoints.length,
+        }),
+        { lat: 0, lng: 0 },
+      )
+    : null;
+  const isSamePoint = Boolean(
+    routeOrigin &&
+      routeDestination &&
+      routeOrigin.lat === routeDestination.lat &&
+      routeOrigin.lng === routeDestination.lng,
+  );
+  const destination = details?.address || t("notAvailable");
+  const canRenderMap = Boolean(
+    apiKey &&
+      isLoaded &&
+      !loadError &&
+      center &&
+      destinationPoint &&
+      (store || rider),
+  );
+
+  const handleMapLoad = useCallback((map: google.maps.Map) => {
+    mapRef.current = map;
+    fitMap(map, fitCoordinatesRef.current);
+  }, []);
 
   const handleMapUnmount = useCallback(() => {
     mapRef.current = null;
   }, []);
 
-  const canRenderMap = Boolean(apiKey && isLoaded && !loadError && hasCoordinates);
-
   useEffect(() => {
-    if (!canRenderMap || isSamePoint) return;
-    let isCancelled = false;
-    const service = new google.maps.DirectionsService();
-    void service
-      .route({
-        destination: destinationPoint,
-        origin: storePoint,
-        travelMode: google.maps.TravelMode.DRIVING,
-      })
-      .then((result) => {
-        if (isCancelled) return;
-        setDirections(result);
-
-        const routeBounds = result.routes[0]?.bounds;
-        const map = mapRef.current;
-        if (map && routeBounds) {
-          map.fitBounds(routeBounds, {
-            bottom: 58,
-            left: 56,
-            right: 56,
-            top: 42,
-          });
-
-          google.maps.event.addListenerOnce(map, "idle", () => {
-            const zoom = map.getZoom();
-            if (typeof zoom === "number" && zoom > 16) map.setZoom(16);
-          });
-        }
-      })
-      .catch(() => {
-        // Keep the direct fallback line visible if Directions is unavailable.
-      });
-    return () => {
-      isCancelled = true;
-    };
-  }, [canRenderMap, destinationPoint, isSamePoint, storePoint]);
+    if (!mapRef.current || !fitSignature) return;
+    fitMap(mapRef.current, fitCoordinatesRef.current);
+  }, [fitSignature]);
 
   return (
     <section className="mt-7 overflow-hidden rounded-2xl bg-card shadow-card">
       <div className="relative h-52 bg-[var(--soft-surface)] sm:h-64 lg:h-72">
-        {canRenderMap ? (
+        {canRenderMap && center ? (
           <GoogleMap
             aria-label={t("routeMapAlt", { store: storeName })}
             center={center}
@@ -159,45 +214,40 @@ export function OrderRouteMap({ order, storeName }: Props) {
             }}
             zoom={13}
           >
-            <MarkerF
-              icon={createMarkerIcon("#66c0f2")}
-              label={{ color: "#ffffff", fontSize: "12px", fontWeight: "700", text: "S" }}
-              position={storePoint}
-              title={t("mapStore")}
-            />
-            {!isSamePoint ? (
-              <>
-                <MarkerF
-                  icon={createMarkerIcon("#177456")}
-                  label={{ color: "#ffffff", fontSize: "12px", fontWeight: "700", text: "D" }}
-                  position={destinationPoint}
-                  title={t("mapDestination")}
-                />
-                {directions ? (
-                  <DirectionsRenderer
-                    directions={directions}
-                    options={{
-                      polylineOptions: {
-                        strokeColor: "#66c0f2",
-                        strokeOpacity: 0.9,
-                        strokeWeight: 5,
-                      },
-                      preserveViewport: true,
-                      suppressMarkers: true,
-                    }}
-                  />
-                ) : (
-                  <PolylineF
-                    options={{
-                      geodesic: true,
-                      strokeColor: "#66c0f2",
-                      strokeOpacity: 0.5,
-                      strokeWeight: 3,
-                    }}
-                    path={[storePoint, destinationPoint]}
-                  />
-                )}
-              </>
+            {!isPostPickup && store ? (
+              <MarkerF
+                icon={createMarkerIcon("#66c0f2")}
+                label={{ color: "#ffffff", fontSize: "12px", fontWeight: "700", text: "S" }}
+                position={store}
+                title={t("mapStore")}
+              />
+            ) : null}
+            {destinationPoint ? (
+              <MarkerF
+                icon={createMarkerIcon("#177456")}
+                label={{ color: "#ffffff", fontSize: "12px", fontWeight: "700", text: "D" }}
+                position={destinationPoint}
+                title={t("mapDestination")}
+              />
+            ) : null}
+            {isPostPickup && rider ? (
+              <MarkerF
+                icon={createMarkerIcon("#e33935")}
+                label={{ color: "#ffffff", fontSize: "12px", fontWeight: "700", text: "R" }}
+                position={rider}
+                title={t("mapRider")}
+              />
+            ) : null}
+            {!isSamePoint && routePath.length >= 2 ? (
+              <PolylineF
+                options={{
+                  geodesic: true,
+                  strokeColor: "#66c0f2",
+                  strokeOpacity: 0.9,
+                  strokeWeight: 5,
+                }}
+                path={routePath}
+              />
             ) : null}
           </GoogleMap>
         ) : isLoaded || loadError || !apiKey ? (
@@ -214,16 +264,18 @@ export function OrderRouteMap({ order, storeName }: Props) {
 
         {canRenderMap ? (
           <div className="pointer-events-none absolute left-3 top-3 flex gap-2 rounded-full bg-card/95 p-1.5 shadow-card">
-            <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-bold text-body">
-              <span className="grid size-5 place-items-center rounded-full bg-brand text-[9px] text-ink">S</span>
-              {t("mapStore")}
-            </span>
-            {!isSamePoint ? (
+            {(!isPostPickup && store) || (isPostPickup && rider) ? (
               <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-bold text-body">
-                <span className="grid size-5 place-items-center rounded-full bg-success text-[9px] text-white">D</span>
-                {isPickup ? t("mapPickup") : t("mapDestination")}
+                <span className={`grid size-5 place-items-center rounded-full text-[9px] text-white ${isPostPickup ? "bg-danger" : "bg-brand"}`}>
+                  {isPostPickup ? "R" : "S"}
+                </span>
+                {isPostPickup ? t("mapRider") : t("mapStore")}
               </span>
             ) : null}
+            <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-bold text-body">
+              <span className="grid size-5 place-items-center rounded-full bg-success text-[9px] text-white">D</span>
+              {isPickup ? t("mapPickup") : t("mapDestination")}
+            </span>
           </div>
         ) : null}
       </div>

@@ -593,6 +593,30 @@
     "emptyDescription": "Neue Bestell- und Kontoinformationen erscheinen hier."
   },
   "deliveries": {
+    "search": {
+      "title": "Essen und lokale Geschäfte finden",
+      "description": "Durchsuchen Sie Speisekarten und Unternehmen, die an Ihre ausgewählte Adresse liefern.",
+      "label": "Essen und Geschäfte suchen",
+      "placeholder": "Zum Beispiel Pizza, Sushi oder Restaurantname",
+      "hint": "Geben Sie ein Gericht, eine Kategorie oder einen Geschäftsnamen ein.",
+      "loading": "Menüs und Geschäfte in der Nähe werden durchsucht…",
+      "resultCount": "{count, plural, =0 {Keine Ergebnisse} one {# Ergebnis} other {# Ergebnisse}}",
+      "products": "Essen und Produkte",
+      "stores": "Geschäfte",
+      "noProducts": "Keine passenden Speisen oder Produkte gefunden.",
+      "noStores": "Keine passenden Geschäfte gefunden.",
+      "moreProducts": "Mehr Produkte anzeigen",
+      "moreStores": "Mehr Geschäfte anzeigen",
+      "chooseLocation": "Wählen Sie vor der Suche im Seitenkopf eine Lieferadresse.",
+      "offline": "Sie scheinen offline zu sein. Stellen Sie die Verbindung wieder her und versuchen Sie es erneut.",
+      "error": "Die Suche dauert länger als erwartet. Bitte versuchen Sie es erneut.",
+      "recommendedCategories": "Beliebte Kategorien",
+      "recentSearches": "Letzte Suchanfragen",
+      "clearRecentSearches": "Alle löschen",
+      "removeRecentSearch": "\"{term}\" aus den letzten Suchanfragen entfernen",
+      "poweredByAlgolia": "Über Algolia gefunden",
+      "poweredByDatabase": "Über die Datenbank gefunden"
+    },
     "support": {
       "title": "Kundensupport",
       "subtitle": "Ihre Tickets und Gespräche an einem Ort.",
@@ -938,6 +962,7 @@
       "mapUnavailableHint": "Die Zieladresse wird weiterhin unten angezeigt.",
       "mapLoading": "Routenkarte wird geladen",
       "mapStore": "Geschäft",
+      "mapRider": "Kurier",
       "mapDestination": "Ziel",
       "mapPickup": "Abholung",
       "orderAgain": "Erneut bestellen",

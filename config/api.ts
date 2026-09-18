@@ -47,10 +47,19 @@ export const apiRoutes = {
     deals: "/api/deliveries/discovery/deals",
     orderAgain: "/api/deliveries/discovery/order-again",
   },
+  deliverySearch: {
+    results: "/api/deliveries/search/results",
+    products: "/api/deliveries/search/products",
+    stores: "/api/deliveries/search/stores",
+    recommendations: "/api/deliveries/search/recommendations",
+    recent: "/api/deliveries/search/recent-searches",
+    events: "/api/deliveries/search/events",
+  },
   maps: {
     places: "/api/maps/places",
     details: "/api/maps/place-details",
     reverse: "/api/maps/reverse",
+    route: "/api/maps/route",
   },
   contact: "/api/contact",
 } as const;

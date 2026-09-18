@@ -46,12 +46,21 @@ export function OrderFulfilmentPanel({ order }: Props) {
         timeStyle: "short",
       })
     : null;
-  const eta = order.store?.estimatedDeliveryTime;
-  const distance = order.summary?.deliveryDistanceKm;
+  const liveEta = order.eta?.estimatedMinutes;
+  const eta =
+    typeof liveEta === "number" && Number.isFinite(liveEta) && liveEta >= 0
+      ? liveEta
+      : order.store?.estimatedDeliveryTime;
+  const liveDistance = order.eta?.distanceKm;
+  const distance =
+    typeof liveDistance === "number" && Number.isFinite(liveDistance)
+      ? liveDistance
+      : order.summary?.deliveryDistanceKm;
+  const hasEta = eta !== null && eta !== undefined && eta !== "";
   const riderPhone = order.rider?.phone?.trim();
   const hasDetails = Boolean(
     scheduledAt ||
-      eta ||
+      hasEta ||
       typeof distance === "number" ||
       order.rider?.name ||
       riderPhone ||
@@ -79,7 +88,7 @@ export function OrderFulfilmentPanel({ order }: Props) {
         {scheduledAt ? (
           <DetailRow icon={CalendarClock} label={t("scheduledFor")} value={scheduledAt} />
         ) : null}
-        {eta ? (
+        {hasEta ? (
           <DetailRow
             icon={Clock3}
             label={isPickup ? t("estimatedReadyTime") : t("estimatedDeliveryTime")}

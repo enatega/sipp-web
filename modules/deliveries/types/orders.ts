@@ -50,6 +50,20 @@ export interface OrderProduct {
   selectedOptions?: OrderProductOption[];
 }
 
+export interface OrderEta {
+  phase: "pre_pickup" | "post_pickup" | "arrived" | "unavailable";
+  estimatedMinutes: number | null;
+  remainingSeconds: number | null;
+  distanceKm: number | null;
+  riderLocation: {
+    latitude: number | null;
+    longitude: number | null;
+    updatedAt: string | null;
+  } | null;
+  source: string;
+  calculatedAt: string;
+}
+
 export interface OrderDetail {
   orderId: string;
   orderCode?: string | null;
@@ -61,6 +75,7 @@ export interface OrderDetail {
   paymentStatus?: string;
   orderedAt: string;
   scheduledAt?: string | null;
+  eta?: OrderEta | null;
   restaurantNote?: string | null;
   courierNote?: string | null;
   rejectionReason?: string | null;
@@ -86,7 +101,10 @@ export interface OrderDetail {
     userId?: string | null;
     name?: string | null;
     phone?: string | null;
+    image?: string | null;
     profile?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
     currentLocation?: {
       latitude?: number | null;
       longitude?: number | null;

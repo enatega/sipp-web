@@ -18,11 +18,17 @@ export function useOrderDetailQuery(orderId: string) {
     queryFn: ({ signal }) => ordersApi.detail(orderId, signal),
     enabled: Boolean(orderId),
     refetchInterval: (query) =>
-      TERMINAL_STATUSES.has(query.state.data?.status ?? "") ? false : 5_000,
-    refetchIntervalInBackground: true,
-    staleTime: 0,
+      TERMINAL_STATUSES.has(
+        query.state.data?.status?.trim().toLowerCase() ?? "",
+      )
+        ? false
+        : 30_000,
+    refetchIntervalInBackground: false,
+    staleTime: 30_000,
     gcTime: 0,
     refetchOnMount: "always",
+    refetchOnReconnect: "always",
+    refetchOnWindowFocus: "always",
   });
 }
 

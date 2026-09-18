@@ -25,9 +25,11 @@ import {
   useOrderReviewQuery,
 } from "../hooks/useOrderDetail";
 import { useOrderAgain } from "../hooks/useOrderAgain";
+import { useOrderTrackingSync } from "../hooks/useOrderTrackingSync";
 import {
   getOrderCode,
   RATEABLE_ORDER_STATUSES,
+  TERMINAL_ORDER_STATUSES,
 } from "../utils/orderDetail";
 
 interface Props {
@@ -38,6 +40,16 @@ export function OrderDetailExperience({ orderId }: Props) {
   const t = useTranslations("deliveries.orderDetails");
   const format = useFormatter();
   const orderQuery = useOrderDetailQuery(orderId);
+  useOrderTrackingSync(
+    orderId,
+    orderQuery.data?.rider?.userId,
+    Boolean(
+      orderQuery.data &&
+        !TERMINAL_ORDER_STATUSES.has(
+          orderQuery.data.status.trim().toLowerCase(),
+        ),
+    ),
+  );
   const orderAgain = useOrderAgain();
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const isRateable = RATEABLE_ORDER_STATUSES.has(orderQuery.data?.status ?? "");

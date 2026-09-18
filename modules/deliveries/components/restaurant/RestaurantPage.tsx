@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { LoaderCircle, Search, UtensilsCrossed } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
@@ -31,10 +32,13 @@ export function RestaurantPage({ storeId }: Props) {
   const { location, isReady } = useRestaurantLocation();
   const restaurant = useRestaurantQuery(storeId, location);
   const cart = useCartQuery(authenticated);
+  const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [selectedSubcategories, setSelectedSubcategories] = useState<Record<string, string | null>>({});
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    searchParams.get("productId"),
+  );
   const productsQuery = useRestaurantProductsQuery(storeId, location, search);
   const favourite = useToggleRestaurantFavourite(storeId, location);
   const { fetchNextPage, hasNextPage, isFetchingNextPage } = productsQuery;

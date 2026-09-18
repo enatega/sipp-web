@@ -24,6 +24,10 @@ export const deliveryQueryKeys = {
       location,
     ] as const,
   orderAgain: () => [...deliveryQueryKeys.discovery(), "order-again"] as const,
+  search: (resource: "products" | "stores", query: string, location: DiscoveryLocation | null) =>
+    [...deliveryQueryKeys.all, "search", resource, query, location] as const,
+  searchRecommendations: () => [...deliveryQueryKeys.all, "search", "recommendations"] as const,
+  recentSearches: () => [...deliveryQueryKeys.all, "search", "recent-searches"] as const,
   orders: () => [...deliveryQueryKeys.all, "orders"] as const,
   orderList: (tab: "active" | "past" | "scheduled") =>
     [...deliveryQueryKeys.orders(), "list", tab] as const,
@@ -31,6 +35,8 @@ export const deliveryQueryKeys = {
     [...deliveryQueryKeys.orders(), "detail", orderId] as const,
   orderReview: (orderId: string) =>
     [...deliveryQueryKeys.order(orderId), "review"] as const,
+  route: (origin: string, destination: string) =>
+    [...deliveryQueryKeys.all, "route", origin, destination] as const,
   restaurant: (storeId: string, location: RestaurantLocation | null) =>
     [...deliveryQueryKeys.all, "restaurant", storeId, location] as const,
   restaurantProducts: (

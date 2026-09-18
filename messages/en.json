@@ -593,6 +593,30 @@
     "emptyDescription": "New order and account updates will appear here."
   },
   "deliveries": {
+    "search": {
+      "title": "Find food and local stores",
+      "description": "Search menus and businesses that deliver to your selected address.",
+      "label": "Search food and stores",
+      "placeholder": "Try pizza, sushi, or a restaurant name",
+      "hint": "Enter a food, category, or store name.",
+      "loading": "Searching nearby menus and stores…",
+      "resultCount": "{count, plural, =0 {No results} one {# result} other {# results}}",
+      "products": "Food and products",
+      "stores": "Stores",
+      "noProducts": "No matching food or products were found.",
+      "noStores": "No matching stores were found.",
+      "moreProducts": "Show more products",
+      "moreStores": "Show more stores",
+      "chooseLocation": "Choose a delivery address in the header before searching.",
+      "offline": "You appear to be offline. Reconnect and try again.",
+      "error": "Search is taking longer than expected. Please try again.",
+      "recommendedCategories": "Popular categories",
+      "recentSearches": "Recent searches",
+      "clearRecentSearches": "Clear all",
+      "removeRecentSearch": "Remove \"{term}\" from recent searches",
+      "poweredByAlgolia": "Matched via Algolia",
+      "poweredByDatabase": "Matched via database"
+    },
     "support": {
       "title": "Customer support",
       "subtitle": "Your tickets and conversations, in one place.",
@@ -938,6 +962,7 @@
       "mapUnavailableHint": "The destination address is still shown below.",
       "mapLoading": "Loading route map",
       "mapStore": "Store",
+      "mapRider": "Courier",
       "mapDestination": "Destination",
       "mapPickup": "Pickup",
       "orderAgain": "Order again",

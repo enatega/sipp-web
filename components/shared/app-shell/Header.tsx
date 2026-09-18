@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
+import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/components/shared/brand/Logo";
 import { Icon } from "@/components/shared/brand/Icon";
@@ -12,6 +14,7 @@ const NAV_LINK =
 
 export function Header({ cartCount = 0 }: { cartCount?: number }) {
   const t = useTranslations("navigation");
+  const common = useTranslations("common");
   const [servicesOpen, setServicesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -83,6 +86,14 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
           <LocaleSwitcher />
           {/* <ThemeToggle /> */}
         </div>
+
+        <Link
+          aria-label={common("search")}
+          className="grid size-10 flex-none place-items-center rounded-full text-ink transition hover:bg-[var(--soft-surface)] hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          href="/search"
+        >
+          <Search aria-hidden="true" className="size-5" />
+        </Link>
 
         <div className="flex flex-none items-center">
           <AuthMenu cartCount={cartCount} />
