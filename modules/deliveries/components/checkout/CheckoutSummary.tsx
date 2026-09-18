@@ -36,7 +36,7 @@ export function CheckoutSummary({ preview, isLoading, isPlacing, disabled, payme
             {hasValue(pricing.discount) ? <div className="flex justify-between gap-4 text-emerald-600 dark:text-emerald-400"><dt>{t("discount")}</dt><dd className="font-semibold">− {price(pricing.discount)}</dd></div> : null}
             {hasValue(pricing.packingCharges) ? <div className="flex justify-between gap-4 text-body"><dt>{t("packing")}</dt><dd className="font-medium text-ink">{price(pricing.packingCharges)}</dd></div> : null}
             {preview.fulfillment.orderType === "delivery" || hasValue(pricing.deliveryFee) ? <div className="flex justify-between gap-4 text-body"><dt>{t("deliveryFee")}</dt><dd className={pricing.deliveryFee === 0 ? "font-semibold text-emerald-600 dark:text-emerald-400" : "font-medium text-ink"}>{pricing.deliveryFee === 0 ? t("free") : price(pricing.deliveryFee)}</dd></div> : null}
-            {hasValue(pricing.tax) ? <div className="flex justify-between gap-4 text-body"><dt>{t("tax")}</dt><dd className="font-medium text-ink">{price(pricing.tax)}</dd></div> : null}
+            <div className="flex justify-between gap-4 text-body"><dt>{t("includedTax")}</dt><dd className="font-medium text-ink">{price(pricing.tax)}</dd></div>
             {hasValue(pricing.riderTip) ? <div className="flex justify-between gap-4 text-body"><dt>{t("riderTip")}</dt><dd className="font-medium text-ink">{price(pricing.riderTip)}</dd></div> : null}
           </dl>
           <div className="my-5 border-t border-dashed border-line" />
