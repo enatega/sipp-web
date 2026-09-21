@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callPublicApi } from "@/services/api/server";
-import { rejectCrossSiteRequest, readJsonObject } from "@/services/api/request-security";
+import { readJsonObject } from "@/services/api/request-security";
 import { applySession } from "@/services/auth/session";
 import type { AuthSuccess } from "@/modules/account/types";
 
@@ -14,9 +14,6 @@ function isExchangeToken(value: unknown): value is string {
 }
 
 export async function POST(request: NextRequest) {
-  const rejected = rejectCrossSiteRequest(request);
-  if (rejected) return rejected;
-
   const body = await readJsonObject(request);
   if (!isExchangeToken(body?.token)) {
     return NextResponse.json(
