@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
 import { AuthRequiredModal } from "@/components/shared/AuthRequiredModal";
+import { ImpersonationBanner } from "@/modules/account/components/auth/ImpersonationBanner";
 
 export function AppProviders({
   children,
@@ -25,7 +26,7 @@ export function AppProviders({
       timeZone={timeZone}
     >
       <QueryProvider>
-        <ThemeProvider>{children}<SessionExpiredModal /><AuthRequiredModal /></ThemeProvider>
+        <ThemeProvider><ImpersonationBanner />{children}<SessionExpiredModal /><AuthRequiredModal /></ThemeProvider>
       </QueryProvider>
     </NextIntlClientProvider>
   );

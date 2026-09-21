@@ -61,6 +61,29 @@ export function useGoogleLoginMutation() {
   });
 }
 
+export function useExchangeImpersonationMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authApi.exchangeImpersonation,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: accountQueryKeys.session() }),
+  });
+}
+
+export function useExitImpersonationMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => authApi.exitImpersonation(),
+    onSuccess: () => {
+      queryClient.setQueryData(accountQueryKeys.session(), {
+        authenticated: false,
+        user: null,
+        impersonation: null,
+      });
+    },
+  });
+}
+
 export function useSendPhoneOtpMutation() {
   return useMutation({ mutationFn: authApi.sendPhoneOtp });
 }

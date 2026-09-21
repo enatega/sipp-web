@@ -1,4 +1,15 @@
 {
+  "impersonation": {
+    "banner": "You are impersonating a customer account.",
+    "exit": "Exit impersonation",
+    "exiting": "Exiting…",
+    "exitFailed": "Could not end impersonation. Please try again.",
+    "signingInTitle": "Opening customer account",
+    "signingInDescription": "Verifying the secure one-time link…",
+    "unableTitle": "Unable to open customer account",
+    "invalidLink": "This impersonation link is missing or invalid.",
+    "exchangeFailed": "This impersonation link is invalid, expired, or has already been used."
+  },
   "common": {
     "search": "Search",
     "continue": "Continue",

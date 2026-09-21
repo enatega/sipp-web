@@ -3,6 +3,7 @@ import {
   authCookieNames,
   clearSession,
   decodeSessionUser,
+  decodeTokenImpersonation,
 } from "@/services/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +13,7 @@ export async function GET(request: NextRequest) {
   const user = decodeSessionUser(
     request.cookies.get(authCookieNames.user)?.value,
   );
+  const impersonation = decodeTokenImpersonation(token);
 
   if (!token || !user) {
     const response = NextResponse.json({ authenticated: false, user: null });
@@ -19,5 +21,15 @@ export async function GET(request: NextRequest) {
     return response;
   }
 
-  return NextResponse.json({ authenticated: true, user });
+  return NextResponse.json({
+    authenticated: true,
+    user,
+    impersonation: impersonation
+      ? {
+          ...impersonation,
+          adminReturnUrl:
+            process.env.ADMIN_WEB_URL ?? "http://localhost:3000/general/users",
+        }
+      : null,
+  });
 }

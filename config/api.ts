@@ -6,6 +6,8 @@ export const apiRoutes = {
     google: "/api/auth/google",
     logout: "/api/auth/logout",
     session: "/api/auth/session",
+    impersonationExchange: "/api/auth/impersonation/exchange",
+    impersonationExit: "/api/auth/impersonation/exit",
     phoneSend: "/api/auth/phone/send",
     phoneVerify: "/api/auth/phone/verify",
     signupSend: "/api/auth/signup/send",
