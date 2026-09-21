@@ -1,7 +1,7 @@
 import "server-only";
 
 import { NextResponse } from "next/server";
-import type { AuthSuccess, AuthUser } from "@/modules/account/types";
+import type { AuthSuccess, AuthUser, ImpersonationSession } from "@/modules/account/types";
 
 const TOKEN_COOKIE = "shaaneiol_access_token";
 const USER_COOKIE = "shaaneiol_user";
@@ -34,6 +34,29 @@ export function applySession(response: NextResponse, data: AuthSuccess) {
 export function clearSession(response: NextResponse) {
   response.cookies.set(TOKEN_COOKIE, "", { path: "/", maxAge: 0 });
   response.cookies.set(USER_COOKIE, "", { path: "/", maxAge: 0 });
+}
+
+export function decodeTokenImpersonation(
+  token?: string,
+): ImpersonationSession | null {
+  const encodedPayload = token?.split(".")[1];
+  if (!encodedPayload) return null;
+  try {
+    const parsed = JSON.parse(
+      Buffer.from(encodedPayload, "base64url").toString("utf8"),
+    ) as { impersonation?: Partial<ImpersonationSession> };
+    const impersonation = parsed.impersonation;
+    if (
+      typeof impersonation?.adminId !== "string" ||
+      typeof impersonation.targetUserId !== "string" ||
+      typeof impersonation.startedAt !== "string"
+    ) {
+      return null;
+    }
+    return impersonation as ImpersonationSession;
+  } catch {
+    return null;
+  }
 }
 
 export function decodeSessionUser(value?: string): AuthUser | null {

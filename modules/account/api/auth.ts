@@ -17,6 +17,15 @@ export const authApi = {
   googleLogin(payload: { idToken: string }) {
     return postJson<{ user: AuthUser }>(apiRoutes.auth.google, payload);
   },
+  exchangeImpersonation(payload: { token: string }) {
+    return postJson<{ user: AuthUser }>(
+      apiRoutes.auth.impersonationExchange,
+      payload,
+    );
+  },
+  exitImpersonation() {
+    return postJson<{ success: boolean }>(apiRoutes.auth.impersonationExit);
+  },
   sendPhoneOtp(payload: { phone: string }) {
     return postJson<{ message: string }>(apiRoutes.auth.phoneSend, payload);
   },

@@ -44,6 +44,9 @@ Set `SHAANIEOL_PASSWORD_RESET_SECRET` to a unique random value of at least 32
 characters in every production environment. It signs the short-lived,
 HTTP-only grant issued only after a forgot-password OTP is verified.
 
+Set the server-only `ADMIN_WEB_URL` to the Admin Users page URL. The customer
+site uses it only as the safe destination for `Exit impersonation`.
+
 ## Current commands
 
 ```bash

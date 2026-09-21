@@ -1,4 +1,15 @@
 {
+  "impersonation": {
+    "banner": "Sie imitieren derzeit ein Kundenkonto.",
+    "exit": "Imitation beenden",
+    "exiting": "Wird beendet…",
+    "exitFailed": "Die Imitation konnte nicht beendet werden. Bitte versuchen Sie es erneut.",
+    "signingInTitle": "Kundenkonto wird geöffnet",
+    "signingInDescription": "Der sichere Einmal-Link wird überprüft…",
+    "unableTitle": "Kundenkonto konnte nicht geöffnet werden",
+    "invalidLink": "Dieser Imitations-Link fehlt oder ist ungültig.",
+    "exchangeFailed": "Dieser Imitations-Link ist ungültig, abgelaufen oder wurde bereits verwendet."
+  },
   "common": {
     "search": "Suchen",
     "continue": "Weiter",
