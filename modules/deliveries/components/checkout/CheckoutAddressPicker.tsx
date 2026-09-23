@@ -10,7 +10,6 @@ import styles from "./checkout-transitions.module.css";
 
 interface Props {
   addresses: SavedAddress[];
-  confirmMode?: boolean;
   error: string;
   isOpen: boolean;
   onClose: () => void;
@@ -21,7 +20,6 @@ interface Props {
 
 export function CheckoutAddressPicker({
   addresses,
-  confirmMode = false,
   error,
   isOpen,
   onClose,
@@ -90,9 +88,9 @@ export function CheckoutAddressPicker({
         <header className="flex items-start justify-between gap-4 border-b border-line px-5 py-4 sm:px-6">
           <div>
             <h2 id="checkout-address-picker-title" className="text-lg font-bold text-ink">
-              {confirmMode ? t("confirmAddressTitle") : t("chooseAddress")}
+              {t("chooseAddress")}
             </h2>
-            <p className="mt-1 text-xs leading-5 text-muted">{confirmMode ? t("confirmAddressHint") : t("chooseAddressHint")}</p>
+            <p className="mt-1 text-xs leading-5 text-muted">{t("chooseAddressHint")}</p>
           </div>
           <button
             aria-label={t("closeAddressPicker")}

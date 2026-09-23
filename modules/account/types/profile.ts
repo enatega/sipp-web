@@ -53,6 +53,8 @@ export type WalletTransactionType =
   | "Deposit"
   | "Debit"
   | "Credit"
+  | "Refund"
+  | "Loyalty"
   | "MigrationOpeningBalance"
   | "Withdrawal";
 
@@ -63,6 +65,7 @@ export type WalletTransaction = {
   message?: string;
   amount: number | string;
   orderId?: string | null;
+  entryType?: string | null;
   status?: string;
   createdAt: string;
 };
