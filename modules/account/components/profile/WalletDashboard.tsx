@@ -17,7 +17,6 @@ import {
   WalletCards,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
 
 import { AddCardModal } from "@/modules/account/components/profile/AddCardModal";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
@@ -57,6 +56,8 @@ function isCreditTransaction(type: string) {
   return (
     normalized === "deposit" ||
     normalized === "credit" ||
+    normalized === "refund" ||
+    normalized === "loyalty" ||
     normalized === "migrationopeningbalance"
   );
 }
@@ -65,13 +66,21 @@ function transactionTitle(
   transaction: WalletTransaction,
   t: ReturnType<typeof useTranslations<"wallet">>,
 ) {
+  if (transaction.entryType === "admin_manual_adjustment") {
+    return t("transactionBalanceAdjustment");
+  }
+
   switch (transaction.type.toLowerCase()) {
     case "deposit":
       return t("transactionTopUp");
     case "debit":
       return t("transactionOrderPayment");
     case "credit":
+      return t("transactionCredit");
+    case "refund":
       return t("transactionRefund");
+    case "loyalty":
+      return t("transactionLoyaltyCredit");
     case "migrationopeningbalance":
       return t("transactionMigratedOpeningBalance");
     case "withdrawal":
@@ -204,7 +213,7 @@ function TransactionRow({
       <div className="text-right">
         <p
           className={`text-sm font-bold tabular-nums ${
-            isCredit ? "text-success" : "text-ink"
+            isCredit ? "text-success" : "text-danger"
           }`}
         >
           {isCredit ? "+" : "−"}

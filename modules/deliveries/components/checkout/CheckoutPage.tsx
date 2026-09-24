@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormik } from "formik";
 import { ArrowLeft, Bike, CalendarClock, ChevronRight, Clock3, CreditCard, LoaderCircle, MapPin, MessageSquareText, ShoppingBag, Store, Truck, WalletCards } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -120,8 +120,6 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
   const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
   const addressTriggerRef = useRef<HTMLButtonElement>(null);
   const checkoutAlertRegionRef = useRef<HTMLDivElement>(null);
-  const [pendingPlaceOrder, setPendingPlaceOrder] = useState(false);
-  const submitAfterAddressConfirmRef = useRef(false);
   const activeAddressOverride =
     addressOverride?.sourcePlace === storedPlace.place ? addressOverride : null;
   const deliveryPlace = activeAddressOverride?.place ?? storedPlace.place;
@@ -235,13 +233,6 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
   }, [refetchCart, router, stripeOrderStatus.data?.orderId]);
 
   useEffect(() => {
-    if (submitAfterAddressConfirmRef.current && selectedSavedAddressId) {
-      submitAfterAddressConfirmRef.current = false;
-      void formik.submitForm();
-    }
-  }, [formik, selectedSavedAddressId]);
-
-  useEffect(() => {
     const store = preview.data?.store;
     if (!store) return;
     if (formik.values.orderType === "delivery" && !store.deliveryAllowed && store.pickupAllowed) void formik.setFieldValue("orderType", "pickup");
@@ -282,32 +273,13 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
 
   function closeAddressPicker() {
     setIsAddressPickerOpen(false);
-    setPendingPlaceOrder(false);
-    submitAfterAddressConfirmRef.current = false;
     window.requestAnimationFrame(() => addressTriggerRef.current?.focus());
-  }
-
-  function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
-    if (formik.values.orderType === "delivery" && !selectedSavedAddressId) {
-      event.preventDefault();
-      setAddressPickerError("");
-      setPendingPlaceOrder(true);
-      submitAfterAddressConfirmRef.current = true;
-      setIsAddressPickerOpen(true);
-      return;
-    }
-    formik.handleSubmit(event);
   }
 
   async function selectDeliveryAddress(address: SavedAddress) {
     if (address.id === selectedSavedAddressId) {
       setIsAddressPickerOpen(false);
-      setPendingPlaceOrder(false);
       window.requestAnimationFrame(() => addressTriggerRef.current?.focus());
-      if (submitAfterAddressConfirmRef.current) {
-        submitAfterAddressConfirmRef.current = false;
-        void formik.submitForm();
-      }
       return;
     }
     if (!cart.data?.bucketId || !cart.data.storeId) return;
@@ -339,7 +311,6 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
       });
       await formik.setFieldValue("deliveryLocationKey", locationKey(place));
       setIsAddressPickerOpen(false);
-      setPendingPlaceOrder(false);
       window.requestAnimationFrame(() => addressTriggerRef.current?.focus());
     } catch (error) {
       const isOutsideDeliveryArea =
@@ -388,7 +359,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
         regionRef={checkoutAlertRegionRef}
       />
       <main className="min-h-[calc(100vh-76px)] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_320px)] pb-12 pt-7 sm:pt-10">
-        <form onSubmit={handleFormSubmit} className="section-wrap">
+        <form onSubmit={formik.handleSubmit} className="section-wrap">
           <Link href="/cart" className="inline-flex items-center gap-2 text-sm font-semibold text-body transition-colors hover:text-brand"><ArrowLeft aria-hidden="true" className="size-4" />{t("backToCart")}</Link>
           <div className="mt-5"><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand">{t("eyebrow")}</p><h1 className="mt-1 text-3xl font-bold text-ink sm:text-4xl">{t("title")}</h1><p className="mt-2 text-sm text-body">{store ? t("orderingFrom", { store: store.name }) : t("subtitle")}</p></div>
 
@@ -461,7 +432,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
           </div>
         </form>
       </main>
-      {isAddressPickerOpen ? <CheckoutAddressPicker addresses={addresses.data ?? []} confirmMode={pendingPlaceOrder} error={addressPickerError} isOpen onClose={closeAddressPicker} onSelect={(address) => void selectDeliveryAddress(address)} selectedAddressId={selectedSavedAddressId ?? ""} validatingAddressId={validatingAddressId} /> : null}
+      {isAddressPickerOpen ? <CheckoutAddressPicker addresses={addresses.data ?? []} error={addressPickerError} isOpen onClose={closeAddressPicker} onSelect={(address) => void selectDeliveryAddress(address)} selectedAddressId={selectedSavedAddressId ?? ""} validatingAddressId={validatingAddressId} /> : null}
       {(stripePayment || initialStripeDraftId) && preview.data ? (
         <StripePaymentModal
           clientSecret={stripePayment?.clientSecret ?? ""}
