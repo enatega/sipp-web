@@ -41,6 +41,17 @@ export function useOrderReviewQuery(orderId: string, enabled: boolean) {
   });
 }
 
+export function useCancelOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: string) => ordersApi.cancel(orderId),
+    onSuccess: (_, orderId) => {
+      queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.order(orderId) });
+      queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orders() });
+    },
+  });
+}
+
 export function useSubmitOrderReview() {
   const queryClient = useQueryClient();
   return useMutation({

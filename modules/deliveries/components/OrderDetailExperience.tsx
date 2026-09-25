@@ -10,6 +10,7 @@ import {
   Star,
   Store,
   LifeBuoy,
+  XCircle,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { HistoryBackButton } from "@/components/shared/HistoryBackButton";
@@ -24,6 +25,7 @@ import { OrderSummaryPanel } from "./order-detail/OrderSummaryPanel";
 import {
   useOrderDetailQuery,
   useOrderReviewQuery,
+  useCancelOrder,
 } from "../hooks/useOrderDetail";
 import { useOrderAgain } from "../hooks/useOrderAgain";
 import { useOrderTrackingSync } from "../hooks/useOrderTrackingSync";
@@ -53,6 +55,8 @@ export function OrderDetailExperience({ orderId }: Props) {
   );
   const orderAgain = useOrderAgain();
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const cancelOrder = useCancelOrder();
   const isRateable = RATEABLE_ORDER_STATUSES.has(orderQuery.data?.status ?? "");
   const reviewQuery = useOrderReviewQuery(orderId, isRateable);
 
@@ -88,6 +92,7 @@ export function OrderDetailExperience({ orderId }: Props) {
   const storeName = order.store?.name || t("storeFallback");
   const products = order.orderItems?.products ?? [];
   const storeHref = order.store?.id ? `/restaurants/${order.store.id}` : "/discovery";
+  const canCancel = ["pending", "scheduled"].includes(order.status.trim().toLowerCase());
 
   return (
     <div className="min-[700px]:grid min-[700px]:grid-cols-[240px_1fr]">
@@ -117,6 +122,16 @@ export function OrderDetailExperience({ orderId }: Props) {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
+              {canCancel ? (
+                <button
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-danger/30 bg-card px-5 text-sm font-bold text-danger transition-colors hover:bg-danger-soft"
+                  onClick={() => setIsCancelOpen(true)}
+                  type="button"
+                >
+                  <XCircle aria-hidden="true" className="size-4" />
+                  {t("cancelOrder")}
+                </button>
+              ) : null}
               <Link
                 className="inline-flex min-h-11 items-center gap-2 rounded-full border border-brand/30 bg-card px-5 text-sm font-bold text-brand transition-colors hover:bg-brand/5"
                 href={`/help?action=create&category=customer_support&reason=order_related_issue&orderId=${encodeURIComponent(order.orderId)}`}
@@ -188,6 +203,23 @@ export function OrderDetailExperience({ orderId }: Props) {
           review={reviewQuery.data}
           storeName={storeName}
         />
+      ) : null}
+
+      {isCancelOpen ? (
+        <div aria-labelledby="cancel-order-title" aria-modal="true" className="fixed inset-0 z-[80] grid place-items-center bg-black/55 p-5" role="dialog">
+          <div className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-[0_24px_70px_rgba(20,10,14,0.3)]">
+            <span className="grid size-11 place-items-center rounded-xl bg-danger-soft text-danger"><XCircle aria-hidden="true" className="size-5" /></span>
+            <h2 className="mt-4 text-xl font-bold text-ink" id="cancel-order-title">{t("cancelOrderTitle")}</h2>
+            <p className="mt-2 text-sm leading-6 text-body">{t("cancelOrderMessage")}</p>
+            {cancelOrder.isError ? <p className="mt-3 text-sm font-medium text-danger" role="alert">{t("cancelOrderError")}</p> : null}
+            <div className="mt-6 flex justify-end gap-2">
+              <button className="min-h-10 rounded-full px-4 text-sm font-semibold text-body hover:bg-[var(--soft-surface)]" disabled={cancelOrder.isPending} onClick={() => setIsCancelOpen(false)} type="button">{t("keepOrder")}</button>
+              <button className="inline-flex min-h-10 items-center gap-2 rounded-full bg-danger px-5 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50" disabled={cancelOrder.isPending} onClick={() => cancelOrder.mutate(order.orderId, { onSuccess: () => setIsCancelOpen(false) })} type="button">
+                {cancelOrder.isPending ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : null}{t("confirmCancelOrder")}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
 
       {orderAgain.hasConflict ? (
