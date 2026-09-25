@@ -9,6 +9,7 @@ import {
   RotateCcw,
   Star,
   Store,
+  LifeBuoy,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { HistoryBackButton } from "@/components/shared/HistoryBackButton";
@@ -116,6 +117,13 @@ export function OrderDetailExperience({ orderId }: Props) {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
+              <Link
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-brand/30 bg-card px-5 text-sm font-bold text-brand transition-colors hover:bg-brand/5"
+                href={`/help?action=create&category=customer_support&reason=order_related_issue&orderId=${encodeURIComponent(order.orderId)}`}
+              >
+                <LifeBuoy aria-hidden="true" className="size-4" />
+                {t("getHelp")}
+              </Link>
               <button
                 className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_8px_20px_rgba(102,192,242,0.2)] transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-brand/85 disabled:cursor-wait disabled:opacity-55"
                 disabled={orderAgain.isRunning}

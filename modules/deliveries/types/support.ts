@@ -12,6 +12,7 @@ export const ticketInputSchema = yup.object({
   businessType: yup.string().max(120).default(""),
   teamSize: yup.string().max(40).default(""),
   attachmentUrls: yup.array().of(yup.string().url().required()).max(5).default([]),
+  orderId: yup.string().uuid().nullable().default(null),
   priority: yup.string().oneOf(["low", "medium", "high"]).default("low"),
 });
 export type TicketInput = yup.InferType<typeof ticketInputSchema>;
@@ -31,13 +32,14 @@ export interface SupportMessage {
   receiverId: string;
   text: string;
   createdAt: string;
+  attachmentUrls?: string[];
 }
 export interface SupportThread {
   chatBoxId: string;
   status: string;
   originalStatus?: string;
   messages: SupportMessage[];
-  ticket?: { description?: string; attachmentUrls?: string[]; category?: string; reason?: string } | null;
+  ticket?: { description?: string; attachmentUrls?: string[]; category?: string; reason?: string; orderId?: string | null } | null;
 }
 export interface SupportOptions {
   categories: { key: string; reasons: string[] }[];
