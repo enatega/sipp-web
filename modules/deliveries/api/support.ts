@@ -15,5 +15,5 @@ export const supportApi = {
   options: (signal?: AbortSignal) => requestJson<SupportOptions>("/api/support/options", { signal }),
   thread: (id: string, signal?: AbortSignal) => requestJson<SupportThread>(`/api/support/chats/${encodeURIComponent(id)}`, { signal }),
   create: (input: TicketInput) => requestJson<CreatedTicket>("/api/support/tickets", { method: "POST", body: JSON.stringify(input) }),
-  send: (id: string, text: string) => requestJson<{ chatBoxId: string }>(`/api/support/chats/${encodeURIComponent(id)}`, { method: "POST", body: JSON.stringify({ text }) }),
+  send: (id: string, text: string, attachmentUrls: string[] = []) => requestJson<{ chatBoxId: string }>(`/api/support/chats/${encodeURIComponent(id)}`, { method: "POST", body: JSON.stringify({ text, attachmentUrls }) }),
 };

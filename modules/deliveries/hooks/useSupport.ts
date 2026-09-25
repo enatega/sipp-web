@@ -12,7 +12,7 @@ export function useSupport(userId: string, chatId: string) {
   const tickets = useQuery({ queryKey: keys.supportTickets(userId), queryFn: ({ signal }) => supportApi.tickets(signal), enabled: !!userId, staleTime: 10000 });
   const thread = useQuery({ queryKey: keys.supportThread(userId, chatId), queryFn: ({ signal }) => supportApi.thread(chatId, signal), enabled: !!userId && !!chatId });
   const create = useMutation({ mutationFn: supportApi.create, onSuccess: () => client.invalidateQueries({ queryKey: keys.supportTickets(userId) }) });
-  const send = useMutation({ mutationFn: ({ id, text }: { id: string; text: string }) => supportApi.send(id, text), onSuccess: async (_, { id }) => {
+  const send = useMutation({ mutationFn: ({ id, text, attachmentUrls }: { id: string; text: string; attachmentUrls?: string[] }) => supportApi.send(id, text, attachmentUrls), onSuccess: async (_, { id }) => {
     await Promise.all([client.invalidateQueries({ queryKey: keys.supportThread(userId, id) }), client.invalidateQueries({ queryKey: keys.supportTickets(userId) })]);
   } });
   // Fetching a ticket's thread marks its unread messages read server-side;

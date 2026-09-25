@@ -27,6 +27,9 @@ export async function supportChat(request: NextRequest, id: string) {
   }
   const body: unknown = await request.json().catch(() => null);
   const text = body && typeof body === "object" && "text" in body && typeof body.text === "string" ? body.text.trim() : "";
-  if (!text || text.length > 5000) return NextResponse.json({ message: "Invalid message." }, { status: 400 });
-  return callApi("/deliveries/support-chat-app/send-to-chat-box", { request, method: "POST", body: { chatBoxId: id, text } });
+  const attachmentUrls = body && typeof body === "object" && "attachmentUrls" in body && Array.isArray(body.attachmentUrls)
+    ? body.attachmentUrls.filter((url): url is string => typeof url === "string" && /^https?:\/\//i.test(url)).slice(0, 5)
+    : [];
+  if ((!text && !attachmentUrls.length) || text.length > 5000) return NextResponse.json({ message: "Invalid message." }, { status: 400 });
+  return callApi("/deliveries/support-chat-app/send-to-chat-box", { request, method: "POST", body: { chatBoxId: id, text, attachmentUrls } });
 }
