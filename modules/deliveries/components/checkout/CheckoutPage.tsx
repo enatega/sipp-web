@@ -14,7 +14,7 @@ import { ApiError } from "@/services/api/client";
 import { checkoutSchema, type CheckoutFormValues } from "../../schemas/checkoutSchema";
 import { useCartQuery } from "../../hooks/useCart";
 import { useCheckoutPreview, useCheckoutSchedule, usePlaceOrderMutation, useStripeOrderStatus, useValidateCheckoutAddressMutation } from "../../hooks/useCheckout";
-import type { CheckoutPreviewInput } from "../../types/checkout";
+import type { CheckoutPreviewInput, StripePaymentQuote } from "../../types/checkout";
 import { CheckoutAddressPicker } from "./CheckoutAddressPicker";
 import { CheckoutAlertStack, type CheckoutAlert } from "./CheckoutAlertStack";
 import { CheckoutCouponSection } from "./CheckoutCouponSection";
@@ -115,6 +115,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
     clientSecret: string;
     draftId: string;
     paymentStatus: string;
+    paymentQuote: StripePaymentQuote;
   } | null>(null);
   const [isStripeConfirmed, setIsStripeConfirmed] = useState(false);
   const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
@@ -179,6 +180,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
             clientSecret: response.clientSecret,
             draftId: response.draftId,
             paymentStatus: response.paymentStatus,
+            paymentQuote: response.paymentQuote,
           });
           setIsStripeConfirmed(
             response.paymentStatus === "succeeded" ||
@@ -246,6 +248,13 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
     }
     if (error instanceof ApiError) {
       if (/store is currently closed/i.test(error.message)) return t("storeClosedMessage");
+      if (
+        /USD conversion rate|Active currency configuration|USD minimum charge/i.test(
+          error.message,
+        )
+      ) {
+        return t("cardPaymentUnavailable");
+      }
       if (error.status === 401) return t("sessionError");
       if (error.status === 403) return t("permissionError");
       if (
@@ -459,6 +468,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
           onConfirmed={() => setIsStripeConfirmed(true)}
           selectedCard={selectedSavedCard}
           total={preview.data.pricing.totalAmount}
+          paymentQuote={stripePayment?.paymentQuote ?? null}
         />
       ) : null}
       {isWalletDialogOpen ? <div className="fixed inset-0 z-[90] grid place-items-center bg-black/55 p-4" role="dialog" aria-modal="true" aria-labelledby="wallet-insufficient-title"><div className="w-full max-w-sm rounded-3xl border border-line bg-card p-6 shadow-pop"><span className="grid size-11 place-items-center rounded-full bg-brand/10 text-brand"><WalletCards aria-hidden="true" className="size-5" /></span><h2 id="wallet-insufficient-title" className="mt-4 text-lg font-bold text-ink">{t("walletInsufficientTitle")}</h2><p className="mt-2 text-sm leading-6 text-body">{t("walletInsufficientMessage")}</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setIsWalletDialogOpen(false)} className="min-h-10 rounded-full px-4 text-sm font-semibold text-body hover:bg-[var(--soft-surface)]">{t("close")}</button><Link href="/wallet" onClick={() => setIsWalletDialogOpen(false)} className="inline-flex min-h-10 items-center rounded-full bg-brand px-5 text-sm font-bold text-ink">{t("upgradeWallet")}</Link></div></div></div> : null}
