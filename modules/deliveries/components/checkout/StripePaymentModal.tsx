@@ -5,10 +5,10 @@ import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-
 import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
 import { CreditCard, LoaderCircle, LockKeyhole, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import type { SavedCard } from "@/modules/account";
+import type { StripePaymentQuote } from "../../types/checkout";
 import styles from "./checkout-transitions.module.css";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
@@ -18,6 +18,7 @@ interface PaymentFormProps {
   clientSecret: string;
   draftId: string;
   total: number;
+  paymentQuote: StripePaymentQuote;
   onConfirmed: () => void;
   onProcessingChange: (isProcessing: boolean) => void;
   selectedCard: SavedCard | null;
@@ -27,6 +28,7 @@ function PaymentForm({
   clientSecret,
   draftId,
   total,
+  paymentQuote,
   onConfirmed,
   onProcessingChange,
   selectedCard,
@@ -37,6 +39,14 @@ function PaymentForm({
   const elements = useElements();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const usdTotal = format.number(paymentQuote.paymentAmount, {
+    style: "currency",
+    currency: paymentQuote.paymentCurrency,
+  });
+  const businessTotal = format.number(total, {
+    style: "currency",
+    currency: paymentQuote.businessCurrencyCode,
+  });
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -100,6 +110,29 @@ function PaymentForm({
       ) : (
         <PaymentElement options={{ layout: { type: "tabs", defaultCollapsed: false } }} />
       )}
+      <dl className="mt-5 grid gap-2 rounded-xl bg-[var(--soft-surface)] p-4 text-sm">
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-muted">{t("businessOrderTotal")}</dt>
+          <dd className="font-semibold tabular-nums text-ink">
+            {businessTotal}
+          </dd>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-muted">{t("stripeCharge")}</dt>
+          <dd className="font-bold tabular-nums text-ink">{usdTotal}</dd>
+        </div>
+        <div className="flex items-start justify-between gap-4 border-t border-line pt-2 text-xs">
+          <dt className="text-muted">{t("conversionRate")}</dt>
+          <dd className="text-end font-medium tabular-nums text-body">
+            {t("conversionRateValue", {
+              rate: format.number(paymentQuote.localCurrencyUnitsPerUsd, {
+                maximumFractionDigits: 6,
+              }),
+              currency: paymentQuote.businessCurrencyCode,
+            })}
+          </dd>
+        </div>
+      </dl>
       {error ? (
         <p className="mt-4 rounded-xl bg-brand/8 p-3 text-xs font-medium leading-5 text-brand" role="alert">
           {error}
@@ -114,7 +147,7 @@ function PaymentForm({
         {isSubmitting
           ? t("processingCard")
           : t("payNow", {
-              total: formatAppCurrency(format, total),
+              total: usdTotal,
             })}
       </button>
     </form>
@@ -129,6 +162,7 @@ interface Props {
   onClose: () => void;
   onConfirmed: () => void;
   total: number;
+  paymentQuote: StripePaymentQuote | null;
   selectedCard: SavedCard | null;
 }
 
@@ -141,6 +175,7 @@ export function StripePaymentModal({
   onConfirmed,
   selectedCard,
   total,
+  paymentQuote,
 }: Props) {
   const t = useTranslations("deliveries.checkout");
   const locale = useLocale();
@@ -281,6 +316,10 @@ export function StripePaymentModal({
               {t("close")}
             </button>
           </div>
+        ) : !paymentQuote ? (
+          <p className="mt-5 rounded-xl bg-brand/8 p-4 text-sm text-brand" role="alert">
+            {t("paymentQuoteUnavailable")}
+          </p>
         ) : (
           <Elements key={`${clientSecret}:${isDark}:${locale}`} options={options} stripe={stripePromise}>
             <PaymentForm
@@ -293,6 +332,7 @@ export function StripePaymentModal({
               }}
               selectedCard={selectedCard}
               total={total}
+              paymentQuote={paymentQuote}
             />
           </Elements>
         )}
