@@ -7,6 +7,7 @@ export const ordersApi = {
     return requestJson<OrdersResponse>(`${apiRoutes.orders}${suffix}?offset=${offset}&limit=10`, { cache: "no-store", signal });
   },
   detail(id: string, signal?: AbortSignal) { return requestJson<OrderDetail>(`${apiRoutes.orders}/${id}`, { cache: "no-store", signal }); },
+  cancel(id: string) { return requestJson<OrderDetail>(`${apiRoutes.orders}/${id}/cancel`, { method: "PUT" }); },
   review(payload: ReviewInput) { return requestJson(`${apiRoutes.orderReviews}`, { method: "POST", body: JSON.stringify(payload) }); },
   reviewDetails(orderId: string, signal?: AbortSignal) { return requestJson<OrderReview>(`${apiRoutes.orderReviews}/${orderId}`, { cache: "no-store", signal }); },
 };

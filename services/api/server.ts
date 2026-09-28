@@ -39,7 +39,7 @@ function safeErrorPayload(payload: unknown, fallback: string) {
 }
 
 type CallOptions = {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   request?: NextRequest;
 };

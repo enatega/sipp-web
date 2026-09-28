@@ -82,8 +82,18 @@ export interface StripeOrderDraftStatus {
   orderId: string | null;
 }
 
+export interface StripePaymentQuote {
+  businessCurrencyCode: string;
+  businessCurrencySymbol: string;
+  businessAmount: number;
+  localCurrencyUnitsPerUsd: number;
+  paymentCurrency: "USD";
+  paymentAmount: number;
+  paymentAmountMinor: number;
+}
+
 export type PlaceOrderResponse =
   | { mode: "wallet"; orderId: string; status: string; paymentStatus: string; paymentMethod: "wallet"; orderType: CheckoutOrderType; totalAmount: number; scheduledAt: string | null; createdAt: string }
   | { mode: "stripe"; draftId: string; orderId: string; paymentStatus: string; clientSecret?: never; checkoutUrl?: never }
-  | { mode: "stripe"; draftId: string; clientSecret: string; paymentStatus: string; orderId?: never; checkoutUrl?: never }
-  | { mode: "stripe"; draftId: string; checkoutUrl: string; paymentStatus: string; orderId?: never; clientSecret?: never };
+  | { mode: "stripe"; draftId: string; clientSecret: string; paymentIntentId: string; paymentStatus: string; paymentQuote: StripePaymentQuote; orderId?: never; checkoutUrl?: never }
+  | { mode: "stripe"; draftId: string; checkoutUrl: string; paymentStatus: string; paymentQuote?: StripePaymentQuote; orderId?: never; clientSecret?: never };
