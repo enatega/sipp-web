@@ -1,0 +1,11 @@
+{
+  "name": "SIPP",
+  "short_name": "SIPP",
+  "description": "Local delivery from SIPP",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#299df2",
+  "icons": [{ "src": "/brand/sipp-app-icon.png", "sizes": "1024x1024", "type": "image/png" }]
+}

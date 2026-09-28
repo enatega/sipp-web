@@ -546,7 +546,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                     {t("codeSentTo")} <strong>{otpDestination}</strong>
                   </p>
                 </header>
-                <OtpInput value={otp} onChange={(value) => void formik.setFieldValue("otp", value, false)} disabled={loading} />
+                <OtpInput value={otp} onChange={(value) => void formik.setFieldValue("otp", value, false)} disabled={loading} centered />
                 <button
                   type="button"
                   className="self-center text-[clamp(11px,0.9vw,13px)] font-bold text-brand disabled:cursor-default disabled:text-[#787b82]"

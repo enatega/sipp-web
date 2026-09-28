@@ -21,6 +21,7 @@ export const apiRoutes = {
   profileImage: "/api/profile/image",
   profileSummary: "/api/profile/summary",
   profileWallet: "/api/profile/wallet",
+  profileWalletTopUp: "/api/profile/wallet/topup",
   profileWalletTransactions: "/api/profile/wallet/transactions",
   currency: "/api/currency",
   savedCards: "/api/profile/saved-cards",

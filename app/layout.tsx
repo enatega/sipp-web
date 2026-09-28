@@ -25,6 +25,7 @@ const cinzel = Cinzel({
 });
 
 export const metadata: Metadata = {
+  manifest: "/manifest.webmanifest",
   title: "SIPP — Local delivery in Costa Rica",
   description:
     "Order food, groceries, drinks, and everyday essentials from local businesses in Costa Rica's coastal communities.",

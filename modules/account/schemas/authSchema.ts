@@ -22,6 +22,6 @@ export function createAuthSchemas(messages: AuthValidationMessages) {
       password: yup.string().min(6, messages.password).required(messages.password),
       confirmPassword: yup.string().oneOf([yup.ref("password")], messages.passwordsMatch),
     }),
-    otp: yup.string().length(6, messages.otp).required(messages.otp),
+    otp: yup.string().matches(/^\d{4}$/, messages.otp).required(messages.otp),
   };
 }

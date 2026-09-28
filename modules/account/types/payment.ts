@@ -22,3 +22,14 @@ export type SavedCardSetupIntent = {
 export type SavedCardActionPayload = {
   message?: string;
 };
+
+export type WalletTopUpPayload = {
+  amount: number;
+  paymentMethodId: string;
+};
+
+export type WalletTopUpResult = {
+  paymentIntentId: string;
+  clientSecret: string | null;
+  status: string;
+};

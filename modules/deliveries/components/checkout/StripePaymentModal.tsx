@@ -50,10 +50,7 @@ function PaymentForm({
       const returnUrl = `${window.location.origin}/checkout?payment=return&draft=${encodeURIComponent(draftId)}`;
       let result;
       if (selectedCard) {
-        result = await stripe.confirmCardPayment(clientSecret, {
-          payment_method: selectedCard.id,
-          return_url: returnUrl,
-        });
+        result = await stripe.handleNextAction({ clientSecret });
       } else {
         const submitResult = await elements!.submit();
         if (submitResult.error) {
@@ -74,8 +71,8 @@ function PaymentForm({
       }
 
       if (
-        result.paymentIntent.status === "succeeded" ||
-        result.paymentIntent.status === "processing"
+        result.paymentIntent?.status === "succeeded" ||
+        result.paymentIntent?.status === "processing"
       ) {
         onConfirmed();
         return;

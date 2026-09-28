@@ -17,6 +17,7 @@ import type {
   NotificationSettingsInput,
   ProfileUpdateInput,
   SessionResponse,
+  WalletTopUpPayload,
 } from "@/modules/account/types";
 import type { AddressPayload } from "@/modules/account/api/location";
 
@@ -250,6 +251,12 @@ export function useUpdateNotificationSettingsMutation() {
 
 export function useCreateSavedCardSetupIntentMutation() {
   return useMutation({ mutationFn: () => paymentApi.createSetupIntent() });
+}
+
+export function useWalletTopUpMutation() {
+  return useMutation({
+    mutationFn: (input: WalletTopUpPayload) => paymentApi.topUp(input),
+  });
 }
 
 export function useRemoveSavedCardMutation() {

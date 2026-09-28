@@ -84,9 +84,10 @@ function FieldError({ message }: { message?: string }) {
 
 interface Props {
   initialStripeDraftId?: string;
+  wasCardPaymentCancelled?: boolean;
 }
 
-export function CheckoutPage({ initialStripeDraftId }: Props) {
+export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = false }: Props) {
   const t = useTranslations("deliveries.checkout");
   const locale = useLocale();
   const router = useRouter();
@@ -118,6 +119,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
   } | null>(null);
   const [isStripeConfirmed, setIsStripeConfirmed] = useState(false);
   const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
+  const [isCancellationNoticeVisible, setIsCancellationNoticeVisible] = useState(wasCardPaymentCancelled);
   const addressTriggerRef = useRef<HTMLButtonElement>(null);
   const checkoutAlertRegionRef = useRef<HTMLDivElement>(null);
   const activeAddressOverride =
@@ -146,7 +148,11 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
           showSubmitError(t("walletLoading"));
           return;
         }
-        if (wallet.isError || Number(wallet.data?.data?.wallet_balance ?? 0) < Number(preview.data?.pricing.totalAmount ?? 0)) {
+        if (wallet.isError) {
+          showSubmitError(t("walletBalanceUnavailable"));
+          return;
+        }
+        if (Number(wallet.data?.data?.wallet_balance ?? 0) < Number(preview.data?.pricing.totalAmount ?? 0)) {
           setIsWalletDialogOpen(true);
           return;
         }
@@ -171,6 +177,14 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
           customerNote: buildNote(values),
         });
         if (response.mode === "stripe") {
+          if (response.orderId) {
+            router.push(`/orders/${response.orderId}`);
+            return;
+          }
+          if (response.checkoutUrl) {
+            window.location.assign(response.checkoutUrl);
+            return;
+          }
           if (!response.clientSecret) {
             showSubmitError(t("paymentRedirectError"));
             return;
@@ -205,6 +219,12 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
     activeStripeDraftId,
     isStripeConfirmed || Boolean(initialStripeDraftId),
   );
+  const walletBalance = Number(wallet.data?.data?.wallet_balance ?? 0);
+  const walletShortfall = Math.max(
+    500,
+    Math.ceil((Number(preview.data?.pricing.totalAmount ?? 0) - walletBalance) * 100) / 100,
+  );
+  const walletTopUpHref = `/wallet?topUpAmount=${encodeURIComponent(String(walletShortfall))}&returnTo=checkout`;
   const schedule = useCheckoutSchedule(cart.data?.storeId ?? null, preview.data?.schedule.scheduleAllowed === true);
   const isAddressPreviewError =
     formik.values.orderType === "delivery" &&
@@ -256,6 +276,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
       }
       if (error.status === 409) return t("orderChangedError");
       if (/insufficient.*wallet|wallet.*balance/i.test(error.message)) {
+        void wallet.refetch();
         setIsWalletDialogOpen(true);
         return t("walletInsufficientMessage");
       }
@@ -327,11 +348,17 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
   }
 
   if (session.isPending || cart.isPending || addresses.isPending || !storedPlace.isReady || !authenticated) return <><Header /><main className="grid min-h-[65vh] place-items-center text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>;
+  if (initialStripeDraftId && !stripeOrderStatus.data?.orderId) {
+    const hasFailed = stripeOrderStatus.data?.status === "payment_failed" || stripeOrderStatus.data?.status === "cancelled";
+    const needsAttention = hasFailed || stripeOrderStatus.isError;
+    return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div role={needsAttention ? "alert" : "status"}>{needsAttention ? null : <LoaderCircle aria-hidden="true" className="mx-auto size-8 animate-spin text-brand" />}<h1 className="mt-5 text-xl font-bold text-ink">{hasFailed ? t("cardPaymentError") : stripeOrderStatus.isError ? t("paymentConfirmationDelayedTitle") : t("confirmingPayment")}</h1><p className="mt-2 max-w-sm text-sm text-body">{hasFailed ? t("cardPaymentRetryHint") : stripeOrderStatus.isError ? t("paymentConfirmationDelayed") : t("confirmingPaymentHint")}</p>{needsAttention ? <div className="mt-5 flex justify-center gap-3"><Link href="/orders" className="inline-flex rounded-full bg-brand px-5 py-3 text-sm font-bold text-ink">{t("viewOrders")}</Link><Link href="/checkout" className="inline-flex rounded-full border border-line px-5 py-3 text-sm font-bold text-ink">{t("backToCheckout")}</Link></div> : null}</div></main></>;
+  }
   if (cart.isError || !cart.data) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button type="button" onClick={() => void cart.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
   if (cart.data.isEmpty) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><ShoppingBag aria-hidden="true" className="mx-auto size-10 text-brand" /><h1 className="mt-4 text-xl font-bold text-ink">{t("emptyTitle")}</h1><p className="mt-2 text-sm text-body">{t("emptyMessage")}</p><Link href="/discovery" className="mt-5 inline-flex rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("browseFood")}</Link></div></main></>;
 
   const store = preview.data?.store;
   const checkoutAlerts: CheckoutAlert[] = [
+    ...(isCancellationNoticeVisible ? [{ id: "card-cancelled", title: t("cardPaymentTitle"), message: t("cardPaymentCancelled"), onDismiss: () => { setIsCancellationNoticeVisible(false); router.replace("/checkout"); } }] : []),
     ...(hasPreviewError
       ? [{
           id: "preview",
@@ -461,7 +488,7 @@ export function CheckoutPage({ initialStripeDraftId }: Props) {
           total={preview.data.pricing.totalAmount}
         />
       ) : null}
-      {isWalletDialogOpen ? <div className="fixed inset-0 z-[90] grid place-items-center bg-black/55 p-4" role="dialog" aria-modal="true" aria-labelledby="wallet-insufficient-title"><div className="w-full max-w-sm rounded-3xl border border-line bg-card p-6 shadow-pop"><span className="grid size-11 place-items-center rounded-full bg-brand/10 text-brand"><WalletCards aria-hidden="true" className="size-5" /></span><h2 id="wallet-insufficient-title" className="mt-4 text-lg font-bold text-ink">{t("walletInsufficientTitle")}</h2><p className="mt-2 text-sm leading-6 text-body">{t("walletInsufficientMessage")}</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setIsWalletDialogOpen(false)} className="min-h-10 rounded-full px-4 text-sm font-semibold text-body hover:bg-[var(--soft-surface)]">{t("close")}</button><Link href="/wallet" onClick={() => setIsWalletDialogOpen(false)} className="inline-flex min-h-10 items-center rounded-full bg-brand px-5 text-sm font-bold text-ink">{t("upgradeWallet")}</Link></div></div></div> : null}
+      {isWalletDialogOpen ? <div className="fixed inset-0 z-[90] grid place-items-center bg-black/55 p-4" role="dialog" aria-modal="true" aria-labelledby="wallet-insufficient-title"><div className="w-full max-w-sm rounded-3xl border border-line bg-card p-6 shadow-pop"><span className="grid size-11 place-items-center rounded-full bg-brand/10 text-brand"><WalletCards aria-hidden="true" className="size-5" /></span><h2 id="wallet-insufficient-title" className="mt-4 text-lg font-bold text-ink">{t("walletInsufficientTitle")}</h2><p className="mt-2 text-sm leading-6 text-body">{t("walletInsufficientMessage")}</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setIsWalletDialogOpen(false)} className="min-h-10 rounded-full px-4 text-sm font-semibold text-body hover:bg-[var(--soft-surface)]">{t("close")}</button><Link href={walletTopUpHref} onClick={() => setIsWalletDialogOpen(false)} className="inline-flex min-h-10 items-center rounded-full bg-brand px-5 text-sm font-bold text-ink">{t("upgradeWallet")}</Link></div></div></div> : null}
     </>
   );
 }

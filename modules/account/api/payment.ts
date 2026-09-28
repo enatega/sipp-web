@@ -4,6 +4,8 @@ import type {
   SavedCardActionPayload,
   SavedCardsPayload,
   SavedCardSetupIntent,
+  WalletTopUpPayload,
+  WalletTopUpResult,
 } from "@/modules/account/types";
 
 export const paymentApi = {
@@ -18,6 +20,12 @@ export const paymentApi = {
       `${apiRoutes.savedCards}/setup-intent`,
       { method: "POST", body: JSON.stringify({}) },
     );
+  },
+  topUp(input: WalletTopUpPayload) {
+    return requestJson<WalletTopUpResult>(apiRoutes.profileWalletTopUp, {
+      method: "POST",
+      body: JSON.stringify({ ...input, currency: "CRC" }),
+    });
   },
   remove(paymentMethodId: string) {
     return requestJson<SavedCardActionPayload>(

@@ -46,7 +46,7 @@ export interface DeliveryStore {
   isFavorite?: boolean;
 }
 
-export type DeliveryBannerActionType = "store" | "product" | "shop_type";
+export type DeliveryBannerActionType = "store" | "product" | "shop_type" | "all_restaurants";
 
 export interface DeliveryBanner {
   id: string;

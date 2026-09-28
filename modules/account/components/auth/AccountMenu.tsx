@@ -6,6 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import { Icon, type IconName } from "@/components/shared/brand/Icon";
 import type { AuthUser } from "@/modules/account/types";
 import { userInitials } from "@/modules/account/utils/userInitials";
+import { useUnreadNotificationsCountQuery } from "@/modules/account/queries/useNotificationInboxQueries";
+import { useNotificationLiveSync } from "@/modules/account/hooks/useNotificationLiveSync";
+import { browserNotificationsEnabled, browserPushAvailability, disableBrowserNotifications, enableBrowserNotifications } from "@/modules/account/api/browserNotifications";
 
 /** The signed-in destinations, in the order the design lists them. */
 const LINKS: Array<{ labelKey: "profile" | "orders" | "wallet" | "support"; href: string; icon: IconName }> = [
@@ -64,7 +67,36 @@ export function AccountMenu({
   const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
   const navigation = useTranslations("navigation");
   const common = useTranslations("common");
+  const notifications = useTranslations("notificationInbox");
+  const [pushState, setPushState] = useState<"unknown" | "available" | "busy" | "enabled" | "denied" | "unsupported" | "ios-install">("unknown");
+  const [pushNotice, setPushNotice] = useState("");
   const wrapRef = useRef<HTMLDivElement>(null);
+  const unreadNotifications = useUnreadNotificationsCountQuery();
+  useNotificationLiveSync();
+
+  useEffect(() => {
+    let active = true;
+    const availability = browserPushAvailability();
+    if (availability !== "available") { setPushState(availability); return; }
+    if (Notification.permission === "denied") { setPushState("denied"); return; }
+    void browserNotificationsEnabled()
+      .then((enabled) => { if (active) setPushState(enabled ? "enabled" : "available"); })
+      .catch(() => { if (active) setPushState("available"); });
+    return () => { active = false; };
+  }, []);
+
+  async function enablePush() {
+    setPushState("busy");
+    setPushNotice("");
+    try {
+      const result = await enableBrowserNotifications();
+      setPushState(result === "enabled" ? "enabled" : "denied");
+      setPushNotice(notifications(result === "enabled" ? "browserEnabled" : "browserDenied"));
+    } catch {
+      setPushState("available");
+      setPushNotice(notifications("browserError"));
+    }
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -89,7 +121,7 @@ export function AccountMenu({
 
   return (
     <div className="flex items-center gap-0.5 sm:gap-1.5">
-      <IconAction icon="bell" label={navigation("notifications")} href="/notifications" />
+      <IconAction icon="bell" label={navigation("notifications")} href="/notifications" count={unreadNotifications.data?.unreadCount ?? 0} />
       <IconAction icon="cart" label="Cart" href="/cart" count={cartCount} />
 
       <div className="relative ml-0.5 sm:ml-1" ref={wrapRef}>
@@ -143,13 +175,20 @@ export function AccountMenu({
                   {navigation(labelKey)}
                 </Link>
               ))}
+              {pushState === "available" || pushState === "busy" ? (
+                <button className={ROW} disabled={pushState === "busy"} onClick={() => void enablePush()} role="menuitem" type="button">
+                  <Icon name="bell" className="size-5 flex-none text-brand max-sm:size-[18px]" />
+                  {notifications("enableBrowser")}
+                </button>
+              ) : null}
+              {pushNotice ? <p className="px-3 py-2 text-xs leading-5 text-body" role="status">{pushNotice}</p> : null}
               <button
                 type="button"
                 role="menuitem"
                 className={ROW}
                 onClick={() => {
                   setOpen(false);
-                  onSignOut();
+                  void disableBrowserNotifications().catch(() => undefined).finally(onSignOut);
                 }}
               >
                 <Icon name="logout" className="size-5 flex-none text-brand max-sm:size-[18px]" />

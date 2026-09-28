@@ -123,12 +123,13 @@ export function parseBanners(value: unknown): DeliveryBanner[] {
     "store",
     "product",
     "shop_type",
+    "all_restaurants",
   ]);
   return list(value).flatMap((item) => {
     const source = record(item);
     const id = requiredString(source?.id);
-    const title = requiredString(source?.title);
-    if (!source || !id || !title) return [];
+    if (!source || !id) return [];
+    const title = optionalString(source.title) ?? "";
     const action = optionalString(source.actionType);
     const store = parseBannerRelation(source.store);
     const product = parseBannerRelation(source.product);

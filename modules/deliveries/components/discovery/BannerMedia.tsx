@@ -10,6 +10,7 @@ interface Props {
 
 export function BannerMedia({ banner }: Props) {
   const videoUrl = banner.bannerVideoLink?.trim();
+  const isImageOnly = !banner.title?.trim() && !banner.description?.trim();
   const [hasVideoFailed, setHasVideoFailed] = useState(false);
 
   if (videoUrl && !hasVideoFailed) {
@@ -31,9 +32,9 @@ export function BannerMedia({ banner }: Props) {
 
   return (
     <DeliveryImage
-      alt={banner.title}
+      alt={banner.title?.trim() || banner.shopType?.name?.trim() || "Promotional banner"}
       className="absolute inset-0 size-full bg-brand"
-      imageClassName="transition-transform duration-700 ease-out group-hover:scale-[1.035]"
+      imageClassName={`transition-transform duration-700 ease-out group-hover:scale-[1.035] ${isImageOnly ? "object-contain" : ""}`}
       sizes="(max-width: 1100px) 100vw, 600px"
       src={banner.bannerImageLink}
     />

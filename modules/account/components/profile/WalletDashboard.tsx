@@ -1,25 +1,29 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownLeft,
   ArrowUpRight,
   Check,
   ChevronRight,
   CreditCard,
+  Eye,
+  EyeOff,
   LoaderCircle,
   Plus,
   ReceiptText,
   RefreshCw,
-  ShieldCheck,
-  WalletCards,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
 import { AddCardModal } from "@/modules/account/components/profile/AddCardModal";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
+import { WalletTopUpModal } from "@/modules/account/components/profile/WalletTopUpModal";
+import { accountQueryKeys } from "@/modules/account/queries/queryKeys";
 import {
   useActiveCurrencyQuery,
   useCreateSavedCardSetupIntentMutation,
@@ -227,10 +231,16 @@ function TransactionRow({
   );
 }
 
-export function WalletDashboard() {
+interface WalletDashboardProps {
+  initialTopUpAmount?: number | null;
+  returnToCheckout?: boolean;
+}
+
+export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = false }: WalletDashboardProps) {
   const t = useTranslations("wallet");
   const format = useFormatter();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const wallet = useWalletQuery(authenticated);
@@ -240,11 +250,22 @@ export function WalletDashboard() {
   const setupIntent = useCreateSavedCardSetupIntentMutation();
   const setDefault = useSetDefaultSavedCardMutation();
   const [isAddingCard, setIsAddingCard] = useState(false);
+  const [isAddingMoney, setIsAddingMoney] = useState(false);
+  const [isBalanceVisible, setIsBalanceVisible] = useState(false);
   const [cardActionError, setCardActionError] = useState("");
+  const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+  }, []);
 
   useEffect(() => {
     if (!session.isPending && !authenticated) router.replace("/login");
   }, [authenticated, router, session.isPending]);
+
+  useEffect(() => {
+    if (authenticated && initialTopUpAmount !== null) setIsAddingMoney(true);
+  }, [authenticated, initialTopUpAmount]);
 
   const allTransactions = useMemo(() => {
     const byId = new Map<string, WalletTransaction>();
@@ -274,6 +295,18 @@ export function WalletDashboard() {
     } catch {
       setCardActionError(t("defaultCardError"));
     }
+  }
+
+  function refreshAfterTopUp() {
+    void queryClient.invalidateQueries({ queryKey: accountQueryKeys.wallet() });
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    let remainingRefreshes = 4;
+    const refresh = () => {
+      void queryClient.invalidateQueries({ queryKey: accountQueryKeys.wallet() });
+      remainingRefreshes -= 1;
+      if (remainingRefreshes > 0) refreshTimer.current = setTimeout(refresh, 3000);
+    };
+    refreshTimer.current = setTimeout(refresh, 3000);
   }
 
   if (session.isError) {
@@ -318,38 +351,23 @@ export function WalletDashboard() {
           </header>
 
           <div className="mt-7 grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
-            <section className="relative min-h-52 overflow-hidden rounded-2xl bg-brand p-6 text-ink shadow-card sm:p-7">
-              <span aria-hidden="true" className="absolute -right-14 -top-16 size-52 rounded-full border-[30px] border-white/10" />
-              <span aria-hidden="true" className="absolute -bottom-20 right-24 size-44 rounded-full border-[22px] border-white/5" />
-              <div className="relative flex h-full flex-col justify-between">
-                <div className="flex items-center justify-between gap-4">
-                  <span className="grid size-11 place-items-center rounded-xl bg-white/15">
-                    <WalletCards aria-hidden="true" className="size-5" />
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/80">
-                    <ShieldCheck aria-hidden="true" className="size-4" />
-                    {t("secureBalance")}
-                  </span>
-                </div>
-                <div className="mt-10">
-                  <p className="text-sm font-medium text-white/80">{t("availableBalance")}</p>
+            <section className="relative min-h-56 overflow-hidden rounded-[28px] p-6 text-white shadow-card sm:p-7" style={{ backgroundImage: "linear-gradient(110deg, var(--wallet-hero-start), var(--wallet-hero-middle) 55%, var(--wallet-hero-end))" }}>
+              <Image alt="" aria-hidden="true" className="pointer-events-none absolute -right-5 -top-3 h-[210px] w-[270px] object-contain sm:right-0" height={210} src="/brand/wallet-hero-stack.png" width={270} />
+              <div className="relative z-10 flex h-full flex-col items-start">
+                <p className="text-sm font-medium text-white/90">{t("availableBalance")}</p>
+                <div className="mt-3 flex max-w-full items-center gap-2">
                   {wallet.isPending ? (
-                    <div className="mt-2 h-10 w-40 animate-pulse rounded-lg bg-white/15" />
+                    <div className="h-10 w-40 animate-pulse rounded-lg bg-white/20" />
                   ) : wallet.isError ? (
-                    <button className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-brand bg-white px-4 text-xs font-bold text-brand" onClick={() => void wallet.refetch()} type="button">
-                      <RefreshCw aria-hidden="true" className="size-4" />
-                      {t("retryBalance")}
-                    </button>
+                    <button className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white/20 px-4 text-xs font-bold text-white" onClick={() => void wallet.refetch()} type="button"><RefreshCw aria-hidden="true" className="size-4" />{t("retryBalance")}</button>
                   ) : (
-                    <strong className="mt-1 block text-4xl font-bold tracking-[-0.03em] tabular-nums sm:text-5xl">
-                      {formatMoney(
-                        Number(wallet.data?.data?.wallet_balance ?? 0),
-                        currencySymbol,
-                        format,
-                      )}
+                    <strong className="min-w-0 truncate text-3xl font-bold tracking-[-0.03em] tabular-nums drop-shadow-md sm:text-[42px]">
+                      {isBalanceVisible ? `₡ ${format.number(Number(wallet.data?.data?.wallet_balance ?? 0), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "₡ ••••••"}
                     </strong>
                   )}
+                  <button aria-label={isBalanceVisible ? t("hideBalance") : t("showBalance")} aria-pressed={isBalanceVisible} className="grid size-10 shrink-0 place-items-center rounded-2xl bg-white/90 text-[var(--wallet-hero-start)] transition-colors hover:bg-white disabled:opacity-60" disabled={wallet.isPending || wallet.isError} onClick={() => setIsBalanceVisible((value) => !value)} type="button">{isBalanceVisible ? <EyeOff aria-hidden="true" className="size-5" /> : <Eye aria-hidden="true" className="size-5" />}</button>
                 </div>
+                <button className="mt-auto inline-flex min-h-10 items-center gap-2 rounded-2xl border border-white/25 bg-white/20 px-4 text-sm font-semibold text-white transition-colors hover:bg-white/30" onClick={() => setIsAddingMoney(true)} type="button"><Plus aria-hidden="true" className="size-4" />{t("topUpTitle")}</button>
               </div>
             </section>
 
@@ -476,6 +494,7 @@ export function WalletDashboard() {
         open={isAddingCard}
         setupIntent={setupIntent.data}
       />
+      <WalletTopUpModal cards={savedCards} initialAmount={initialTopUpAmount} returnToCheckout={returnToCheckout} onAddCard={openAddCard} onClose={() => setIsAddingMoney(false)} onCompleted={refreshAfterTopUp} open={isAddingMoney} />
     </main>
   );
 }

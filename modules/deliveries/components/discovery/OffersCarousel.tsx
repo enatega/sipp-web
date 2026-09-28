@@ -12,10 +12,12 @@ function bannerHref(banner: DeliveryBanner) {
     const storeId = banner.relatedStore?.trim() || banner.store?.id?.trim();
     return storeId ? `/restaurants/${encodeURIComponent(storeId)}` : null;
   }
-  if (banner.actionType === "shop_type") {
+  if (banner.actionType === "shop_type" || banner.actionType === "all_restaurants") {
     const shopTypeId =
       banner.relatedShopType?.trim() || banner.shopType?.id?.trim();
-    return shopTypeId ? `#shop-type-${shopTypeId}` : null;
+    return shopTypeId
+      ? `/discovery/all/stores?shopTypeId=${encodeURIComponent(shopTypeId)}&title=${encodeURIComponent(banner.shopType?.name?.trim() || banner.title?.trim() || "Stores")}`
+      : null;
   }
   return null;
 }
@@ -73,18 +75,20 @@ export function OffersCarousel({
   }
 
   const activeHref = bannerHref(activeBanner);
+  const activeHasCopy = Boolean(activeBanner.title?.trim() || activeBanner.description?.trim());
+  const nextHasCopy = Boolean(nextBanner.title?.trim() || nextBanner.description?.trim());
   const feature = (
     <article
-      className={`${styles.featuredEnter} group relative min-h-[320px] overflow-hidden rounded-2xl bg-brand text-ink shadow-sm sm:min-h-[380px] lg:min-h-[410px]`}
+      className={`${styles.featuredEnter} group relative overflow-hidden rounded-2xl bg-brand text-ink shadow-sm ${activeHasCopy ? "min-h-[320px] sm:min-h-[380px] lg:min-h-[410px]" : "aspect-[3/1]"}`}
       key={activeBanner.id}
     >
       <BannerMedia banner={activeBanner} />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/46 to-black/10" />
+      {activeHasCopy ? <><div className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/46 to-black/10" />
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/55 to-transparent" />
       <div className="relative flex min-h-[320px] max-w-[37rem] flex-col justify-end px-6 pb-12 pt-7 sm:min-h-[380px] sm:px-9 sm:pb-14 lg:min-h-[410px] lg:px-11">
-        <h2 className="text-balance font-heading text-[2rem] font-extrabold leading-[1.04] tracking-[-0.04em] sm:text-[2.7rem] lg:text-5xl text-white">
+        {activeBanner.title?.trim() ? <h2 className="text-balance font-heading text-[2rem] font-extrabold leading-[1.04] tracking-[-0.04em] sm:text-[2.7rem] lg:text-5xl text-white">
           {activeBanner.title}
-        </h2>
+        </h2> : null}
         {activeBanner.description ? (
           <p className="mt-3 line-clamp-2 max-w-lg text-sm leading-6 text-white/85 sm:text-base">
             {activeBanner.description}
@@ -96,7 +100,7 @@ export function OffersCarousel({
             <ArrowUpRight aria-hidden="true" className="size-4" />
           </span>
         ) : null}
-      </div>
+      </div></> : null}
     </article>
   );
 
@@ -160,17 +164,17 @@ export function OffersCarousel({
         {hasLoop ? (
           <button
             aria-label={nextLabel}
-            className={`${styles.previewEnter} group relative my-6 hidden min-h-[332px] overflow-hidden rounded-2xl bg-brand text-left text-ink shadow-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand md:block lg:my-7 lg:min-h-[354px]`}
+            className={`${styles.previewEnter} group relative my-6 hidden overflow-hidden rounded-2xl bg-brand text-left text-ink shadow-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand md:block lg:my-7 ${nextHasCopy ? "min-h-[332px] lg:min-h-[354px]" : "aspect-[3/1]"}`}
             key={`preview-${nextBanner.id}`}
             onClick={() => move(1)}
             type="button"
           >
             <BannerMedia banner={nextBanner} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/18 to-black/5" />
-            <span className="absolute right-4 top-4 grid size-11 place-items-center rounded-full bg-card text-brand shadow-sm transition-transform duration-300 group-hover:translate-x-1">
+            {nextHasCopy ? <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/18 to-black/5" /> : null}
+            {nextHasCopy ? <span className="absolute right-4 top-4 grid size-11 place-items-center rounded-full bg-card text-brand shadow-sm transition-transform duration-300 group-hover:translate-x-1">
               <ArrowUpRight aria-hidden="true" className="size-5" />
-            </span>
-            <span className="absolute inset-x-5 bottom-5">
+            </span> : null}
+            {nextHasCopy ? <span className="absolute inset-x-5 bottom-5">
               <strong className="line-clamp-2 block font-heading text-xl font-bold leading-6">
                 {nextBanner.title}
               </strong>
@@ -179,7 +183,7 @@ export function OffersCarousel({
                   {nextBanner.description}
                 </small>
               ) : null}
-            </span>
+            </span> : null}
           </button>
         ) : null}
       </div>

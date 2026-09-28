@@ -7,9 +7,10 @@ type OtpInputProps = {
   onChange: (value: string) => void;
   disabled?: boolean;
   length?: 4 | 6;
+  centered?: boolean;
 };
 
-export function OtpInput({ value, onChange, disabled, length = 6 }: OtpInputProps) {
+export function OtpInput({ value, onChange, disabled, length = 4, centered = false }: OtpInputProps) {
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   const digits = Array.from({ length }, (_, index) => value[index] ?? "");
 
@@ -23,7 +24,7 @@ export function OtpInput({ value, onChange, disabled, length = 6 }: OtpInputProp
 
   return (
     <div
-      className={`mt-1 grid gap-[7px] sm:gap-2.5 ${
+      className={`mt-1 grid w-full gap-[7px] sm:gap-2.5 ${centered ? "mx-auto" : ""} ${
         length === 4 ? "max-w-[320px] grid-cols-4" : "grid-cols-6"
       }`}
       role="group"

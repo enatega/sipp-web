@@ -10,7 +10,9 @@ function parsePage(value: unknown): NotificationInboxPage {
   const items = rawItems.flatMap((value): InboxNotification[] => {
     const item = value && typeof value === "object" ? value as JsonRecord : null;
     if (!item || typeof item.id !== "string" || typeof item.title !== "string" || typeof item.description !== "string" || typeof item.createdAt !== "string") return [];
-    return [{ id: item.id, title: item.title, description: item.description, createdAt: item.createdAt, isRead: item.isRead === true }];
+    const rawLink = typeof item.deep_link === "string" ? item.deep_link : "";
+    const href = /^\/orders\/[0-9a-f-]{36}$/i.test(rawLink) ? rawLink : null;
+    return [{ id: item.id, title: item.title, description: item.description, createdAt: item.createdAt, isRead: item.isRead === true, href }];
   });
   const offset = typeof source.offset === "number" ? source.offset : 0;
   const limit = typeof source.limit === "number" ? source.limit : 10;
@@ -26,5 +28,11 @@ export const notificationInboxApi = {
   },
   markAllRead() {
     return requestJson<{ message: string }>(`${apiRoutes.notifications}/read-all`, { method: "PATCH" });
+  },
+  markRead(id: string) {
+    return requestJson<{ message: string }>(`${apiRoutes.notifications}/read/${encodeURIComponent(id)}`, { method: "PATCH" });
+  },
+  unreadCount(signal?: AbortSignal) {
+    return requestJson<{ unreadCount: number }>(`${apiRoutes.notifications}/unread-count`, { signal, cache: "no-store" });
   },
 };

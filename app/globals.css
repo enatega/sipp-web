@@ -22,6 +22,7 @@
   --color-warning-soft: var(--warning-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-soft-surface: var(--soft-surface);
   --color-blush: rgba(102, 192, 242, 0.1);
   --color-pinkbar: rgba(102, 192, 242, 0.1);
 
@@ -54,6 +55,9 @@
   --danger: #e33935;
   --danger-soft: rgba(102, 192, 242, 0.1);
   --soft-surface: #f4f6f9;
+  --wallet-hero-start: #2a83ff;
+  --wallet-hero-middle: #49bcff;
+  --wallet-hero-end: #725cff;
   --elevated-shadow: 0 10px 34px rgba(35, 22, 26, 0.08);
   --rail-card-shadow: 0 7px 22px rgba(35, 22, 26, 0.055);
 }
@@ -76,6 +80,9 @@
   --danger-soft: #1c3744;
   /* --danger-soft: #3d1e25; */
   --soft-surface: #242930;
+  --wallet-hero-start: #1251ad;
+  --wallet-hero-middle: #238df0;
+  --wallet-hero-end: #553ec8;
   --elevated-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
   --rail-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }

@@ -26,6 +26,7 @@ export type InboxNotification = {
   description: string;
   createdAt: string;
   isRead: boolean;
+  href: string | null;
 };
 
 export type NotificationInboxPage = {
