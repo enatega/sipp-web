@@ -34,39 +34,40 @@ function browseQuery(params: DiscoveryBrowseParams) {
 }
 
 export const discoveryApi = {
-  async shopTypes(signal?: AbortSignal) {
+  async homeLayout(signal?: AbortSignal): Promise<{ revision: number; sections: { key: string; kind: string; title: string }[] }> {
+    return requestJson<{ revision: number; sections: { key: string; kind: string; title: string }[] }>(`${apiRoutes.discovery.home}`, { signal });
+  },
+  async shopTypes(signal?: AbortSignal, home = false) {
     const payload = await requestJson<unknown>(
-      `${apiRoutes.discovery.shopTypes}?offset=0&limit=10`,
+      `${apiRoutes.discovery.shopTypes}?offset=0&limit=10${home ? '&home=true' : ''}`,
       { signal },
     );
     return parseShopTypes(payload);
   },
-  async banners(signal?: AbortSignal) {
+  async banners(signal?: AbortSignal, home = false) {
     const payload = await requestJson<unknown>(
-      `${apiRoutes.discovery.banners}?offset=0&limit=10`,
+      `${apiRoutes.discovery.banners}?offset=0&limit=10${home ? '&home=true' : ''}`,
       { signal },
     );
-    return parseBanners(payload).filter(
-      (banner) => banner.actionType !== "product",
-    );
+    return parseBanners(payload);
   },
-  async topBrands(location: DiscoveryLocation | null, signal?: AbortSignal) {
+  async topBrands(location: DiscoveryLocation | null, signal?: AbortSignal, home = false) {
     const payload = await requestJson<unknown>(
-      withLocation(apiRoutes.discovery.topBrands, location),
+      `${withLocation(apiRoutes.discovery.topBrands, location)}${home ? '&home=true' : ''}`,
       { signal },
     );
     return parseTopBrands(payload);
   },
-  async nearbyStores(location: DiscoveryLocation, signal?: AbortSignal) {
+  async nearbyStores(location: DiscoveryLocation, signal?: AbortSignal, home = false) {
     const payload = await requestJson<unknown>(
-      withLocation(apiRoutes.discovery.nearbyStores, location),
+      `${withLocation(apiRoutes.discovery.nearbyStores, location)}${home ? '&home=true' : ''}`,
       { signal },
     );
     return parseStores(payload);
   },
-  async deals(signal?: AbortSignal) {
+  async deals(location: DiscoveryLocation | null, signal?: AbortSignal, home = false) {
     const payload = await requestJson<unknown>(
-      `${apiRoutes.discovery.deals}?offset=0&limit=10`,
+      `${withLocation(apiRoutes.discovery.deals, location)}${home ? '&home=true' : ''}`,
       { signal },
     );
     return parseStores(payload);
@@ -75,9 +76,10 @@ export const discoveryApi = {
     shopTypeId: string,
     location: DiscoveryLocation | null,
     signal?: AbortSignal,
+    home = false,
   ) {
     const path = `${apiRoutes.discovery.shopTypes}/${encodeURIComponent(shopTypeId)}/stores`;
-    const payload = await requestJson<unknown>(withLocation(path, location), {
+    const payload = await requestJson<unknown>(`${withLocation(path, location)}${home ? '&home=true' : ''}`, {
       signal,
     });
     return parseStores(payload);

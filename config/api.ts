@@ -43,6 +43,7 @@ export const apiRoutes = {
   vendorApplications: "/api/vendor-applications",
   orderReviews: "/api/orders/reviews",
   discovery: {
+    home: "/api/deliveries/discovery/home",
     shopTypes: "/api/deliveries/discovery/shop-types",
     banners: "/api/deliveries/discovery/banners",
     topBrands: "/api/deliveries/discovery/top-brands",

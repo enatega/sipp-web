@@ -1,7 +1,7 @@
 export {
   DiscoveryPage,
   DiscoveryPageSkeleton,
-} from "./components/discovery/DiscoveryPage";
+} from "./components/discovery/OrderedDiscoveryPage";
 export { LandingShopTypesSection } from "./components/discovery/LandingShopTypesSection";
 export { RestaurantPage } from "./components/restaurant/RestaurantPage";
 export { CartPage } from "./components/cart/CartPage";

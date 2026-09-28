@@ -69,6 +69,7 @@ export function proxyDiscoveryRequest(
     offset: String(offset),
     limit: String(limit),
   });
+  if (incoming.get('home') === 'true') query.set('home', 'true');
 
   if (options.acceptsLocation || options.requiresLocation) {
     const rawLatitude = incoming.get("latitude");
