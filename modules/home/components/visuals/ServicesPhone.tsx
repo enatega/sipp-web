@@ -6,9 +6,9 @@ import styles from "@/modules/home/styles/home.module.css";
  * The multi-service home screen. This renders the real app screenshot inside
  * the phone frame, so the mock always matches what ships in the store.
  */
-export function ServicesPhone() {
+export function ServicesPhone({ ariaLabel }: { ariaLabel: string }) {
   return (
-    <div className={cn(styles.phone, styles.phoneShot, styles.phoneTall)} role="img" aria-label="The SIPP services app home screen">
+    <div className={cn(styles.phone, styles.phoneShot, styles.phoneTall)} role="img" aria-label={ariaLabel}>
       <Image
         src="/app/store-mockup.jpg"
         alt=""

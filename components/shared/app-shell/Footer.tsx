@@ -1,14 +1,19 @@
+"use client";
+
 import { Logo } from "@/components/shared/brand/Logo";
 import { StoreButtons } from "@/components/shared/brand/StoreButtons";
-import { footerColumns } from "@/config/public-site";
+import { useTranslations } from "next-intl";
 
-const FOOTER_LINK_HREFS: Record<string, string> = {
-  "About SIPP": "/about",
-  "Partner with us": "/partners",
-  "How it works": "/how-it-works",
-  "Terms & Condition": "/terms",
-  "Contact Us": "/contact",
-};
+const COMPANY_LINKS = [
+  { key: "about", href: "/about" },
+  { key: "partners", href: "/partners" },
+  { key: "howItWorks", href: "/how-it-works" },
+] as const;
+
+const LEGAL_LINKS = [
+  { key: "terms", href: "/terms" },
+  { key: "contact", href: "/contact" },
+] as const;
 
 const CONTACT_DETAILS = {
   address: "Santa Teresa, Provincia de Puntarenas, Puntarenas, Costa Rica",
@@ -50,9 +55,8 @@ const SOCIALS = [
   },
 ] as const;
 
-const [companyColumn, legalColumn] = footerColumns;
-
 export function Footer() {
+  const t = useTranslations("footer");
   return (
     <footer className="bg-[#F6F6F8] pb-[22px] pt-[54px] dark:bg-surface">
       <div className="section-wrap">
@@ -60,8 +64,7 @@ export function Footer() {
           <div className="col-span-full md:col-span-1">
             <Logo className="[&_img]:h-14 md:[&_img]:h-20" />
             <p className="my-4 max-w-[250px] text-xs leading-[1.5] text-body">
-              Local delivery for food, groceries, drinks, and everyday
-              essentials across Costa Rica&apos;s coastal communities.
+              {t("description")}
             </p>
             <div className="flex gap-2">
               {["Santa Teresa", "Playa Carmen"].map((domain) => (
@@ -76,16 +79,16 @@ export function Footer() {
           </div>
 
           <div className="flex flex-col gap-[11px]">
-            <b className="text-[11px] tracking-[0.14em] text-ink">{companyColumn.title}</b>
-            {companyColumn.links.map((link) => (
-              <a key={link} href={FOOTER_LINK_HREFS[link] ?? "#top"} className="text-xs text-body hover:text-brand">
-                {link}
+            <b className="text-[11px] tracking-[0.14em] text-ink">{t("companyTitle")}</b>
+            {COMPANY_LINKS.map(({ key, href }) => (
+              <a key={key} href={href} className="text-xs text-body hover:text-brand">
+                {t(key)}
               </a>
             ))}
           </div>
 
           <div className="flex flex-col gap-[11px]">
-            <b className="text-[11px] tracking-[0.14em] text-ink">GET IN TOUCH</b>
+            <b className="text-[11px] tracking-[0.14em] text-ink">{t("getInTouch")}</b>
             <span className="text-xs leading-[1.5] text-body">{CONTACT_DETAILS.address}</span>
             <span className="inline-flex items-start gap-1.5 text-xs text-body">
               <svg viewBox="0 0 20 20" aria-hidden="true" className="mt-0.5 size-3 shrink-0">
@@ -114,19 +117,19 @@ export function Footer() {
           </div>
 
           <div className="flex flex-col gap-[11px]">
-            <b className="text-[11px] tracking-[0.14em] text-ink">{legalColumn.title}</b>
-            {legalColumn.links.map((link) => (
-              <a key={link} href={FOOTER_LINK_HREFS[link] ?? "#top"} className="text-xs text-body hover:text-brand">
-                {link}
+            <b className="text-[11px] tracking-[0.14em] text-ink">{t("legalTitle")}</b>
+            {LEGAL_LINKS.map(({ key, href }) => (
+              <a key={key} href={href} className="text-xs text-body hover:text-brand">
+                {t(key)}
               </a>
             ))}
           </div>
         </div>
 
         <div className="mt-[34px] flex flex-col items-start justify-between gap-5 border-t border-line pt-[18px] text-[11px] text-muted md:flex-row md:items-center">
-          <span>&copy; 2026 SIPP &middot; All rights reserved</span>
+          <span>&copy; 2026 SIPP &middot; {t("rights")}</span>
           <span className="inline-flex items-center gap-3">
-            <small className="text-[10px] tracking-[0.12em]">DOWNLOAD APP</small>
+            <small className="text-[10px] tracking-[0.12em]">{t("downloadApp")}</small>
             <StoreButtons size="sm" />
           </span>
           <span className="inline-flex gap-2.5">

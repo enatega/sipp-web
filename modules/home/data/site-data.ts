@@ -1,115 +1,117 @@
 import type { IconName } from "@/components/shared/brand/Icon";
 
+type Translate = (key: string) => string;
+
 export const navServices = [
   { group: "SHOP", links: ["Groceries", "Drinks", "Essentials"] },
   { group: "EAT", links: ["Food Delivery", "Restaurants", "Local Picks"] },
 ];
 
 /** Pills orbiting the hero crest. `pos` maps to a placement class in globals.css. */
-export const ecosystemServices: {
+export const getEcosystemServices = (t: Translate): {
   label: string;
   icon: IconName;
   tone: string;
   pos: string;
-}[] = [
-  { label: "Restaurants", icon: "food", tone: "blue", pos: "ride" },
-  { label: "Groceries", icon: "market", tone: "orange", pos: "market" },
-  { label: "Local Shops", icon: "business", tone: "pink", pos: "business" },
-  { label: "Fresh Finds", icon: "farmers", tone: "green", pos: "farmers" },
-  { label: "Beach Towns", icon: "community", tone: "pink", pos: "community" },
-  { label: "Local Delivery", icon: "courier", tone: "purple", pos: "courier" },
-  { label: "Easy Reorders", icon: "ai", tone: "blue", pos: "ai" },
-  { label: "Secure Payments", icon: "payments", tone: "green", pos: "payments" },
-  { label: "Food Delivery", icon: "food", tone: "blue", pos: "food" },
+}[] => [
+  { label: t("restaurants"), icon: "food", tone: "blue", pos: "ride" },
+  { label: t("groceries"), icon: "market", tone: "orange", pos: "market" },
+  { label: t("localShops"), icon: "business", tone: "pink", pos: "business" },
+  { label: t("freshFinds"), icon: "farmers", tone: "green", pos: "farmers" },
+  { label: t("beachTowns"), icon: "community", tone: "pink", pos: "community" },
+  { label: t("localDelivery"), icon: "courier", tone: "purple", pos: "courier" },
+  { label: t("easyReorders"), icon: "ai", tone: "blue", pos: "ai" },
+  { label: t("securePayments"), icon: "payments", tone: "green", pos: "payments" },
+  { label: t("foodDelivery"), icon: "food", tone: "blue", pos: "food" },
 ];
 
-export const foodStats: {
+export const getFoodStats = (t: Translate): {
   icon: IconName;
   tone: string;
   value: string;
   label: string;
-}[] = [
-  { icon: "store", tone: "rose", value: "LOCAL", label: "BUSINESSES" },
-  { icon: "pin", tone: "azure", value: "COASTAL", label: "AREAS" },
-  { icon: "orders", tone: "navy", value: "DAILY", label: "ESSENTIALS" },
+}[] => [
+  { icon: "store", tone: "rose", value: t("localValue"), label: t("businesses") },
+  { icon: "pin", tone: "azure", value: t("coastalValue"), label: t("areas") },
+  { icon: "orders", tone: "navy", value: t("dailyValue"), label: t("essentials") },
 ];
 
-export const benefits: {
+export const getBenefits = (t: Translate): {
   icon: IconName;
   tone: string;
   title: string;
   copy: string;
   /** Green Choice is presented as an opt-in the customer can switch on. */
   toggle?: boolean;
-}[] = [
+}[] => [
   {
     icon: "utensils",
     tone: "mint",
-    title: "Local Favorites",
-    copy: "Order meals from nearby restaurants and cafes.",
+    title: t("localFavorites.title"),
+    copy: t("localFavorites.copy"),
   },
   {
     icon: "dining",
     tone: "peach",
-    title: "Groceries & Drinks",
-    copy: "Stock up from supermarkets and local shops.",
+    title: t("groceriesDrinks.title"),
+    copy: t("groceriesDrinks.copy"),
   },
   {
     icon: "leaf",
     tone: "forest",
-    title: "Coastal Coverage",
-    copy: "Starting in Santa Teresa and nearby communities.",
+    title: t("coastalCoverage.title"),
+    copy: t("coastalCoverage.copy"),
     toggle: true,
   },
   {
     icon: "tag",
     tone: "periwinkle",
-    title: "Useful Deals",
-    copy: "Find offers from participating local businesses.",
+    title: t("usefulDeals.title"),
+    copy: t("usefulDeals.copy"),
   },
   {
     icon: "catering",
     tone: "sky",
-    title: "Everyday Essentials",
-    copy: "Get the basics delivered when your day is full.",
+    title: t("everydayEssentials.title"),
+    copy: t("everydayEssentials.copy"),
   },
   {
     icon: "wallet",
     tone: "sky",
-    title: "Simple Payments",
-    copy: "Pay securely and keep checkout moving.",
+    title: t("simplePayments.title"),
+    copy: t("simplePayments.copy"),
   },
 ];
 
-export const valueProps: { icon: string; title: string }[] = [
-  { icon: "/brand/daily-discounts.png", title: "Daily\nDiscounts" },
-  { icon: "/brand/live-tracing.png", title: "Live\nTracing" },
-  { icon: "/brand/quick-delivery.png", title: "Quick\nDelivery" },
+export const getValueProps = (t: Translate): { icon: string; title: string }[] => [
+  { icon: "/brand/daily-discounts.png", title: t("dailyDiscounts") },
+  { icon: "/brand/live-tracing.png", title: t("liveTracking") },
+  { icon: "/brand/quick-delivery.png", title: t("quickDelivery") },
 ];
 
-export const products = [
+export const getProducts = (t: Translate) => [
   {
     tone: "food",
-    title: "SIPP Food",
+    title: t("food.title"),
     icon: "/brand/shaaneiol-food.png",
-    copy: "Discover local restaurants and order food across town.",
+    copy: t("food.copy"),
   },
   {
     tone: "store",
-    title: "SIPP Store",
+    title: t("store.title"),
     icon: "/brand/shaaneiol-store.png",
-    copy: "Bring your restaurant, supermarket, or shop to local customers.",
+    copy: t("store.copy"),
   },
   {
     tone: "driver",
-    title: "SIPP Driver",
+    title: t("driver.title"),
     icon: "/brand/shaaneiol-driver.png",
-    copy: "Deliver orders across SIPP service areas with clear order flow.",
+    copy: t("driver.copy"),
   },
   {
     tone: "rider",
-    title: "SIPP Rider",
+    title: t("rider.title"),
     icon: "/brand/shaaneiol-rider.png",
-    copy: "Find food, groceries, drinks, and essentials in one place.",
+    copy: t("rider.copy"),
   },
 ] as const;

@@ -1,9 +1,12 @@
 import { EcosystemSlideView } from "@/modules/home/components/hero/EcosystemSlideView";
+import { getTranslations } from "next-intl/server";
 import { HeroCarousel } from "@/modules/home/components/hero/HeroCarousel";
 import { ServiceSlideView } from "@/modules/home/components/hero/ServiceSlideView";
-import { heroSlides } from "@/modules/home/data/hero-slides";
+import { getHeroSlides } from "@/modules/home/data/hero-slides";
 
-export function HeroSection() {
+export async function HeroSection() {
+  const t = await getTranslations("home.hero");
+  const heroSlides = getHeroSlides(t);
   return (
     <section
       id="top"

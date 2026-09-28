@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/shared/brand/Icon";
 import { cn } from "@/lib/utils";
-import { ecosystemServices } from "@/modules/home/data/site-data";
+import type { EcosystemSlide } from "@/modules/home/data/hero-slides";
 import styles from "@/modules/home/styles/home.module.css";
 
 const DOT_TONE: Record<string, string> = {
@@ -75,11 +75,11 @@ function spoke({ x, y }: Anchor) {
   };
 }
 
-export function HeroNetwork() {
+export function HeroNetwork({ services, ariaLabel }: { services: EcosystemSlide["services"]; ariaLabel: string }) {
   return (
     <div
       className="relative mx-auto aspect-[31/26] w-full max-w-[360px] sm:max-w-[620px]"
-      aria-label="The SIPP service ecosystem"
+      aria-label={ariaLabel}
     >
       <div className="absolute inset-0">
         {/* dashed spokes radiating from the crest out to each service pill */}
@@ -91,7 +91,7 @@ export function HeroNetwork() {
           {/* Each spoke's dash pattern marches outward from the crest, so the
               ecosystem reads as a live connection. Every line is offset a
               little so the whole diagram never pulses in lockstep. */}
-          {ecosystemServices.map(({ label, pos }, index) => (
+          {services.map(({ label, pos }, index) => (
             <line
               key={label}
               className={styles.heroDash}
@@ -116,7 +116,7 @@ export function HeroNetwork() {
 
         {/* The outer node carries the layout transform and the entrance; the
             inner one does the drift, so a pill never leaves its anchor. */}
-        {ecosystemServices.map(({ label, icon, tone, pos }, index) => (
+        {services.map(({ label, icon, tone, pos }, index) => (
           <div
             key={label}
             style={
