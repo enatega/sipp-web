@@ -1,8 +1,10 @@
 import { StoreButtons } from "@/components/shared/brand/StoreButtons";
+import { getTranslations } from "next-intl/server";
 import { ServicesPhone } from "@/modules/home/components/visuals/ServicesPhone";
 import { DetailPhone } from "@/modules/home/components/visuals/DetailPhone";
 
-export function AppSection() {
+export async function AppSection() {
+  const t = await getTranslations("home.appSection");
   return (
     <section
       id="app"
@@ -21,8 +23,8 @@ export function AppSection() {
       </svg>
       <div className="section-wrap relative z-[1] grid grid-cols-1 items-end justify-items-center gap-10 text-center md:grid-cols-[minmax(0,52%)_minmax(0,48%)] md:justify-items-stretch md:text-left">
         <div className="flex origin-bottom scale-[0.85] items-end gap-4 sm:scale-100 md:-mb-10">
-          <DetailPhone />
-          <ServicesPhone />
+          <DetailPhone ariaLabel={t("detailPhoneLabel")} />
+          <ServicesPhone ariaLabel={t("servicesPhoneLabel")} />
         </div>
 
         <div className="order-first self-center pb-10 md:order-none">
@@ -30,13 +32,12 @@ export function AppSection() {
             SIPP
           </h2>
           <h3 className="mb-4 text-[clamp(28px,3.2vw,44px)] font-extrabold tracking-[-0.025em]">
-            Install the app
+            {t("title")}
           </h3>
           <p className="mx-auto mb-[26px] max-w-[400px] text-sm text-body md:mx-0">
-            <b className="text-ink">One platform for local delivery.</b>
+            <b className="text-ink">{t("lead")}</b>
             <br />
-            Order food, groceries, drinks, and daily essentials from nearby
-            businesses across SIPP service areas.
+            {t("description")}
           </p>
           <StoreButtons className="justify-center md:justify-start" />
         </div>

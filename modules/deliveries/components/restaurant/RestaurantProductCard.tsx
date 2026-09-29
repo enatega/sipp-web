@@ -1,8 +1,9 @@
 import { Check, Plus } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { formatAppCurrency } from "@/config/currency";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import type { RestaurantProduct } from "../../types/restaurant";
+import { getLocalizedProductName } from "../../utils/productTranslation";
 
 interface Props {
   cartQuantity: number;
@@ -19,19 +20,21 @@ export function RestaurantProductCard({
 }: Props) {
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
+  const locale = useLocale();
+  const productName = getLocalizedProductName(product, locale);
   const price = product.deal?.discountedPrice ?? product.price;
   const isInCart = cartQuantity > 0;
 
   return (
     <article className={`group overflow-hidden rounded-2xl border bg-card shadow-rail-card transition duration-300 ease-out hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-card ${isInCart ? "border-brand/25" : "border-line"}`}>
       <button
-        aria-label={isInCart ? t("configureProductInCart", { name: product.name, count: cartQuantity }) : t("configureProduct", { name: product.name })}
+        aria-label={isInCart ? t("configureProductInCart", { name: productName, count: cartQuantity }) : t("configureProduct", { name: productName })}
         className="flex min-h-[110px] w-full text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand"
         onClick={() => onSelect(product.id)}
         type="button"
       >
         <DeliveryImage
-          alt={product.name}
+          alt={productName}
           className="m-2.5 size-[90px] shrink-0 self-start rounded-[14px] border border-line bg-[var(--soft-surface)] sm:size-24"
           imageClassName="transition duration-300 ease-out group-hover:scale-[1.03]"
           sizes="96px"
@@ -40,7 +43,7 @@ export function RestaurantProductCard({
         <div className="flex min-w-0 flex-1 flex-col self-stretch py-3 pl-0.5 pr-3">
           <div className="min-w-0 flex-1">
             <h3 className="line-clamp-2 text-[13px] font-bold leading-[18px] tracking-[-0.01em] text-ink">
-              {product.name}
+              {productName}
             </h3>
             <p className="mt-1 line-clamp-2 text-[10px] leading-[15px] text-muted">
               {product.shortDescription ?? product.description ?? t("productDescriptionFallback")}

@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
 import type { IconName } from "@/components/shared/brand/Icon";
 import { cn } from "@/lib/utils";
+import { getEcosystemServices } from "@/modules/home/data/site-data";
 import styles from "@/modules/home/styles/home.module.css";
+
+type Translate = (key: string) => string;
 
 /* ------------------------------------------------------------ hero slides
    Every piece of copy, art and motion the hero carousel renders lives here,
@@ -51,6 +54,8 @@ export type EcosystemSlide = BaseSlide & {
   type: "ecosystem";
   eyebrow: string;
   stats: { value: string; label: string }[];
+  networkLabel: string;
+  services: ReturnType<typeof getEcosystemServices>;
 };
 
 export type ServiceSlide = BaseSlide & {
@@ -76,52 +81,52 @@ export type ServiceSlide = BaseSlide & {
 
 export type HeroSlide = EcosystemSlide | ServiceSlide;
 
-export const heroSlides: HeroSlide[] = [
+export const getHeroSlides = (t: Translate): HeroSlide[] => [
   {
     type: "ecosystem",
     id: "ecosystem",
-    name: "The SIPP ecosystem",
-    eyebrow: "LOCAL DELIVERY IN COSTA RICA",
+    name: t("ecosystem.name"),
+    eyebrow: t("ecosystem.eyebrow"),
     title: (
       <>
-        Food, Groceries,
+        {t("ecosystem.titleLine1")}
         <br />
         <span className="text-brand">
-          Drinks &
+          {t("ecosystem.titleAccentLine1")}
           <br />
-          Essentials.
+          {t("ecosystem.titleAccentLine2")}
         </span>
       </>
     ),
-    description:
-      "SIPP brings local restaurants, supermarkets, drinks, and everyday essentials together for convenient delivery in Costa Rica's coastal communities.",
+    description: t("ecosystem.description"),
     stats: [
-      { value: "SANTA", label: "Teresa first" },
-      { value: "LOCAL", label: "Businesses" },
-      { value: "COASTAL", label: "Communities" },
-      { value: "ONE", label: "Platform" },
+      { value: t("ecosystem.stats.santaValue"), label: t("ecosystem.stats.santaLabel") },
+      { value: t("ecosystem.stats.localValue"), label: t("ecosystem.stats.localLabel") },
+      { value: t("ecosystem.stats.coastalValue"), label: t("ecosystem.stats.coastalLabel") },
+      { value: t("ecosystem.stats.oneValue"), label: t("ecosystem.stats.oneLabel") },
     ],
+    networkLabel: t("ecosystem.networkLabel"),
+    services: getEcosystemServices((key) => t(`ecosystem.services.${key}`)),
     animation: { hold: 8000, stagger: 90 },
   },
   {
     type: "service",
     id: "food",
-    name: "Food delivery",
-    badge: { flag: "LOCAL", text: "Now serving Santa Teresa", icon: "spark" },
+    name: t("food.name"),
+    badge: { flag: t("food.badgeFlag"), text: t("food.badgeText"), icon: "spark" },
     title: (
       <>
-        Local Food,
+        {t("food.titleLine1")}
         <br />
-        <span className={cn(styles.heroUnderline, "text-brand")}>Delivered</span>
+        <span className={cn(styles.heroUnderline, "text-brand")}>{t("food.titleAccent")}</span>
         <br />
-        Around Town.
+        {t("food.titleLine3")}
       </>
     ),
-    description:
-      "Order meals, groceries, drinks, and essentials from local businesses in Santa Teresa, Playa Carmen, Mal Pais, Playa Hermosa, Manzanillo, and Santiago.",
+    description: t("food.description"),
     image: {
       src: "/images/image 22.png",
-      alt: "Customer holding a slice of pizza",
+      alt: t("food.imageAlt"),
       width: 516,
       height: 480,
       aspect: "13 / 11",
@@ -132,63 +137,62 @@ export const heroSlides: HeroSlide[] = [
       {
         spot: "topLeft",
         kind: "status",
-        title: "Courier on the way",
+        title: t("food.cards.status"),
         floatDelay: 0,
       },
       {
         spot: "right",
         kind: "metric",
-        caption: "DELIVERY ETA",
-        title: "22 mins",
+        caption: t("food.cards.etaCaption"),
+        title: t("food.cards.etaValue"),
         icon: { img: "/images/clock.png", alt: "" },
         floatDelay: 0.8,
       },
       {
         spot: "bottomLeft",
         kind: "rating",
-        title: "Local picks nearby",
+        title: t("food.cards.rating"),
         icon: { img: "/images/star-icon.png", alt: "" },
         floatDelay: 1.6,
       },
       {
         spot: "bottomRight",
         kind: "place",
-        title: "Location",
-        caption: "at destination",
+        title: t("food.cards.location"),
+        caption: t("food.cards.destination"),
         icon: { img: "/images/location-icon.png", alt: "" },
         floatDelay: 2.4,
       },
     ],
     benefits: [
-      { glyph: { img: "/images/clock.png" }, label: "Convenient Delivery", tone: "peach" },
-      { glyph: { img: "/images/star-icon.png" }, label: "Local Favorites", tone: "amber" },
-      { glyph: { img: "/images/secure-logo.png" }, label: "Secure Checkout", tone: "mint" },
+      { glyph: { img: "/images/clock.png" }, label: t("food.benefits.convenientDelivery"), tone: "peach" },
+      { glyph: { img: "/images/star-icon.png" }, label: t("food.benefits.localFavorites"), tone: "amber" },
+      { glyph: { img: "/images/secure-logo.png" }, label: t("food.benefits.secureCheckout"), tone: "mint" },
     ],
     animation: { hold: 8000, stagger: 90 },
   },
   {
     type: "service",
     id: "ride",
-    name: "Local commerce",
+    name: t("commerce.name"),
     badge: {
-      flag: "SIPP",
-      text: "More than food delivery",
+      flag: t("commerce.badgeFlag"),
+      text: t("commerce.badgeText"),
       icon: "arrow-out",
     },
     title: (
       <>
-        Restaurants &
+        {t("commerce.titleLine1")}
         <br />
-        <span className={cn(styles.heroUnderline, "text-brand")}>Local Shops.</span>
+        <span className={cn(styles.heroUnderline, "text-brand")}>{t("commerce.titleAccent")}</span>
         <br />
-        One Checkout.
+        {t("commerce.titleLine3")}
       </>
     ),
-    description:
-      "Explore everyday needs from nearby merchants and keep delivery simple, whether you are at home, at work, or staying near the beach.",
+    description: t("commerce.description"),
     image: {
       src: "/images/hero-woman-eating-burger.jpeg",
-      alt: "SIPP local commerce service",
+      alt: t("commerce.imageAlt"),
       width: 1024,
       height: 1024,
       aspect: "13 / 14",
@@ -199,37 +203,37 @@ export const heroSlides: HeroSlide[] = [
       {
         spot: "topLeft",
         kind: "status",
-        title: "Order is on the way",
+        title: t("commerce.cards.status"),
         floatDelay: 0,
       },
       {
         spot: "right",
         kind: "metric",
-        caption: "DELIVERY ETA",
-        title: "Soon",
+        caption: t("commerce.cards.etaCaption"),
+        title: t("commerce.cards.etaValue"),
         icon: { name: "clock" },
         floatDelay: 0.8,
       },
       {
         spot: "bottomLeft",
         kind: "rating",
-        title: "Restaurants, groceries, essentials",
+        title: t("commerce.cards.rating"),
         icon: { name: "star" },
         floatDelay: 1.6,
       },
       {
         spot: "bottomRight",
         kind: "place",
-        title: "Destination",
-        caption: "ready for delivery",
+        title: t("commerce.cards.destinationTitle"),
+        caption: t("commerce.cards.destinationCaption"),
         icon: { name: "pin" },
         floatDelay: 2.4,
       },
     ],
     benefits: [
-      { glyph: { img: "/images/clock.png" }, label: "Easy Ordering", tone: "peach" },
-      { glyph: { img: "/images/star-icon.png" }, label: "Nearby Stores", tone: "amber" },
-      { glyph: { img: "/images/secure-logo.png" }, label: "Secure Payments", tone: "mint" },
+      { glyph: { img: "/images/clock.png" }, label: t("commerce.benefits.easyOrdering"), tone: "peach" },
+      { glyph: { img: "/images/star-icon.png" }, label: t("commerce.benefits.nearbyStores"), tone: "amber" },
+      { glyph: { img: "/images/secure-logo.png" }, label: t("commerce.benefits.securePayments"), tone: "mint" },
     ],
     animation: { hold: 8000, stagger: 90 },
   },

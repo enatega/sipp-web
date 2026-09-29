@@ -76,6 +76,11 @@ function parseProducts(value: unknown): SearchProduct[] {
       productId: item.productId,
       storeId: item.storeId,
       productName: typeof item.productName === "string" ? item.productName : "",
+      productNameTranslations: Object.fromEntries(
+        Object.entries(record(item.productNameTranslations) ?? {}).filter(
+          (entry): entry is [string, string] => typeof entry[1] === "string",
+        ),
+      ),
       storeName: typeof item.storeName === "string" ? item.storeName : "",
       productImage: typeof item.productImage === "string" ? item.productImage : null,
       storeLogo: typeof item.storeLogo === "string" ? item.storeLogo : null,

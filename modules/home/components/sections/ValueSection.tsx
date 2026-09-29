@@ -1,7 +1,10 @@
 import Image from "next/image";
-import { valueProps } from "@/modules/home/data/site-data";
+import { getTranslations } from "next-intl/server";
+import { getValueProps } from "@/modules/home/data/site-data";
 
-export function ValueSection() {
+export async function ValueSection() {
+  const t = await getTranslations("home.value");
+  const valueProps = getValueProps(t);
   return (
     <section id="about" className="pb-8 pt-8 text-center sm:pb-[60px] sm:pt-[84px]">
       <div className="section-wrap">
@@ -33,7 +36,7 @@ export function ValueSection() {
           SIPP
         </h2>
         <p className="text-[10px] font-medium tracking-[0.18em] text-muted sm:text-[11px] sm:tracking-[0.24em]">
-          CONNECTING COSTA RICA&apos;S COASTAL COMMUNITIES TO LOCAL EVERYDAY DELIVERY
+          {t("tagline")}
         </p>
       </div>
     </section>

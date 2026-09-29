@@ -1,6 +1,7 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { Icon } from "@/components/shared/brand/Icon";
-import { foodStats } from "@/modules/home/data/site-data";
+import { getFoodStats } from "@/modules/home/data/site-data";
 
 const STAT_TONE: Record<string, string> = {
   rose: "bg-brand-soft text-brand",
@@ -8,24 +9,23 @@ const STAT_TONE: Record<string, string> = {
   navy: "bg-[#eaf0fa] text-[#1f3a68]",
 };
 
-export function FoodSection() {
+export async function FoodSection() {
+  const t = await getTranslations("home.foodSection");
+  const foodStats = getFoodStats(t);
   return (
     <section id="food" className="py-16 md:py-[92px]">
       <div className="section-wrap grid grid-cols-1 items-center gap-10 md:grid-cols-[minmax(0,47%)_minmax(0,53%)]">
         <div>
           <span className="inline-flex items-center gap-[7px] rounded-full border border-brand bg-brand-soft px-3.5 py-1.5 text-[10px] font-bold tracking-[0.08em] text-brand">
-            <i className="size-[5px] rounded-full bg-brand" /> NOW SERVING
-            SANTA TERESA
+            <i className="size-[5px] rounded-full bg-brand" /> {t("badge")}
           </span>
           <h2 className="mb-5 mt-6 text-[clamp(32px,3.6vw,50px)] font-extrabold leading-[1.04] tracking-[-0.028em]">
-            <span className="text-brand">Local Food</span>
+            <span className="text-brand">{t("titleAccent")}</span>
             <br />
-            and Daily Essentials
+            {t("titleRest")}
           </h2>
           <p className="mb-8 max-w-[420px] text-body">
-            SIPP connects customers with nearby restaurants, supermarkets, and
-            local businesses for simple delivery across Costa Rica&apos;s coastal
-            communities.
+            {t("description")}
           </p>
           <div className="flex gap-2 md:flex-wrap md:gap-4">
             {foodStats.map(({ icon, tone, value, label }) => (
@@ -53,7 +53,7 @@ export function FoodSection() {
         <div className="relative mx-auto aspect-[5/4] w-full max-w-[460px] md:max-w-none">
           <Image
             src="/food-collage.png"
-            alt="A spread of dishes available on SIPP"
+            alt={t("imageAlt")}
             fill
             preload
             className="object-contain"
