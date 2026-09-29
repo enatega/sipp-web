@@ -3,7 +3,7 @@ import { requestJson } from "@/services/api/client";
 type PushKeyResponse = { publicKey: string | null };
 type PreparedPush = {
   registration: ServiceWorkerRegistration;
-  applicationServerKey: Uint8Array;
+  applicationServerKey: Uint8Array<ArrayBuffer>;
   subscription: PushSubscription | null;
 };
 
