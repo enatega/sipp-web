@@ -21,10 +21,18 @@ export function browserPushAvailability(): "available" | "unsupported" | "ios-in
     : "unsupported";
 }
 
-function decodeApplicationKey(value: string) {
+function decodeApplicationKey(value: string): Uint8Array<ArrayBuffer> {
   const padded = `${value}${"=".repeat((4 - value.length % 4) % 4)}`;
   const binary = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
-  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  const bytes = new Uint8Array(new ArrayBuffer(binary.length));
+  for (let index = 0; index < binary.length; index++) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes;
+}
+
+function isNotificationPermissionDenied() {
+  return Notification.permission === "denied";
 }
 
 function matchesApplicationKey(current: BufferSource | null, expected: Uint8Array) {
@@ -72,7 +80,7 @@ function registerServerSubscription(subscription: PushSubscription) {
 
 export async function enableBrowserNotifications() {
   if (browserPushAvailability() !== "available") throw new Error("Browser push is unavailable");
-  if (Notification.permission === "denied") return "denied" as const;
+  if (isNotificationPermissionDenied()) return "denied" as const;
   const prepared = preparedPush;
   if (!prepared) throw new Error("Browser push is not ready");
 
@@ -90,7 +98,7 @@ export async function enableBrowserNotifications() {
   try {
     subscription = await subscriptionPromise;
   } catch (error) {
-    if (Notification.permission === "denied") return "denied" as const;
+    if (isNotificationPermissionDenied()) return "denied" as const;
     throw error;
   }
   prepared.subscription = subscription;
