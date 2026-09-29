@@ -25,6 +25,15 @@ function optionalText(value: unknown) {
   return valueText ? valueText : null;
 }
 
+function stringRecord(value: unknown): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(record(value)).filter(
+      (entry): entry is [string, string] =>
+        typeof entry[1] === "string" && entry[1].trim().length > 0,
+    ),
+  );
+}
+
 function number(value: unknown, fallback = 0) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
@@ -104,6 +113,7 @@ function parseRestaurantProduct(value: unknown): RestaurantProduct {
   return {
     id: text(source.id),
     name: text(source.name),
+    nameTranslations: stringRecord(source.nameTranslations),
     shortDescription: optionalText(source.shortDescription),
     description: optionalText(source.description),
     price: number(source.price),
@@ -143,6 +153,7 @@ export function parseProductInfo(value: unknown): ProductInfo {
     productId: text(source.productId),
     storeId: text(source.storeId),
     name: text(source.name),
+    nameTranslations: stringRecord(source.nameTranslations),
     imageUrl: optionalText(source.imageUrl),
     description: optionalText(source.description),
     price: number(source.price),

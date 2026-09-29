@@ -3,7 +3,7 @@
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, ChevronRight, LoaderCircle, Minus, Plus, ShoppingCart, X } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { formatAppCurrency } from "@/config/currency";
 import { ApiError } from "@/services/api/client";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ import {
   missingCustomizationGroups,
 } from "../../utils/productCustomization";
 import styles from "./restaurant-transitions.module.css";
+import { getLocalizedProductName } from "../../utils/productTranslation";
 
 interface Props {
   isStoreAvailable: boolean;
@@ -30,6 +31,7 @@ interface Props {
 export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose, onRequireSignIn, productId, storeName }: Props) {
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
+  const locale = useLocale();
   const { info, customizations } = useProductConfiguration(productId);
   const cart = useCartQuery(isAuthenticated);
   const { addItem, clear } = useCartMutations();
@@ -65,6 +67,7 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
   }, [productId]);
 
   const product = info.data;
+  const productName = product ? getLocalizedProductName(product, locale) : "";
   const customizationData = customizations.data ?? { variations: [], addons: [] };
   const missingGroups = missingCustomizationGroups(
     customizationData,
@@ -246,10 +249,10 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
         tabIndex={-1}
       >
         <div className="flex items-start gap-4 border-b border-line p-5">
-          <DeliveryImage alt={product?.name ?? ""} className="size-24 shrink-0 rounded-xl" sizes="96px" src={product?.imageUrl} />
+          <DeliveryImage alt={productName} className="size-24 shrink-0 rounded-xl" sizes="96px" src={product?.imageUrl} />
           <div className="min-w-0 flex-1 pt-1">
             {info.isPending ? <div className="h-5 w-40 animate-pulse rounded bg-[var(--soft-surface)]" /> : null}
-            <h2 className="text-lg font-bold text-ink">{product?.name}</h2>
+            <h2 className="text-lg font-bold text-ink">{productName}</h2>
             <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted">{product?.description}</p>
             {product ? (
               <b className="mt-2 block text-lg text-brand">
