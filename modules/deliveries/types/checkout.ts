@@ -5,6 +5,7 @@ export interface CheckoutPreviewInput {
   storeId: string;
   bucketId: string;
   orderType: CheckoutOrderType;
+  paymentMethod: CheckoutPaymentMethod;
   addressId?: string;
   deliveryAddress?: string;
   deliveryLatitude?: number;
@@ -69,7 +70,6 @@ export interface CheckoutScheduleResponse {
 }
 
 export interface PlaceOrderInput extends CheckoutPreviewInput {
-  paymentMethod: CheckoutPaymentMethod;
   paymentMethodId?: string;
   customerNote?: string;
   successUrl?: string;

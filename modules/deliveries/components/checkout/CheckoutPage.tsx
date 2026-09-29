@@ -213,8 +213,8 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     if (!cart.data?.bucketId || !cart.data.storeId) return null;
     if (formik.values.orderType === "delivery" && !deliveryPlace) return null;
     if (formik.values.deliveryTime === "scheduled" && !formik.values.scheduledAt) return null;
-    return { storeId: cart.data.storeId, bucketId: cart.data.bucketId, orderType: formik.values.orderType, ...(formik.values.orderType === "delivery" && deliveryPlace ? { ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId), riderTip: formik.values.riderTip || undefined } : {}), ...(formik.values.deliveryTime === "scheduled" ? { scheduledAt: formik.values.scheduledAt } : {}) };
-  }, [cart.data, deliveryPlace, formik.values.deliveryTime, formik.values.orderType, formik.values.riderTip, formik.values.scheduledAt, selectedSavedAddressId]);
+    return { storeId: cart.data.storeId, bucketId: cart.data.bucketId, orderType: formik.values.orderType, paymentMethod: formik.values.paymentMethod, ...(formik.values.orderType === "delivery" && deliveryPlace ? { ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId), riderTip: formik.values.riderTip || undefined } : {}), ...(formik.values.deliveryTime === "scheduled" ? { scheduledAt: formik.values.scheduledAt } : {}) };
+  }, [cart.data, deliveryPlace, formik.values.deliveryTime, formik.values.orderType, formik.values.paymentMethod, formik.values.riderTip, formik.values.scheduledAt, selectedSavedAddressId]);
   const preview = useCheckoutPreview(previewInput);
   const activeStripeDraftId = stripePayment?.draftId ?? initialStripeDraftId ?? null;
   const stripeOrderStatus = useStripeOrderStatus(
@@ -321,6 +321,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         storeId: cart.data.storeId,
         bucketId: cart.data.bucketId,
         orderType: "delivery",
+        paymentMethod: formik.values.paymentMethod,
         addressId: address.id,
         ...(formik.values.deliveryTime === "scheduled" && formik.values.scheduledAt
           ? { scheduledAt: formik.values.scheduledAt }
