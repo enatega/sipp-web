@@ -6,6 +6,7 @@ import { MapThumb } from "@/modules/account/components/location/MapThumb";
 import type { AddressType, ChosenPlace, SavedAddress } from "@/modules/account/types";
 import { addressDetailsSchema } from "@/modules/account/schemas/addressSchema";
 import { useSaveAddressMutation } from "@/modules/account/queries/useAccountQueries";
+import { buildAddressPayload } from "@/modules/account/utils/addressPayload";
 
 type SaveAddressModalProps = {
   place: ChosenPlace;
@@ -49,23 +50,11 @@ export function SaveAddressModal({
     onSubmit: async (values, helpers) => {
       helpers.setStatus(undefined);
       try {
-      const payload = {
-        address: place.address,
-        latitude: place.latitude,
-        longitude: place.longitude,
-        type: values.type,
-        ...(place.label ? { location_name: place.label } : {}),
-        additional_fields: {
-          ...(values.houseNo.trim() ? { houseNo: values.houseNo.trim() } : {}),
-          ...(values.building.trim() ? { building: values.building.trim() } : {}),
-          ...(values.landmark.trim() ? { landmark: values.landmark.trim() } : {}),
-        },
-      };
-      const savedAddress = await saveAddress.mutateAsync({
-        id: addressToEdit?.id,
-        payload,
-      });
-      onSaved(savedAddress);
+        const savedAddress = await saveAddress.mutateAsync({
+          id: addressToEdit?.id,
+          payload: buildAddressPayload(place, values),
+        });
+        onSaved(savedAddress);
       } catch (caught) {
         helpers.setStatus(caught instanceof Error ? caught.message : t("saveError"));
       }
