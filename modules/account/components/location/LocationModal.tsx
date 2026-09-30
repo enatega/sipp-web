@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { storePlace } from "@/modules/account/api/location";
 import { POPULAR_CITIES } from "@/modules/account/data/popularCities";
 import type {
@@ -54,6 +55,7 @@ export function LocationModal({
   showSavedAddresses = true,
 }: LocationModalProps) {
   const t = useTranslations("location");
+  const notify = useActionToast();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [chosen, setChosen] = useState<ChosenPlace | null>(null);
@@ -243,13 +245,10 @@ export function LocationModal({
     try {
       await selectAddress.mutateAsync(address.id);
       storePlace(place);
+      notify.success("deliveryAddressChanged");
       onClose();
     } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : t("selectError"),
-      );
+      notify.error(caught, "deliveryAddressChangeFailed");
     } finally {
       setBusy(null);
     }

@@ -5,6 +5,7 @@ import { useFormik } from "formik";
 import { AlertTriangle, Check, Eye, EyeOff, KeyRound, LoaderCircle, Mail, ShieldCheck, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import { ProfileBackLink } from "@/modules/account/components/profile/ProfileBackLink";
 import { OtpInput } from "@/modules/account/components/auth/OtpInput";
@@ -38,6 +39,7 @@ export function AccountSecurity() {
   const email = session.data?.authenticated ? session.data.user?.email?.trim().toLowerCase() ?? "" : "";
   const [passwordStage, setPasswordStage] = useState<PasswordStage>("idle");
   const [passwordError, setPasswordError] = useState("");
+  const notify = useActionToast();
   const [resendIn, setResendIn] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -56,22 +58,28 @@ export function AccountSecurity() {
     initialValues: { otp: "", password: "", confirmPassword: "" },
     onSubmit: async (values) => {
       setPasswordError("");
-      try {
-        if (passwordStage === "otp") {
-          if (!/^\d{4}$/.test(values.otp)) throw new Error(t("invalidOtp"));
+      // Input problems stay inline beside the form; server outcomes are toasts.
+      if (passwordStage === "otp") {
+        if (!/^\d{4}$/.test(values.otp)) return setPasswordError(t("invalidOtp"));
+        try {
           await verifyOtp.mutateAsync(values.otp);
           setPasswordStage("new");
-          return;
+        } catch (caught) {
+          notify.error(caught, "codeVerifyFailed");
         }
-        if (passwordStage === "new") {
-          if (!passwordChecks.every((check) => check(values.password)) || values.password.length > 128) throw new Error(t("strongPasswordError"));
-          if (values.password !== values.confirmPassword) throw new Error(t("passwordMismatch"));
+        return;
+      }
+      if (passwordStage === "new") {
+        if (!passwordChecks.every((check) => check(values.password)) || values.password.length > 128) return setPasswordError(t("strongPasswordError"));
+        if (values.password !== values.confirmPassword) return setPasswordError(t("passwordMismatch"));
+        try {
           await updatePassword.mutateAsync({ otp: values.otp, newPassword: values.password });
+          notify.success("passwordUpdated");
           router.replace("/login");
           router.refresh();
+        } catch (caught) {
+          notify.error(caught, "passwordUpdateFailed");
         }
-      } catch (caught) {
-        setPasswordError(caught instanceof Error ? caught.message : t("genericError"));
       }
     },
   });
@@ -83,8 +91,9 @@ export function AccountSecurity() {
       await passwordForm.setFieldValue("otp", "", false);
       setPasswordStage("otp");
       setResendIn(30);
+      notify.success("codeSent");
     } catch (caught) {
-      setPasswordError(caught instanceof Error ? caught.message : t("genericError"));
+      notify.error(caught, "codeSendFailed");
     }
   };
 
@@ -94,10 +103,11 @@ export function AccountSecurity() {
       if (!values.reason || !values.understandOrders || !values.understandAccess || values.confirmationEmail.trim().toLowerCase() !== email) return;
       try {
         await deleteAccount.mutateAsync({ reason: values.reason, confirmationEmail: values.confirmationEmail });
+        notify.success("accountDeleted");
         router.replace("/");
         router.refresh();
       } catch (caught) {
-        deleteForm.setStatus(caught instanceof Error ? caught.message : t("genericError"));
+        notify.error(caught, "accountDeleteFailed");
       }
     },
   });
@@ -177,7 +187,6 @@ export function AccountSecurity() {
                     <fieldset><legend className={`${fieldLabel} mb-2`}>{t("reasonLabel")}</legend><div className="grid gap-2">{reasonCodes.map((reason) => <label key={reason} className="flex cursor-pointer items-center gap-3 rounded-xl border border-line px-4 py-3 text-[12px] hover:bg-[var(--soft-surface)]"><input type="radio" name="reason" value={reason} checked={deleteForm.values.reason === reason} onChange={deleteForm.handleChange} className="size-4 accent-[var(--color-brand)]" />{t(`reason_${reason}`)}</label>)}</div></fieldset>
                     <div className="grid gap-2">{(["understandOrders", "understandAccess"] as const).map((name) => <label key={name} className="flex cursor-pointer items-start gap-3 text-[12px] leading-relaxed text-body"><input type="checkbox" name={name} checked={deleteForm.values[name]} onChange={deleteForm.handleChange} className="mt-0.5 size-4 accent-[var(--color-brand)]" />{t(name)}</label>)}</div>
                     <label className="block"><span className={fieldLabel}>{t("confirmEmailLabel")}</span><p className="mt-1 text-[11px] text-muted">{t("confirmEmailHelp", { email })}</p><input className={`${fieldInput} mt-2`} name="confirmationEmail" value={deleteForm.values.confirmationEmail} onChange={deleteForm.handleChange} type="email" autoComplete="off" spellCheck={false} /></label>
-                    {deleteForm.status ? <p role="alert" className="rounded-lg bg-danger-soft px-4 py-3 text-[12px] text-danger">{deleteForm.status}</p> : null}
                     <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" onClick={() => { setDeleteOpen(false); deleteForm.resetForm(); }} className="min-h-11 rounded-lg px-5 text-[12px] font-semibold text-foreground hover:bg-[var(--soft-surface)]">{t("cancel")}</button><button type="submit" disabled={!canDelete || deleteAccount.isPending} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-danger px-5 text-[12px] font-semibold text-white hover:bg-secondary/85 disabled:cursor-not-allowed disabled:opacity-45">{deleteAccount.isPending ? <LoaderCircle className="size-4 animate-spin" /> : null}{t("deleteForever")}</button></div>
                   </form>
                 )}
