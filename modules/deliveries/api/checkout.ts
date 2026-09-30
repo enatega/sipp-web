@@ -3,7 +3,7 @@ import { requestJson } from "@/services/api/client";
 import type { CheckoutPreview, CheckoutPreviewInput, CheckoutScheduleResponse, PlaceOrderInput, PlaceOrderResponse, StripeOrderDraftStatus } from "../types/checkout";
 
 function previewQuery(input: CheckoutPreviewInput) {
-  const query = new URLSearchParams({ storeId: input.storeId, bucketId: input.bucketId, orderType: input.orderType });
+  const query = new URLSearchParams({ storeId: input.storeId, bucketId: input.bucketId, orderType: input.orderType, paymentMethod: input.paymentMethod });
   if (input.addressId) query.set("addressId", input.addressId);
   if (input.deliveryAddress) query.set("deliveryAddress", input.deliveryAddress);
   if (input.deliveryLatitude !== undefined) query.set("deliveryLatitude", String(input.deliveryLatitude));

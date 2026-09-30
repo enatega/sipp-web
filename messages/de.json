@@ -1275,6 +1275,7 @@
       "couponNotApplicable": "Dieses Angebot gilt nicht für den aktuellen Warenkorb.",
       "couponMinimumNotMet": "Fügen Sie weitere Artikel hinzu, um den Mindestwert von {amount} zu erreichen.",
       "couponWrongStore": "Dieses Angebot ist bei diesem Unternehmen nicht verfügbar.",
+      "couponPaymentMethodMismatch": "Dieses Angebot gilt nicht für die gewählte Zahlungsmethode, daher wird kein Rabatt angewendet.",
       "loadingCoupons": "Angebote werden geladen…",
       "retryCoupons": "Angebote konnten nicht geladen werden. Erneut versuchen.",
       "activeCoupon": "Aktives Angebot: {code}",

@@ -15,9 +15,10 @@ interface Props {
   subtotal: number;
   appliedCouponId: string | null;
   appliedCouponCode: string | null;
+  isCouponNotApplicable?: boolean;
 }
 
-export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCouponId, appliedCouponCode }: Props) {
+export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCouponId: cartCouponId, appliedCouponCode, isCouponNotApplicable = false }: Props) {
   const t = useTranslations("deliveries.checkout");
   const couponT = useTranslations("coupons");
   const format = useFormatter();
@@ -28,6 +29,8 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
   const [busyId, setBusyId] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const items = useMemo(() => coupons.data?.pages.flatMap((page) => page.data) ?? [], [coupons.data]);
+  // The cart may not echo the coupon yet, so fall back to the customer's activated coupon.
+  const appliedCouponId = cartCouponId ?? items.find((coupon) => coupon.is_active)?.id ?? null;
   const activeCoupon = items.find((coupon) => coupon.id === appliedCouponId && !disabledReason(coupon));
   const activeCouponCode = activeCoupon?.code ?? appliedCouponCode ?? "";
 
@@ -100,6 +103,7 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
         <div className="mt-4 flex flex-col gap-3 rounded-xl border border-brand/20 bg-brand/5 p-4 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-xs font-bold text-ink">
             {t("activeCoupon", { code: activeCouponCode || "..." })}
+            {isCouponNotApplicable ? <small className="mt-1 block font-medium text-amber-700 dark:text-amber-300">{t("couponPaymentMethodMismatch")}</small> : null}
           </span>
           <button
             className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 text-xs font-bold text-ink hover:bg-[var(--soft-surface)] disabled:cursor-not-allowed disabled:opacity-50"
