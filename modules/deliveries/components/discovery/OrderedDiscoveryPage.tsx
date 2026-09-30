@@ -93,7 +93,7 @@ export function DiscoveryPage() {
             return <StoreRailSection key={section.key} emptyMessage={t("emptyMessage")} emptyTitle={t("emptyTitle")} errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={deals.isError} isLoading={deals.isPending} items={deals.data ?? []} onRetry={() => void deals.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/deals" seeAllLabel={t("seeAll")} description={t("dealsDescription")} title={t("dealsTitle")} />;
           }
           if (section.kind === "order-again") {
-            return <OrderAgainSection key={section.key} isError={isAuthenticated && orderAgain.isError} isLoading={isAuthenticated && orderAgain.isPending} items={orderAgain.data ?? []} onRetry={() => void orderAgain.refetch()} seeAllHref="/discovery/all/order-again" seeAllLabel={t("seeAll")} />;
+            return <OrderAgainSection key={section.key} items={isAuthenticated ? orderAgain.data ?? [] : []} seeAllHref="/discovery/all/order-again" seeAllLabel={t("seeAll")} />;
           }
           if (section.kind === "shop-type-stores") {
             const shopTypeId = section.key.slice("shop-type:".length);

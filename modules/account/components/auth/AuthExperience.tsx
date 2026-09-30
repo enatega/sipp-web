@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { AuthBrand } from "@/modules/account/components/auth/AuthBrand";
 import { CountrySelect } from "@/modules/account/components/auth/CountrySelect";
 import { OtpInput } from "@/modules/account/components/auth/OtpInput";
+import { PasswordInput } from "@/modules/account/components/auth/PasswordInput";
 import { ForgotPasswordFlow } from "@/modules/account/components/auth/ForgotPasswordFlow";
 import { SocialAuthButtons } from "@/modules/account/components/auth/SocialAuthButtons";
 import {
@@ -81,7 +82,6 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   });
   const [view, setView] = useState<View>("login");
   const [otpPurpose, setOtpPurpose] = useState<OtpPurpose>("phone-login");
-  const [showPassword, setShowPassword] = useState(false);
   /**
    * The identifier we already resolved as having no account. It arrives on
    * the sign-up form pre-filled and locked: editing it there would silently
@@ -379,7 +379,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
           </div>
         </div>
 
-        <div className="relative z-[3] grid min-w-0 items-start justify-items-center rounded-t-[28px] bg-surface px-[clamp(20px,6vw,44px)] pb-[clamp(32px,6svh,56px)] pt-[clamp(28px,5svh,48px)] shadow-[0_-14px_40px_rgba(63,20,30,0.12)] md:items-center md:overflow-y-auto md:rounded-none md:rounded-l-[32px] md:px-[clamp(24px,4vw,76px)] md:pt-[clamp(36px,6vh,72px)] md:pb-[clamp(60px,14vh,170px)] md:shadow-pop">
+        <div className="relative z-[3] grid min-w-0 items-start justify-items-center rounded-t-[28px] bg-surface px-[clamp(20px,6vw,44px)] pb-[clamp(32px,6svh,56px)] pt-[72px] shadow-[0_-14px_40px_rgba(63,20,30,0.12)] md:items-center md:overflow-y-auto md:rounded-none md:rounded-l-[32px] md:px-[clamp(24px,4vw,76px)] md:pt-[clamp(36px,6vh,72px)] md:pb-[clamp(60px,14vh,170px)] md:shadow-pop">
           {view !== "login" ? (
             <button
               type="button"
@@ -395,7 +395,21 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                 <path d="m14.5 6-6 6 6 6" />
               </svg>
             </button>
-          ) : null}
+          ) : (
+            <Link
+              href="/"
+              className="absolute left-4 top-4 inline-flex h-[38px] items-center gap-1.5 rounded-full border border-brand bg-white pl-2.5 pr-3.5 text-[13px] font-semibold text-brand shadow-[0_6px_18px_rgba(63,20,30,0.14)] transition-colors hover:bg-brand/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand md:left-[clamp(20px,2.4vw,34px)] md:top-[clamp(20px,3vh,34px)] md:bg-brand/10 md:shadow-none md:hover:bg-brand/20"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="w-5 fill-none stroke-current stroke-[1.8] [stroke-linecap:round] [stroke-linejoin:round] rtl:-scale-x-100"
+              >
+                <path d="m14.5 6-6 6 6 6" />
+              </svg>
+              {t("backToHome")}
+            </Link>
+          )}
 
           <div className="mx-auto w-[min(100%,420px)] transition-[opacity,translate] duration-500 ease-[cubic-bezier(0.22,0.9,0.3,1)] starting:translate-y-3 starting:opacity-0 motion-reduce:transition-none md:mx-0 md:w-[min(100%,clamp(260px,30vw,420px))]">
             <AuthBrand centered={view === "otp"} />
@@ -452,25 +466,13 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                 </header>
                 <label className={fieldShell}>
                   <span className={fieldLabel}>{t("password")}</span>
-                  <span className="relative flex items-center">
-                    <input
-                      className={`${fieldInput} pr-16`}
-                      value={password}
-                      onChange={(event) => void formik.setFieldValue("password", event.target.value, false)}
-                      placeholder={t("passwordPlaceholder")}
-                      type={showPassword ? "text" : "password"}
-                      autoComplete="current-password"
-                      disabled={loading}
-                    />
-                    <button
-                      type="button"
-                      className="absolute right-4 text-[clamp(11px,0.85vw,13px)] font-bold text-brand"
-                      onClick={() => setShowPassword((visible) => !visible)}
-                      aria-label={showPassword ? t("hidePassword") : t("showPassword")}
-                    >
-                      {showPassword ? t("hide") : t("show")}
-                    </button>
-                  </span>
+                  <PasswordInput
+                    value={password}
+                    onChange={(event) => void formik.setFieldValue("password", event.target.value, false)}
+                    placeholder={t("passwordPlaceholder")}
+                    autoComplete="current-password"
+                    disabled={loading}
+                  />
                 </label>
                 {error ? <p className={errorNote} role="alert">{error}</p> : null}
                 <button className={submitButton} disabled={loading} type="submit">
@@ -675,24 +677,22 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                 </label>
                 <label className="flex flex-col gap-1.5">
                   <span className={fieldLabel}>{t("password")}</span>
-                  <input
-                    className={`${fieldInput} h-[clamp(42px,5.2vh,48px)]`}
+                  <PasswordInput
+                    className="h-[clamp(42px,5.2vh,48px)]"
                     value={signupPassword}
                     onChange={(event) => void formik.setFieldValue("signupPassword", event.target.value, false)}
                     placeholder={t("newPasswordPlaceholder")}
-                    type="password"
                     autoComplete="new-password"
                     disabled={loading}
                   />
                 </label>
                 <label className="flex flex-col gap-1.5">
                   <span className={fieldLabel}>{t("confirmPassword")}</span>
-                  <input
-                    className={`${fieldInput} h-[clamp(42px,5.2vh,48px)]`}
+                  <PasswordInput
+                    className="h-[clamp(42px,5.2vh,48px)]"
                     value={confirmPassword}
                     onChange={(event) => void formik.setFieldValue("confirmPassword", event.target.value, false)}
                     placeholder={t("confirmPasswordPlaceholder")}
-                    type="password"
                     autoComplete="new-password"
                     disabled={loading}
                   />
