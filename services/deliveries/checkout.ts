@@ -96,8 +96,12 @@ export function proxyCheckoutPreview(request: NextRequest) {
   const source = Object.fromEntries(request.nextUrl.searchParams.entries());
   const input = commonInput(source);
   if (!input) return invalid("Invalid checkout details.");
+  if (!PAYMENT_METHODS.includes(source.paymentMethod as (typeof PAYMENT_METHODS)[number])) {
+    return invalid("Please select Wallet or Card as your payment method.");
+  }
   const query = new URLSearchParams();
   Object.entries(input).forEach(([key, value]) => query.set(key, String(value)));
+  query.set("paymentMethod", source.paymentMethod);
   return callApi(`/apps/deliveries/orders/place-order/preview?${query}`, { request });
 }
 

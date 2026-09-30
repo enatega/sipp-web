@@ -44,6 +44,7 @@ export interface CheckoutPreview {
     totalAmount: number;
   };
   bucket: { itemCount: number; items: unknown[] };
+  coupon?: { id: string; code: string; isApplied: boolean } | null;
 }
 
 export interface CheckoutScheduleSlot {

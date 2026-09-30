@@ -1237,6 +1237,7 @@
       "couponNotApplicable": "This offer is not eligible for the current cart.",
       "couponMinimumNotMet": "Add more items to reach the {amount} minimum.",
       "couponWrongStore": "This offer is not available at this business.",
+      "couponPaymentMethodMismatch": "This offer is not valid for the selected payment method, so no discount is applied.",
       "loadingCoupons": "Loading offers…",
       "retryCoupons": "Offers couldn’t be loaded. Try again.",
       "activeCoupon": "Active offer: {code}",
