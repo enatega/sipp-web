@@ -149,7 +149,8 @@
     "orContinueWith": "أو تواصل",
     "signingInGoogle": "التوقيع مع Google…",
     "googleInvalidResponse": "Google لا يمكن التحقق من حسابك. حاول مرة أخرى",
-    "socialLoginError": "ولا يمكن استكمال الإشارة الاجتماعية. حاول مرة أخرى"
+    "socialLoginError": "ولا يمكن استكمال الإشارة الاجتماعية. حاول مرة أخرى",
+    "loginSuccess": "تم تسجيل الدخول بنجاح."
   },
   "profile": {
     "loading": "ملف تحديد الموقع...",

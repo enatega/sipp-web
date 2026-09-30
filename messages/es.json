@@ -149,7 +149,8 @@
     "orContinueWith": "o continuar con",
     "signingInGoogle": "Firmando con Google…",
     "googleInvalidResponse": "Google no pudo verificar su cuenta. Por favor, inténtalo de nuevo.",
-    "socialLoginError": "No se puede completar el registro social. Por favor, inténtalo de nuevo."
+    "socialLoginError": "No se puede completar el registro social. Por favor, inténtalo de nuevo.",
+    "loginSuccess": "Inicio de sesión exitoso."
   },
   "profile": {
     "loading": "Cargando perfil...",

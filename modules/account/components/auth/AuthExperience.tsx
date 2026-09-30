@@ -42,6 +42,7 @@ import {
 } from "@/modules/account/queries/useAccountQueries";
 import { createAuthSchemas } from "@/modules/account/schemas/authSchema";
 import { safeReturnTo } from "@/modules/account/utils/authRedirect";
+import { toast } from "sonner";
 
 type View = "login" | "password" | "phone" | "signup" | "otp" | "forgot";
 type OtpPurpose = "phone-login" | "signup";
@@ -172,6 +173,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   const finishAuth = () => {
     setIntentionalLogout(false);
     window.dispatchEvent(new Event("shaaneiol-auth-change"));
+    toast.success(t("loginSuccess"));
     router.replace(safeReturnTo(returnTo));
     router.refresh();
   };

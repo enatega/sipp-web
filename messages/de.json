@@ -149,7 +149,8 @@
     "orContinueWith": "oder fortfahren mit",
     "signingInGoogle": "Anmeldung mit Google…",
     "googleInvalidResponse": "Google konnte Ihr Konto nicht bestätigen. Bitte versuchen Sie es erneut.",
-    "socialLoginError": "Die Anmeldung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut."
+    "socialLoginError": "Die Anmeldung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.",
+    "loginSuccess": "Anmeldung erfolgreich."
   },
   "profile": {
     "loading": "Profil wird geladen…",

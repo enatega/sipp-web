@@ -149,7 +149,8 @@
     "orContinueWith": "ou continuer avec",
     "signingInGoogle": "Signature avec Google…",
     "googleInvalidResponse": "Google ne pouvait pas vérifier votre compte. Veuillez réessayer.",
-    "socialLoginError": "L'inscription sociale n'a pas pu être achevée. Veuillez réessayer."
+    "socialLoginError": "L'inscription sociale n'a pas pu être achevée. Veuillez réessayer.",
+    "loginSuccess": "Connexion réussie."
   },
   "profile": {
     "loading": "Chargement du profil...",

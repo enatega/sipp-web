@@ -149,7 +149,8 @@
     "orContinueWith": "or continue with",
     "signingInGoogle": "Signing in with Google…",
     "googleInvalidResponse": "Google could not verify your account. Please try again.",
-    "socialLoginError": "Social sign-in could not be completed. Please try again."
+    "socialLoginError": "Social sign-in could not be completed. Please try again.",
+    "loginSuccess": "Login successful."
   },
   "profile": {
     "loading": "Loading profile…",
