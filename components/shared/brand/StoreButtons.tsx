@@ -1,4 +1,7 @@
+"use client";
+
 import type { CSSProperties } from "react";
+import { useTranslations } from "next-intl";
 
 import { appStoreLinks } from "@/config/public-site";
 
@@ -64,6 +67,7 @@ export function StoreButtons({
   className?: string;
   style?: CSSProperties;
 }) {
+  const t = useTranslations("storeButtons");
   const button = `inline-flex items-center rounded-[7px] bg-[#050608] text-white transition-transform duration-200 hover:-translate-y-0.5 ${BUTTON[size]}`;
 
   return (
@@ -82,12 +86,12 @@ export function StoreButtons({
           <small
             className={`block leading-[1.1] tracking-[0.04em] ${CAPTION[size]}`}
           >
-            Download on the
+            {t("downloadOn")}
           </small>
           <strong
             className={`block font-heading font-semibold leading-[1.15] ${NAME[size]}`}
           >
-            App Store
+            {t("appStore")}
           </strong>
         </span>
       </a>
@@ -102,12 +106,12 @@ export function StoreButtons({
           <small
             className={`block leading-[1.1] tracking-[0.04em] ${CAPTION[size]}`}
           >
-            GET IT ON
+            {t("getItOn")}
           </small>
           <strong
             className={`block font-heading font-semibold leading-[1.15] ${NAME[size]}`}
           >
-            Google Play
+            {t("googlePlay")}
           </strong>
         </span>
       </a>

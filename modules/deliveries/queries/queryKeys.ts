@@ -9,6 +9,7 @@ export const deliveryQueryKeys = {
   supportThread: (userId: string, id: string) => [...deliveryQueryKeys.support(userId), "thread", id] as const,
   supportOptions: () => [...deliveryQueryKeys.all, "support-options"] as const,
   discovery: () => [...deliveryQueryKeys.all, "discovery"] as const,
+  homeLayout: () => [...deliveryQueryKeys.discovery(), "home-layout"] as const,
   shopTypes: () => [...deliveryQueryKeys.discovery(), "shop-types"] as const,
   banners: () => [...deliveryQueryKeys.discovery(), "banners"] as const,
   topBrands: (location: DiscoveryLocation | null) =>

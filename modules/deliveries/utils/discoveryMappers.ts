@@ -102,6 +102,7 @@ export function parseTopBrands(value: unknown): DeliveryTopBrand[] {
     const name = requiredString(source?.name);
     if (!source || !name) return [];
     return [{
+      storeId: optionalString(source.storeId) ?? undefined,
       vendorId: optionalString(source.vendorId) ?? undefined,
       name,
       logo: optionalString(source.logo),

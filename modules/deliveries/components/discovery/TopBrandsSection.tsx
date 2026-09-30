@@ -63,7 +63,7 @@ export function TopBrandsSection(props: Props) {
       ) : (
         <Rail>
           {props.items.map((brand) => {
-            const store = matchedStore(brand, props.stores);
+            const store = brand.storeId ? { storeId: brand.storeId } : matchedStore(brand, props.stores);
             const content = (
               <article className="group w-40 shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-sm transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-md sm:w-44">
                 <DeliveryImage

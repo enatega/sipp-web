@@ -34,6 +34,7 @@ function boundedNumber(value: unknown, minimum: number, maximum: number) {
 
 function commonInput(source: Record<string, unknown>) {
   const orderType = source.orderType;
+  const paymentMethod = source.paymentMethod;
   const addressId = source.addressId;
   const deliveryAddress = typeof source.deliveryAddress === "string"
     ? source.deliveryAddress.trim()
@@ -62,6 +63,7 @@ function commonInput(source: Record<string, unknown>) {
     typeof source.storeId !== "string" || !UUID_PATTERN.test(source.storeId) ||
     typeof source.bucketId !== "string" || !UUID_PATTERN.test(source.bucketId) ||
     !ORDER_TYPES.includes(orderType as (typeof ORDER_TYPES)[number]) ||
+    !PAYMENT_METHODS.includes(paymentMethod as (typeof PAYMENT_METHODS)[number]) ||
     (orderType === "delivery" &&
       !(
         (typeof addressId === "string" && UUID_PATTERN.test(addressId)) ||
@@ -77,6 +79,7 @@ function commonInput(source: Record<string, unknown>) {
     storeId: source.storeId,
     bucketId: source.bucketId,
     orderType,
+    paymentMethod,
     ...(addressId ? { addressId } : {}),
     ...(deliveryAddress ? { deliveryAddress } : {}),
     ...(deliveryLatitude !== undefined ? { deliveryLatitude } : {}),

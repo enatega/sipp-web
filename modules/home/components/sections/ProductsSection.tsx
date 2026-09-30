@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { products } from "@/modules/home/data/site-data";
+import { getTranslations } from "next-intl/server";
+import { getProducts } from "@/modules/home/data/site-data";
 
 const CARD_TONE: Record<string, string> = {
   food: "border-[rgba(245,222,226,0.7)] bg-[linear-gradient(180deg,#fbe6e8_0%,#fdf1f2_42%,#fff_100%)]",
@@ -11,7 +12,9 @@ const CARD_TONE: Record<string, string> = {
     "border-[rgba(226,223,250,0.7)] bg-[linear-gradient(180deg,#e8e6fb_0%,#f4f3fd_42%,#fff_100%)]",
 };
 
-export function ProductsSection() {
+export async function ProductsSection() {
+  const t = await getTranslations("home.products");
+  const products = getProducts(t);
   return (
     <section id="products" className="pb-8 pt-4 sm:pb-24 sm:pt-10">
       <div className="section-wrap flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain pb-3 touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:justify-center sm:gap-[30px] sm:overflow-visible sm:pb-0 lg:grid-cols-4">
@@ -23,7 +26,7 @@ export function ProductsSection() {
             <Image
               className="mb-4 size-[clamp(88px,24vw,100px)] rounded-[22px] bg-card shadow-card"
               src={icon}
-              alt={`${title} app icon`}
+              alt={t("appIconAlt", { title })}
               width={320}
               height={320}
               sizes="100px"
@@ -36,7 +39,7 @@ export function ProductsSection() {
               href="#app"
               className="mt-auto text-xs font-semibold text-brand sm:text-[13px]"
             >
-              Get Started &rarr;
+              {t("cta")} &rarr;
             </a>
           </article>
         ))}

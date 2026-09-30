@@ -50,7 +50,7 @@ export function EcosystemSlideView({ slide }: { slide: EcosystemSlide }) {
           ))}
         </dl>
       </div>
-      <HeroNetwork />
+      <HeroNetwork services={slide.services} ariaLabel={slide.networkLabel} />
     </div>
   );
 }

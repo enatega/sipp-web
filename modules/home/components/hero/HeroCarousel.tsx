@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import styles from "@/modules/home/styles/home.module.css";
@@ -26,6 +27,7 @@ const SWIPE_THRESHOLD = 45;
  * the carousel runs.
  */
 export function HeroCarousel({ items }: { items: CarouselItem[] }) {
+  const t = useTranslations("home.hero.carousel");
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const touchX = useRef<number | null>(null);
@@ -77,7 +79,7 @@ export function HeroCarousel({ items }: { items: CarouselItem[] }) {
         className="grid grid-cols-1"
         aria-live="off"
         aria-roledescription="carousel"
-        aria-label="SIPP services"
+        aria-label={t("ariaLabel")}
       >
         {items.map((item, index) => (
           <div
@@ -88,7 +90,7 @@ export function HeroCarousel({ items }: { items: CarouselItem[] }) {
             inert={index !== active}
             role="group"
             aria-roledescription="slide"
-            aria-label={`${index + 1} of ${items.length}: ${item.name}`}
+            aria-label={t("slidePosition", { current: index + 1, total: items.length, name: item.name })}
           >
             {item.node}
           </div>
@@ -101,7 +103,7 @@ export function HeroCarousel({ items }: { items: CarouselItem[] }) {
             key={item.id}
             type="button"
             onClick={() => go(index)}
-            aria-label={`Show slide ${index + 1}: ${item.name}`}
+            aria-label={t("showSlide", { current: index + 1, name: item.name })}
             aria-current={index === active}
             className={`size-3 rounded-full transition-colors duration-300 ${
               index === active ? "bg-brand" : "bg-[#e0d5d6] hover:bg-[#cdbcbe]"

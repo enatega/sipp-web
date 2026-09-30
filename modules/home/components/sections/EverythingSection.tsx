@@ -1,6 +1,7 @@
 import { Icon } from "@/components/shared/brand/Icon";
+import { getTranslations } from "next-intl/server";
 import { AppPhone } from "@/modules/home/components/visuals/AppPhone";
-import { benefits } from "@/modules/home/data/site-data";
+import { getBenefits } from "@/modules/home/data/site-data";
 
 const BENEFIT_TONE: Record<string, string> = {
   mint: "bg-[#3ddba0] text-white",
@@ -10,7 +11,9 @@ const BENEFIT_TONE: Record<string, string> = {
   sky: "bg-[#dbe8fb] text-[#2f6ec4]",
 };
 
-export function EverythingSection() {
+export async function EverythingSection() {
+  const t = await getTranslations("home.everything");
+  const benefits = getBenefits(t);
   return (
     <section id="services" className="bg-blush py-16 md:py-[88px]">
       <div className="section-wrap grid grid-cols-1 items-center gap-10 md:grid-cols-[minmax(0,38%)_minmax(0,62%)] md:gap-8 lg:grid-cols-[minmax(0,34%)_minmax(0,66%)] lg:gap-14">
@@ -19,14 +22,12 @@ export function EverythingSection() {
         </div>
         <div>
           <h2 className="mb-5 text-[clamp(28px,3vw,42px)] font-extrabold leading-[1.08] tracking-[-0.025em]">
-            Everything You Need,
+            {t("titleLine1")}
             <br />
-            <span className="text-brand">All in One Place.</span>
+            <span className="text-brand">{t("titleAccent")}</span>
           </h2>
           <p className="mb-[30px] max-w-[560px] text-body">
-            SIPP makes everyday ordering easier for coastal communities,
-            bringing local restaurants, supermarkets, drinks, and essentials
-            into one clear delivery experience.
+            {t("description")}
           </p>
           <div className="grid grid-cols-1 gap-x-[22px] gap-y-4 md:grid-cols-2">
             {benefits.map(({ icon, tone, title, copy, toggle }) => (

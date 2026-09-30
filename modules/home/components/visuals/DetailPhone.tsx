@@ -6,12 +6,12 @@ import styles from "@/modules/home/styles/home.module.css";
  * Product-detail screen, cropped by the section edge as in the design.
  * Uses the real app screenshot rather than a rebuilt approximation.
  */
-export function DetailPhone() {
+export function DetailPhone({ ariaLabel }: { ariaLabel: string }) {
   return (
     <div
       className={cn(styles.detailPhone, styles.phoneShot)}
       role="img"
-      aria-label="Ordering a beef burger in the SIPP app"
+      aria-label={ariaLabel}
     >
       <Image
         src="/app/discovery-mockup.png"

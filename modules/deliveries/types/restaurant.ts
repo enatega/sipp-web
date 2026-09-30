@@ -43,6 +43,7 @@ export interface ProductDeal {
 export interface RestaurantProduct {
   id: string;
   name: string;
+  nameTranslations: Record<string, string>;
   shortDescription: string | null;
   description: string | null;
   price: number;
@@ -86,6 +87,7 @@ export interface ProductInfo {
   productId: string;
   storeId: string;
   name: string;
+  nameTranslations: Record<string, string>;
   imageUrl: string | null;
   description: string | null;
   price: number;

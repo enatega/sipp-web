@@ -12,6 +12,13 @@ function bannerHref(banner: DeliveryBanner) {
     const storeId = banner.relatedStore?.trim() || banner.store?.id?.trim();
     return storeId ? `/restaurants/${encodeURIComponent(storeId)}` : null;
   }
+  if (banner.actionType === "product") {
+    const storeId = banner.product?.storeId?.trim();
+    const productId = banner.relatedProduct?.trim() || banner.product?.id?.trim();
+    return storeId && productId
+      ? `/restaurants/${encodeURIComponent(storeId)}?productId=${encodeURIComponent(productId)}`
+      : null;
+  }
   if (banner.actionType === "shop_type" || banner.actionType === "all_restaurants") {
     const shopTypeId =
       banner.relatedShopType?.trim() || banner.shopType?.id?.trim();

@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { LoaderCircle, Search, X } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Footer } from "@/components/shared/app-shell/Footer";
 import { Header } from "@/components/shared/app-shell/Header";
 import { formatAppCurrency } from "@/config/currency";
@@ -13,6 +13,7 @@ import { useSessionQuery } from "@/modules/account";
 import { searchApi } from "@/modules/deliveries/api/search";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
 import { StoreCard } from "@/modules/deliveries/components/discovery/StoreCard";
+import { getLocalizedProductName } from "@/modules/deliveries/utils/productTranslation";
 import { useDiscoveryLocation } from "@/modules/deliveries/hooks/useDiscoveryQueries";
 import {
   useClearRecentSearchesMutation,
@@ -218,10 +219,15 @@ export function SearchPage() {
 }
 
 function ProductResult({ item, onOpen, price }: { item: SearchProduct; onOpen: () => void; price: string }) {
+  const locale = useLocale();
+  const productName = getLocalizedProductName(
+    { name: item.productName, nameTranslations: item.productNameTranslations },
+    locale,
+  );
   return (
     <Link className="group overflow-hidden rounded-2xl bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand" href={`/restaurants/${encodeURIComponent(item.storeId)}?productId=${encodeURIComponent(item.productId)}`} onClick={onOpen}>
-      <DeliveryImage alt={item.productName} className="aspect-[4/3] w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={item.productImage ?? item.storeImage ?? item.storeLogo} />
-      <div className="p-4"><h3 className="truncate font-heading font-bold text-ink">{item.productName}</h3><p className="mt-1 truncate text-xs text-muted">{item.storeName}</p><p className="mt-3 font-bold text-brand">{price}</p></div>
+      <DeliveryImage alt={productName} className="aspect-[4/3] w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={item.productImage ?? item.storeImage ?? item.storeLogo} />
+      <div className="p-4"><h3 className="truncate font-heading font-bold text-ink">{productName}</h3><p className="mt-1 truncate text-xs text-muted">{item.storeName}</p><p className="mt-3 font-bold text-brand">{price}</p></div>
     </Link>
   );
 }

@@ -1,37 +1,38 @@
 import { Icon } from "@/components/shared/brand/Icon";
+import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import styles from "@/modules/home/styles/home.module.css";
 import { PhoneStatus } from "./PhoneChrome";
 
-const CATEGORIES = [
-  ["Restaurants", "store"],
-  ["Groceries", "market"],
-  ["Drinks", "tag"],
-  ["Essentials", "catering"],
-] as const;
-
-const TABS = [
-  ["Home", "store"],
-  ["Category", "market"],
-  ["Deals", "dining"],
-  ["Cart", "tag"],
-  ["Account", "community"],
-] as const;
-
 /** The SIPP consumer app mock shown beside the "Everything You Need" copy. */
-export function AppPhone() {
+export async function AppPhone() {
+  const t = await getTranslations("home.phone");
+  const categories = [
+    [t("categories.restaurants"), "store"],
+    [t("categories.groceries"), "market"],
+    [t("categories.drinks"), "tag"],
+    [t("categories.essentials"), "catering"],
+  ] as const;
+  const tabs = [
+    [t("tabs.home"), "store"],
+    [t("tabs.category"), "market"],
+    [t("tabs.deals"), "dining"],
+    [t("tabs.cart"), "tag"],
+    [t("tabs.account"), "community"],
+  ] as const;
+
   return (
-    <div className={cn(styles.phone, styles.phoneLg)} role="img" aria-label="The SIPP customer app">
+    <div className={cn(styles.phone, styles.phoneLg)} role="img" aria-label={t("ariaLabel")}>
       <PhoneStatus />
 
       <div className={styles.phoneHead}>
         <div className={styles.phoneBrand}>
           <b>
             SIPP<em>.</em>
-            <i>Local delivery</i>
+            <i>{t("localDelivery")}</i>
           </b>
           <small>
-            Good Morning
+            {t("goodMorning")}
             <strong>John</strong>
           </small>
         </div>
@@ -43,7 +44,7 @@ export function AppPhone() {
 
       <div className={styles.phoneAddress}>
         <span>
-          Deliver to <Icon name="pin" className={styles.icon10} /> <b>Home</b> Santa Teresa
+          {t("deliverTo")} <Icon name="pin" className={styles.icon10} /> <b>{t("home")}</b> Santa Teresa
         </span>
         <span className={styles.phoneAddressActions}>
           <Icon name="community" className={styles.icon12} />
@@ -55,48 +56,48 @@ export function AppPhone() {
 
       <div className={styles.phoneSearch}>
         <Icon name="search" className={styles.icon12} />
-        Search food, groceries, drinks...
+        {t("searchPlaceholder")}
         <Icon name="filter" className={cn(styles.icon12, styles.phoneSearchFilter)} />
       </div>
 
       <div className={styles.phoneChips}>
-        {["Food", "Groceries", "Drinks", "Essentials"].map((chip) => (
+        {[t("chips.food"), t("chips.groceries"), t("chips.drinks"), t("chips.essentials")].map((chip) => (
           <span key={chip}>{chip}</span>
         ))}
       </div>
 
       <div className={styles.phoneHeroOffer}>
         <span>
-          <i>UP TO</i>
+          <i>{t("offer.upTo")}</i>
           <b>70%</b>
           <em>
-            OFF LOCAL
+            {t("offer.offLocal")}
             <br />
-            ORDER
+            {t("offer.order")}
           </em>
         </span>
         <div className={styles.phoneHeroArt} />
       </div>
 
-      <h5 className={styles.phoneHeading}>Offers &amp; Deals</h5>
+      <h5 className={styles.phoneHeading}>{t("offersDeals")}</h5>
       <div className={styles.phoneDeals}>
         <div className={styles.dealOrange}>
-          <b>FLAT 20% OFF</b>
-          <small>At selected SIPP businesses</small>
+          <b>{t("flatOff")}</b>
+          <small>{t("selectedBusinesses")}</small>
           <Icon name="tag" className={cn(styles.icon16, styles.dealMark)} />
         </div>
         <div className={styles.dealGreen}>
-          <b>FREE</b>
+          <b>{t("free")}</b>
           <small>
-            Delivery
+            {t("delivery")}
             <br />
-            orders
+            {t("orders")}
           </small>
         </div>
       </div>
 
       <div className={styles.phoneCategories}>
-        {CATEGORIES.map(([label, icon]) => (
+        {categories.map(([label, icon]) => (
           <span key={label}>
             <i>
               <Icon name={icon} className={styles.icon14} />
@@ -107,7 +108,7 @@ export function AppPhone() {
       </div>
 
       <h5 className={styles.phoneHeading}>
-        Trending Near You <em>View all</em>
+        {t("trending")} <em>{t("viewAll")}</em>
       </h5>
       <div className={styles.phoneTrending}>
         <span />
@@ -116,7 +117,7 @@ export function AppPhone() {
       </div>
 
       <div className={styles.phoneNav}>
-        {TABS.map(([label, icon], i) => (
+        {tabs.map(([label, icon], i) => (
           <span key={label} className={i === 0 ? styles.on : undefined}>
             <Icon name={icon} className={styles.icon14} />
             <small>{label}</small>

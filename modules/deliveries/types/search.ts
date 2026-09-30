@@ -9,6 +9,7 @@ export interface SearchProduct {
   productId: string;
   storeId: string;
   productName: string;
+  productNameTranslations: Record<string, string>;
   storeName: string;
   productImage?: string | null;
   storeLogo?: string | null;

@@ -771,6 +771,10 @@
       "dealsTitle": "Local deals",
       "dealsDescription": "Explore offers from participating SIPP businesses.",
       "orderAgainTitle": "Order again",
+      "quickActionsTitle": "Quick actions",
+      "quickBrowse": "Browse stores",
+      "quickOrders": "Orders",
+      "quickFavourites": "Favourites",
       "orderAgainDescription": "Recent favourites, ready when you want them again.",
       "emptyTitle": "Nothing here yet",
       "emptyMessage": "Content for this section will appear once items are available.",
@@ -1705,5 +1709,174 @@
       "invalidName": "Please enter a valid name.",
       "invalidEmail": "Please enter a valid email address."
     }
+  },
+  "home": {
+    "hero": {
+      "carousel": {
+        "ariaLabel": "SIPP services",
+        "slidePosition": "Slide {current} of {total}: {name}",
+        "showSlide": "Show slide {current}: {name}"
+      },
+      "ecosystem": {
+        "name": "The SIPP ecosystem",
+        "eyebrow": "LOCAL DELIVERY IN COSTA RICA",
+        "titleLine1": "Food, Groceries,",
+        "titleAccentLine1": "Drinks &",
+        "titleAccentLine2": "Essentials.",
+        "description": "SIPP brings local restaurants, supermarkets, drinks, and everyday essentials together for convenient delivery in Costa Rica's coastal communities.",
+        "networkLabel": "The SIPP service ecosystem",
+        "stats": {
+          "santaValue": "SANTA",
+          "santaLabel": "Teresa first",
+          "localValue": "LOCAL",
+          "localLabel": "Businesses",
+          "coastalValue": "COASTAL",
+          "coastalLabel": "Communities",
+          "oneValue": "ONE",
+          "oneLabel": "Platform"
+        },
+        "services": {
+          "restaurants": "Restaurants",
+          "groceries": "Groceries",
+          "localShops": "Local Shops",
+          "freshFinds": "Fresh Finds",
+          "beachTowns": "Beach Towns",
+          "localDelivery": "Local Delivery",
+          "easyReorders": "Easy Reorders",
+          "securePayments": "Secure Payments",
+          "foodDelivery": "Food Delivery"
+        }
+      },
+      "food": {
+        "name": "Food delivery",
+        "badgeFlag": "LOCAL",
+        "badgeText": "Now serving Santa Teresa",
+        "titleLine1": "Local Food,",
+        "titleAccent": "Delivered",
+        "titleLine3": "Around Town.",
+        "description": "Order meals, groceries, drinks, and essentials from local businesses in Santa Teresa, Playa Carmen, Mal Pais, Playa Hermosa, Manzanillo, and Santiago.",
+        "imageAlt": "Customer holding a slice of pizza",
+        "cards": {
+          "status": "Courier on the way",
+          "etaCaption": "DELIVERY ETA",
+          "etaValue": "22 mins",
+          "rating": "Local picks nearby",
+          "location": "Location",
+          "destination": "at destination"
+        },
+        "benefits": {
+          "convenientDelivery": "Convenient Delivery",
+          "localFavorites": "Local Favorites",
+          "secureCheckout": "Secure Checkout"
+        }
+      },
+      "commerce": {
+        "name": "Local commerce",
+        "badgeFlag": "SIPP",
+        "badgeText": "More than food delivery",
+        "titleLine1": "Restaurants &",
+        "titleAccent": "Local Shops.",
+        "titleLine3": "One Checkout.",
+        "description": "Explore everyday needs from nearby merchants and keep delivery simple, whether you are at home, at work, or staying near the beach.",
+        "imageAlt": "SIPP local commerce service",
+        "cards": {
+          "status": "Order is on the way",
+          "etaCaption": "DELIVERY ETA",
+          "etaValue": "Soon",
+          "rating": "Restaurants, groceries, essentials",
+          "destinationTitle": "Destination",
+          "destinationCaption": "ready for delivery"
+        },
+        "benefits": {
+          "easyOrdering": "Easy Ordering",
+          "nearbyStores": "Nearby Stores",
+          "securePayments": "Secure Payments"
+        }
+      }
+    },
+    "foodSection": {
+      "badge": "NOW SERVING SANTA TERESA",
+      "titleAccent": "Local Food",
+      "titleRest": "and Daily Essentials",
+      "description": "SIPP connects customers with nearby restaurants, supermarkets, and local businesses for simple delivery across Costa Rica's coastal communities.",
+      "imageAlt": "A spread of dishes available on SIPP",
+      "localValue": "LOCAL",
+      "businesses": "BUSINESSES",
+      "coastalValue": "COASTAL",
+      "areas": "AREAS",
+      "dailyValue": "DAILY",
+      "essentials": "ESSENTIALS"
+    },
+    "everything": {
+      "titleLine1": "Everything You Need,",
+      "titleAccent": "All in One Place.",
+      "description": "SIPP makes everyday ordering easier for coastal communities, bringing local restaurants, supermarkets, drinks, and essentials into one clear delivery experience.",
+      "localFavorites": { "title": "Local Favorites", "copy": "Order meals from nearby restaurants and cafes." },
+      "groceriesDrinks": { "title": "Groceries & Drinks", "copy": "Stock up from supermarkets and local shops." },
+      "coastalCoverage": { "title": "Coastal Coverage", "copy": "Starting in Santa Teresa and nearby communities." },
+      "usefulDeals": { "title": "Useful Deals", "copy": "Find offers from participating local businesses." },
+      "everydayEssentials": { "title": "Everyday Essentials", "copy": "Get the basics delivered when your day is full." },
+      "simplePayments": { "title": "Simple Payments", "copy": "Pay securely and keep checkout moving." }
+    },
+    "value": {
+      "dailyDiscounts": "Daily\nDiscounts",
+      "liveTracking": "Live\nTracking",
+      "quickDelivery": "Quick\nDelivery",
+      "tagline": "CONNECTING COSTA RICA'S COASTAL COMMUNITIES TO LOCAL EVERYDAY DELIVERY"
+    },
+    "appSection": {
+      "title": "Install the app",
+      "lead": "One platform for local delivery.",
+      "description": "Order food, groceries, drinks, and daily essentials from nearby businesses across SIPP service areas.",
+      "detailPhoneLabel": "Ordering a beef burger in the SIPP app",
+      "servicesPhoneLabel": "The SIPP services app home screen"
+    },
+    "phone": {
+      "ariaLabel": "The SIPP customer app",
+      "localDelivery": "Local delivery",
+      "goodMorning": "Good Morning",
+      "deliverTo": "Deliver to",
+      "home": "Home",
+      "searchPlaceholder": "Search food, groceries, drinks...",
+      "chips": { "food": "Food", "groceries": "Groceries", "drinks": "Drinks", "essentials": "Essentials" },
+      "offer": { "upTo": "UP TO", "offLocal": "OFF LOCAL", "order": "ORDER" },
+      "offersDeals": "Offers & Deals",
+      "flatOff": "FLAT 20% OFF",
+      "selectedBusinesses": "At selected SIPP businesses",
+      "free": "FREE",
+      "delivery": "Delivery",
+      "orders": "orders",
+      "categories": { "restaurants": "Restaurants", "groceries": "Groceries", "drinks": "Drinks", "essentials": "Essentials" },
+      "trending": "Trending Near You",
+      "viewAll": "View all",
+      "tabs": { "home": "Home", "category": "Category", "deals": "Deals", "cart": "Cart", "account": "Account" }
+    },
+    "products": {
+      "cta": "Get Started",
+      "appIconAlt": "{title} app icon",
+      "food": { "title": "SIPP Food", "copy": "Discover local restaurants and order food across town." },
+      "store": { "title": "SIPP Store", "copy": "Bring your restaurant, supermarket, or shop to local customers." },
+      "driver": { "title": "SIPP Driver", "copy": "Deliver orders across SIPP service areas with clear order flow." },
+      "rider": { "title": "SIPP Rider", "copy": "Find food, groceries, drinks, and essentials in one place." }
+    }
+  },
+  "footer": {
+    "description": "Local delivery for food, groceries, drinks, and everyday essentials across Costa Rica's coastal communities.",
+    "companyTitle": "COMPANY",
+    "about": "About SIPP",
+    "partners": "Partner with us",
+    "howItWorks": "How it works",
+    "getInTouch": "GET IN TOUCH",
+    "legalTitle": "LEGAL & SUPPORT",
+    "terms": "Terms & Conditions",
+    "contact": "Contact Us",
+    "rights": "All rights reserved",
+    "downloadApp": "DOWNLOAD APP"
+  },
+  "storeButtons": {
+    "downloadOn": "Download on the",
+    "appStore": "App Store",
+    "getItOn": "GET IT ON",
+    "googlePlay": "Google Play"
   }
 }

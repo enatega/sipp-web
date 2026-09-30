@@ -13,6 +13,7 @@ export interface DeliveryShopType {
 }
 
 export interface DeliveryTopBrand {
+  storeId?: string;
   vendorId?: string;
   name: string;
   logo?: string | null;
