@@ -1279,6 +1279,7 @@
       "couponNotApplicable": "هذا العرض غير مؤهل للعربة الحالية",
       "couponMinimumNotMet": "إضافة المزيد من البنود للوصول إلى {amount} الحد الأدنى",
       "couponWrongStore": "وهذا العرض غير متاح في هذا المجال.",
+      "couponPaymentMethodMismatch": "هذا العرض غير صالح لطريقة الدفع المحددة، لذلك لن يتم تطبيق أي خصم.",
       "loadingCoupons": "عروض النقل...",
       "retryCoupons": "فالعرض لا يمكن تحميله. حاول مرة أخرى.",
       "activeCoupon": "العرض النشط: {code}",

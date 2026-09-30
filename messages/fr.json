@@ -1279,6 +1279,7 @@
       "couponNotApplicable": "Cette offre n'est pas admissible au panier actuel.",
       "couponMinimumNotMet": "Ajouter d'autres éléments pour atteindre le {amount} minimum.",
       "couponWrongStore": "Cette offre n'est pas disponible dans cette entreprise.",
+      "couponPaymentMethodMismatch": "Cette offre n'est pas valable pour le mode de paiement sélectionné ; aucune remise ne sera donc appliquée.",
       "loadingCoupons": "Chargement des offres...",
       "retryCoupons": "Les offres ne pouvaient pas être chargées. Essaie encore.",
       "activeCoupon": "Offre active: {code}",

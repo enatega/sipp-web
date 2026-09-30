@@ -1279,6 +1279,7 @@
       "couponNotApplicable": "Esta oferta no es elegible para el carrito actual.",
       "couponMinimumNotMet": "Añadir más artículos para llegar a {amount} mínimo.",
       "couponWrongStore": "Esta oferta no está disponible en este negocio.",
+      "couponPaymentMethodMismatch": "Esta oferta no es válida para el método de pago seleccionado, por lo que no se aplica ningún descuento.",
       "loadingCoupons": "Cargando ofertas...",
       "retryCoupons": "Las ofertas no se pueden cargar. Prueba otra vez.",
       "activeCoupon": "Oferta activa: {code}",
