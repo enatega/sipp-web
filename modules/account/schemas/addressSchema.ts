@@ -8,3 +8,9 @@ export const addressDetailsSchema = yup.object({
 });
 
 export type AddressDetailsValues = yup.InferType<typeof addressDetailsSchema>;
+
+/** Delivery confirmation: saving is optional, details only matter when saving. */
+export const deliveryAddressSchema = addressDetailsSchema.shape({
+  shouldSave: yup.boolean().required(),
+  locationName: yup.string().trim().max(100),
+});
