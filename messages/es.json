@@ -860,6 +860,10 @@
       "openStore": "Abierto {name}"
     },
     "restaurant": {
+      "originalPrice": "Precio original {price}",
+      "dealOffPercent": "{value}% de descuento",
+      "dealOffFixed": "{amount} de descuento",
+      "dealSavings": "{deal} aplicado: ahorras {amount}",
       "coverAlt": "{name} storefront",
       "logoAlt": "{name} Logotipos",
       "restaurantFallback": "Local business",

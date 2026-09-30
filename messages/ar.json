@@ -860,6 +860,10 @@
       "openStore": "مفتوح {name}"
     },
     "restaurant": {
+      "originalPrice": "السعر الأصلي {price}",
+      "dealOffPercent": "خصم {value}%",
+      "dealOffFixed": "خصم {amount}",
+      "dealSavings": "تم تطبيق {deal} — وفّرت {amount}",
       "coverAlt": "{name} المخزن",
       "logoAlt": "{name} لوم",
       "restaurantFallback": "الأعمال التجارية المحلية",

@@ -37,6 +37,8 @@ export interface RestaurantStore {
 
 export interface ProductDeal {
   discountedPrice: number;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
   name: string | null;
 }
 

@@ -860,6 +860,10 @@
       "openStore": "Ouvrir {name}"
     },
     "restaurant": {
+      "originalPrice": "Prix d'origine {price}",
+      "dealOffPercent": "-{value} %",
+      "dealOffFixed": "-{amount}",
+      "dealSavings": "{deal} appliqué : vous économisez {amount}",
       "coverAlt": "{name} avant magasin",
       "logoAlt": "{name} logo",
       "restaurantFallback": "Entreprises locales",
