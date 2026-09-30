@@ -157,7 +157,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
     <>
       <Header />
       <main className="min-h-[calc(100svh-4rem)] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_430px)] pb-16 md:min-h-[calc(100svh-4.75rem)]">
-        <div className="section-wrap py-6 sm:py-9">
+        <div className="app-wrap py-6 sm:py-9">
           <HistoryBackButton />
           <header className="mt-5 flex flex-col gap-5 border-b border-line pb-7 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -227,7 +227,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
             ) : view === "map" && isStoreKind ? (
               <DiscoveryStoresMap location={location} stores={stores} />
             ) : (
-              <div className={`grid gap-4 ${kind === "shop-types" || kind === "top-brands" ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+              <div className={`grid gap-4 ${kind === "shop-types" || kind === "top-brands" ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6" : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"}`}>
                 {kind === "shop-types" ? (items as DeliveryShopType[]).map((item) => <ShopTypeCard item={item} key={item.id} />) : kind === "top-brands" ? (items as DeliveryTopBrand[]).map((brand, index) => <BrandCard brand={brand} key={`${brand.vendorId ?? brand.name}-${index}`} />) : kind === "order-again" ? (items as DeliveryOrderAgainOrder[]).map((order) => <OrderAgainCard key={order.orderId} order={order} />) : stores.map((store) => <StoreCard fluid key={store.storeId} store={store} />)}
               </div>
             )}

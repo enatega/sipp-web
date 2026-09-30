@@ -55,7 +55,7 @@ export function DiscoveryPage() {
     <Header />
     <main className="bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_520px)] pb-16 sm:pb-20">
       <h1 className="sr-only">{t("pageTitle")}</h1>
-      <div className="section-wrap space-y-10 py-5 sm:space-y-12 sm:py-8 lg:space-y-14">
+      <div className="app-wrap space-y-10 py-5 sm:space-y-12 sm:py-8 lg:space-y-14">
         {homeSections.map((section) => {
           if (section.kind === "banners") {
             return banners.isPending
@@ -109,5 +109,5 @@ export function DiscoveryPage() {
 }
 
 export function DiscoveryPageSkeleton() {
-  return <><Header /><main className="pb-16" aria-busy="true"><div className="section-wrap space-y-6 py-8">{Array.from({ length: 4 }, (_, index) => <div key={index} className="space-y-4"><div className="h-7 w-44 animate-pulse rounded-lg bg-[var(--soft-surface)]" /><RailSkeleton /></div>)}</div></main></>;
+  return <><Header /><main className="pb-16" aria-busy="true"><div className="app-wrap space-y-6 py-8">{Array.from({ length: 4 }, (_, index) => <div key={index} className="space-y-4"><div className="h-7 w-44 animate-pulse rounded-lg bg-[var(--soft-surface)]" /><RailSkeleton /></div>)}</div></main></>;
 }

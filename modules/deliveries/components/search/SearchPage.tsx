@@ -136,7 +136,7 @@ export function SearchPage() {
     <>
       <Header />
       <main className="min-h-[70vh] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_480px)] pb-16">
-        <div className="section-wrap py-8 sm:py-12">
+        <div className="app-wrap py-8 sm:py-12">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="font-heading text-3xl font-bold text-ink sm:text-4xl">{t("title")}</h1>
             <p className="mt-2 text-sm text-muted sm:text-base">{t("description")}</p>
@@ -186,7 +186,7 @@ export function SearchPage() {
                   <span className="text-sm text-muted">{products.data?.pages[0]?.total ?? 0}</span>
                 </div>
                 {products.isPending ? <SearchSkeleton /> : productItems.length ? (
-                  <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                     {productItems.map(({ item, meta, position }) => (
                       <ProductResult key={item.productId} item={item} price={formatAppCurrency(format, item.price)} onOpen={() => track(meta, "product", item.productId, position)} />
                     ))}
@@ -201,7 +201,7 @@ export function SearchPage() {
                   <span className="text-sm text-muted">{stores.data?.pages[0]?.total ?? 0}</span>
                 </div>
                 {stores.isPending ? <SearchSkeleton /> : storeItems.length ? (
-                  <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                     {storeItems.map(({ item, meta, position }) => (
                       <div key={item.storeId} onClick={() => track(meta, "store", item.storeId, position)}><StoreCard fluid store={item} /></div>
                     ))}

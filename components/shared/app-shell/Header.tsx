@@ -20,7 +20,7 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
 
   return (
     <header className="sticky top-0 z-40 h-16 bg-surface shadow-[0_2px_14px_rgba(30,15,20,0.06)] md:h-[76px]">
-      <div className="mx-auto flex h-full w-[calc(100%-16px)] items-center gap-3 sm:w-[min(1320px,100%-48px)] sm:gap-5">
+      <div className="app-wrap flex h-full items-center gap-3 sm:gap-5">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none sm:gap-4">
           <Logo className="flex-none [&_img]:!h-7 sm:[&_img]:!h-10 md:[&_img]:!h-20" />
           <LocationTrigger />
