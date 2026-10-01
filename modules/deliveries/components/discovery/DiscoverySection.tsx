@@ -11,17 +11,23 @@ import {
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { DealCardSkeleton } from "./skeletons/DealCardSkeleton";
+import { StoreCardSkeleton } from "./skeletons/StoreCardSkeleton";
+import { TopBrandCardSkeleton } from "./skeletons/TopBrandCardSkeleton";
 
 export function SectionHeading({
   title,
   description,
   actionHref,
   actionLabel,
+  isActionPending = false,
 }: {
   title: string;
   description?: string;
   actionHref?: string;
   actionLabel?: string;
+  /** Reserves the action's space while loading so the heading never reflows. */
+  isActionPending?: boolean;
 }) {
   return (
     <div className="flex items-end justify-between gap-4">
@@ -37,11 +43,23 @@ export function SectionHeading({
       </div>
       {actionHref && actionLabel ? (
         <Link
-          className="shrink-0 rounded-full px-3 py-2 text-xs font-bold text-brand transition-colors hover:bg-danger-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:text-sm"
+          className="group/see-all inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-2 text-xs font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:text-sm"
           href={actionHref}
         >
           {actionLabel}
+          <ChevronRight
+            aria-hidden="true"
+            className="size-4 transition-[translate] duration-200 group-hover/see-all:translate-x-0.5 rtl:-scale-x-100"
+          />
         </Link>
+      ) : isActionPending && actionLabel ? (
+        <span
+          aria-hidden="true"
+          className="invisible inline-flex shrink-0 items-center gap-1 px-3 py-2 text-xs font-bold sm:text-sm"
+        >
+          {actionLabel}
+          <span className="size-4" />
+        </span>
       ) : null}
     </div>
   );
@@ -166,21 +184,22 @@ export function SectionState({
   );
 }
 
-export function RailSkeleton({ compact = false }: { compact?: boolean }) {
+const RAIL_SKELETONS = {
+  store: { Card: StoreCardSkeleton, count: 6 },
+  brand: { Card: TopBrandCardSkeleton, count: 9 },
+  deal: { Card: DealCardSkeleton, count: 6 },
+} as const;
+
+/** A rail of card-shaped placeholders sized like the cards that replace them. */
+export function RailSkeleton({ card = "store" }: { card?: keyof typeof RAIL_SKELETONS }) {
+  const { Card, count } = RAIL_SKELETONS[card];
   return (
-    <Rail>
-      {Array.from({ length: compact ? 7 : 4 }, (_, index) => (
-        <div
-          aria-hidden="true"
-          className={cn(
-            "shrink-0 snap-start animate-pulse rounded-2xl bg-[var(--soft-surface)]",
-            compact
-              ? "h-[184px] w-40 sm:h-[196px] sm:w-44"
-              : "h-[250px] w-[252px] sm:w-[282px]",
-          )}
-          key={index}
-        />
-      ))}
-    </Rail>
+    <div aria-hidden="true" className="-mx-5 overflow-hidden px-5 pb-6 pt-3 sm:-mx-7 sm:px-7">
+      <div className="flex w-max min-w-full gap-3 pr-5 sm:gap-4 sm:pr-7">
+        {Array.from({ length: count }, (_, index) => (
+          <Card key={index} />
+        ))}
+      </div>
+    </div>
   );
 }

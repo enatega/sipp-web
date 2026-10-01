@@ -1,0 +1,50 @@
+/*
+ * One shimmer sweeps the whole viewport: every block shares a fixed
+ * background, so neighbouring placeholders glow in step instead of pulsing
+ * independently.
+ */
+.block {
+  --skeleton-base: var(--soft-surface);
+  --skeleton-glow: color-mix(in srgb, var(--soft-surface), white 75%);
+  background-color: var(--skeleton-base);
+  background-image: linear-gradient(
+    100deg,
+    transparent 38%,
+    var(--skeleton-glow) 50%,
+    transparent 62%
+  );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: 200vw 100%;
+  animation: skeleton-sweep 1.8s ease-in-out infinite;
+}
+
+/* For placeholders sitting on an already-soft surface. */
+.strong {
+  --skeleton-base: var(--line);
+  --skeleton-glow: color-mix(in srgb, var(--line), white 60%);
+}
+
+:global(.dark) .block {
+  --skeleton-glow: color-mix(in srgb, var(--soft-surface), white 7%);
+}
+
+:global(.dark) .strong {
+  --skeleton-glow: color-mix(in srgb, var(--line), white 8%);
+}
+
+@keyframes skeleton-sweep {
+  from {
+    background-position: 100vw 0;
+  }
+  to {
+    background-position: -100vw 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .block {
+    animation: none;
+    background-image: none;
+  }
+}

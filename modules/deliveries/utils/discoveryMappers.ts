@@ -62,6 +62,8 @@ export function parseStores(value: unknown): DeliveryStore[] {
     const storeId = requiredString(source?.storeId);
     const name = requiredString(source?.name);
     if (!source || !storeId || !name) return [];
+    const price = optionalNumber(source.price);
+    const discountedPrice = optionalNumber(source.discountedPrice);
     return [{
       storeId,
       slug: optionalString(source.slug) ?? storeId,
@@ -87,6 +89,11 @@ export function parseStores(value: unknown): DeliveryStore[] {
       deal: optionalString(source.deal),
       dealType: optionalString(source.dealType),
       dealAmount: optionalNumber(source.dealAmount),
+      price,
+      discountedPrice:
+        price !== null && discountedPrice !== null && discountedPrice < price
+          ? Math.max(0, discountedPrice)
+          : null,
       isFavorite: optionalBoolean(source.isFavorite),
     }];
   });

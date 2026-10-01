@@ -846,7 +846,7 @@
       "retry": "Essaie encore",
       "sessionErrorTitle": "Nous n'avons pas pu vérifier votre compte",
       "sessionErrorMessage": "S'il vous plaît essayez de nouveau de continuer à SIPP livraison.",
-      "shopTypesTitle": "Parcourir par besoin",
+      "shopTypesTitle": "Trouvez ce dont vous avez besoin",
       "shopTypesDescription": "Nourriture, épicerie, boissons et essentiels regroupés pour une commande plus rapide.",
       "topBrandsTitle": "Favoris locaux",
       "topBrandsDescription": "Les clients commandent actuellement auprès de partenaires SIPP populaires.",
@@ -864,6 +864,13 @@
       "emptyTitle": "Rien pour le moment",
       "emptyMessage": "Le contenu de cette section apparaîtra une fois les éléments disponibles.",
       "shopTypesEmpty": "Aucune catégorie SIPP n’est disponible pour le moment.",
+      "browseShopType": "Parcourir {name}",
+      "shopTypeEyebrows": {
+        "good": "Quelque chose de bon",
+        "local": "Tout près de chez vous",
+        "fresh": "Frais et local",
+        "worth": "À découvrir"
+      },
       "nearbyEmpty": "Aucune entreprise SIPP n’est encore disponible à cet endroit.",
       "shopTypeStoresEmpty": "Aucune entreprise n'a été trouvée pour cette catégorie.",
       "errorTitle": "Impossible de charger des éléments",
@@ -886,7 +893,21 @@
       "distance": "{distance} km",
       "nearby": "À proximité",
       "seeAll": "Voir tout",
-      "orderMeta": "{count, plural, one {# élément} other {# éléments}} · {date}"
+      "orderMeta": "{count, plural, one {# élément} other {# éléments}} · {date}",
+      "minimumOrder": "Commande min. <amount></amount>",
+      "features": {
+        "title": "Pourquoi commander avec SIPP",
+        "description": "Tout ce qu'il faut pour la livraison locale, au même endroit.",
+        "trackTitle": "Suivez chaque commande",
+        "trackDescription": "Consultez le statut de votre commande, de sa validation jusqu'à votre porte.",
+        "trackAction": "Voir vos commandes",
+        "localTitle": "Vraiment local",
+        "localDescription": "Restaurants, marchés et boutiques de votre quartier.",
+        "dealsTitle": "Des offres à saisir",
+        "dealsDescription": "Les promotions des commerces SIPP participants près de chez vous.",
+        "secureTitle": "Paiement sécurisé",
+        "secureDescription": "Payez avec vos cartes enregistrées ou votre portefeuille en quelques gestes."
+      }
     },
     "seeAll": {
       "back": "Retour à la découverte",

@@ -1,0 +1,224 @@
+/* Staggered fade-up for discovery cards; set --enter-delay per card. */
+.cardEnter {
+  animation: card-enter 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--enter-delay, 0ms);
+}
+
+/* Diagonal highlight that sweeps across a card on hover or focus. */
+.shine {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.32) 48%,
+    transparent 66%
+  );
+  transform: translateX(-120%);
+}
+
+:global(.group):hover .shine,
+:global(.group):focus-visible .shine {
+  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(120%);
+}
+
+.iconWiggle {
+  transform-origin: 50% 60%;
+}
+
+:global(.group):hover .iconWiggle,
+:global(.group):focus-visible .iconWiggle {
+  animation: icon-wiggle 620ms ease-in-out;
+}
+
+/* Delivery route: drawn by default, redrawn from the store on hover. */
+.route {
+  clip-path: inset(-10% -10% -10% -10%);
+}
+
+:global(.group):hover .route {
+  animation: route-draw 1400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.destinationPulse {
+  animation: destination-pulse 2400ms ease-out infinite;
+}
+
+@keyframes route-draw {
+  from {
+    clip-path: inset(-10% 100% -10% -10%);
+  }
+  to {
+    clip-path: inset(-10% -10% -10% -10%);
+  }
+}
+
+@keyframes destination-pulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes icon-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  30% {
+    transform: rotate(-12deg) scale(1.12);
+  }
+  60% {
+    transform: rotate(8deg) scale(1.06);
+  }
+}
+
+/* Shop type tiles: warm gradient, hard "ledge" shadow, floating photo. */
+.tile {
+  --tile-from: #ffe5d5;
+  --tile-to: #ffc6a4;
+  --tile-ink: #662d26;
+  --tile-ledge: #f0bea4;
+  --tile-glow: rgb(174 89 56 / 0.1);
+  --tile-ring: rgb(255 255 255 / 0.65);
+  background: linear-gradient(120deg, var(--tile-from), var(--tile-to));
+  color: var(--tile-ink);
+  box-shadow: 0 5px 0 var(--tile-ledge);
+  transition:
+    translate 300ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    rotate 300ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 300ms ease;
+}
+
+.tile:hover {
+  translate: 0 -7px;
+  rotate: -0.4deg;
+  box-shadow:
+    0 12px 0 var(--tile-ledge),
+    0 22px 30px var(--tile-glow);
+}
+
+.tileTiltRight:hover {
+  rotate: 0.4deg;
+}
+
+.tileMint {
+  --tile-from: #d3f7cf;
+  --tile-to: #aee8c4;
+  --tile-ink: #194a35;
+  --tile-ledge: #8fceb0;
+  --tile-glow: rgb(35 119 84 / 0.1);
+}
+
+.tileSky {
+  --tile-from: #dff3ff;
+  --tile-to: #b4e1fb;
+  --tile-ink: #123c5c;
+  --tile-ledge: #8fc9ec;
+  --tile-glow: rgb(22 120 180 / 0.1);
+}
+
+.tileLilac {
+  --tile-from: #ece7ff;
+  --tile-to: #d3c8fb;
+  --tile-ink: #3f2f73;
+  --tile-ledge: #b9aaf0;
+  --tile-glow: rgb(90 66 170 / 0.1);
+}
+
+:global(.dark) .tile {
+  --tile-from: #3a2620;
+  --tile-to: #5a3427;
+  --tile-ink: #ffe1d2;
+  --tile-ledge: #24150f;
+  --tile-glow: rgb(0 0 0 / 0.35);
+  --tile-ring: rgb(255 255 255 / 0.18);
+}
+
+:global(.dark) .tileMint {
+  --tile-from: #1b3328;
+  --tile-to: #23493a;
+  --tile-ink: #d4f5e2;
+  --tile-ledge: #10201a;
+}
+
+:global(.dark) .tileSky {
+  --tile-from: #172c3d;
+  --tile-to: #1e4260;
+  --tile-ink: #d6eeff;
+  --tile-ledge: #0e1b26;
+}
+
+:global(.dark) .tileLilac {
+  --tile-from: #262040;
+  --tile-to: #362c5e;
+  --tile-ink: #e6e0ff;
+  --tile-ledge: #17132a;
+}
+
+.tilePill {
+  background: rgb(255 255 255 / 0.68);
+  border: 1px solid rgb(255 255 255 / 0.85);
+}
+
+:global(.dark) .tilePill {
+  background: rgb(255 255 255 / 0.1);
+  border-color: rgb(255 255 255 / 0.16);
+}
+
+.tilePhoto {
+  border: 6px solid var(--tile-ring);
+  box-shadow: 0 14px 22px var(--tile-glow);
+  animation: food-float 5s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+
+@keyframes food-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardEnter,
+  .tilePhoto,
+  .destinationPulse,
+  :global(.group):hover .route,
+  :global(.group):hover .iconWiggle,
+  :global(.group):focus-visible .iconWiggle {
+    animation: none;
+  }
+
+  .shine {
+    display: none;
+  }
+
+  .tile,
+  .tile:hover {
+    translate: none;
+    rotate: none;
+  }
+}
