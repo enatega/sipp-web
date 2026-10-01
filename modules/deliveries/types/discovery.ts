@@ -38,6 +38,7 @@ export interface DeliveryStore {
   deliveryTime?: number | string | null;
   minimumOrder?: number | null;
   baseFee?: number | null;
+  deliveryFee?: number | null;
   distanceKm?: number | null;
   latitude?: number | null;
   longitude?: number | null;
