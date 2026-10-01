@@ -841,7 +841,7 @@
       "retry": "Try again",
       "sessionErrorTitle": "We could not check your account",
       "sessionErrorMessage": "Please try again to continue to SIPP delivery.",
-      "shopTypesTitle": "Browse by need",
+      "shopTypesTitle": "Browse what you need",
       "shopTypesDescription": "Food, groceries, drinks, and essentials grouped for faster ordering.",
       "topBrandsTitle": "Local favourites",
       "topBrandsDescription": "Popular SIPP partners customers are ordering from right now.",
@@ -859,6 +859,13 @@
       "emptyTitle": "Nothing here yet",
       "emptyMessage": "Content for this section will appear once items are available.",
       "shopTypesEmpty": "No SIPP categories are available right now.",
+      "browseShopType": "Browse {name}",
+      "shopTypeEyebrows": {
+        "good": "Something good",
+        "local": "Close to home",
+        "fresh": "Fresh and local",
+        "worth": "Worth a look"
+      },
       "nearbyEmpty": "No SIPP businesses are available for this location yet.",
       "shopTypeStoresEmpty": "No businesses were found for this category.",
       "errorTitle": "Unable to load items",
@@ -881,7 +888,21 @@
       "distance": "{distance} km",
       "nearby": "Nearby",
       "seeAll": "See all",
-      "orderMeta": "{count, plural, one {# item} other {# items}} · {date}"
+      "orderMeta": "{count, plural, one {# item} other {# items}} · {date}",
+      "minimumOrder": "Min. order <amount></amount>",
+      "features": {
+        "title": "Why order with SIPP",
+        "description": "Everything you need for local delivery, in one place.",
+        "trackTitle": "Follow every order",
+        "trackDescription": "See your order's status from the moment you place it until it reaches your door.",
+        "trackAction": "View your orders",
+        "localTitle": "Truly local",
+        "localDescription": "Restaurants, markets, and shops from your own neighbourhood.",
+        "dealsTitle": "Deals worth trying",
+        "dealsDescription": "Offers from participating SIPP businesses near you.",
+        "secureTitle": "Secure checkout",
+        "secureDescription": "Pay with your saved cards or wallet in a few taps."
+      }
     },
     "seeAll": {
       "back": "Back to discovery",

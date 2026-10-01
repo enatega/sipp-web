@@ -841,7 +841,7 @@
       "retry": "حاول مرة أخرى",
       "sessionErrorTitle": "لا يمكننا التحقق من حسابك",
       "sessionErrorMessage": "حاول مرة أخرى أن تستمر SIPP التسليم",
-      "shopTypesTitle": "تصفّح حسب احتياجك",
+      "shopTypesTitle": "تصفّح ما تحتاجه",
       "shopTypesDescription": "الطعام والبقالة والمشروبات والأساسيات متجمعة من أجل طلب أسرع",
       "topBrandsTitle": "المفضلة محليًا",
       "topBrandsDescription": "شركاء SIPP الرائجون الذين يطلب منهم العملاء الآن.",
@@ -859,6 +859,13 @@
       "emptyTitle": "لا يوجد شيء هنا بعد",
       "emptyMessage": "وسيظهر مضمون هذا الفرع بمجرد توافر البنود.",
       "shopTypesEmpty": "لا توجد فئات SIPP متاحة حاليًا.",
+      "browseShopType": "تصفّح {name}",
+      "shopTypeEyebrows": {
+        "good": "شيء لذيذ",
+        "local": "بالقرب منك",
+        "fresh": "طازج ومحلي",
+        "worth": "يستحق التجربة"
+      },
       "nearbyEmpty": "لا توجد أنشطة تجارية من SIPP متاحة لهذا الموقع بعد.",
       "shopTypeStoresEmpty": "ولم يتم العثور على مشاريع لهذه الفئة.",
       "errorTitle": "المواد غير القادرة على تحميلها",
@@ -881,7 +888,21 @@
       "distance": "{distance} km",
       "nearby": "بالقرب منك",
       "seeAll": "عرض الكل",
-      "orderMeta": "{count, plural, one {# عنصر} other {# عناصر}} · {date}"
+      "orderMeta": "{count, plural, one {# عنصر} other {# عناصر}} · {date}",
+      "minimumOrder": "الحد الأدنى للطلب <amount></amount>",
+      "features": {
+        "title": "لماذا تطلب مع SIPP",
+        "description": "كل ما تحتاجه للتوصيل المحلي في مكان واحد.",
+        "trackTitle": "تابع كل طلب",
+        "trackDescription": "اطّلع على حالة طلبك منذ لحظة تقديمه حتى وصوله إلى بابك.",
+        "trackAction": "عرض طلباتك",
+        "localTitle": "محلي حقًا",
+        "localDescription": "مطاعم وأسواق ومتاجر من حيّك.",
+        "dealsTitle": "عروض تستحق التجربة",
+        "dealsDescription": "عروض من شركاء SIPP المشاركين بالقرب منك.",
+        "secureTitle": "دفع آمن",
+        "secureDescription": "ادفع ببطاقاتك المحفوظة أو محفظتك ببضع نقرات."
+      }
     },
     "seeAll": {
       "back": "العودة إلى الاكتشاف",

@@ -841,7 +841,7 @@
       "retry": "Inténtalo de nuevo.",
       "sessionErrorTitle": "No podíamos revisar tu cuenta.",
       "sessionErrorMessage": "Por favor, intente de nuevo continuar SIPP entrega.",
-      "shopTypesTitle": "Buscar por necesidad",
+      "shopTypesTitle": "Explora lo que necesitas",
       "shopTypesDescription": "Comida, comestibles, bebidas y elementos esenciales agrupados para un pedido más rápido.",
       "topBrandsTitle": "Favoritos locales",
       "topBrandsDescription": "Los clientes están haciendo pedidos ahora mismo a socios populares de SIPP.",
@@ -859,6 +859,13 @@
       "emptyTitle": "Todavía no hay nada",
       "emptyMessage": "El contenido de esta sección aparecerá una vez disponibles los elementos.",
       "shopTypesEmpty": "No hay categorías de SIPP disponibles en este momento.",
+      "browseShopType": "Explorar {name}",
+      "shopTypeEyebrows": {
+        "good": "Algo rico",
+        "local": "Cerca de casa",
+        "fresh": "Fresco y local",
+        "worth": "Vale la pena"
+      },
       "nearbyEmpty": "Todavía no hay negocios de SIPP disponibles en esta ubicación.",
       "shopTypeStoresEmpty": "No se encontraron negocios para esta categoría.",
       "errorTitle": "Incapaz de cargar elementos",
@@ -881,7 +888,21 @@
       "distance": "{distance} km",
       "nearby": "Cerca",
       "seeAll": "Ver todo",
-      "orderMeta": "{count, plural, one {# artículo} other {# artículos}} · {date}"
+      "orderMeta": "{count, plural, one {# artículo} other {# artículos}} · {date}",
+      "minimumOrder": "Pedido mín. <amount></amount>",
+      "features": {
+        "title": "Por qué pedir con SIPP",
+        "description": "Todo lo que necesitas para tus entregas locales, en un solo lugar.",
+        "trackTitle": "Sigue cada pedido",
+        "trackDescription": "Consulta el estado de tu pedido desde que lo haces hasta que llega a tu puerta.",
+        "trackAction": "Ver tus pedidos",
+        "localTitle": "Realmente local",
+        "localDescription": "Restaurantes, mercados y tiendas de tu propio barrio.",
+        "dealsTitle": "Ofertas que valen la pena",
+        "dealsDescription": "Promociones de negocios SIPP participantes cerca de ti.",
+        "secureTitle": "Pago seguro",
+        "secureDescription": "Paga con tus tarjetas guardadas o tu monedero en pocos toques."
+      }
     },
     "seeAll": {
       "back": "Volver al descubrimiento",

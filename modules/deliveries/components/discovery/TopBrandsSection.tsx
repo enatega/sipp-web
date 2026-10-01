@@ -44,12 +44,13 @@ export function TopBrandsSection(props: Props) {
     <section className="space-y-4">
       <SectionHeading
         actionHref={showSeeAll ? props.seeAllHref : undefined}
-        actionLabel={showSeeAll ? props.seeAllLabel : undefined}
+        actionLabel={props.seeAllLabel}
+        isActionPending={props.isLoading && Boolean(props.seeAllHref)}
         title={props.title}
         description={props.description}
       />
       {props.isLoading ? (
-        <RailSkeleton compact />
+        <RailSkeleton card="brand" />
       ) : props.isError ? (
         <SectionState
           actionLabel={props.retryLabel}
@@ -65,7 +66,7 @@ export function TopBrandsSection(props: Props) {
           {props.items.map((brand) => {
             const store = brand.storeId ? { storeId: brand.storeId } : matchedStore(brand, props.stores);
             const content = (
-              <article className="group w-40 shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-sm transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-md sm:w-44">
+              <article className="group w-40 shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-rail-card ring-1 ring-line transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-pop hover:ring-brand/40 sm:w-44">
                 <DeliveryImage
                   alt={brand.name}
                   className="aspect-[4/3] w-full"

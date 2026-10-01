@@ -47,6 +47,10 @@ export interface DeliveryStore {
   deal?: string | null;
   dealType?: string | null;
   dealAmount?: number | null;
+  /** Backend-supplied item price for a deal, when the deal targets a priced item. */
+  price?: number | null;
+  /** Backend-supplied price after the deal; only set when lower than `price`. */
+  discountedPrice?: number | null;
   isFavorite?: boolean;
 }
 

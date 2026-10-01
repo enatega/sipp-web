@@ -4,39 +4,17 @@ import { useFormatter, useTranslations } from "next-intl";
 import { formatAppCurrency } from "@/config/currency";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
 import type { DeliveryStore } from "@/modules/deliveries/types/discovery";
-
-function offerLabel(
-  store: DeliveryStore,
-  amount: (value: number) => string,
-  off: string,
-) {
-  if (store.dealAmount && store.dealAmount > 0) {
-    return store.dealType?.toLowerCase() === "percentage"
-      ? `${store.dealAmount}% ${off}`
-      : `${amount(store.dealAmount)} ${off}`;
-  }
-  return store.deal?.trim() || null;
-}
-
-function deliveryTimeLabel(
-  value: DeliveryStore["deliveryTime"],
-  minutesLabel: (count: number) => string,
-) {
-  if (typeof value === "number") {
-    return Number.isFinite(value) && value > 0 ? minutesLabel(value) : null;
-  }
-
-  const normalized = value?.trim();
-  if (!normalized) return null;
-  const numericValue = Number.parseFloat(normalized);
-  return Number.isNaN(numericValue) || numericValue > 0 ? normalized : null;
-}
+import {
+  storeDeliveryTimeLabel,
+  storeHref,
+  storeOfferLabel,
+} from "@/modules/deliveries/utils/storeCardLabels";
 
 export function StoreCard({ store, fluid = false }: { store: DeliveryStore; fluid?: boolean }) {
   const t = useTranslations("deliveries.discovery");
   const format = useFormatter();
   const isClosed = store.isOpen === false || store.isAvailable === false;
-  const offer = offerLabel(
+  const offer = storeOfferLabel(
     store,
     (value) => formatAppCurrency(format, value),
     t("off"),
@@ -49,7 +27,7 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
       : formatAppCurrency(format, store.deliveryFee ?? 0, {
           maximumFractionDigits: 2,
         });
-  const deliveryTime = deliveryTimeLabel(store.deliveryTime, (count) =>
+  const deliveryTime = storeDeliveryTimeLabel(store.deliveryTime, (count) =>
     t("minutes", { count }),
   );
   const distance =
@@ -74,8 +52,8 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
   return (
     <Link
       aria-label={t("openStore", { name: store.name })}
-      className={`group shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand ${fluid ? "w-full" : "w-[252px] sm:w-[282px]"}`}
-      href={`/restaurants/${encodeURIComponent(store.slug || store.storeId)}`}
+      className={`group shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-rail-card ring-1 ring-line transition duration-300 ease-out hover:-translate-y-1 hover:shadow-pop hover:ring-brand/40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand ${fluid ? "w-full" : "w-[252px] sm:w-[282px]"}`}
+      href={storeHref(store)}
     >
       <div className="relative">
         <DeliveryImage
