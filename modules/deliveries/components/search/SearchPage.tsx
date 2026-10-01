@@ -225,7 +225,7 @@ function ProductResult({ item, onOpen, price }: { item: SearchProduct; onOpen: (
     locale,
   );
   return (
-    <Link className="group overflow-hidden rounded-2xl bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand" href={`/restaurants/${encodeURIComponent(item.storeId)}?productId=${encodeURIComponent(item.productId)}`} onClick={onOpen}>
+    <Link className="group overflow-hidden rounded-2xl bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand" href={`/restaurants/${encodeURIComponent(item.storeSlug || item.storeId)}?productId=${encodeURIComponent(item.productId)}`} onClick={onOpen}>
       <DeliveryImage alt={productName} className="aspect-[4/3] w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={item.productImage ?? item.storeImage ?? item.storeLogo} />
       <div className="p-4"><h3 className="truncate font-heading font-bold text-ink">{productName}</h3><p className="mt-1 truncate text-xs text-muted">{item.storeName}</p><p className="mt-3 font-bold text-brand">{price}</p></div>
     </Link>

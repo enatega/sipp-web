@@ -14,6 +14,7 @@ export interface DeliveryShopType {
 
 export interface DeliveryTopBrand {
   storeId?: string;
+  slug?: string;
   vendorId?: string;
   name: string;
   logo?: string | null;
@@ -24,6 +25,7 @@ export interface DeliveryTopBrand {
 
 export interface DeliveryStore {
   storeId: string;
+  slug: string;
   vendorId: string;
   name: string;
   logo?: string | null;

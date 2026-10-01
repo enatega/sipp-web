@@ -75,7 +75,7 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
     <Link
       aria-label={t("openStore", { name: store.name })}
       className={`group shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand ${fluid ? "w-full" : "w-[252px] sm:w-[282px]"}`}
-      href={`/restaurants/${encodeURIComponent(store.storeId)}`}
+      href={`/restaurants/${encodeURIComponent(store.slug || store.storeId)}`}
     >
       <div className="relative">
         <DeliveryImage
