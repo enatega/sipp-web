@@ -52,7 +52,6 @@ export interface RestaurantProduct {
   price: number;
   inStock: boolean;
   imageUrl: string | null;
-  inStock: boolean;
   categoryId: string;
   subcategoryId: string | null;
   category: { id: string; name: string } | null;

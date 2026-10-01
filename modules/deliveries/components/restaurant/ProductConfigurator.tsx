@@ -105,6 +105,7 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
     <PriceWithOriginal
       discounted={applyProductDeal(price, deal)}
       format={format}
+      formatAppCurrency={formatAppCurrency}
       original={price}
       originalLabel={(value) => t("originalPrice", { price: value })}
     />
@@ -466,11 +467,12 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
 interface PriceWithOriginalProps {
   discounted: number;
   format: ReturnType<typeof useFormatter>;
+  formatAppCurrency: ReturnType<typeof useAppCurrencyFormatter>;
   original: number;
   originalLabel: (price: string) => string;
 }
 
-function PriceWithOriginal({ discounted, format, original, originalLabel }: PriceWithOriginalProps) {
+function PriceWithOriginal({ discounted, format, formatAppCurrency, original, originalLabel }: PriceWithOriginalProps) {
   if (discounted >= original) {
     return <span className="text-muted">{formatAppCurrency(format, original)}</span>;
   }
