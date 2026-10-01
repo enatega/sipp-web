@@ -220,6 +220,7 @@
     "favouriteUpdateFailed": "Ihre Favoriten konnten nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
     "allNotificationsRead": "Alle Benachrichtigungen als gelesen markiert",
     "notificationsReadFailed": "Ihre Benachrichtigungen konnten nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+    "addedToCart": "{product} wurde zu Ihrem Warenkorb hinzugefügt",
     "offline": "Sie scheinen offline zu sein. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
     "timeout": "Das dauert länger als erwartet. Bitte versuchen Sie es erneut.",
     "rateLimited": "Zu viele Versuche. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
@@ -988,7 +989,6 @@
       "cartTimeoutError": "Das Hinzufügen hat zu lange gedauert. Bitte versuchen Sie es erneut.",
       "cartRateLimitError": "Zu viele Versuche. Warten Sie einen Moment und versuchen Sie es erneut.",
       "cartUnavailableError": "Der Warenkorb ist vorübergehend nicht verfügbar. Bitte versuchen Sie es in Kürze erneut.",
-      "addedToCart": "Zum Warenkorb hinzugefügt.",
       "closedMessage": "Dieses Restaurant ist derzeit geschlossen und nimmt keine Bestellungen an. Sie können die Speisekarte weiterhin ansehen. Kommen Sie während der Öffnungszeiten zurück oder wählen Sie ein anderes Restaurant.",
       "checkAvailability": "Verfügbarkeit prüfen",
       "dismissMessage": "Meldung schließen",
@@ -1248,6 +1248,8 @@
       }
     },
     "cart": {
+      "headerCartLabel": "Warenkorb ansehen",
+      "headerCartAria": "Warenkorb ansehen: {count, plural, one {# Artikel} other {# Artikel}}, {total}",
       "loading": "Warenkorb wird geladen",
       "emptyTitle": "Ihr Warenkorb wartet",
       "emptyMessage": "Entdecken Sie nahe Restaurants, Supermärkte und lokale Geschäfte. Ihre Auswahl erscheint dann hier.",

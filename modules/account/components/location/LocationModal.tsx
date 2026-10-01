@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useActionToast } from "@/components/shared/useActionToast";
 import { storePlace } from "@/modules/account/api/location";
@@ -39,6 +39,18 @@ type LocationModalProps = {
   showSavedAddresses?: boolean;
 };
 
+/**
+ * Routes where picking a delivery place should update the page in place
+ * (it listens for the stored-place change) instead of going to discovery.
+ */
+const STAY_ON_ROUTES = ["/checkout"];
+
+function shouldStayOnRoute(pathname: string) {
+  return STAY_ON_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
+
 type Step =
   | { name: "search" }
   | { name: "current" }
@@ -54,6 +66,7 @@ export function LocationModal({
 }: LocationModalProps) {
   const t = useTranslations("location");
   const router = useRouter();
+  const pathname = usePathname();
   const [step, setStep] = useState<Step>({ name: "search" });
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -88,7 +101,7 @@ export function LocationModal({
   /** A delivery place was chosen: take the visitor to discovery for it. */
   const deliverHere = () => {
     close();
-    router.push("/discovery");
+    if (!shouldStayOnRoute(pathname)) router.push("/discovery");
   };
 
   // Keep the latest close handler for the window-level Escape listener.
