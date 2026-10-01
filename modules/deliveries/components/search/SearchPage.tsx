@@ -177,9 +177,9 @@ export function SearchPage() {
           ) : (
             <div className="mt-10 space-y-12">
               <section aria-labelledby="product-results-heading">
-                <div className="flex items-end justify-between gap-4">
+                <div className="flex items-center gap-3">
                   <h2 className="font-heading text-2xl font-bold text-ink" id="product-results-heading">{t("products")}</h2>
-                  <span className="text-sm text-muted">{products.data?.pages[0]?.total ?? 0}</span>
+                  <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-brand-soft px-2.5 text-xs font-bold tabular-nums text-brand">{products.data?.pages[0]?.total ?? 0}</span>
                 </div>
                 {products.isPending ? <SearchSkeleton /> : productItems.length ? (
                   <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -192,9 +192,9 @@ export function SearchPage() {
               </section>
 
               <section aria-labelledby="store-results-heading">
-                <div className="flex items-end justify-between gap-4">
+                <div className="flex items-center gap-3">
                   <h2 className="font-heading text-2xl font-bold text-ink" id="store-results-heading">{t("stores")}</h2>
-                  <span className="text-sm text-muted">{stores.data?.pages[0]?.total ?? 0}</span>
+                  <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-brand-soft px-2.5 text-xs font-bold tabular-nums text-brand">{stores.data?.pages[0]?.total ?? 0}</span>
                 </div>
                 {stores.isPending ? <SearchSkeleton /> : storeItems.length ? (
                   <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">

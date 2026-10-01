@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Star } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Star } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { formatAppCurrency } from "@/config/currency";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
@@ -31,80 +31,107 @@ export function SearchProductCard({ item, location, onOpen }: Props) {
     locale,
   );
   const storeName = store.data?.name || item.storeName;
+  const storeLogo = store.data?.logo ?? item.storeLogo ?? item.storeImage;
   const rating = store.data?.averageRating ?? 0;
+  const isClosed = store.data ? !store.data.isAvailable : false;
   const description = product.data?.description?.trim();
   const deal = product.data?.deal;
   const storeHref = `/restaurants/${encodeURIComponent(item.storeId)}`;
   const productHref = `${storeHref}?productId=${encodeURIComponent(item.productId)}`;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl border border-line bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-      <header className="flex items-start justify-between gap-3 bg-[var(--soft-surface)] px-5 py-4">
-        <div className="min-w-0">
-          <h3 className="truncate font-heading text-lg font-bold text-ink">{storeName}</h3>
-          <div className="mt-2 h-6">
-            {store.isPending && location ? (
-              <span className="block h-6 w-28 animate-pulse rounded-md bg-line" />
-            ) : store.data ? (
-              <span
-                className={`inline-flex h-6 items-center rounded-md px-2.5 text-xs font-semibold ${
-                  store.data.isAvailable ? "bg-success-soft text-success" : "bg-danger-soft text-danger"
-                }`}
-              >
-                {store.data.isAvailable ? t("storeOpen") : t("storeClosed")}
+    <article className="group/card flex flex-col overflow-hidden rounded-3xl border border-line bg-card shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-[0_18px_40px_-18px_rgba(16,24,40,0.25)]">
+      <header className="flex items-center gap-3 border-b border-line px-4 py-3">
+        <DeliveryImage
+          alt=""
+          className="size-10 flex-none overflow-hidden rounded-full border border-line bg-[var(--soft-surface)]"
+          sizes="40px"
+          src={storeLogo}
+        />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-ink">{storeName}</p>
+          {store.isPending && location ? (
+            <span className="mt-1 block h-3.5 w-32 animate-pulse rounded bg-[var(--soft-surface)]" />
+          ) : store.data ? (
+            <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-muted">
+              <span className={`inline-flex items-center gap-1 font-medium ${isClosed ? "text-danger" : "text-success"}`}>
+                <span aria-hidden="true" className={`size-1.5 rounded-full ${isClosed ? "bg-danger" : "bg-success"}`} />
+                {isClosed ? t("storeClosed") : t("storeOpen")}
               </span>
-            ) : null}
-          </div>
-        </div>
-        <div className="flex flex-none flex-col items-end gap-2">
-          {rating > 0 ? (
-            <span
-              aria-label={t("storeRating", { rating: format.number(rating, { maximumFractionDigits: 1 }) })}
-              className="inline-flex h-7 items-center gap-1 rounded-full bg-warning-soft px-2.5 text-xs font-bold text-ink"
-            >
-              <Star aria-hidden="true" className="size-3.5 fill-warning text-warning" />
-              {format.number(rating, { maximumFractionDigits: 1 })}
-            </span>
+              {rating > 0 ? (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span
+                    aria-label={t("storeRating", { rating: format.number(rating, { maximumFractionDigits: 1 }) })}
+                    className="inline-flex items-center gap-0.5 font-semibold text-ink"
+                  >
+                    <Star aria-hidden="true" className="size-3 fill-warning text-warning" />
+                    {format.number(rating, { maximumFractionDigits: 1 })}
+                  </span>
+                </>
+              ) : null}
+              {store.data.shopTypeName ? (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span className="truncate">{store.data.shopTypeName}</span>
+                </>
+              ) : null}
+            </div>
           ) : null}
-          <Link
-            className="text-xs font-semibold text-ink underline decoration-2 underline-offset-4 transition-colors hover:text-brand"
-            href={storeHref}
-          >
-            {t("viewMenu")}
-          </Link>
         </div>
+        <Link
+          className="inline-flex h-8 flex-none items-center gap-0.5 rounded-full bg-brand-soft pl-3 pr-2 text-xs font-semibold text-brand transition-colors hover:bg-brand hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          href={storeHref}
+        >
+          {t("viewMenu")}
+          <ChevronRight aria-hidden="true" className="size-3.5" />
+        </Link>
       </header>
 
       <Link
-        className="group flex flex-1 gap-4 p-5 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-brand"
+        className="flex flex-1 gap-4 p-4 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-brand sm:p-5"
         href={productHref}
         onClick={onOpen}
       >
         <div className="flex min-w-0 flex-1 flex-col">
-          <h4 className="line-clamp-2 font-heading text-base font-bold text-ink">{productName}</h4>
+          <h3 className="line-clamp-2 font-heading text-[17px] font-bold leading-snug text-ink transition-colors group-hover/card:text-brand">
+            {productName}
+          </h3>
           {product.isPending ? (
-            <span className="mt-2 block h-10 w-full animate-pulse rounded-md bg-[var(--soft-surface)]" />
+            <div className="mt-2 space-y-1.5">
+              <span className="block h-3 w-full animate-pulse rounded bg-[var(--soft-surface)]" />
+              <span className="block h-3 w-2/3 animate-pulse rounded bg-[var(--soft-surface)]" />
+            </div>
           ) : description ? (
-            <p className="mt-1.5 line-clamp-3 text-sm leading-relaxed text-muted">{description}</p>
+            <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-muted">{description}</p>
           ) : null}
-          <div className="mt-auto flex flex-wrap items-baseline gap-2 pt-4">
+          <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
+            <span className="inline-flex h-8 items-center rounded-full bg-[var(--soft-surface)] px-3 text-sm font-bold tabular-nums text-ink">
+              {formatAppCurrency(format, deal ? deal.discountedPrice : item.price)}
+            </span>
             {deal ? (
-              <>
-                <span className="text-lg font-bold text-ink">{formatAppCurrency(format, deal.discountedPrice)}</span>
-                <span className="text-sm text-muted line-through">{formatAppCurrency(format, item.price)}</span>
-              </>
-            ) : (
-              <span className="text-lg font-bold text-ink">{formatAppCurrency(format, item.price)}</span>
-            )}
+              <span className="text-xs tabular-nums text-muted line-through">
+                {formatAppCurrency(format, item.price)}
+              </span>
+            ) : null}
           </div>
         </div>
-        <DeliveryImage
-          alt={productName}
-          className="size-28 flex-none overflow-hidden rounded-xl border border-line sm:size-32"
-          imageClassName="transition-transform duration-500 group-hover:scale-105"
-          sizes="128px"
-          src={item.productImage ?? item.storeImage ?? item.storeLogo}
-        />
+
+        <div className="relative size-28 flex-none sm:size-32">
+          <DeliveryImage
+            alt={productName}
+            className={`size-full overflow-hidden rounded-2xl bg-[var(--soft-surface)] ${isClosed ? "opacity-70 grayscale" : ""}`}
+            imageClassName="transition-transform duration-500 group-hover/card:scale-105"
+            sizes="128px"
+            src={item.productImage ?? item.storeImage ?? item.storeLogo}
+          />
+          <span
+            aria-hidden="true"
+            className="absolute -bottom-2 -right-2 grid size-9 place-items-center rounded-full border-4 border-card bg-brand text-ink shadow-md transition-transform duration-300 group-hover/card:scale-110"
+          >
+            <ArrowUpRight className="size-4" />
+          </span>
+        </div>
       </Link>
     </article>
   );
