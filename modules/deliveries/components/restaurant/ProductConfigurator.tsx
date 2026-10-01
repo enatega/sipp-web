@@ -7,6 +7,7 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { formatAppCurrency } from "@/config/currency";
 import { ApiError } from "@/services/api/client";
 import { cn } from "@/lib/utils";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { DeliveryNotice } from "../feedback/DeliveryNotice";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import { CustomizationGroup } from "./CustomizationGroup";
@@ -36,6 +37,7 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
   const { info, customizations } = useProductConfiguration(productId);
   const cart = useCartQuery(isAuthenticated);
   const { addItem, clear } = useCartMutations();
+  const notify = useActionToast();
   const panelRef = useRef<HTMLDivElement>(null);
   const noticeRegionRef = useRef<HTMLDivElement>(null);
   const groupRefs = useRef(new Map<string, HTMLFieldSetElement>());
@@ -44,7 +46,6 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
   const [selectedByGroup, setSelectedByGroup] = useState<Record<string, string[]>>({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isConflictOpen, setIsConflictOpen] = useState(false);
-  const [isAdded, setIsAdded] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
 
@@ -136,7 +137,6 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
   }
 
   function showSubmitError(error: unknown) {
-    setIsAdded(false);
     setSubmitError(cartErrorMessage(error));
     requestAnimationFrame(() => noticeRegionRef.current?.focus());
   }
@@ -166,7 +166,6 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
   function toggleOption(groupId: string, optionId: string) {
     const section = customizationData.addons.find((item) => item.groupId === groupId);
     if (!section) return;
-    setIsAdded(false);
     setSelectedByGroup((current) => {
       const selected = current[groupId] ?? [];
       let next: string[];
@@ -199,8 +198,9 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
     if (updatedQuantity < cartQuantity + quantity) {
       throw new ApiError("Cart item was not added.", 422);
     }
-    setIsAdded(true);
     setSubmitError(null);
+    notify.success("addedToCart", { product: productName });
+    requestClose();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -214,7 +214,6 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
       return;
     }
     setHasSubmitted(true);
-    setIsAdded(false);
     setSubmitError(null);
     if (missingGroups.length) {
       requestAnimationFrame(() => {
@@ -298,28 +297,18 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
           </button>
         </div>
 
-        {submitError || isAdded ? (
+        {submitError ? (
           <div
             className={cn("shrink-0 space-y-2 border-b border-line bg-surface px-5 py-3", styles.noticeEnter)}
             ref={noticeRegionRef}
             tabIndex={-1}
           >
-            {submitError ? (
-              <DeliveryNotice
-                dismissLabel={t("dismissMessage")}
-                message={submitError}
-                onDismiss={() => setSubmitError(null)}
-                tone="error"
-              />
-            ) : null}
-            {isAdded ? (
-              <DeliveryNotice
-                dismissLabel={t("dismissMessage")}
-                message={t("addedToCart")}
-                onDismiss={() => setIsAdded(false)}
-                tone="success"
-              />
-            ) : null}
+            <DeliveryNotice
+              dismissLabel={t("dismissMessage")}
+              message={submitError}
+              onDismiss={() => setSubmitError(null)}
+              tone="error"
+            />
           </div>
         ) : null}
 
@@ -350,7 +339,7 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
                       const key = `${choice.groupId}:${choice.optionId}`;
                       return (
                         <label className="flex cursor-pointer items-center gap-3 py-2.5 text-xs" key={key}>
-                          <input checked={effectiveVariationKey === key} className="size-4 accent-[var(--color-brand)]" disabled={isInteractionLocked} name="variation" onChange={() => { setSelectedVariationKey(key); setIsAdded(false); }} type="radio" />
+                          <input checked={effectiveVariationKey === key} className="size-4 accent-[var(--color-brand)]" disabled={isInteractionLocked} name="variation" onChange={() => setSelectedVariationKey(key)} type="radio" />
                           <span className="flex-1 text-ink">{choice.title}</span>
                           {variationPrice(choice.price)}
                         </label>

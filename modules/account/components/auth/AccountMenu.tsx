@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/shared/brand/Icon";
 import type { AuthUser } from "@/modules/account/types";
 import { userInitials } from "@/modules/account/utils/userInitials";
@@ -58,10 +58,13 @@ export function AccountMenu({
   user,
   onSignOut,
   cartCount = 0,
+  cartAction,
 }: {
   user: AuthUser;
   onSignOut: () => void;
   cartCount?: number;
+  /** Replaces the plain cart icon, e.g. with a filled-cart summary. */
+  cartAction?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
@@ -121,8 +124,8 @@ export function AccountMenu({
 
   return (
     <div className="flex items-center gap-0.5 sm:gap-1.5">
+      {cartAction ?? <IconAction icon="cart" label="Cart" href="/cart" count={cartCount} />}
       <IconAction icon="bell" label={navigation("notifications")} href="/notifications" count={unreadNotifications.data?.unreadCount ?? 0} />
-      <IconAction icon="cart" label="Cart" href="/cart" count={cartCount} />
 
       <div className="relative ml-0.5 sm:ml-1" ref={wrapRef}>
         <button

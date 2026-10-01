@@ -220,6 +220,7 @@
     "favouriteUpdateFailed": "No pudimos actualizar tus favoritos. Inténtalo de nuevo.",
     "allNotificationsRead": "Todas las notificaciones marcadas como leídas",
     "notificationsReadFailed": "No pudimos actualizar tus notificaciones. Inténtalo de nuevo.",
+    "addedToCart": "{product} se añadió a tu carrito",
     "offline": "Parece que no tienes conexión. Revísala e inténtalo de nuevo.",
     "timeout": "Esto está tardando más de lo esperado. Inténtalo de nuevo.",
     "rateLimited": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
@@ -988,7 +989,6 @@
       "cartTimeoutError": "Añadir este artículo tomó demasiado tiempo. Por favor, inténtalo de nuevo.",
       "cartRateLimitError": "Se hicieron demasiados intentos. Espera un momento, luego vuelve a intentarlo.",
       "cartUnavailableError": "El servicio de carrito no está disponible temporalmente. Por favor, inténtelo pronto.",
-      "addedToCart": "Se agregó a su carrito.",
       "closedMessage": "Este restaurante está actualmente cerrado y no está aceptando pedidos. Aún puedes navegar por el menú. Regrese durante las horas de apertura o elija otro restaurante.",
       "checkAvailability": "Consulta la disponibilidad",
       "dismissMessage": "Mensaje de retiro",
@@ -1248,6 +1248,8 @@
       }
     },
     "cart": {
+      "headerCartLabel": "Ver carrito",
+      "headerCartAria": "Ver carrito: {count, plural, one {# artículo} other {# artículos}}, {total}",
       "loading": "Cargando su carrito",
       "emptyTitle": "Su carrito está esperando",
       "emptyMessage": "Explora restaurantes cercanos, supermercados y tiendas locales. Sus artículos seleccionados aparecerán aquí.",
