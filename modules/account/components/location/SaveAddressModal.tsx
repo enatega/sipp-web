@@ -2,6 +2,7 @@
 
 import { useFormik } from "formik";
 import { useTranslations } from "next-intl";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { MapThumb } from "@/modules/account/components/location/MapThumb";
 import type { AddressType, ChosenPlace, SavedAddress } from "@/modules/account/types";
 import { addressDetailsSchema } from "@/modules/account/schemas/addressSchema";
@@ -38,6 +39,7 @@ export function SaveAddressModal({
 }: SaveAddressModalProps) {
   const t = useTranslations("saveAddress");
   const saveAddress = useSaveAddressMutation();
+  const notify = useActionToast();
   const details = addressToEdit?.additional_fields;
   const formik = useFormik({
     initialValues: {
@@ -47,8 +49,7 @@ export function SaveAddressModal({
       landmark: details?.landmark ?? "",
     },
     validationSchema: addressDetailsSchema,
-    onSubmit: async (values, helpers) => {
-      helpers.setStatus(undefined);
+    onSubmit: async (values) => {
       try {
         const savedAddress = await saveAddress.mutateAsync({
           id: addressToEdit?.id,
@@ -56,7 +57,7 @@ export function SaveAddressModal({
         });
         onSaved(savedAddress);
       } catch (caught) {
-        helpers.setStatus(caught instanceof Error ? caught.message : t("saveError"));
+        notify.error(caught, "addressSaveFailed");
       }
     },
   });
@@ -181,14 +182,6 @@ export function SaveAddressModal({
             </label>
           </div>
 
-          {formik.status ? (
-            <p
-              role="alert"
-              className="mt-3 rounded-lg bg-danger-soft px-3.5 py-2.5 text-xs leading-relaxed text-danger"
-            >
-              {formik.status}
-            </p>
-          ) : null}
         </div>
 
         <footer className="border-t border-line px-5 py-4">

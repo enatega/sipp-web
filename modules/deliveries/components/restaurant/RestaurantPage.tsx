@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { CategoryNavigation, MobileCategoryNavigation } from "./CategoryNavigation";
 import { ProductConfigurator } from "./ProductConfigurator";
 import { RestaurantHero } from "./RestaurantHero";
@@ -54,6 +55,7 @@ export function RestaurantPage({ slug }: Props) {
   }, [isLegacyId, restaurant.data?.slug, router, searchParams]);
   const productsQuery = useRestaurantProductsQuery(storeId, location, search);
   const favourite = useToggleRestaurantFavourite(storeId, location);
+  const notify = useActionToast();
   const { fetchNextPage, hasNextPage, isFetchingNextPage } = productsQuery;
 
   useEffect(() => {
@@ -136,11 +138,18 @@ export function RestaurantPage({ slug }: Props) {
   }
 
   const store = restaurant.data;
+  const toggleFavourite = () => {
+    const wasFavourite = store.isFavorited;
+    favourite.mutate(undefined, {
+      onSuccess: () => notify.success(wasFavourite ? "removedFromFavourites" : "addedToFavourites"),
+      onError: (caught) => notify.error(caught, "favouriteUpdateFailed"),
+    });
+  };
   return (
     <>
       <Header cartCount={cart.data?.totalItems ?? 0} />
       <main className="min-w-0 bg-background">
-        <RestaurantHero isFavouritePending={authenticated && favourite.isPending} onShare={() => void shareRestaurant()} onToggleFavourite={() => authenticated ? favourite.mutate() : requireSignIn()} store={store} />
+        <RestaurantHero isFavouritePending={authenticated && favourite.isPending} onShare={() => void shareRestaurant()} onToggleFavourite={() => authenticated ? toggleFavourite() : requireSignIn()} store={store} />
         <MobileCategoryNavigation activeCategoryId={activeCategoryId} categories={categories} categoryLabel={t("categories")} onSelect={scrollToCategory} />
 
         <div className="mx-auto grid min-h-[700px] max-w-[1540px] grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)]">

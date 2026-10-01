@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useFormik } from "formik";
 import { LoaderCircle } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import { ProfileBackLink } from "@/modules/account/components/profile/ProfileBackLink";
 import {
@@ -105,16 +106,16 @@ export function NotificationSettings() {
   const authenticated = session.data?.authenticated === true;
   const settings = useNotificationSettingsQuery(authenticated);
   const update = useUpdateNotificationSettingsMutation();
+  const notify = useActionToast();
 
   const formik = useFormik<NotificationSettingsInput>({
     initialValues: DEFAULT_VALUES,
-    onSubmit: async (values, helpers) => {
-      helpers.setStatus(undefined);
+    onSubmit: async (values) => {
       try {
         await update.mutateAsync(values);
-        helpers.setStatus("saved");
-      } catch {
-        helpers.setStatus(t("saveError"));
+        notify.success("notificationsSaved");
+      } catch (caught) {
+        notify.error(caught, "notificationsSaveFailed");
       }
     },
   });
@@ -202,8 +203,6 @@ export function NotificationSettings() {
               <footer className="mt-5 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-[9px] text-body">{updatedAt ? t("updatedAt", { date: updatedAt }) : t("notUpdated")}</span>
                 <div className="flex items-center justify-end gap-4">
-                  {formik.status === "saved" ? <span className="text-[10px] font-semibold text-[#15935f]">{t("saved")}</span> : null}
-                  {formik.status && formik.status !== "saved" ? <span role="alert" className="text-[10px] text-brand">{formik.status}</span> : null}
                   <button type="button" onClick={() => formik.resetForm()} className="text-[11px] font-semibold text-foreground hover:text-brand">{t("discard")}</button>
                   <button type="submit" disabled={update.isPending} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-brand px-6 text-[11px] font-semibold text-ink hover:bg-brand/85 disabled:cursor-wait disabled:opacity-60">
                     {update.isPending ? <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" /> : null}

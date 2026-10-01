@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/brand/Icon";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { LocationModal } from "@/modules/account/components/location/LocationModal";
 import { SaveAddressModal } from "@/modules/account/components/location/SaveAddressModal";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
@@ -133,13 +134,11 @@ function RemoveAddressDialog({
   onClose,
   onConfirm,
   isRemoving,
-  error,
 }: {
   address: SavedAddress;
   onClose: () => void;
   onConfirm: () => void;
   isRemoving: boolean;
-  error: string;
 }) {
   const t = useTranslations("addressBook");
 
@@ -174,11 +173,6 @@ function RemoveAddressDialog({
         <p className="mt-3 rounded-xl bg-[var(--soft-surface)] px-4 py-3 text-xs leading-relaxed">
           {address.address}
         </p>
-        {error ? (
-          <p role="alert" className="mt-3 text-xs text-brand">
-            {error}
-          </p>
-        ) : null}
         <div className="mt-6 flex justify-end gap-2">
           <button
             type="button"
@@ -213,7 +207,7 @@ export function AddressBook() {
   const [isAdding, setIsAdding] = useState(false);
   const [addressToEdit, setAddressToEdit] = useState<SavedAddress | null>(null);
   const [addressToRemove, setAddressToRemove] = useState<SavedAddress | null>(null);
-  const [removeError, setRemoveError] = useState("");
+  const notify = useActionToast();
 
   useEffect(() => {
     if (!session.isPending && !authenticated) router.replace("/login");
@@ -225,12 +219,12 @@ export function AddressBook() {
 
   const remove = async () => {
     if (!addressToRemove) return;
-    setRemoveError("");
     try {
       await deleteAddress.mutateAsync(addressToRemove.id);
       setAddressToRemove(null);
-    } catch {
-      setRemoveError(t("removeError"));
+      notify.success("addressDeleted");
+    } catch (caught) {
+      notify.error(caught, "addressDeleteFailed");
     }
   };
 
@@ -278,10 +272,7 @@ export function AddressBook() {
                     key={address.id}
                     address={address}
                     onEdit={() => setAddressToEdit(address)}
-                    onRemove={() => {
-                      setRemoveError("");
-                      setAddressToRemove(address);
-                    }}
+                    onRemove={() => setAddressToRemove(address)}
                   />
                 ))}
               </div>
@@ -316,7 +307,6 @@ export function AddressBook() {
           onClose={() => setAddressToRemove(null)}
           onConfirm={() => void remove()}
           isRemoving={deleteAddress.isPending}
-          error={removeError}
         />
       ) : null}
     </main>

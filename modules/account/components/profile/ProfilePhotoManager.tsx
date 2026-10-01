@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Eye, ImageUp, LoaderCircle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { useUpdateProfileImageMutation } from "@/modules/account/queries/useAccountQueries";
 import type { ProfileUser } from "@/modules/account/types";
 import { userInitials } from "@/modules/account/utils/userInitials";
@@ -16,6 +17,7 @@ interface Props {
 
 export function ProfilePhotoManager({ user }: Props) {
   const t = useTranslations("profileInformation");
+  const notify = useActionToast();
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const avatarButtonRef = useRef<HTMLButtonElement>(null);
@@ -27,7 +29,6 @@ export function ProfilePhotoManager({ user }: Props) {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const updateImage = useUpdateProfileImageMutation();
   const currentPhoto = user.image?.trim() || null;
   const displayedPhoto = previewUrl ?? currentPhoto;
@@ -70,7 +71,6 @@ export function ProfilePhotoManager({ user }: Props) {
   }
 
   function selectFile(file: File | null) {
-    setSuccess("");
     if (!file) return;
     if (!ACCEPTED_TYPES.has(file.type) || file.size > MAX_FILE_SIZE) {
       setError(t("photoInvalid"));
@@ -87,14 +87,13 @@ export function ProfilePhotoManager({ user }: Props) {
   async function uploadPhoto() {
     if (!selectedFile || updateImage.isPending) return;
     setError("");
-    setSuccess("");
     try {
       await updateImage.mutateAsync(selectedFile);
       setFailedPhoto(null);
       clearSelection();
-      setSuccess(t("photoUpdated"));
-    } catch {
-      setError(t("photoUploadError"));
+      notify.success("photoUpdated");
+    } catch (caught) {
+      notify.error(caught, "photoUpdateFailed");
     }
   }
 
@@ -211,11 +210,6 @@ export function ProfilePhotoManager({ user }: Props) {
         {error ? (
           <p role="alert" className="mx-auto mt-3 max-w-[26ch] text-[10px] font-semibold leading-relaxed text-danger">
             {error}
-          </p>
-        ) : null}
-        {success ? (
-          <p role="status" className="mx-auto mt-3 max-w-[26ch] text-[10px] font-semibold leading-relaxed text-success">
-            {success}
           </p>
         ) : null}
       </section>

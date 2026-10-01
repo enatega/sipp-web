@@ -18,6 +18,7 @@ import {
 } from "../../utils/productCustomization";
 import styles from "./restaurant-transitions.module.css";
 import { getLocalizedProductName } from "../../utils/productTranslation";
+import { applyProductDeal } from "../../utils/dealPricing";
 
 interface Props {
   isStoreAvailable: boolean;
@@ -74,7 +75,9 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
     selectedVariation,
     selectedByGroup,
   );
-  const basePrice = selectedVariation?.price ?? product?.deal?.discountedPrice ?? product?.price ?? 0;
+  const deal = product?.deal ?? null;
+  const originalBasePrice = selectedVariation?.price ?? product?.price ?? 0;
+  const basePrice = applyProductDeal(originalBasePrice, deal);
   const addonTotal = customizationData.addons.reduce(
     (total, section) =>
       total +
@@ -87,7 +90,23 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
       ),
     0,
   );
-  const total = (basePrice + addonTotal) * quantity;
+  const originalTotal = (originalBasePrice + addonTotal) * quantity;
+  const total = applyProductDeal(originalBasePrice + addonTotal, deal) * quantity;
+  const dealSavings = Number((originalTotal - total).toFixed(2));
+  const dealLabel = deal
+    ? deal.name ??
+      (deal.discountType === "percentage"
+        ? t("dealOffPercent", { value: deal.discountValue })
+        : t("dealOffFixed", { amount: formatAppCurrency(format, deal.discountValue) }))
+    : null;
+  const variationPrice = (price: number) => (
+    <PriceWithOriginal
+      discounted={applyProductDeal(price, deal)}
+      format={format}
+      original={price}
+      originalLabel={(value) => t("originalPrice", { price: value })}
+    />
+  );
   const cartQuantity =
     cart.data?.items.reduce(
       (totalQuantity, item) =>
@@ -255,9 +274,17 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
             <h2 className="text-lg font-bold text-ink">{productName}</h2>
             <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted">{product?.description}</p>
             {product ? (
-              <b className="mt-2 block text-lg text-brand">
-                {formatAppCurrency(format, product.deal?.discountedPrice ?? product.price)}
-              </b>
+              <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <b className="text-lg text-brand">{formatAppCurrency(format, basePrice)}</b>
+                {basePrice < originalBasePrice ? (
+                  <>
+                    <s aria-label={t("originalPrice", { price: formatAppCurrency(format, originalBasePrice) })} className="text-xs text-muted">
+                      {formatAppCurrency(format, originalBasePrice)}
+                    </s>
+                    {dealLabel ? <span className="rounded-full bg-success-soft px-2 py-0.5 text-[11px] font-bold text-success">{dealLabel}</span> : null}
+                  </>
+                ) : null}
+              </div>
             ) : null}
             {cartQuantity > 0 ? (
               <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-1 text-[11px] font-bold text-brand" role="status">
@@ -325,7 +352,7 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
                         <label className="flex cursor-pointer items-center gap-3 py-2.5 text-xs" key={key}>
                           <input checked={effectiveVariationKey === key} className="size-4 accent-[var(--color-brand)]" disabled={isInteractionLocked} name="variation" onChange={() => { setSelectedVariationKey(key); setIsAdded(false); }} type="radio" />
                           <span className="flex-1 text-ink">{choice.title}</span>
-                          <span className="text-muted">{formatAppCurrency(format, choice.price)}</span>
+                          {variationPrice(choice.price)}
                         </label>
                       );
                     })}
@@ -384,10 +411,22 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
                   {isConfigurationLoading ? (
                     <span aria-hidden="true" className="mt-1 block h-5 w-24 animate-pulse rounded bg-[var(--soft-surface)]" />
                   ) : (
-                    <b className="text-lg text-brand">{formatAppCurrency(format, total)}</b>
+                    <span className="flex items-baseline justify-end gap-2">
+                      {dealSavings > 0 ? (
+                        <s aria-label={t("originalPrice", { price: formatAppCurrency(format, originalTotal) })} className="text-xs text-muted">
+                          {formatAppCurrency(format, originalTotal)}
+                        </s>
+                      ) : null}
+                      <b className="text-lg text-brand">{formatAppCurrency(format, total)}</b>
+                    </span>
                   )}
                 </div>
               </div>
+              {!isConfigurationLoading && dealSavings > 0 && dealLabel ? (
+                <p className="-mt-2 mb-4 text-right text-xs font-medium text-success" role="status">
+                  {t("dealSavings", { deal: dealLabel, amount: formatAppCurrency(format, dealSavings) })}
+                </p>
+              ) : null}
               {isStoreAvailable ? (
                 <button className="flex h-13 w-full items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-ink transition hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-50" disabled={isInteractionLocked} type="submit">
                   {isConfigurationLoading || (isAuthenticated && cart.isPending) || isMutationPending ? <LoaderCircle aria-hidden="true" className="mr-2 size-4 animate-spin" /> : null}
@@ -420,5 +459,26 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
         </div>
       ) : null}
     </div>
+  );
+}
+
+interface PriceWithOriginalProps {
+  discounted: number;
+  format: ReturnType<typeof useFormatter>;
+  original: number;
+  originalLabel: (price: string) => string;
+}
+
+function PriceWithOriginal({ discounted, format, original, originalLabel }: PriceWithOriginalProps) {
+  if (discounted >= original) {
+    return <span className="text-muted">{formatAppCurrency(format, original)}</span>;
+  }
+  return (
+    <span className="flex items-baseline gap-1.5">
+      <s aria-label={originalLabel(formatAppCurrency(format, original))} className="text-[11px] text-muted">
+        {formatAppCurrency(format, original)}
+      </s>
+      <b className="text-brand">{formatAppCurrency(format, discounted)}</b>
+    </span>
   );
 }

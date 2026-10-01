@@ -6,6 +6,7 @@ import { useEffect, useMemo } from "react";
 import { useFormik } from "formik";
 import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/brand/Icon";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import { ProfilePhotoManager } from "@/modules/account/components/profile/ProfilePhotoManager";
 import { ProfileBackLink } from "@/modules/account/components/profile/ProfileBackLink";
@@ -150,6 +151,7 @@ function EditProfileForm({ user }: { user: ProfileUser }) {
   const t = useTranslations("profileInformation");
   const router = useRouter();
   const updateProfile = useUpdateProfileMutation();
+  const notify = useActionToast();
   const formik = useFormik({
     initialValues: {
       name: user.name ?? "",
@@ -157,8 +159,7 @@ function EditProfileForm({ user }: { user: ProfileUser }) {
       gender: (user.gender ?? "OTHER") as ProfileGender,
     },
     validationSchema: createProfileSchema(t("nameRequired")),
-    onSubmit: async (values, helpers) => {
-      helpers.setStatus(undefined);
+    onSubmit: async (values) => {
       const payload: ProfileUpdateInput = {
         name: values.name.trim(),
         gender: values.gender,
@@ -166,10 +167,11 @@ function EditProfileForm({ user }: { user: ProfileUser }) {
       };
       try {
         await updateProfile.mutateAsync(payload);
+        notify.success("profileUpdated");
         router.push("/profile/personal-information");
         router.refresh();
       } catch (reason) {
-        helpers.setStatus(reason instanceof Error ? reason.message : t("saveError"));
+        notify.error(reason, "profileUpdateFailed");
       }
     },
   });
@@ -263,9 +265,9 @@ function EditProfileForm({ user }: { user: ProfileUser }) {
         </fieldset>
       </div>
 
-      {(formik.touched.name && formik.errors.name) || formik.status ? (
+      {formik.touched.name && formik.errors.name ? (
         <p role="alert" className="mt-5 rounded-xl bg-danger-soft px-4 py-3 text-[12px] font-medium text-danger">
-          {formik.status || formik.errors.name}
+          {formik.errors.name}
         </p>
       ) : null}
 

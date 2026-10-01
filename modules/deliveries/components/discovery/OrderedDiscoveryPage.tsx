@@ -55,7 +55,7 @@ export function DiscoveryPage() {
     <Header />
     <main className="bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_520px)] pb-16 sm:pb-20">
       <h1 className="sr-only">{t("pageTitle")}</h1>
-      <div className="section-wrap space-y-10 py-5 sm:space-y-12 sm:py-8 lg:space-y-14">
+      <div className="app-wrap space-y-10 py-5 sm:space-y-12 sm:py-8 lg:space-y-14">
         {homeSections.map((section) => {
           if (section.kind === "banners") {
             return banners.isPending
@@ -93,7 +93,7 @@ export function DiscoveryPage() {
             return <StoreRailSection key={section.key} emptyMessage={t("emptyMessage")} emptyTitle={t("emptyTitle")} errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={deals.isError} isLoading={deals.isPending} items={deals.data ?? []} onRetry={() => void deals.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/deals" seeAllLabel={t("seeAll")} description={t("dealsDescription")} title={t("dealsTitle")} />;
           }
           if (section.kind === "order-again") {
-            return <OrderAgainSection key={section.key} isError={isAuthenticated && orderAgain.isError} isLoading={isAuthenticated && orderAgain.isPending} items={orderAgain.data ?? []} onRetry={() => void orderAgain.refetch()} seeAllHref="/discovery/all/order-again" seeAllLabel={t("seeAll")} />;
+            return <OrderAgainSection key={section.key} items={isAuthenticated ? orderAgain.data ?? [] : []} seeAllHref="/discovery/all/order-again" seeAllLabel={t("seeAll")} />;
           }
           if (section.kind === "shop-type-stores") {
             const shopTypeId = section.key.slice("shop-type:".length);
@@ -109,5 +109,5 @@ export function DiscoveryPage() {
 }
 
 export function DiscoveryPageSkeleton() {
-  return <><Header /><main className="pb-16" aria-busy="true"><div className="section-wrap space-y-6 py-8">{Array.from({ length: 4 }, (_, index) => <div key={index} className="space-y-4"><div className="h-7 w-44 animate-pulse rounded-lg bg-[var(--soft-surface)]" /><RailSkeleton /></div>)}</div></main></>;
+  return <><Header /><main className="pb-16" aria-busy="true"><div className="app-wrap space-y-6 py-8">{Array.from({ length: 4 }, (_, index) => <div key={index} className="space-y-4"><div className="h-7 w-44 animate-pulse rounded-lg bg-[var(--soft-surface)]" /><RailSkeleton /></div>)}</div></main></>;
 }

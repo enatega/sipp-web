@@ -1,7 +1,7 @@
 import type {
   DeliveryBanner,
   DeliveryBannerActionType,
-  DeliveryOrderAgainOrder,
+  DeliveryOrderAgainProduct,
   DeliveryShopType,
   DeliveryStore,
   DeliveryTopBrand,
@@ -29,12 +29,6 @@ function optionalNumber(value: unknown) {
 
 function optionalBoolean(value: unknown) {
   return typeof value === "boolean" ? value : undefined;
-}
-
-function stringArray(value: unknown) {
-  return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string")
-    : [];
 }
 
 function list(value: unknown): unknown[] {
@@ -172,29 +166,35 @@ export function parseBanners(value: unknown): DeliveryBanner[] {
   });
 }
 
-export function parseOrderAgain(value: unknown): DeliveryOrderAgainOrder[] {
+export function parseOrderAgain(value: unknown): DeliveryOrderAgainProduct[] {
   return list(value).flatMap((item) => {
     const source = record(item);
-    const orderId = requiredString(source?.orderId);
+    const productId = requiredString(source?.productId);
     const storeId = requiredString(source?.storeId);
-    const storeName = requiredString(source?.storeName);
-    const orderedAt = requiredString(source?.orderedAt);
-    if (!source || !orderId || !storeId || !storeName || !orderedAt) return [];
+    const name = requiredString(source?.productName) ?? requiredString(source?.name);
+    if (!source || !productId || !storeId || !name) return [];
+    const price = optionalNumber(source.price) ?? 0;
+    const discountedPrice = optionalNumber(record(source.deal)?.discounted_price);
+    const translations = record(source.productNameTranslations) ?? {};
     return [{
-      orderId,
+      productId,
       storeId,
-      storeName,
-      storeAddress: optionalString(source.storeAddress),
-      storeLogo: optionalString(source.storeLogo),
+      name,
+      nameTranslations: Object.fromEntries(
+        Object.entries(translations).filter(
+          (entry): entry is [string, string] => typeof entry[1] === "string",
+        ),
+      ),
+      storeName: optionalString(source.storeName) ?? "",
+      imageUrl: optionalString(source.productImage) ?? optionalString(source.imageUrl),
       storeImage: optionalString(source.storeImage),
-      itemCount: optionalNumber(source.itemCount) ?? 0,
-      totalQuantity: optionalNumber(source.totalQuantity) ?? 0,
-      orderTotal: optionalNumber(source.orderTotal) ?? 0,
-      orderedAt,
-      itemNames: stringArray(source.itemNames),
-      itemImages: stringArray(source.itemImages),
-      averageRating: optionalNumber(source.averageRating),
-      reviewCount: optionalNumber(source.reviewCount),
+      storeLogo: optionalString(source.storeLogo),
+      price,
+      discountedPrice:
+        discountedPrice !== null && discountedPrice < price
+          ? Math.max(0, discountedPrice)
+          : null,
+      inStock: optionalBoolean(source.inStock) ?? true,
     }];
   });
 }

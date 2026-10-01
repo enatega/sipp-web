@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { storePlace } from "@/modules/account/api/location";
 import type { PopularCity } from "@/modules/account/data/popularCities";
 import type {

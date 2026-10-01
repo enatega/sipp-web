@@ -38,6 +38,8 @@ export interface RestaurantStore {
 
 export interface ProductDeal {
   discountedPrice: number;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
   name: string | null;
 }
 
@@ -49,6 +51,7 @@ export interface RestaurantProduct {
   description: string | null;
   price: number;
   imageUrl: string | null;
+  inStock: boolean;
   categoryId: string;
   subcategoryId: string | null;
   category: { id: string; name: string } | null;

@@ -39,12 +39,27 @@ function number(value: unknown, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-function deal(value: unknown): ProductDeal | null {
+function deal(value: unknown, price: number): ProductDeal | null {
   const source = record(value);
   const discountedPrice = number(source.discounted_price, Number.NaN);
-  return Number.isFinite(discountedPrice)
-    ? { discountedPrice, name: optionalText(source.deal_name) }
-    : null;
+  if (!Number.isFinite(discountedPrice)) return null;
+  const discountValue = number(source.discount_value, Number.NaN);
+  // Older payloads only carry the discounted price; treat the difference as
+  // a fixed discount so variation prices still get the same saving.
+  if (!Number.isFinite(discountValue)) {
+    return {
+      discountedPrice,
+      discountType: "fixed",
+      discountValue: Math.max(0, price - discountedPrice),
+      name: optionalText(source.deal_name),
+    };
+  }
+  return {
+    discountedPrice,
+    discountType: source.discount_type === "percentage" ? "percentage" : "fixed",
+    discountValue,
+    name: optionalText(source.deal_name),
+  };
 }
 
 export function parseRestaurantStore(value: unknown): RestaurantStore {
@@ -119,6 +134,7 @@ function parseRestaurantProduct(value: unknown): RestaurantProduct {
     description: optionalText(source.description),
     price: number(source.price),
     imageUrl: optionalText(source.imageUrl),
+    inStock: source.inStock !== false,
     categoryId,
     subcategoryId,
     category: categoryId
@@ -127,7 +143,7 @@ function parseRestaurantProduct(value: unknown): RestaurantProduct {
     subcategory: subcategoryId
       ? { id: subcategoryId, name: text(subcategory.name) }
       : null,
-    deal: deal(source.deal),
+    deal: deal(source.deal, number(source.price)),
   };
 }
 
@@ -161,7 +177,7 @@ export function parseProductInfo(value: unknown): ProductInfo {
     averageRating: number(source.averageRating),
     reviewCount: number(source.reviewCount),
     inStock: source.inStock !== false,
-    deal: deal(source.deal),
+    deal: deal(source.deal, number(source.price)),
   };
 }
 

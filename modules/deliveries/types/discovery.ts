@@ -82,21 +82,19 @@ export interface DeliveryBanner {
   } | null;
 }
 
-export interface DeliveryOrderAgainOrder {
-  orderId: string;
+/** A product the customer has ordered before, most recent first. */
+export interface DeliveryOrderAgainProduct {
+  productId: string;
   storeId: string;
+  name: string;
+  nameTranslations: Record<string, string>;
   storeName: string;
-  storeAddress?: string | null;
-  storeLogo?: string | null;
-  storeImage?: string | null;
-  itemCount: number;
-  totalQuantity: number;
-  orderTotal: number;
-  orderedAt: string;
-  itemNames: string[];
-  itemImages: string[];
-  averageRating?: number | null;
-  reviewCount?: number | null;
+  imageUrl: string | null;
+  storeImage: string | null;
+  storeLogo: string | null;
+  price: number;
+  discountedPrice: number | null;
+  inStock: boolean;
 }
 
 export interface DiscoveryListParams {
