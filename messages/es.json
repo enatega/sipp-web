@@ -316,6 +316,7 @@
     "current": "Usar ubicación actual",
     "currentDescription": "Encuentra una dirección cerca de ti",
     "interactiveMap": "Mapa interactivo para seleccionar una ubicación de entrega",
+    "savedMapPreview": "Vista previa del mapa de la dirección guardada",
     "mapInstruction": "Toque en cualquier lugar del mapa o arrastre el pin. La dirección se actualizará automáticamente.",
     "mapLoading": "Cargando mapa",
     "mapNotConfigured": "Google Mapas no está configurado para esta aplicación.",
