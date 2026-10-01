@@ -17,6 +17,7 @@ export interface RestaurantSubcategory {
 
 export interface RestaurantStore {
   id: string;
+  slug: string;
   name: string;
   address: string | null;
   logo: string | null;

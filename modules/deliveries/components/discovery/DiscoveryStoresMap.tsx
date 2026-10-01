@@ -25,7 +25,7 @@ export function DiscoveryStoresMap({ stores, location }: { stores: DeliveryStore
   return (
     <GoogleMap mapContainerClassName="h-[min(68vh,680px)] min-h-[460px] w-full overflow-hidden rounded-2xl" center={center} zoom={12} options={{ fullscreenControl: false, mapTypeControl: false, streetViewControl: false, clickableIcons: false }}>
       {markers.map((store) => <MarkerF key={store.storeId} position={{ lat: store.latitude!, lng: store.longitude! }} title={store.name} onClick={() => setSelectedId(store.storeId)} />)}
-      {selected ? <InfoWindowF position={{ lat: selected.latitude!, lng: selected.longitude! }} onCloseClick={() => setSelectedId(null)}><div className="max-w-52 p-1 text-slate-900"><strong className="block text-sm">{selected.name}</strong><span className="mt-1 block text-xs text-slate-600">{selected.address}</span><a className="mt-2 inline-block text-xs font-bold text-[#2377a5]" href={`/restaurants/${encodeURIComponent(selected.storeId)}`}>{t("openStore", { name: selected.name })}</a></div></InfoWindowF> : null}
+      {selected ? <InfoWindowF position={{ lat: selected.latitude!, lng: selected.longitude! }} onCloseClick={() => setSelectedId(null)}><div className="max-w-52 p-1 text-slate-900"><strong className="block text-sm">{selected.name}</strong><span className="mt-1 block text-xs text-slate-600">{selected.address}</span><a className="mt-2 inline-block text-xs font-bold text-[#2377a5]" href={`/restaurants/${encodeURIComponent(selected.slug || selected.storeId)}`}>{t("openStore", { name: selected.name })}</a></div></InfoWindowF> : null}
     </GoogleMap>
   );
 }

@@ -10,6 +10,15 @@ export { useCartMutations, useCartQuery } from "./useCart";
 
 const RESTAURANT_STALE_TIME = 2 * 60_000;
 
+export function useRestaurantSlug(slug: string) {
+  return useQuery({
+    queryKey: [...deliveryQueryKeys.all, "restaurant-slug", slug] as const,
+    queryFn: ({ signal }) => restaurantApi.resolveSlug(slug, signal),
+    enabled: Boolean(slug),
+    staleTime: RESTAURANT_STALE_TIME,
+  });
+}
+
 export function useRestaurantLocation() {
   const [location, setLocation] = useState<RestaurantLocation | null>(null);
   const [isReady, setIsReady] = useState(false);

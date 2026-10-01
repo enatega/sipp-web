@@ -16,6 +16,12 @@ function locationQuery(location: RestaurantLocation) {
 }
 
 export const restaurantApi = {
+  async resolveSlug(slug: string, signal?: AbortSignal) {
+    return requestJson<{ storeId: string; slug: string }>(
+      `${apiRoutes.restaurants}/resolve/${encodeURIComponent(slug)}`,
+      { signal },
+    );
+  },
   async detail(storeId: string, location: RestaurantLocation, signal?: AbortSignal) {
     const query = new URLSearchParams(locationQuery(location));
     const payload = await requestJson<unknown>(
