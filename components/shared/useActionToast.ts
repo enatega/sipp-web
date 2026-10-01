@@ -24,6 +24,7 @@ export type ToastKey =
   | "accountDeleted" | "accountDeleteFailed"
   | "addedToFavourites" | "removedFromFavourites" | "favouriteUpdateFailed"
   | "allNotificationsRead" | "notificationsReadFailed"
+  | "addedToCart"
   | "offline" | "timeout" | "rateLimited" | "sessionExpired";
 
 const MAX_SERVER_MESSAGE_LENGTH = 140;
@@ -59,8 +60,8 @@ export function useActionToast() {
   const t = useTranslations("toasts");
 
   const success = useCallback(
-    (key: ToastKey) => {
-      toast.success(t(key));
+    (key: ToastKey, values?: Record<string, string | number>) => {
+      toast.success(t(key, values));
     },
     [t],
   );

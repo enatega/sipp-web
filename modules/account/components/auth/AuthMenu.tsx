@@ -12,6 +12,7 @@ import {
   useSessionQuery,
 } from "@/modules/account/queries/useAccountQueries";
 import { useCartQuery } from "@/modules/deliveries/hooks/useCart";
+import { HeaderCartButton } from "@/modules/deliveries/components/cart/HeaderCartButton";
 import { setIntentionalLogout } from "@/services/api/client";
 import { loginHref } from "@/modules/account/utils/authRedirect";
 
@@ -40,6 +41,12 @@ export function AuthMenu({ cartCount = 0 }: { cartCount?: number }) {
       : user;
   const cart = useCartQuery(Boolean(user));
   const visibleCartCount = user ? (cart.data?.totalItems ?? cartCount) : 0;
+  // The cart and checkout pages already show the cart; keep the plain icon there.
+  const isOnCartFlow = pathname === "/cart" || pathname.startsWith("/checkout");
+  const cartAction =
+    user && cart.data && !cart.data.isEmpty && cart.data.totalItems > 0 && !isOnCartFlow ? (
+      <HeaderCartButton itemCount={cart.data.totalItems} total={cart.data.finalPrice} />
+    ) : undefined;
 
   if (session.isPending) {
     return (
@@ -94,6 +101,7 @@ export function AuthMenu({ cartCount = 0 }: { cartCount?: number }) {
       <AccountMenu
         user={headerUser ?? user}
         cartCount={visibleCartCount}
+        cartAction={cartAction}
         onSignOut={() => {
           setLogoutError("");
           setConfirmingLogout(true);

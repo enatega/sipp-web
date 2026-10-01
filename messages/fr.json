@@ -220,6 +220,7 @@
     "favouriteUpdateFailed": "Impossible de mettre à jour vos favoris. Veuillez réessayer.",
     "allNotificationsRead": "Toutes les notifications ont été marquées comme lues",
     "notificationsReadFailed": "Impossible de mettre à jour vos notifications. Veuillez réessayer.",
+    "addedToCart": "{product} a été ajouté à votre panier",
     "offline": "Vous semblez être hors ligne. Vérifiez votre connexion et réessayez.",
     "timeout": "Cela prend plus de temps que prévu. Veuillez réessayer.",
     "rateLimited": "Trop de tentatives. Patientez un instant puis réessayez.",
@@ -370,6 +371,7 @@
     "current": "Utiliser la position actuelle",
     "currentDescription": "Trouver une adresse près de chez vous",
     "interactiveMap": "Carte interactive pour choisir un lieu de livraison",
+    "savedMapPreview": "Aperçu de la carte de l’adresse enregistrée",
     "mapInstruction": "Appuyez n'importe où sur la carte ou faites glisser la broche. L'adresse sera mise à jour automatiquement.",
     "mapLoading": "Chargement de la carte",
     "mapNotConfigured": "Google Les cartes ne sont pas configurées pour cette application.",
@@ -988,7 +990,6 @@
       "cartTimeoutError": "Ajouter cet article a pris trop de temps. Veuillez réessayer.",
       "cartRateLimitError": "Trop de tentatives ont été faites. Attendez un moment, puis essayez encore.",
       "cartUnavailableError": "Le service de chariot n'est pas disponible temporairement. Veuillez réessayer rapidement.",
-      "addedToCart": "Ajouté à votre panier.",
       "closedMessage": "Ce restaurant est actuellement fermé et n'accepte pas les commandes. Vous pouvez toujours parcourir le menu. Veuillez revenir pendant les heures d'ouverture ou choisir un autre restaurant.",
       "checkAvailability": "Vérifier la disponibilité",
       "dismissMessage": "Rejeter le message",
@@ -1250,6 +1251,8 @@
       }
     },
     "cart": {
+      "headerCartLabel": "Voir le panier",
+      "headerCartAria": "Voir le panier : {count, plural, one {# article} other {# articles}}, {total}",
       "loading": "Chargement de votre panier",
       "emptyTitle": "Votre chariot vous attend",
       "emptyMessage": "Explorez les restaurants à proximité, les supermarchés et les magasins locaux. Les éléments sélectionnés apparaîtront ici.",

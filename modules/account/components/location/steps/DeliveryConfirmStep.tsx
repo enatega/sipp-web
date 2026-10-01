@@ -103,7 +103,6 @@ export function DeliveryConfirmStep({
           latitude={place.latitude}
           longitude={place.longitude}
           onSelect={onMapSelect}
-          onInitialLocation={() => undefined}
           ariaLabel={t("interactiveMap")}
         />
         <p className="mb-4 mt-2 text-xs leading-relaxed text-muted">{t("mapInstruction")}</p>

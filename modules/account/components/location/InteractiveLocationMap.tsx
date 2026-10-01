@@ -7,9 +7,11 @@ import { useTranslations } from "next-intl";
 type InteractiveLocationMapProps = {
   latitude?: number;
   longitude?: number;
-  onSelect: (latitude: number, longitude: number) => void;
-  onInitialLocation: (latitude: number, longitude: number) => void;
+  onSelect?: (latitude: number, longitude: number) => void;
+  onInitialLocation?: (latitude: number, longitude: number) => void;
   ariaLabel: string;
+  /** Preview only: same map and marker, but no dragging, clicks or controls. */
+  isReadOnly?: boolean;
 };
 
 const LIBRARIES: ("geometry" | "places")[] = ["places", "geometry"];
@@ -39,6 +41,7 @@ export function InteractiveLocationMap({
   onSelect,
   onInitialLocation,
   ariaLabel,
+  isReadOnly = false,
 }: InteractiveLocationMapProps) {
   const t = useTranslations("location");
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
@@ -70,7 +73,8 @@ export function InteractiveLocationMap({
   );
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    // A read-only preview always has a point; never ask for the visitor's.
+    if (isReadOnly || !navigator.geolocation) return;
     let isCancelled = false;
 
     navigator.geolocation.getCurrentPosition(
@@ -78,7 +82,7 @@ export function InteractiveLocationMap({
         if (isCancelled) return;
         const point = { lat: coords.latitude, lng: coords.longitude };
         setUserLocation(point);
-        onInitialLocationRef.current(point.lat, point.lng);
+        onInitialLocationRef.current?.(point.lat, point.lng);
       },
       () => {
         // Match the admin map: keep the fallback center when access is denied.
@@ -89,7 +93,7 @@ export function InteractiveLocationMap({
     return () => {
       isCancelled = true;
     };
-  }, []);
+  }, [isReadOnly]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -124,15 +128,17 @@ export function InteractiveLocationMap({
       });
       const marker = new markerLibraryRef.current.AdvancedMarkerElement({
         content: pin.element,
-        gmpDraggable: true,
+        gmpDraggable: !isReadOnly,
         map,
         position: point,
         title: t("selectedLocation"),
       });
-      marker.addListener("dragend", () => {
-        const position = markerPositionToLiteral(marker.position);
-        if (position) onSelectRef.current(position.lat, position.lng);
-      });
+      if (!isReadOnly) {
+        marker.addListener("dragend", () => {
+          const position = markerPositionToLiteral(marker.position);
+          if (position) onSelectRef.current?.(position.lat, position.lng);
+        });
+      }
       markerRef.current = marker;
     } else {
       markerRef.current.position = point;
@@ -145,11 +151,11 @@ export function InteractiveLocationMap({
       markerRef.current.map = null;
       markerRef.current = null;
     };
-  }, [isMarkerReady, map, selectedPoint, t, userLocation]);
+  }, [isMarkerReady, isReadOnly, map, selectedPoint, t, userLocation]);
 
   const handleMapClick = useCallback((event: google.maps.MapMouseEvent) => {
     const point = event.latLng?.toJSON();
-    if (point) onSelectRef.current(point.lat, point.lng);
+    if (point) onSelectRef.current?.(point.lat, point.lng);
   }, []);
 
   if (!apiKey) {
@@ -183,10 +189,16 @@ export function InteractiveLocationMap({
       center={selectedPoint ?? userLocation ?? DEFAULT_CENTER}
       zoom={selectedPoint ? 17 : userLocation ? 15 : 10}
       mapContainerClassName="h-56 w-full overflow-hidden rounded-xl"
-      onClick={handleMapClick}
+      onClick={isReadOnly ? undefined : handleMapClick}
       onLoad={setMap}
       onUnmount={() => setMap(null)}
-      options={{
+      options={isReadOnly ? {
+        mapId: MAP_ID,
+        disableDefaultUI: true,
+        gestureHandling: "none",
+        keyboardShortcuts: false,
+        clickableIcons: false,
+      } : {
         fullscreenControl: false,
         mapId: MAP_ID,
         controlSize: 22,

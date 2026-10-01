@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { SavedAddress } from "@/modules/account/types";
-import { MapThumb } from "@/modules/account/components/location/MapThumb";
+import { InteractiveLocationMap } from "@/modules/account/components/location/InteractiveLocationMap";
 import { LocationAlert } from "@/modules/account/components/location/steps/LocationAlert";
 import { LocationStepHeader } from "@/modules/account/components/location/steps/LocationStepHeader";
 import { SavedAddressIcon } from "@/modules/account/components/location/steps/SavedAddressIcon";
@@ -41,13 +41,14 @@ export function SavedAddressStep({
 
       <div className="flex-1 overflow-y-auto px-5 pb-6 sm:px-6">
         {hasPoint ? (
-          <MapThumb
-            latitude={latitude}
-            longitude={longitude}
-            zoom={16}
-            className="mb-3 h-56 w-full rounded-xl"
-            pinClassName="w-9"
-          />
+          <div className="mb-3">
+            <InteractiveLocationMap
+              latitude={latitude}
+              longitude={longitude}
+              ariaLabel={t("savedMapPreview")}
+              isReadOnly
+            />
+          </div>
         ) : null}
 
         <div className={SUMMARY_CARD}>
