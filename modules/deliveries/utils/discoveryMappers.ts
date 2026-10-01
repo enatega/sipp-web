@@ -78,6 +78,7 @@ export function parseStores(value: unknown): DeliveryStore[] {
         optionalNumber(source.deliveryTime) ?? optionalString(source.deliveryTime),
       minimumOrder: optionalNumber(source.minimumOrder),
       baseFee: optionalNumber(source.baseFee),
+      deliveryFee: optionalNumber(source.deliveryFee),
       distanceKm: optionalNumber(source.distanceKm),
       latitude: optionalNumber(source.latitude),
       longitude: optionalNumber(source.longitude),

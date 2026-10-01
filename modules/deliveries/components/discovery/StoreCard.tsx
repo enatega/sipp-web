@@ -42,12 +42,12 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
     t("off"),
   );
   const hasFeeDetails =
-    typeof store.baseFee === "number" && Number.isFinite(store.baseFee);
+    typeof store.deliveryFee === "number" && Number.isFinite(store.deliveryFee);
   const fee =
-    hasFeeDetails && store.baseFee === 0
+    hasFeeDetails && store.deliveryFee === 0
       ? t("freeDelivery")
-      : formatAppCurrency(format, store.baseFee ?? 0, {
-          maximumFractionDigits: 0,
+      : formatAppCurrency(format, store.deliveryFee ?? 0, {
+          maximumFractionDigits: 2,
         });
   const deliveryTime = deliveryTimeLabel(store.deliveryTime, (count) =>
     t("minutes", { count }),
