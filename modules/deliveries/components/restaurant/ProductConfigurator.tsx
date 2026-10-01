@@ -183,7 +183,7 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
   }
 
   async function addConfiguredProduct() {
-    if (!product) return;
+    if (!product || !product.inStock) return;
     if (!isStoreAvailable) throw new ApiError("Store is currently closed", 400);
     const updatedCart = await addItem.mutateAsync({
       productId: product.productId,
@@ -267,10 +267,16 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
         tabIndex={-1}
       >
         <div className="flex items-start gap-4 border-b border-line p-5">
-          <DeliveryImage alt={productName} className="size-24 shrink-0 rounded-xl" sizes="96px" src={product?.imageUrl} />
+          <DeliveryImage alt={productName} className={`size-24 shrink-0 rounded-xl ${product && !product.inStock ? "opacity-60 grayscale" : ""}`} sizes="96px" src={product?.imageUrl} />
           <div className="min-w-0 flex-1 pt-1">
             {info.isPending ? <div className="h-5 w-40 animate-pulse rounded bg-[var(--soft-surface)]" /> : null}
             <h2 className="text-lg font-bold text-ink">{productName}</h2>
+            {product && !product.inStock ? (
+              <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-danger-soft px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-danger">
+                <span aria-hidden="true" className="size-1.5 rounded-full bg-danger" />
+                {t("outOfStock")}
+              </span>
+            ) : null}
             <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted">{product?.description}</p>
             {product ? (
               <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -414,6 +420,11 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
               {!isConfigurationLoading && dealSavings > 0 && dealLabel ? (
                 <p className="-mt-2 mb-4 text-right text-xs font-medium text-success" role="status">
                   {t("dealSavings", { deal: dealLabel, amount: formatAppCurrency(format, dealSavings) })}
+                </p>
+              ) : null}
+              {product && !product.inStock ? (
+                <p className="mb-3 rounded-xl bg-danger-soft px-4 py-3 text-xs font-medium leading-5 text-danger" role="status">
+                  {t("outOfStockNotice")}
                 </p>
               ) : null}
               {isStoreAvailable ? (
