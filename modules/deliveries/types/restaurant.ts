@@ -50,8 +50,8 @@ export interface RestaurantProduct {
   shortDescription: string | null;
   description: string | null;
   price: number;
-  imageUrl: string | null;
   inStock: boolean;
+  imageUrl: string | null;
   categoryId: string;
   subcategoryId: string | null;
   category: { id: string; name: string } | null;

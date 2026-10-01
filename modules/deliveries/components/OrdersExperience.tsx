@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, CalendarClock, Check, Eye, LoaderCircle, ReceiptText, RefreshCw, Star, X } from "lucide-react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 
 import { Icon } from "@/components/shared/brand/Icon";
 import { profileApi } from "@/modules/account/api/profile";
@@ -35,6 +35,7 @@ function uniqueOrders(pages: Array<{ items: OrderCard[] }>) {
 export function OrdersExperience() {
   const t = useTranslations("deliveries.orders");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const [tab, setTab] = useState<OrdersTab>("active");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -220,6 +221,7 @@ interface OrderRowProps {
 function OrderRow({ order, past, scheduled, expanded, onToggle, onRate }: OrderRowProps) {
   const t = useTranslations("deliveries.orders");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const rawStatus = rawOrderStatus(order);
   const name = order.store?.name ?? order.storeName ?? t("storeFallback");
   const image = order.store?.logo ?? order.store?.image ?? order.storeLogo ?? order.storeImage;

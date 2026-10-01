@@ -4,41 +4,25 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormik } from "formik";
-import { ArrowLeft, Bike, CalendarClock, ChevronRight, Clock3, CreditCard, LoaderCircle, MapPin, MessageSquareText, ShoppingBag, Store, Truck, WalletCards } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { ArrowLeft, Bike, ChevronRight, CreditCard, LoaderCircle, MapPin, MessageSquareText, ShoppingBag, Store, Truck, WalletCards } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Header } from "@/components/shared/app-shell/Header";
-import { appCurrency } from "@/config/currency";
+import { useAppCurrency } from "@/lib/useAppCurrency";
 import { useAddressesQuery, useSavedCardsQuery, useSessionQuery, useStoredPlace, useWalletQuery, type ChosenPlace, type SavedAddress, type SavedCard } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { ApiError } from "@/services/api/client";
 import { checkoutSchema, type CheckoutFormValues } from "../../schemas/checkoutSchema";
 import { useCartQuery } from "../../hooks/useCart";
-import { useCheckoutPreview, useCheckoutSchedule, usePlaceOrderMutation, useStripeOrderStatus, useValidateCheckoutAddressMutation } from "../../hooks/useCheckout";
+import { useCheckoutPreview, usePlaceOrderMutation, useStripeOrderStatus, useValidateCheckoutAddressMutation } from "../../hooks/useCheckout";
 import type { CheckoutPreviewInput, StripePaymentQuote } from "../../types/checkout";
 import { CheckoutAddressPicker } from "./CheckoutAddressPicker";
 import { CheckoutAlertStack, type CheckoutAlert } from "./CheckoutAlertStack";
 import { CheckoutCouponSection } from "./CheckoutCouponSection";
 import { CheckoutSavedCardPicker } from "./CheckoutSavedCardPicker";
-import { CheckoutScheduleSelect } from "./CheckoutScheduleSelect";
 import { CheckoutSummary } from "./CheckoutSummary";
 import { StripePaymentModal } from "./StripePaymentModal";
 
 const TIP_OPTIONS = [0, 5, 10, 20];
-
-function buildScheduledAt(date: string, start: string) {
-  const [year, month, day] = date.split("-").map(Number);
-  const [hours, minutes] = start.split(":").map(Number);
-  return new Date(year, month - 1, day, hours, minutes, 0, 0).toISOString();
-}
-
-function formatSlotTime(time: string, locale: string) {
-  const [hours, minutes] = time.split(":").map(Number);
-  return new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  }).format(new Date(2000, 0, 1, hours, minutes));
-}
 
 function buildNote(values: CheckoutFormValues) {
   const restaurant = values.restaurantNote.trim();
@@ -89,7 +73,7 @@ interface Props {
 
 export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = false }: Props) {
   const t = useTranslations("deliveries.checkout");
-  const locale = useLocale();
+  const { symbol: currencySymbol } = useAppCurrency();
   const router = useRouter();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
@@ -139,8 +123,8 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
 
   const formik = useFormik<CheckoutFormValues>({
     enableReinitialize: true,
-    initialValues: { orderType: "delivery", deliveryLocationKey: locationKey(storedPlace.place), paymentMethod: "wallet", deliveryTime: "standard", scheduledAt: "", restaurantNote: "", courierNote: "", leaveAtDoor: false, riderTip: 0 },
-    validationSchema: checkoutSchema({ addressRequired: t("addressRequired"), scheduleRequired: t("scheduleRequired"), noteTooLong: t("noteTooLong"), invalidTip: t("invalidTip") }),
+    initialValues: { orderType: "delivery", deliveryLocationKey: locationKey(storedPlace.place), paymentMethod: "wallet", restaurantNote: "", courierNote: "", leaveAtDoor: false, riderTip: 0 },
+    validationSchema: checkoutSchema({ addressRequired: t("addressRequired"), noteTooLong: t("noteTooLong"), invalidTip: t("invalidTip") }),
     onSubmit: async (values) => {
       if (!cart.data?.bucketId || !cart.data.storeId) return;
       if (values.orderType === "delivery" && !deliveryPlace) return;
@@ -174,7 +158,6 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
                 riderTip: values.riderTip || undefined,
               }
             : {}),
-          ...(values.deliveryTime === "scheduled" ? { scheduledAt: values.scheduledAt } : {}),
           customerNote: buildNote(values),
         });
         if (response.mode === "stripe") {
@@ -212,9 +195,8 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const previewInput = useMemo<CheckoutPreviewInput | null>(() => {
     if (!cart.data?.bucketId || !cart.data.storeId) return null;
     if (formik.values.orderType === "delivery" && !deliveryPlace) return null;
-    if (formik.values.deliveryTime === "scheduled" && !formik.values.scheduledAt) return null;
-    return { storeId: cart.data.storeId, bucketId: cart.data.bucketId, orderType: formik.values.orderType, paymentMethod: formik.values.paymentMethod, ...(formik.values.orderType === "delivery" && deliveryPlace ? { ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId), riderTip: formik.values.riderTip || undefined } : {}), ...(formik.values.deliveryTime === "scheduled" ? { scheduledAt: formik.values.scheduledAt } : {}) };
-  }, [cart.data, deliveryPlace, formik.values.deliveryTime, formik.values.orderType, formik.values.paymentMethod, formik.values.riderTip, formik.values.scheduledAt, selectedSavedAddressId]);
+    return { storeId: cart.data.storeId, bucketId: cart.data.bucketId, orderType: formik.values.orderType, paymentMethod: formik.values.paymentMethod, ...(formik.values.orderType === "delivery" && deliveryPlace ? { ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId), riderTip: formik.values.riderTip || undefined } : {}) };
+  }, [cart.data, deliveryPlace, formik.values.orderType, formik.values.paymentMethod, formik.values.riderTip, selectedSavedAddressId]);
   const preview = useCheckoutPreview(previewInput);
   const activeStripeDraftId = stripePayment?.draftId ?? initialStripeDraftId ?? null;
   const stripeOrderStatus = useStripeOrderStatus(
@@ -227,7 +209,6 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     Math.ceil((Number(preview.data?.pricing.totalAmount ?? 0) - walletBalance) * 100) / 100,
   );
   const walletTopUpHref = `/wallet?topUpAmount=${encodeURIComponent(String(walletShortfall))}&returnTo=checkout`;
-  const schedule = useCheckoutSchedule(cart.data?.storeId ?? null, preview.data?.schedule.scheduleAllowed === true);
   const isAddressPreviewError =
     formik.values.orderType === "delivery" &&
     preview.error instanceof ApiError &&
@@ -238,7 +219,6 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     !isAddressPreviewError &&
     preview.error !== dismissedPreviewError;
 
-  const scheduleOptions = useMemo(() => schedule.data?.days.flatMap((day) => day.slots.filter((slot) => slot.isOpen !== false && slot.isAvailable !== false).map((slot) => ({ value: buildScheduledAt(day.date, slot.start), label: `${day.label || day.dayName} · ${formatSlotTime(slot.start, locale)}–${formatSlotTime(slot.end, locale)}` })).filter((slot) => new Date(slot.value).getTime() > Date.now())) ?? [], [locale, schedule.data]);
 
   useEffect(() => {
     if (!session.isPending && !authenticated) {
@@ -323,9 +303,6 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         orderType: "delivery",
         paymentMethod: formik.values.paymentMethod,
         addressId: address.id,
-        ...(formik.values.deliveryTime === "scheduled" && formik.values.scheduledAt
-          ? { scheduledAt: formik.values.scheduledAt }
-          : {}),
         ...(formik.values.riderTip > 0
           ? { riderTip: formik.values.riderTip }
           : {}),
@@ -412,27 +389,6 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
               {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MapPin aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("addressTitle")}</h2><p className="text-xs text-muted">{t("addressDescription")}</p></div></div>{deliveryPlace ? <button ref={addressTriggerRef} type="button" onClick={() => { setAddressPickerError(""); setIsAddressPickerOpen(true); }} className={`mt-5 flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-[border-color,background-color] hover:border-brand/30 hover:bg-[var(--soft-surface)] ${isAddressPreviewError ? "border-red-300 bg-red-50" : "border-line"}`}><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand"><MapPin aria-hidden="true" className="size-4" /></span><span className="min-w-0 flex-1"><strong className="block text-sm text-ink">{deliveryPlace.label || t("delivery")}</strong><span className="mt-1 block line-clamp-2 text-xs leading-5 text-body">{deliveryPlace.address}</span></span><span className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-brand">{t("changeAddress")}<ChevronRight aria-hidden="true" className="size-4" /></span></button> : <div className="mt-5 rounded-xl border border-dashed border-line p-5 text-center"><p className="text-sm text-body">{t("noAddress")}</p><Link href="/profile/address-book" className="mt-3 inline-flex text-sm font-bold text-brand">{t("addAddress")}</Link></div>}{isAddressPreviewError ? <p role="alert" className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium leading-5 text-red-700">{t("addressUnavailable")}</p> : null}<FieldError message={formik.touched.deliveryLocationKey ? formik.errors.deliveryLocationKey : undefined} /><label className={`mt-4 flex items-center gap-3 rounded-xl bg-[var(--soft-surface)] p-4 ${store?.stripeAllowed === false ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}><input type="checkbox" name="leaveAtDoor" checked={formik.values.leaveAtDoor} disabled={store?.stripeAllowed === false} onChange={(event) => { void formik.setFieldValue("leaveAtDoor", event.target.checked); if (event.target.checked) void formik.setFieldValue("paymentMethod", "stripe"); }} className="size-4 accent-[var(--color-brand)]" /><span><strong className="block text-sm text-ink">{t("leaveAtDoor")}</strong><small className="text-xs text-muted">{t("leaveAtDoorHint")}</small></span></label></section> : null}
 
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6">
-                <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><Clock3 aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("timeTitle")}</h2><p className="text-xs text-muted">{t("timeDescription")}</p></div></div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2"><button type="button" onClick={() => { void formik.setFieldValue("deliveryTime", "standard"); void formik.setFieldValue("scheduledAt", ""); }} className={`flex min-h-14 items-center gap-3 rounded-2xl border px-4 text-left ${formik.values.deliveryTime === "standard" ? "border-brand bg-brand/5" : "border-line"}`}><Clock3 aria-hidden="true" className="size-4 text-brand" /><span><strong className="block text-sm text-ink">{t("standard")}</strong><small className="text-xs text-muted">{t("standardHint")}</small></span></button><button type="button" disabled={store?.scheduleAllowed === false} onClick={() => void formik.setFieldValue("deliveryTime", "scheduled")} className={`flex min-h-14 items-center gap-3 rounded-2xl border px-4 text-left disabled:opacity-40 ${formik.values.deliveryTime === "scheduled" ? "border-brand bg-brand/5" : "border-line"}`}><CalendarClock aria-hidden="true" className="size-4 text-brand" /><span><strong className="block text-sm text-ink">{t("schedule")}</strong><small className="text-xs text-muted">{t("scheduleHint")}</small></span></button></div>
-                {formik.values.deliveryTime === "scheduled" ? (
-                  <div className="mt-4">
-                    <CheckoutScheduleSelect
-                      error={formik.touched.scheduledAt ? formik.errors.scheduledAt : undefined}
-                      isLoading={schedule.isPending}
-                      label={t("chooseSlot")}
-                      loadingLabel={t("loadingSlots")}
-                      onBlur={() => void formik.setFieldTouched("scheduledAt", true)}
-                      onChange={(value) => void formik.setFieldValue("scheduledAt", value)}
-                      options={scheduleOptions}
-                      placeholder={t("selectSlot")}
-                      value={formik.values.scheduledAt}
-                    />
-                    {schedule.isError ? <p className="mt-2 text-xs text-brand">{t("slotsError")}</p> : null}
-                  </div>
-                ) : null}
-              </section>
-
-              <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6">
                 <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><CreditCard aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("paymentTitle")}</h2><p className="text-xs text-muted">{t("paymentDescription")}</p></div></div>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">{(["wallet", "stripe"] as const).map((method) => { const disabled = method === "stripe" && store?.stripeAllowed === false; const Icon = method === "wallet" ? WalletCards : CreditCard; return <label key={method} className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-colors ${disabled ? "cursor-not-allowed opacity-40" : ""} ${formik.values.paymentMethod === method ? "border-brand bg-brand/5" : "border-line"}`}><input type="radio" name="paymentMethod" value={method} checked={formik.values.paymentMethod === method} disabled={disabled} onChange={formik.handleChange} className="accent-[var(--color-brand)]" /><Icon aria-hidden="true" className="size-5 text-brand" /><span><strong className="block text-sm text-ink">{t(method)}</strong><small className="text-xs text-muted">{t(`${method}Hint`)}</small></span></label>; })}</div>
                 {formik.values.paymentMethod === "stripe" ? (
@@ -460,7 +416,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
 
               <CheckoutCouponSection enabled={authenticated} storeId={cart.data.storeId} subtotal={cart.data.totalPrice} appliedCouponId={cart.data.appliedCouponId} appliedCouponCode={cart.data.appliedCouponCode} isCouponNotApplicable={preview.data?.coupon?.isApplied === false} />
 
-              {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><h2 className="font-bold text-ink">{t("tipTitle")}</h2><p className="mt-1 text-xs text-muted">{t("tipDescription")}</p><div className="mt-4 flex flex-wrap gap-2">{TIP_OPTIONS.map((tip) => <button key={tip} type="button" onClick={() => void formik.setFieldValue("riderTip", tip)} className={`min-h-10 rounded-full border px-4 text-sm font-semibold ${formik.values.riderTip === tip ? "border-brand bg-brand text-ink" : "border-line text-ink hover:border-brand/40"}`}>{tip === 0 ? t("noTip") : `${tip}${appCurrency.symbol}`}</button>)}<label className="flex h-11 min-w-36 items-center rounded-full border border-line bg-surface px-4 text-sm text-muted transition-colors focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10"><input aria-label={t("customTip")} inputMode="decimal" type="number" min="0" max="10000" step="0.01" name="riderTip" value={TIP_OPTIONS.includes(formik.values.riderTip) ? "" : formik.values.riderTip} onChange={(event) => void formik.setFieldValue("riderTip", Number(event.target.value) || 0)} placeholder={t("customTip")} className="w-24 appearance-none bg-transparent px-1 text-base text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" /><span>{appCurrency.symbol}</span></label></div><FieldError message={formik.touched.riderTip ? formik.errors.riderTip : undefined} /></section> : null}
+              {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><h2 className="font-bold text-ink">{t("tipTitle")}</h2><p className="mt-1 text-xs text-muted">{t("tipDescription")}</p><div className="mt-4 flex flex-wrap gap-2">{TIP_OPTIONS.map((tip) => <button key={tip} type="button" onClick={() => void formik.setFieldValue("riderTip", tip)} className={`min-h-10 rounded-full border px-4 text-sm font-semibold ${formik.values.riderTip === tip ? "border-brand bg-brand text-ink" : "border-line text-ink hover:border-brand/40"}`}>{tip === 0 ? t("noTip") : `${tip}${currencySymbol}`}</button>)}<label className="flex h-11 min-w-36 items-center rounded-full border border-line bg-surface px-4 text-sm text-muted transition-colors focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10"><input aria-label={t("customTip")} inputMode="decimal" type="number" min="0" max="10000" step="0.01" name="riderTip" value={TIP_OPTIONS.includes(formik.values.riderTip) ? "" : formik.values.riderTip} onChange={(event) => void formik.setFieldValue("riderTip", Number(event.target.value) || 0)} placeholder={t("customTip")} className="w-24 appearance-none bg-transparent px-1 text-base text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" /><span>{currencySymbol}</span></label></div><FieldError message={formik.touched.riderTip ? formik.errors.riderTip : undefined} /></section> : null}
 
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MessageSquareText aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("notesTitle")}</h2><p className="text-xs text-muted">{t("notesDescription")}</p></div></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-xs font-semibold text-ink">{t("restaurantNote")}<textarea name="restaurantNote" maxLength={250} rows={3} value={formik.values.restaurantNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("restaurantNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.restaurantNote ? formik.errors.restaurantNote : undefined} /></label>{formik.values.orderType === "delivery" ? <label className="text-xs font-semibold text-ink">{t("courierNote")}<textarea name="courierNote" maxLength={250} rows={3} value={formik.values.courierNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("courierNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.courierNote ? formik.errors.courierNote : undefined} /></label> : null}</div></section>
 

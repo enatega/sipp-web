@@ -3,7 +3,7 @@
 import { ChevronDown, LoaderCircle, TicketPercent } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { CouponListItem } from "@/modules/account/components/profile/CouponListItem";
 import { useClaimCouponMutation, useClaimedCouponsQuery, useCouponActivationMutation } from "@/modules/account/queries/useCouponQueries";
 import { ApiError } from "@/services/api/client";
@@ -22,6 +22,7 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
   const t = useTranslations("deliveries.checkout");
   const couponT = useTranslations("coupons");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const coupons = useClaimedCouponsQuery(enabled);
   const claim = useClaimCouponMutation();
   const activation = useCouponActivationMutation();

@@ -11,10 +11,10 @@ import { useActionToast } from "@/components/shared/useActionToast";
 import { useWalletTopUpMutation } from "@/modules/account/queries/useAccountQueries";
 import { ApiError } from "@/services/api/client";
 import type { SavedCard } from "@/modules/account/types";
+import { useAppCurrency } from "@/lib/useAppCurrency";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
-const AMOUNTS = [500, 1000, 2500, 5000];
 
 interface Props {
   open: boolean;
@@ -29,6 +29,11 @@ interface Props {
 export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCheckout = false, onAddCard, onClose, onCompleted }: Props) {
   const t = useTranslations("wallet");
   const format = useFormatter();
+  const { code, symbol } = useAppCurrency();
+  const minimumAmount = code.toUpperCase() === "CRC" ? 500 : code.toUpperCase() === "JPY" ? 1 : 0.01;
+  const amounts = code.toUpperCase() === "CRC" ? [500, 1000, 2500, 5000] : [10, 25, 50, 100];
+  const fractionDigits = code.toUpperCase() === "JPY" ? 0 : 2;
+  const money = (value: number) => `${symbol} ${format.number(value, { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits })}`;
   const topUp = useWalletTopUpMutation();
   const notify = useActionToast();
   const [isConfirming, setIsConfirming] = useState(false);
@@ -40,7 +45,7 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
   const formik = useFormik({
     initialValues: { amount: "", paymentMethodId: "" },
     validationSchema: yup.object({
-      amount: yup.string().required(t("topUpAmountRequired")).matches(/^\d+(?:\.\d{1,2})?$/, t("topUpAmountInvalid")).test("range", t("topUpAmountRange"), (value) => Number(value) >= 500 && Number(value) <= 999_999.99),
+      amount: yup.string().required(t("topUpAmountRequired")).matches(code.toUpperCase() === "JPY" ? /^\d+$/ : /^\d+(?:\.\d{1,2})?$/, t("topUpAmountInvalid")).test("range", t("topUpAmountRange", { minimum: money(minimumAmount), maximum: money(999_999.99) }), (value) => Number(value) >= minimumAmount && Number(value) <= 999_999.99),
       paymentMethodId: yup.string().required(t("topUpChooseCard")),
     }),
     onSubmit: async (values) => {
@@ -109,9 +114,8 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
   if (!open) return null;
 
   const amount = Number(formik.values.amount);
-  const isValidAmount = /^\d+(?:\.\d{1,2})?$/.test(formik.values.amount) && amount >= 500 && amount <= 999_999.99;
+  const isValidAmount = (code.toUpperCase() === "JPY" ? /^\d+$/ : /^\d+(?:\.\d{1,2})?$/).test(formik.values.amount) && amount >= minimumAmount && amount <= 999_999.99;
   const isReady = isValidAmount && Boolean(formik.values.paymentMethodId) && Boolean(publishableKey) && !isBusy;
-  const money = (value: number) => `₡ ${format.number(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-labelledby="wallet-topup-title" onClick={(event) => { if (event.target === event.currentTarget && !isBusy) closeModal(); }}>
@@ -151,12 +155,12 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
 
             <label className="mt-7 block text-sm font-semibold text-ink" htmlFor="wallet-topup-amount">{t("topUpAmount")}</label>
             <div className="mt-2 flex h-20 items-center gap-2 rounded-2xl border border-line bg-soft-surface px-5 focus-within:border-brand">
-              <span className="text-3xl font-bold text-ink">₡</span>
-              <input ref={amountInput} autoComplete="off" className="min-w-0 flex-1 bg-transparent text-3xl font-semibold tabular-nums text-ink outline-none placeholder:text-muted" disabled={isBusy} id="wallet-topup-amount" inputMode="decimal" name="amount" onBlur={formik.handleBlur} onChange={(event) => { const next = event.target.value.replace(",", "."); if (/^\d*(?:\.\d{0,2})?$/.test(next)) void formik.setFieldValue("amount", next); }} placeholder="0" value={formik.values.amount} />
+              <span className="text-3xl font-bold text-ink">{symbol}</span>
+              <input ref={amountInput} autoComplete="off" className="min-w-0 flex-1 bg-transparent text-3xl font-semibold tabular-nums text-ink outline-none placeholder:text-muted" disabled={isBusy} id="wallet-topup-amount" inputMode={code.toUpperCase() === "JPY" ? "numeric" : "decimal"} name="amount" onBlur={formik.handleBlur} onChange={(event) => { const next = event.target.value.replace(",", "."); if ((code.toUpperCase() === "JPY" ? /^\d*$/ : /^\d*(?:\.\d{0,2})?$/).test(next)) void formik.setFieldValue("amount", next); }} placeholder="0" value={formik.values.amount} />
             </div>
-            <p className={`mt-2 text-xs ${formik.values.amount && !isValidAmount ? "text-danger" : "text-muted"}`}>{amount > 999_999.99 ? t("topUpAmountRange") : t("topUpMinimum")}</p>
+            <p className={`mt-2 text-xs ${formik.values.amount && !isValidAmount ? "text-danger" : "text-muted"}`}>{amount > 999_999.99 ? t("topUpAmountRange", { minimum: money(minimumAmount), maximum: money(999_999.99) }) : t("topUpMinimum", { minimum: money(minimumAmount) })}</p>
             <div className="mt-4 grid grid-cols-4 gap-2">
-              {AMOUNTS.map((preset) => <button aria-pressed={amount === preset} className={`min-h-11 rounded-xl border px-1 text-xs font-semibold tabular-nums transition-colors ${amount === preset ? "border-brand bg-brand text-ink" : "border-line bg-soft-surface text-body hover:border-brand/50"}`} disabled={isBusy} key={preset} onClick={() => void formik.setFieldValue("amount", String(preset))} type="button">₡ {format.number(preset)}</button>)}
+              {amounts.map((preset) => <button aria-pressed={amount === preset} className={`min-h-11 rounded-xl border px-1 text-xs font-semibold tabular-nums transition-colors ${amount === preset ? "border-brand bg-brand text-ink" : "border-line bg-soft-surface text-body hover:border-brand/50"}`} disabled={isBusy} key={preset} onClick={() => void formik.setFieldValue("amount", String(preset))} type="button">{symbol} {format.number(preset)}</button>)}
             </div>
             {formik.submitCount && (formik.errors.amount || formik.errors.paymentMethodId) ? <p className="mt-3 text-sm text-danger" role="alert">{formik.errors.amount || formik.errors.paymentMethodId}</p> : null}
             {!publishableKey ? <p className="mt-3 text-sm text-danger" role="alert">{t("topUpUnavailable")}</p> : null}

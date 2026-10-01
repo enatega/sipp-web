@@ -19,6 +19,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { useAppCurrency } from "@/lib/useAppCurrency";
 
 import { useActionToast } from "@/components/shared/useActionToast";
 import { AddCardModal } from "@/modules/account/components/profile/AddCardModal";
@@ -26,7 +27,6 @@ import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSide
 import { WalletTopUpModal } from "@/modules/account/components/profile/WalletTopUpModal";
 import { accountQueryKeys } from "@/modules/account/queries/queryKeys";
 import {
-  useActiveCurrencyQuery,
   useCreateSavedCardSetupIntentMutation,
   useSavedCardsQuery,
   useSessionQuery,
@@ -39,7 +39,6 @@ import type {
   WalletTransaction,
 } from "@/modules/account/types";
 
-const FALLBACK_CURRENCY_SYMBOL = "₡";
 
 function formatExpiry(month: number, year: number) {
   return `${String(month).padStart(2, "0")}/${String(year).slice(-2)}`;
@@ -245,7 +244,7 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const wallet = useWalletQuery(authenticated);
-  const currency = useActiveCurrencyQuery(authenticated);
+  const currency = useAppCurrency();
   const cards = useSavedCardsQuery(authenticated);
   const transactions = useWalletTransactionsQuery(authenticated);
   const setupIntent = useCreateSavedCardSetupIntentMutation();
@@ -279,8 +278,7 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
   }, [transactions.data?.pages]);
   const totalTransactions = transactions.data?.pages[0]?.total ?? 0;
   const savedCards = cards.data?.cards ?? [];
-  const currencySymbol =
-    currency.data?.symbol?.trim() || FALLBACK_CURRENCY_SYMBOL;
+  const currencySymbol = currency.symbol;
 
   function openAddCard() {
     setIsAddingCard(true);
@@ -366,7 +364,7 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
                     <button className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white/20 px-4 text-xs font-bold text-white" onClick={() => void wallet.refetch()} type="button"><RefreshCw aria-hidden="true" className="size-4" />{t("retryBalance")}</button>
                   ) : (
                     <strong className="min-w-0 truncate text-3xl font-bold tracking-[-0.03em] tabular-nums drop-shadow-md sm:text-[42px]">
-                      {isBalanceVisible ? `₡ ${format.number(Number(wallet.data?.data?.wallet_balance ?? 0), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "₡ ••••••"}
+                      {isBalanceVisible ? formatMoney(Number(wallet.data?.data?.wallet_balance ?? 0), currencySymbol, format) : `${currencySymbol} ••••••`}
                     </strong>
                   )}
                   <button aria-label={isBalanceVisible ? t("hideBalance") : t("showBalance")} aria-pressed={isBalanceVisible} className="grid size-10 shrink-0 place-items-center rounded-2xl bg-white/90 text-[var(--wallet-hero-start)] transition-colors hover:bg-white disabled:opacity-60" disabled={wallet.isPending || wallet.isError} onClick={() => setIsBalanceVisible((value) => !value)} type="button">{isBalanceVisible ? <EyeOff aria-hidden="true" className="size-5" /> : <Eye aria-hidden="true" className="size-5" />}</button>

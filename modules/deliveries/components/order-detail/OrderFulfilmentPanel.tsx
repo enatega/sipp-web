@@ -14,6 +14,8 @@ import type { OrderDetail } from "../../types/orders";
 
 interface Props {
   order: OrderDetail;
+  onOpenRiderChat?: () => void;
+  riderChatUnread?: number;
 }
 
 interface DetailRowProps {
@@ -36,7 +38,7 @@ function DetailRow({ icon: Icon, label, value }: DetailRowProps) {
   );
 }
 
-export function OrderFulfilmentPanel({ order }: Props) {
+export function OrderFulfilmentPanel({ order, onOpenRiderChat, riderChatUnread = 0 }: Props) {
   const t = useTranslations("deliveries.orderDetails");
   const format = useFormatter();
   const isPickup = order.orderType === "pickup";
@@ -64,6 +66,7 @@ export function OrderFulfilmentPanel({ order }: Props) {
       typeof distance === "number" ||
       order.rider?.name ||
       riderPhone ||
+      onOpenRiderChat ||
       order.restaurantNote ||
       order.courierNote,
   );
@@ -131,6 +134,13 @@ export function OrderFulfilmentPanel({ order }: Props) {
               </span>
             </span>
           </a>
+        ) : null}
+        {onOpenRiderChat ? (
+          <button className="flex min-w-0 items-center gap-3 rounded-xl text-left transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30" onClick={onOpenRiderChat} type="button">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[var(--soft-surface)] text-brand"><MessageSquareText aria-hidden="true" className="size-4" /></span>
+            <span className="text-sm font-semibold text-ink">{t("chatWithRider")}</span>
+            {riderChatUnread > 0 ? <span aria-label={t("unreadRiderMessages", { count: riderChatUnread })} className="grid min-w-5 place-items-center rounded-full bg-brand px-1 text-xs font-bold text-ink">{riderChatUnread > 99 ? "99+" : riderChatUnread}</span> : null}
+          </button>
         ) : null}
       </div>
 

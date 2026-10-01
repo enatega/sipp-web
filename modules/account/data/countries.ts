@@ -254,7 +254,11 @@ export function flagFor(iso: string) {
 }
 
 export const defaultCountry =
-  countries.find((country) => country.iso === "AU") ?? countries[0];
+  countries.find((country) => country.iso === "CR") ?? countries[0];
+
+export function countryByIso(iso: string) {
+  return countries.find((country) => country.iso === iso.toUpperCase()) ?? null;
+}
 
 /** Longest dial code first, so "+1264" wins over "+1" when matching. */
 const byDialLength = [...countries].sort(

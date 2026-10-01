@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Icon, type IconName } from "@/components/shared/brand/Icon";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import {
   useProfileQuery,
@@ -71,6 +71,7 @@ export function ProfileDashboard() {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("profile");
+  const formatAppCurrency = useAppCurrencyFormatter();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const profile = useProfileQuery(authenticated);

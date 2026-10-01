@@ -24,7 +24,7 @@ export const paymentApi = {
   topUp(input: WalletTopUpPayload) {
     return requestJson<WalletTopUpResult>(apiRoutes.profileWalletTopUp, {
       method: "POST",
-      body: JSON.stringify({ ...input, currency: "CRC" }),
+      body: JSON.stringify(input),
     });
   },
   remove(paymentMethodId: string) {

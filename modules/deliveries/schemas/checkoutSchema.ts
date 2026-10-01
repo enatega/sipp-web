@@ -4,8 +4,6 @@ export interface CheckoutFormValues {
   orderType: "delivery" | "pickup";
   deliveryLocationKey: string;
   paymentMethod: "wallet" | "stripe";
-  deliveryTime: "standard" | "scheduled";
-  scheduledAt: string;
   restaurantNote: string;
   courierNote: string;
   leaveAtDoor: boolean;
@@ -14,7 +12,6 @@ export interface CheckoutFormValues {
 
 export function checkoutSchema(messages: {
   addressRequired: string;
-  scheduleRequired: string;
   noteTooLong: string;
   invalidTip: string;
 }) {
@@ -26,12 +23,6 @@ export function checkoutSchema(messages: {
       otherwise: (schema) => schema.default(""),
     }),
     paymentMethod: yup.mixed<CheckoutFormValues["paymentMethod"]>().oneOf(["wallet", "stripe"]).required(),
-    deliveryTime: yup.mixed<CheckoutFormValues["deliveryTime"]>().oneOf(["standard", "scheduled"]).required(),
-    scheduledAt: yup.string().when("deliveryTime", {
-      is: "scheduled",
-      then: (schema) => schema.required(messages.scheduleRequired),
-      otherwise: (schema) => schema.default(""),
-    }),
     restaurantNote: yup.string().trim().max(250, messages.noteTooLong).defined().default(""),
     courierNote: yup.string().trim().max(250, messages.noteTooLong).defined().default(""),
     leaveAtDoor: yup.boolean().required().default(false),

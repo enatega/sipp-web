@@ -2,17 +2,19 @@ export class ApiError extends Error {
   readonly status: number;
   readonly code?: string;
   readonly fieldErrors?: Record<string, string>;
+  readonly fields?: Array<"email" | "phone">;
 
   constructor(
     message: string,
     status: number,
-    options?: { code?: string; fieldErrors?: Record<string, string> },
+    options?: { code?: string; fieldErrors?: Record<string, string>; fields?: Array<"email" | "phone"> },
   ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.code = options?.code;
     this.fieldErrors = options?.fieldErrors;
+    this.fields = options?.fields;
   }
 }
 
@@ -77,6 +79,7 @@ export async function requestJson<T>(
     message?: string;
     code?: string;
     fieldErrors?: Record<string, string>;
+    fields?: Array<"email" | "phone">;
   };
 
   if (!response.ok) {
@@ -97,7 +100,7 @@ export async function requestJson<T>(
     throw new ApiError(
       data.message || "Something went wrong. Please try again.",
       response.status,
-      { code: data.code, fieldErrors: data.fieldErrors },
+      { code: data.code, fieldErrors: data.fieldErrors, fields: data.fields },
     );
   }
 

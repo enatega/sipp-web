@@ -4,7 +4,7 @@ import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "
 import Link from "next/link";
 import { Check, ChevronRight, LoaderCircle, Minus, Plus, ShoppingCart, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { ApiError } from "@/services/api/client";
 import { cn } from "@/lib/utils";
 import { useActionToast } from "@/components/shared/useActionToast";
@@ -33,6 +33,7 @@ interface Props {
 export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose, onRequireSignIn, productId, storeName }: Props) {
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const locale = useLocale();
   const { info, customizations } = useProductConfiguration(productId);
   const cart = useCartQuery(isAuthenticated);
@@ -104,6 +105,7 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
     <PriceWithOriginal
       discounted={applyProductDeal(price, deal)}
       format={format}
+      formatAppCurrency={formatAppCurrency}
       original={price}
       originalLabel={(value) => t("originalPrice", { price: value })}
     />
@@ -465,11 +467,12 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
 interface PriceWithOriginalProps {
   discounted: number;
   format: ReturnType<typeof useFormatter>;
+  formatAppCurrency: ReturnType<typeof useAppCurrencyFormatter>;
   original: number;
   originalLabel: (price: string) => string;
 }
 
-function PriceWithOriginal({ discounted, format, original, originalLabel }: PriceWithOriginalProps) {
+function PriceWithOriginal({ discounted, format, formatAppCurrency, original, originalLabel }: PriceWithOriginalProps) {
   if (discounted >= original) {
     return <span className="text-muted">{formatAppCurrency(format, original)}</span>;
   }

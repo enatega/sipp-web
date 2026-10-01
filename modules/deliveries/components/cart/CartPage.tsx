@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, LoaderCircle, ShoppingBag, ShoppingCart, Sparkles, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
@@ -40,6 +40,7 @@ export function CartPage() {
   const t = useTranslations("deliveries.cart");
   const restaurantText = useTranslations("deliveries.restaurant");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const cart = useCartQuery(authenticated);

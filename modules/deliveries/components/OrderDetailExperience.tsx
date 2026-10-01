@@ -17,6 +17,7 @@ import { HistoryBackButton } from "@/components/shared/HistoryBackButton";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import { OrderDetailSkeleton } from "./order-detail/OrderDetailSkeleton";
 import { OrderFulfilmentPanel } from "./order-detail/OrderFulfilmentPanel";
+import { OrderRiderChatDialog } from "./order-detail/OrderRiderChatDialog";
 import { OrderItemsPanel } from "./order-detail/OrderItemsPanel";
 import { OrderRouteMap } from "./order-detail/OrderRouteMap";
 import { OrderReviewDrawer } from "./order-detail/OrderReviewDrawer";
@@ -29,6 +30,7 @@ import {
 } from "../hooks/useOrderDetail";
 import { useOrderAgain } from "../hooks/useOrderAgain";
 import { useOrderTrackingSync } from "../hooks/useOrderTrackingSync";
+import { useOrderChatUnread } from "../hooks/useOrderChat";
 import {
   getOrderCode,
   RATEABLE_ORDER_STATUSES,
@@ -56,6 +58,8 @@ export function OrderDetailExperience({ orderId }: Props) {
   const orderAgain = useOrderAgain();
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [isRiderChatOpen, setIsRiderChatOpen] = useState(false);
+  const chatUnread = useOrderChatUnread(Boolean(orderQuery.data?.rider?.userId));
   const cancelOrder = useCancelOrder();
   const isRateable = RATEABLE_ORDER_STATUSES.has(orderQuery.data?.status ?? "");
   const reviewQuery = useOrderReviewQuery(orderId, isRateable);
@@ -93,6 +97,8 @@ export function OrderDetailExperience({ orderId }: Props) {
   const products = order.orderItems?.products ?? [];
   const storeHref = order.store?.id ? `/restaurants/${order.store.id}` : "/discovery";
   const canCancel = ["pending", "scheduled"].includes(order.status.trim().toLowerCase());
+  const canChatWithRider = Boolean(order.rider?.userId) && !TERMINAL_ORDER_STATUSES.has(order.status.trim().toLowerCase());
+  const riderChatUnread = chatUnread.data?.byOrderAndKind?.[orderId]?.customer_rider ?? 0;
 
   return (
     <div className="min-[700px]:grid min-[700px]:grid-cols-[240px_1fr]">
@@ -189,7 +195,7 @@ export function OrderDetailExperience({ orderId }: Props) {
             <div className="min-w-0 space-y-6">
               <OrderStatusPanel order={order} />
               <OrderItemsPanel products={products} />
-              <OrderFulfilmentPanel order={order} />
+              <OrderFulfilmentPanel order={order} onOpenRiderChat={canChatWithRider ? () => setIsRiderChatOpen(true) : undefined} riderChatUnread={riderChatUnread} />
             </div>
             <OrderSummaryPanel order={order} />
           </div>
@@ -220,6 +226,10 @@ export function OrderDetailExperience({ orderId }: Props) {
             </div>
           </div>
         </div>
+      ) : null}
+
+      {isRiderChatOpen ? (
+        <OrderRiderChatDialog onClose={() => setIsRiderChatOpen(false)} orderId={orderId} riderName={order.rider?.name || t("courier")} riderUserId={order.rider?.userId ?? null} />
       ) : null}
 
       {orderAgain.hasConflict ? (

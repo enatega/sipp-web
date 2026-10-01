@@ -2,8 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormik } from "formik";
+import { LoaderCircle } from "lucide-react";
+import { parsePhoneNumberFromString } from "libphonenumber-js/max";
+import { ValidationError } from "yup";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AuthBrand } from "@/modules/account/components/auth/AuthBrand";
@@ -27,7 +30,7 @@ import {
 } from "@/modules/account/components/auth/styles";
 import { AuthApiError } from "@/modules/account/api/auth";
 import { setIntentionalLogout } from "@/services/api/client";
-import { defaultCountry } from "@/modules/account/data/countries";
+import { countryByIso, defaultCountry } from "@/modules/account/data/countries";
 import {
   formatNationalPhoneInput,
   phoneExample,
@@ -35,6 +38,7 @@ import {
 } from "@/modules/account/utils/phone";
 import {
   useEmailExistsMutation,
+  useCountryRegionQuery,
   useLoginMutation,
   useSendPhoneOtpMutation,
   useSendSignupOtpMutation,
@@ -67,6 +71,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   const t = useTranslations("auth");
   const common = useTranslations("common");
   const emailExists = useEmailExistsMutation();
+  const countryRegion = useCountryRegionQuery();
   const login = useLoginMutation();
   const sendPhoneOtp = useSendPhoneOtpMutation();
   const sendSignupOtp = useSendSignupOtpMutation();
@@ -77,6 +82,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
     phone: t("invalidPhone"),
     name: t("invalidName"),
     password: t("invalidPassword"),
+    signupPassword: t("signupInvalidPassword"),
     passwordsMatch: t("passwordsMismatch"),
     otp: t("invalidOtp"),
   });
@@ -91,6 +97,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendIn, setResendIn] = useState(30);
+  const manuallySelectedCountry = useRef(false);
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -129,6 +136,18 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
     country: country.name,
     example: selectedPhoneExample || `+${country.dial}`,
   });
+  const detectedCountry = countryRegion.data?.country
+    ? countryByIso(countryRegion.data.country)
+    : null;
+  const countryLookupPending = !manuallySelectedCountry.current && !phone.trim() && (
+    countryRegion.isPending || Boolean(detectedCountry && country.iso !== detectedCountry.iso)
+  );
+
+  useEffect(() => {
+    if (manuallySelectedCountry.current || phone.trim() || !countryRegion.data?.country) return;
+    const resolvedCountry = countryByIso(countryRegion.data.country);
+    if (resolvedCountry) void formik.setFieldValue("country", resolvedCountry, false);
+  }, [countryRegion.data?.country, phone]);
 
   function validatedPhone() {
     if (!phoneValidation.e164) throw new Error(phoneGuidance);
@@ -136,6 +155,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   }
 
   function changeCountry(nextCountry: typeof country) {
+    manuallySelectedCountry.current = true;
     void formik.setFieldValue("country", nextCountry, false);
     void formik.setFieldValue(
       "phone",
@@ -146,11 +166,28 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   }
 
   function changePhone(value: string) {
+    if (value.trim().startsWith("+")) {
+      const parsed = parsePhoneNumberFromString(value);
+      const detectedCountry = parsed?.country ? countryByIso(parsed.country) : null;
+      if (detectedCountry) {
+        manuallySelectedCountry.current = true;
+        void formik.setFieldValue("country", detectedCountry, false);
+        void formik.setFieldValue("phone", parsed!.formatNational(), false);
+        void formik.setFieldError("phone", undefined);
+        setError("");
+        return;
+      }
+      void formik.setFieldValue("phone", value.slice(0, 22), false);
+      void formik.setFieldError("phone", undefined);
+      setError("");
+      return;
+    }
     void formik.setFieldValue(
       "phone",
       formatNationalPhoneInput(value, country),
       false,
     );
+    void formik.setFieldError("phone", undefined);
     setError("");
   }
 
@@ -165,12 +202,14 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
 
   const goTo = (next: View) => {
     setError("");
+    formik.setErrors({});
     void formik.setFieldValue("otp", "", false);
     if (next !== "otp") setLockedField(null);
     setView(next);
   };
 
   const finishAuth = () => {
+    formik.resetForm();
     setIntentionalLogout(false);
     window.dispatchEvent(new Event("shaaneiol-auth-change"));
     toast.success(t("loginSuccess"));
@@ -254,19 +293,42 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
 
   const submitSignup = () =>
     run(async () => {
-      const composed = validatedPhone();
-      await schemas.signup.validate({
-        name,
-        email,
-        phone: composed,
-        password: signupPassword,
-        confirmPassword,
-      });
+      formik.setErrors({});
+      const composed = phoneValidation.e164;
+      try {
+        await schemas.signup.validate({
+          name,
+          email,
+          phone: composed,
+          password: signupPassword,
+          confirmPassword,
+        }, { abortEarly: false });
+      } catch (caught) {
+        if (!(caught instanceof ValidationError)) throw caught;
+        const seen = new Set<string>();
+        for (const issue of caught.inner.length ? caught.inner : [caught]) {
+          const field = issue.path === "password" ? "signupPassword" : issue.path;
+          if (field && !seen.has(field)) {
+            seen.add(field);
+            void formik.setFieldError(field, issue.message);
+          }
+        }
+        return;
+      }
 
-      await sendSignupOtp.mutateAsync({
-        email: email.trim().toLowerCase(),
-        phone: composed,
-      });
+      try {
+        await sendSignupOtp.mutateAsync({
+          email: email.trim().toLowerCase(),
+          phone: composed!,
+        });
+      } catch (caught) {
+        if (handleSignupConflict(caught)) return;
+        if (caught instanceof AuthApiError && caught.status === 429) {
+          setError(t("signupRateLimited"));
+          return;
+        }
+        throw caught;
+      }
       setOtpPurpose("signup");
       setResendIn(30);
       setView("otp");
@@ -280,13 +342,18 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
       if (otpPurpose === "phone-login") {
         await verifyPhoneOtp.mutateAsync({ phone: composed, otp });
       } else {
-        await verifySignupOtp.mutateAsync({
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-          phone: composed,
-          password: signupPassword,
-          otp,
-        });
+        try {
+          await verifySignupOtp.mutateAsync({
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            phone: composed,
+            password: signupPassword,
+            otp,
+          });
+        } catch (caught) {
+          if (handleSignupConflict(caught)) return;
+          throw caught;
+        }
       }
       finishAuth();
     });
@@ -298,14 +365,40 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
       if (otpPurpose === "phone-login") {
         await sendPhoneOtp.mutateAsync({ phone: composed });
       } else {
-        await sendSignupOtp.mutateAsync({
-          email: email.trim().toLowerCase(),
-          phone: composed,
-        });
+        try {
+          await sendSignupOtp.mutateAsync({
+            email: email.trim().toLowerCase(),
+            phone: composed,
+          });
+        } catch (caught) {
+          if (handleSignupConflict(caught)) return;
+          if (caught instanceof AuthApiError && caught.status === 429) {
+            setError(t("signupRateLimited"));
+            return;
+          }
+          throw caught;
+        }
       }
       setResendIn(30);
     });
   };
+
+  function handleSignupConflict(caught: unknown) {
+    if (!(caught instanceof AuthApiError) || caught.status !== 409) return false;
+    const fields = caught.fields?.length
+      ? caught.fields
+      : caught.code === "SIGNUP_EMAIL_EXISTS"
+        ? ["email"]
+        : caught.code === "SIGNUP_PHONE_EXISTS"
+          ? ["phone"]
+          : [];
+    if (fields.includes("email")) void formik.setFieldError("email", t("signupEmailExists"));
+    if (fields.includes("phone")) void formik.setFieldError("phone", t("signupPhoneExists"));
+    if (lockedField && fields.includes(lockedField)) setLockedField(null);
+    if (fields.length === 0) setError(t("signupContactExists"));
+    setView("signup");
+    return true;
+  }
 
   const lockedInput =
     "cursor-not-allowed border-[#e6e8ec] bg-[#f1f2f4] text-[#6c6f76]";
@@ -506,11 +599,13 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                 <label className={fieldShell}>
                   <span className={fieldLabel}>{t("mobile")}</span>
                   <span className={`relative flex h-[clamp(48px,3vw,58px)] items-center rounded-[9px] border bg-[#fbfbfc] focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(102,192,242,0.1)] ${phoneIsInvalid ? "border-danger" : phoneValidation.isValid ? "border-emerald-500" : "border-brand focus-within:border-brand"}`}>
-                    <CountrySelect
-                      value={country}
-                      onChange={changeCountry}
-                      disabled={loading}
-                    />
+                    {countryLookupPending ? (
+                      <span className="grid h-full min-w-20 place-items-center border-e border-line text-brand" role="status" aria-label={t("pleaseWait")}>
+                        <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                      </span>
+                    ) : (
+                      <CountrySelect value={country} onChange={changeCountry} disabled={loading} />
+                    )}
                     <input
                       className="h-full w-full border-0 bg-transparent px-4 text-[clamp(13px,1.1vw,16px)] text-[#181a1e] caret-brand outline-none placeholder:text-[#9a9da4]"
                       value={phone}
@@ -521,7 +616,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                       maxLength={22}
                       aria-invalid={phoneIsInvalid}
                       aria-describedby="login-phone-guidance"
-                      disabled={loading}
+                      disabled={loading || countryLookupPending}
                     />
                   </span>
                   <small id="login-phone-guidance" aria-live="polite" className={`text-[11px] leading-5 ${phoneIsInvalid ? "font-medium text-danger" : phoneValidation.isValid ? "font-medium text-emerald-700 dark:text-emerald-300" : "text-[#8a8d94]"}`}>
@@ -588,11 +683,14 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                   <input
                     className={`${fieldInput} h-[clamp(42px,5.2vh,48px)]`}
                     value={name}
-                    onChange={(event) => void formik.setFieldValue("name", event.target.value, false)}
+                    onChange={(event) => { void formik.setFieldValue("name", event.target.value, false); void formik.setFieldError("name", undefined); }}
                     placeholder={t("namePlaceholder")}
                     autoComplete="name"
+                    aria-invalid={Boolean(formik.errors.name)}
+                    aria-describedby={formik.errors.name ? "signup-name-error" : undefined}
                     disabled={loading}
                   />
+                  {formik.errors.name ? <small id="signup-name-error" className={errorNote} role="alert">{formik.errors.name}</small> : null}
                 </label>
                 <label className="flex flex-col gap-1.5">
                   <span className={fieldLabel}>{t("email")}</span>
@@ -601,13 +699,14 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                       lockedField === "email" ? lockedInput : ""
                     }`}
                     value={email}
-                    onChange={(event) => void formik.setFieldValue("email", event.target.value, false)}
+                    onChange={(event) => { void formik.setFieldValue("email", event.target.value, false); void formik.setFieldError("email", undefined); }}
                     placeholder="name@example.com"
                     type="email"
                     autoComplete="email"
                     readOnly={lockedField === "email"}
+                    aria-invalid={Boolean(formik.errors.email)}
                     aria-describedby={
-                      lockedField === "email" ? "signup-email-locked" : undefined
+                      formik.errors.email ? "signup-email-error" : lockedField === "email" ? "signup-email-locked" : undefined
                     }
                     disabled={loading}
                   />
@@ -623,6 +722,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                       </button>
                     </small>
                   ) : null}
+                  {formik.errors.email ? <small id="signup-email-error" className={errorNote} role="alert">{formik.errors.email}</small> : null}
                 </label>
                 <label className="flex flex-col gap-1.5">
                   <span className={fieldLabel}>{t("mobile")}</span>
@@ -633,11 +733,13 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                         : `${phoneIsInvalid ? "border-danger" : phoneValidation.isValid ? "border-emerald-500" : "border-brand focus-within:border-brand"} bg-[#fbfbfc] focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(102,192,242,0.1)]`
                     }`}
                   >
-                    <CountrySelect
-                      value={country}
-                      onChange={changeCountry}
-                      disabled={loading || lockedField === "phone"}
-                    />
+                    {countryLookupPending ? (
+                      <span className="grid h-full min-w-20 place-items-center border-e border-line text-brand" role="status" aria-label={t("pleaseWait")}>
+                        <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                      </span>
+                    ) : (
+                      <CountrySelect value={country} onChange={changeCountry} disabled={loading || lockedField === "phone"} />
+                    )}
                     <input
                       className={`h-full w-full border-0 bg-transparent px-4 text-[clamp(13px,1.1vw,16px)] caret-brand outline-none placeholder:text-[#9a9da4] ${
                         lockedField === "phone"
@@ -651,11 +753,11 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                       autoComplete="tel"
                       maxLength={22}
                       readOnly={lockedField === "phone"}
-                      aria-invalid={phoneIsInvalid}
+                      aria-invalid={phoneIsInvalid || Boolean(formik.errors.phone)}
                       aria-describedby={
-                        lockedField === "phone" ? "signup-phone-locked" : "signup-phone-guidance"
+                        formik.errors.phone ? "signup-phone-error" : lockedField === "phone" ? "signup-phone-locked" : "signup-phone-guidance"
                       }
-                      disabled={loading}
+                      disabled={loading || countryLookupPending}
                     />
                   </span>
                   {lockedField === "phone" ? (
@@ -674,28 +776,35 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                       {phoneValidation.isValid ? t("phoneValid") : phoneGuidance}
                     </small>
                   )}
+                  {formik.errors.phone ? <small id="signup-phone-error" className={errorNote} role="alert">{formik.errors.phone}</small> : null}
                 </label>
                 <label className="flex flex-col gap-1.5">
                   <span className={fieldLabel}>{t("password")}</span>
                   <PasswordInput
                     className="h-[clamp(42px,5.2vh,48px)]"
                     value={signupPassword}
-                    onChange={(event) => void formik.setFieldValue("signupPassword", event.target.value, false)}
+                    onChange={(event) => { void formik.setFieldValue("signupPassword", event.target.value, false); void formik.setFieldError("signupPassword", undefined); }}
                     placeholder={t("newPasswordPlaceholder")}
                     autoComplete="new-password"
+                    aria-invalid={Boolean(formik.errors.signupPassword)}
+                    aria-describedby="signup-password-guidance"
                     disabled={loading}
                   />
+                  <small id="signup-password-guidance" className="text-[11px] text-muted">{t("signupInvalidPassword")}</small>
+                  {formik.errors.signupPassword ? <small className={errorNote} role="alert">{formik.errors.signupPassword}</small> : null}
                 </label>
                 <label className="flex flex-col gap-1.5">
                   <span className={fieldLabel}>{t("confirmPassword")}</span>
                   <PasswordInput
                     className="h-[clamp(42px,5.2vh,48px)]"
                     value={confirmPassword}
-                    onChange={(event) => void formik.setFieldValue("confirmPassword", event.target.value, false)}
+                    onChange={(event) => { void formik.setFieldValue("confirmPassword", event.target.value, false); void formik.setFieldError("confirmPassword", undefined); }}
                     placeholder={t("confirmPasswordPlaceholder")}
                     autoComplete="new-password"
+                    aria-invalid={Boolean(formik.errors.confirmPassword)}
                     disabled={loading}
                   />
+                  {formik.errors.confirmPassword ? <small className={errorNote} role="alert">{formik.errors.confirmPassword}</small> : null}
                 </label>
                 {error ? <p className={errorNote} role="alert">{error}</p> : null}
                 <button className={submitButton} disabled={loading || !phoneValidation.isValid} type="submit">

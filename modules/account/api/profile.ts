@@ -1,7 +1,6 @@
 import { apiRoutes } from "@/config/api";
 import { requestJson } from "@/services/api/client";
 import type {
-  ActiveCurrency,
   ProfilePayload,
   ProfileImageUpdatePayload,
   ProfileSummaryPayload,
@@ -37,12 +36,6 @@ export const profileApi = {
   wallet() {
     return requestJson<WalletPayload>(apiRoutes.profileWallet, {
       cache: "no-store",
-    });
-  },
-  activeCurrency(signal?: AbortSignal) {
-    return requestJson<ActiveCurrency | null>(apiRoutes.currency, {
-      cache: "no-store",
-      signal,
     });
   },
   walletTransactions(offset = 0, signal?: AbortSignal) {

@@ -44,6 +44,15 @@ export function useEmailExistsMutation() {
   return useMutation({ mutationFn: authApi.emailExists });
 }
 
+export function useCountryRegionQuery() {
+  return useQuery({
+    queryKey: accountQueryKeys.countryRegion(),
+    queryFn: authApi.countryRegion,
+    staleTime: Infinity,
+    retry: false,
+  });
+}
+
 export function useLoginMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -190,15 +199,6 @@ export function useWalletQuery(enabled = true) {
     queryFn: () => profileApi.wallet(),
     enabled,
     staleTime: 30_000,
-  });
-}
-
-export function useActiveCurrencyQuery(enabled = true) {
-  return useQuery({
-    queryKey: accountQueryKeys.currency(),
-    queryFn: ({ signal }) => profileApi.activeCurrency(signal),
-    enabled,
-    staleTime: 5 * 60_000,
   });
 }
 

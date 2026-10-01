@@ -22,6 +22,8 @@ interface Props {
   onPickCity: (city: PopularCity) => void;
   onUseCurrentLocation: () => void;
   onOpenSavedAddress: (address: SavedAddress) => void;
+  selectedSavedAddress?: SavedAddress;
+  onContinueSelectedAddress: (address: SavedAddress) => void;
   canSaveAddress: boolean;
   showSavedAddresses: boolean;
   savedAddresses: SavedAddress[];
@@ -44,6 +46,8 @@ export function LocationSearchStep({
   onPickCity,
   onUseCurrentLocation,
   onOpenSavedAddress,
+  selectedSavedAddress,
+  onContinueSelectedAddress,
   canSaveAddress,
   showSavedAddresses,
   savedAddresses,
@@ -53,6 +57,7 @@ export function LocationSearchStep({
   onClose,
 }: Props) {
   const t = useTranslations("location");
+  const common = useTranslations("common");
   const searchRef = useRef<HTMLInputElement>(null);
   const hasQuery = Boolean(query.trim());
 
@@ -162,6 +167,18 @@ export function LocationSearchStep({
           </>
         )}
       </div>
+      {!hasQuery && showSavedAddresses && selectedSavedAddress ? (
+        <footer className="border-t border-line px-5 py-4 sm:px-6">
+          <button
+            type="button"
+            onClick={() => onContinueSelectedAddress(selectedSavedAddress)}
+            disabled={isResolving}
+            className="h-12 w-full rounded-lg bg-brand text-sm font-semibold text-ink transition-colors hover:bg-brand/85 disabled:opacity-60"
+          >
+            {common("continue")}
+          </button>
+        </footer>
+      ) : null}
     </>
   );
 }

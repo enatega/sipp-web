@@ -5,6 +5,7 @@ import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-
 import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
 import { CreditCard, LoaderCircle, LockKeyhole, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { resolveCurrencySymbol } from "@/config/currency";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import type { SavedCard } from "@/modules/account";
@@ -39,14 +40,10 @@ function PaymentForm({
   const elements = useElements();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const usdTotal = format.number(paymentQuote.paymentAmount, {
-    style: "currency",
-    currency: paymentQuote.paymentCurrency,
-  });
-  const businessTotal = format.number(total, {
-    style: "currency",
-    currency: paymentQuote.businessCurrencyCode,
-  });
+  const usdSymbol = resolveCurrencySymbol(undefined, paymentQuote.paymentCurrency);
+  const businessSymbol = resolveCurrencySymbol(paymentQuote.businessCurrencySymbol, paymentQuote.businessCurrencyCode);
+  const usdTotal = `${usdSymbol} ${format.number(paymentQuote.paymentAmount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const businessTotal = `${businessSymbol} ${format.number(total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -125,7 +122,7 @@ function PaymentForm({
               rate: format.number(paymentQuote.localCurrencyUnitsPerUsd, {
                 maximumFractionDigits: 6,
               }),
-              currency: paymentQuote.businessCurrencyCode,
+              currency: businessSymbol,
             })}
           </dd>
         </div>

@@ -10,6 +10,7 @@ import type {
   DiscoveryStock,
 } from "@/modules/deliveries/types/discovery";
 import { decodeDisplayText } from "@/modules/deliveries/utils/discoveryMappers";
+import { useAppCurrency } from "@/lib/useAppCurrency";
 import styles from "./discovery-filter-drawer.module.css";
 
 export interface DiscoveryFilterValues {
@@ -54,6 +55,7 @@ export function DiscoveryFilterDrawer({
   onClose,
 }: Props) {
   const t = useTranslations("deliveries.seeAll");
+  const { symbol: currencySymbol } = useAppCurrency();
   const panelRef = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState(value);
   const [closing, setClosing] = useState(false);
@@ -162,7 +164,7 @@ export function DiscoveryFilterDrawer({
             {TIERS.map((tier) => (
               <Choice
                 key={tier}
-                label={tier}
+                label={currencySymbol.repeat(tier.length)}
                 selected={draft.priceTiers.includes(tier)}
                 onClick={() => setDraft((current) => ({
                   ...current,

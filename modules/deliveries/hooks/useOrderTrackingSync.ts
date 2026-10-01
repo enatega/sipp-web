@@ -208,6 +208,18 @@ export function useOrderTrackingSync(
           );
         });
 
+        socket.on("receive-message", (payload: { orderId?: string; kind?: string }) => {
+          if (payload?.orderId !== orderId || payload.kind !== "customer_rider") return;
+          void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orderChat(orderId) });
+          void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orderChatUnread() });
+        });
+
+        socket.on("order-chat-read", (payload: { orderId?: string; kind?: string }) => {
+          if (payload?.orderId === orderId && payload.kind === "customer_rider") {
+            void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orderChatUnread() });
+          }
+        });
+
         const handleVisibility = () => {
           if (!socket) return;
           if (document.visibilityState === "hidden") {

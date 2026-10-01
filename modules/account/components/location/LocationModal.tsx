@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useActionToast } from "@/components/shared/useActionToast";
 import { storePlace } from "@/modules/account/api/location";
 import type { PopularCity } from "@/modules/account/data/popularCities";
 import type {
@@ -81,6 +80,7 @@ export function LocationModal({
   const placeDetails = usePlaceDetailsMutation();
   const reverseGeocode = useReverseGeocodeMutation();
   const savedAddresses = addressesQuery.data ?? [];
+  const selectedSavedAddress = savedAddresses.find((address) => address.is_selected);
   const isAddressBookMode = !showSavedAddresses;
 
   const backToSearch = () => {
@@ -376,6 +376,8 @@ export function LocationModal({
               setError("");
               setStep({ name: "saved", address });
             }}
+            selectedSavedAddress={selectedSavedAddress}
+            onContinueSelectedAddress={(address) => void selectSavedAddress(address)}
             canSaveAddress={canSaveAddress}
             showSavedAddresses={showSavedAddresses}
             savedAddresses={savedAddresses}
