@@ -712,7 +712,17 @@
       "clearRecentSearches": "خالي",
       "removeRecentSearch": "إزالة{term}من عمليات التفتيش الأخيرة",
       "poweredByAlgolia": "Matched via Algolia",
-      "poweredByDatabase": "متطابقة عبر قاعدة البيانات"
+      "poweredByDatabase": "متطابقة عبر قاعدة البيانات",
+      "headerPlaceholder": "ابحث عن الطعام والبقالة والمتاجر",
+      "clearSearch": "مسح البحث",
+      "suggestionsHeading": "المنتجات",
+      "suggestionsLoading": "جارٍ البحث عن المنتجات…",
+      "noSuggestions": "لا توجد منتجات تطابق \"{query}\".",
+      "seeAllResults": "عرض كل النتائج لـ \"{query}\"",
+      "viewMenu": "عرض القائمة",
+      "storeOpen": "مفتوح الآن",
+      "storeClosed": "المطعم مغلق",
+      "storeRating": "التقييم {rating} من 5"
     },
     "support": {
       "title": "دعم العملاء",

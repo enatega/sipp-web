@@ -298,11 +298,15 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
   }
 
   function refreshAfterTopUp() {
-    void queryClient.invalidateQueries({ queryKey: accountQueryKeys.wallet() });
+    const invalidateBalances = () => {
+      void queryClient.invalidateQueries({ queryKey: accountQueryKeys.wallet() });
+      void queryClient.invalidateQueries({ queryKey: accountQueryKeys.profileSummary() });
+    };
+    invalidateBalances();
     if (refreshTimer.current) clearTimeout(refreshTimer.current);
     let remainingRefreshes = 4;
     const refresh = () => {
-      void queryClient.invalidateQueries({ queryKey: accountQueryKeys.wallet() });
+      invalidateBalances();
       remainingRefreshes -= 1;
       if (remainingRefreshes > 0) refreshTimer.current = setTimeout(refresh, 3000);
     };

@@ -712,7 +712,17 @@
       "clearRecentSearches": "Alle löschen",
       "removeRecentSearch": "\"{term}\" aus den letzten Suchanfragen entfernen",
       "poweredByAlgolia": "Über Algolia gefunden",
-      "poweredByDatabase": "Über die Datenbank gefunden"
+      "poweredByDatabase": "Über die Datenbank gefunden",
+      "headerPlaceholder": "Essen, Lebensmittel und Geschäfte suchen",
+      "clearSearch": "Suche löschen",
+      "suggestionsHeading": "Produkte",
+      "suggestionsLoading": "Produkte werden gesucht…",
+      "noSuggestions": "Keine Produkte passen zu „{query}“.",
+      "seeAllResults": "Alle Ergebnisse für „{query}“ anzeigen",
+      "viewMenu": "Speisekarte ansehen",
+      "storeOpen": "Jetzt geöffnet",
+      "storeClosed": "Restaurant geschlossen",
+      "storeRating": "Bewertet mit {rating} von 5"
     },
     "support": {
       "title": "Kundensupport",

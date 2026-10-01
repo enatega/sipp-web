@@ -712,7 +712,17 @@
       "clearRecentSearches": "Tout effacer",
       "removeRecentSearch": "Supprimer \"{term}\" de recherches récentes",
       "poweredByAlgolia": "Correspondance via Algolia",
-      "poweredByDatabase": "Correspondance via la base de données"
+      "poweredByDatabase": "Correspondance via la base de données",
+      "headerPlaceholder": "Rechercher plats, courses et magasins",
+      "clearSearch": "Effacer la recherche",
+      "suggestionsHeading": "Produits",
+      "suggestionsLoading": "Recherche de produits…",
+      "noSuggestions": "Aucun produit ne correspond à « {query} ».",
+      "seeAllResults": "Voir tous les résultats pour « {query} »",
+      "viewMenu": "Voir le menu",
+      "storeOpen": "Ouvert",
+      "storeClosed": "Restaurant fermé",
+      "storeRating": "Noté {rating} sur 5"
     },
     "support": {
       "title": "Soutien à la clientèle",

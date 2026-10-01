@@ -712,7 +712,17 @@
       "clearRecentSearches": "Clear all",
       "removeRecentSearch": "Remove \"{term}\" from recent searches",
       "poweredByAlgolia": "Matched via Algolia",
-      "poweredByDatabase": "Matched via database"
+      "poweredByDatabase": "Matched via database",
+      "headerPlaceholder": "Search food, groceries and stores",
+      "clearSearch": "Clear search",
+      "suggestionsHeading": "Products",
+      "suggestionsLoading": "Finding products…",
+      "noSuggestions": "No products match \"{query}\".",
+      "seeAllResults": "See all results for \"{query}\"",
+      "viewMenu": "View menu",
+      "storeOpen": "Open now",
+      "storeClosed": "Restaurant closed",
+      "storeRating": "Rated {rating} out of 5"
     },
     "support": {
       "title": "Customer support",
