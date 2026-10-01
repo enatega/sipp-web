@@ -5,5 +5,5 @@ export default async function RestaurantRoute({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  return <RestaurantPage storeId={(await params).id} />;
+  return <RestaurantPage slug={(await params).id} />;
 }

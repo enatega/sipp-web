@@ -91,7 +91,7 @@ export function TopBrandsSection(props: Props) {
             return store ? (
               <Link
                 className="focus-visible:rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand"
-                href={`/restaurants/${encodeURIComponent(store.storeId)}`}
+                href={`/restaurants/${encodeURIComponent(("slug" in store ? store.slug : brand.slug) || store.storeId)}`}
                 key={`${brand.vendorId ?? brand.name}-${brand.name}`}
               >
                 {content}

@@ -94,6 +94,7 @@ export function parseRestaurantStore(value: unknown): RestaurantStore {
 
   return {
     id: text(source.id),
+    slug: text(source.slug),
     name: text(source.name),
     address: optionalText(source.address),
     logo: optionalText(source.logo),

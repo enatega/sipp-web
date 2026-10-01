@@ -5,9 +5,20 @@ import { callApi } from "@/services/api/server";
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function invalid(message: string) {
   return NextResponse.json({ message }, { status: 400 });
+}
+
+export function resolveRestaurantSlug(request: NextRequest, slug: string) {
+  if (!SLUG_PATTERN.test(slug) || slug.length > 100) {
+    return invalid("Invalid restaurant slug.");
+  }
+  return callApi(
+    `/apps/deliveries/stores/resolve/${encodeURIComponent(slug)}`,
+    { request },
+  );
 }
 
 function coordinate(value: string | null, minimum: number, maximum: number) {

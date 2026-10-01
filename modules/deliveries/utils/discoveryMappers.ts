@@ -64,6 +64,7 @@ export function parseStores(value: unknown): DeliveryStore[] {
     if (!source || !storeId || !name) return [];
     return [{
       storeId,
+      slug: optionalString(source.slug) ?? storeId,
       vendorId: optionalString(source.vendorId) ?? "",
       name,
       logo: optionalString(source.logo),
@@ -97,6 +98,7 @@ export function parseTopBrands(value: unknown): DeliveryTopBrand[] {
     if (!source || !name) return [];
     return [{
       storeId: optionalString(source.storeId) ?? undefined,
+      slug: optionalString(source.slug) ?? undefined,
       vendorId: optionalString(source.vendorId) ?? undefined,
       name,
       logo: optionalString(source.logo),
