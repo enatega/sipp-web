@@ -26,13 +26,20 @@ export function OrderAgainProductCard({ product, className }: Props) {
       )}
       href={href}
     >
-      <DeliveryImage
-        alt=""
-        className="aspect-[16/9] w-full"
-        imageClassName="transition-transform duration-500 ease-out group-hover:scale-105"
-        sizes="(max-width: 640px) 270px, 310px"
-        src={product.imageUrl ?? product.storeImage ?? product.storeLogo}
-      />
+      <div className="relative">
+        <DeliveryImage
+          alt=""
+          className={cn("aspect-[16/9] w-full", !product.inStock && "opacity-60 grayscale")}
+          imageClassName="transition-transform duration-500 ease-out group-hover:scale-105"
+          sizes="(max-width: 640px) 270px, 310px"
+          src={product.imageUrl ?? product.storeImage ?? product.storeLogo}
+        />
+        {!product.inStock ? (
+          <span className="absolute left-3 top-3 rounded-full bg-black/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+            {t("outOfStock")}
+          </span>
+        ) : null}
+      </div>
       <div className="p-3.5 sm:p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -48,9 +55,6 @@ export function OrderAgainProductCard({ product, className }: Props) {
             ) : null}
           </div>
         </div>
-        {!product.inStock ? (
-          <p className="mt-3 text-[10px] font-semibold text-danger">{t("outOfStock")}</p>
-        ) : null}
       </div>
     </Link>
   );

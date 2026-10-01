@@ -36,6 +36,7 @@ export function SearchProductCard({ item, location, onOpen }: Props) {
   const isClosed = store.data ? !store.data.isAvailable : false;
   const description = product.data?.description?.trim();
   const deal = product.data?.deal;
+  const isOutOfStock = product.data?.inStock === false;
   const storeHref = `/restaurants/${encodeURIComponent(item.storeId)}`;
   const productHref = `${storeHref}?productId=${encodeURIComponent(item.productId)}`;
 
@@ -120,11 +121,16 @@ export function SearchProductCard({ item, location, onOpen }: Props) {
         <div className="relative size-28 flex-none sm:size-32">
           <DeliveryImage
             alt={productName}
-            className={`size-full overflow-hidden rounded-2xl bg-[var(--soft-surface)] ${isClosed ? "opacity-70 grayscale" : ""}`}
+            className={`size-full overflow-hidden rounded-2xl bg-[var(--soft-surface)] ${isClosed || isOutOfStock ? "opacity-70 grayscale" : ""}`}
             imageClassName="transition-transform duration-500 group-hover/card:scale-105"
             sizes="128px"
             src={item.productImage ?? item.storeImage ?? item.storeLogo}
           />
+          {isOutOfStock ? (
+            <span className="absolute inset-x-1.5 top-1.5 truncate rounded-full bg-black/70 px-2 py-0.5 text-center text-[10px] font-bold uppercase tracking-wide text-white">
+              {t("outOfStock")}
+            </span>
+          ) : null}
           <span
             aria-hidden="true"
             className="absolute -bottom-2 -right-2 grid size-9 place-items-center rounded-full border-4 border-card bg-brand text-ink shadow-md transition-transform duration-300 group-hover/card:scale-110"

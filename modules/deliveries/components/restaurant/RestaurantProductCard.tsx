@@ -27,11 +27,10 @@ export function RestaurantProductCard({
   const isOutOfStock = !product.inStock;
 
   return (
-    <article className={`group overflow-hidden rounded-2xl border bg-card shadow-rail-card transition duration-300 ease-out ${isOutOfStock ? "border-line" : `hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-card ${isInCart ? "border-brand/25" : "border-line"}`}`}>
+    <article className={`group overflow-hidden rounded-2xl border bg-card shadow-rail-card transition duration-300 ease-out ${isOutOfStock ? "border-line hover:border-line hover:shadow-card" : `hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-card ${isInCart ? "border-brand/25" : "border-line"}`}`}>
       <button
-        aria-label={isOutOfStock ? `${productName}, ${t("outOfStock")}` : isInCart ? t("configureProductInCart", { name: productName, count: cartQuantity }) : t("configureProduct", { name: productName })}
-        className="flex min-h-[110px] w-full text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand disabled:cursor-not-allowed"
-        disabled={isOutOfStock}
+        aria-label={isOutOfStock ? t("viewOutOfStockProduct", { name: productName }) : isInCart ? t("configureProductInCart", { name: productName, count: cartQuantity }) : t("configureProduct", { name: productName })}
+        className="flex min-h-[110px] w-full text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand"
         onClick={() => onSelect(product.id)}
         type="button"
       >
@@ -69,7 +68,7 @@ export function RestaurantProductCard({
                 </span>
               ) : null}
             </div>
-            {isOutOfStock ? <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full border border-line bg-soft-surface text-muted opacity-60"><Plus className="size-3.5" /></span> : !isStoreAvailable ? <span className="text-xs font-medium text-muted">{t("closed")}</span> : <span className={`relative grid size-7 shrink-0 place-items-center rounded-full border transition duration-200 group-hover:scale-105 ${isInCart ? "border-brand bg-brand text-ink" : "border-brand/25 bg-brand/8 text-brand group-hover:border-brand group-hover:bg-brand group-hover:text-ink"}`}>
+            {isOutOfStock ? <span aria-hidden="true" className="grid size-7 shrink-0 cursor-not-allowed place-items-center rounded-full border border-line bg-soft-surface text-muted opacity-60"><Plus className="size-3.5" /></span> : !isStoreAvailable ? <span className="text-xs font-medium text-muted">{t("closed")}</span> : <span className={`relative grid size-7 shrink-0 place-items-center rounded-full border transition duration-200 group-hover:scale-105 ${isInCart ? "border-brand bg-brand text-ink" : "border-brand/25 bg-brand/8 text-brand group-hover:border-brand group-hover:bg-brand group-hover:text-ink"}`}>
               {isInCart ? <Check aria-hidden="true" className="size-3.5" /> : <Plus aria-hidden="true" className="size-3.5" />}
               {isInCart ? <span aria-hidden="true" className="absolute -right-1.5 -top-1.5 grid min-h-4 min-w-4 place-items-center rounded-full border-2 border-card bg-surface px-0.5 text-[8px] font-extrabold leading-none text-brand tabular-nums">{cartQuantity > 99 ? "99+" : cartQuantity}</span> : null}
             </span>}
