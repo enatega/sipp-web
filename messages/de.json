@@ -370,6 +370,7 @@
     "current": "Aktuellen Standort verwenden",
     "currentDescription": "Eine Adresse in Ihrer Nähe finden",
     "interactiveMap": "Interaktive Karte zur Auswahl eines Lieferorts",
+    "savedMapPreview": "Kartenvorschau der gespeicherten Adresse",
     "mapInstruction": "Tippen Sie auf die Karte oder ziehen Sie die Markierung. Die Adresse wird automatisch aktualisiert.",
     "mapLoading": "Karte wird geladen",
     "mapNotConfigured": "Google Maps ist für diese App nicht konfiguriert.",

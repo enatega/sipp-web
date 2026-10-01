@@ -370,6 +370,7 @@
     "current": "Use current location",
     "currentDescription": "Find an address near you",
     "interactiveMap": "Interactive map for selecting a delivery location",
+    "savedMapPreview": "Map preview of the saved address",
     "mapInstruction": "Tap anywhere on the map or drag the pin. The address will update automatically.",
     "mapLoading": "Loading map",
     "mapNotConfigured": "Google Maps is not configured for this app.",

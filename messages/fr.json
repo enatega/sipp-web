@@ -370,6 +370,7 @@
     "current": "Utiliser la position actuelle",
     "currentDescription": "Trouver une adresse près de chez vous",
     "interactiveMap": "Carte interactive pour choisir un lieu de livraison",
+    "savedMapPreview": "Aperçu de la carte de l’adresse enregistrée",
     "mapInstruction": "Appuyez n'importe où sur la carte ou faites glisser la broche. L'adresse sera mise à jour automatiquement.",
     "mapLoading": "Chargement de la carte",
     "mapNotConfigured": "Google Les cartes ne sont pas configurées pour cette application.",
