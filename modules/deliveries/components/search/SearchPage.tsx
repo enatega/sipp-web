@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { LoaderCircle, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -35,7 +35,7 @@ export function SearchPage() {
   const parameterString = params.toString();
   const urlQuery = params.get("q")?.trim() ?? "";
   const [input, setInput] = useState(urlQuery);
-  const [syncedQuery, setSyncedQuery] = useState(urlQuery);
+  const pendingQueriesRef = useRef<string[]>([]);
   const [isOnline, setIsOnline] = useState(true);
   const session = useSessionQuery();
   const isAuthenticated = session.data?.authenticated === true;
@@ -48,10 +48,25 @@ export function SearchPage() {
   const removeRecentSearch = useRemoveRecentSearchMutation();
   const clearRecentSearches = useClearRecentSearchesMutation();
 
-  if (urlQuery !== syncedQuery) {
-    setSyncedQuery(urlQuery);
+  useEffect(() => {
+    // A previous replace can settle after the user has typed more characters.
+    const pendingIndex = pendingQueriesRef.current.indexOf(urlQuery);
+    if (pendingIndex !== -1) {
+      pendingQueriesRef.current.splice(0, pendingIndex + 1);
+      return;
+    }
+    pendingQueriesRef.current = [];
     setInput(urlQuery);
-  }
+  }, [urlQuery]);
+
+  const applyQuery = useCallback((value: string) => {
+    const next = new URLSearchParams(parameterString);
+    const query = value.trim();
+    if (query === urlQuery) return;
+    if (query) next.set("q", query); else next.delete("q");
+    pendingQueriesRef.current.push(query);
+    router.replace(`${pathname}?${next}`, { scroll: false });
+  }, [parameterString, pathname, router, urlQuery]);
   useEffect(() => {
     if (!urlQuery || !isAuthenticated) return;
     saveRecentSearchTerm(urlQuery);
@@ -69,13 +84,10 @@ export function SearchPage() {
   useEffect(() => {
     if (input.trim() === urlQuery) return;
     const timeout = window.setTimeout(() => {
-      const next = new URLSearchParams(parameterString);
-      const value = input.trim();
-      if (value) next.set("q", value); else next.delete("q");
-      router.replace(`${pathname}?${next}`, { scroll: false });
+      applyQuery(input);
     }, 400);
     return () => window.clearTimeout(timeout);
-  }, [input, parameterString, pathname, router, urlQuery]);
+  }, [applyQuery, input, urlQuery]);
 
   const productItems = products.data?.pages.flatMap((page) =>
     page.items.map((item, index) => ({
@@ -99,12 +111,6 @@ export function SearchPage() {
     if (urlQuery) return t("resultCount", { count: total });
     return t("hint");
   }, [isOnline, products.isError, products.isPending, stores.isError, stores.isPending, t, total, urlQuery]);
-
-  const applyQuery = (value: string) => {
-    const next = new URLSearchParams(parameterString);
-    if (value.trim()) next.set("q", value.trim()); else next.delete("q");
-    router.replace(`${pathname}?${next}`, { scroll: false });
-  };
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
