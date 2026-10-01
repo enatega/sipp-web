@@ -2,8 +2,7 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Filter, LayoutGrid, LoaderCircle, Map, Search, SlidersHorizontal, Tag, X } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
-import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -13,15 +12,16 @@ import { useSessionQuery } from "@/modules/account";
 import { loginHref } from "@/modules/account/utils/authRedirect";
 import { discoveryApi } from "@/modules/deliveries/api/discovery";
 import { useDiscoveryLocation, useShopTypesQuery } from "@/modules/deliveries/hooks/useDiscoveryQueries";
-import type { DeliveryOrderAgainOrder, DeliveryShopType, DeliveryStore, DeliveryTopBrand, DiscoveryPriceTier, DiscoveryScrollPage, DiscoverySort, DiscoveryStock } from "@/modules/deliveries/types/discovery";
+import type { DeliveryOrderAgainProduct, DeliveryShopType, DeliveryStore, DeliveryTopBrand, DiscoveryPriceTier, DiscoveryScrollPage, DiscoverySort, DiscoveryStock } from "@/modules/deliveries/types/discovery";
 import { decodeDisplayText } from "@/modules/deliveries/utils/discoveryMappers";
 import { DeliveryImage } from "./DeliveryImage";
 import { DiscoveryFilterDrawer, type DiscoveryFilterValues } from "./DiscoveryFilterDrawer";
+import { OrderAgainProductCard } from "./OrderAgainProductCard";
 import { DiscoveryStoresMap } from "./DiscoveryStoresMap";
 import { StoreCard } from "./StoreCard";
 
 export type DiscoverySeeAllKind = "nearby" | "deals" | "shop-types" | "top-brands" | "order-again" | "stores";
-type SeeAllItem = DeliveryStore | DeliveryShopType | DeliveryTopBrand | DeliveryOrderAgainOrder;
+type SeeAllItem = DeliveryStore | DeliveryShopType | DeliveryTopBrand | DeliveryOrderAgainProduct;
 
 const STORE_KINDS = new Set<DiscoverySeeAllKind>(["nearby", "deals", "stores"]);
 
@@ -60,24 +60,6 @@ function ShopTypeCard({ item }: { item: DeliveryShopType }) {
     >
       <DeliveryImage alt="" className="aspect-[4/3] w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" sizes="260px" src={item.image ?? item.icon} />
       <h2 className="min-h-16 p-4 text-sm font-bold text-ink">{decodeDisplayText(item.name)}</h2>
-    </Link>
-  );
-}
-
-function OrderAgainCard({ order }: { order: DeliveryOrderAgainOrder }) {
-  const format = useFormatter();
-  const formatAppCurrency = useAppCurrencyFormatter();
-  return (
-    <Link className="group block overflow-hidden rounded-2xl bg-card shadow-sm transition-transform hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand" href={`/orders/${encodeURIComponent(order.orderId)}`}>
-      <DeliveryImage alt="" className="aspect-[16/9] w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" sizes="320px" src={order.itemImages.find(Boolean) ?? order.storeImage ?? order.storeLogo} />
-      <div className="p-4">
-        <div className="flex justify-between gap-3">
-          <h2 className="truncate text-sm font-bold text-ink">{order.storeName}</h2>
-          <strong className="shrink-0 text-xs text-brand">{formatAppCurrency(format, order.orderTotal)}</strong>
-        </div>
-        <p className="mt-1 truncate text-xs text-body">{order.itemNames.join(", ")}</p>
-        <time className="mt-3 block text-[10px] text-muted">{format.dateTime(new Date(order.orderedAt), { day: "numeric", month: "short", year: "numeric" })}</time>
-      </div>
     </Link>
   );
 }
@@ -158,7 +140,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
     <>
       <Header />
       <main className="min-h-[calc(100svh-4rem)] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_430px)] pb-16 md:min-h-[calc(100svh-4.75rem)]">
-        <div className="section-wrap py-6 sm:py-9">
+        <div className="app-wrap py-6 sm:py-9">
           <HistoryBackButton />
           <header className="mt-5 flex flex-col gap-5 border-b border-line pb-7 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -228,8 +210,8 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
             ) : view === "map" && isStoreKind ? (
               <DiscoveryStoresMap location={location} stores={stores} />
             ) : (
-              <div className={`grid gap-4 ${kind === "shop-types" || kind === "top-brands" ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
-                {kind === "shop-types" ? (items as DeliveryShopType[]).map((item) => <ShopTypeCard item={item} key={item.id} />) : kind === "top-brands" ? (items as DeliveryTopBrand[]).map((brand, index) => <BrandCard brand={brand} key={`${brand.vendorId ?? brand.name}-${index}`} />) : kind === "order-again" ? (items as DeliveryOrderAgainOrder[]).map((order) => <OrderAgainCard key={order.orderId} order={order} />) : stores.map((store) => <StoreCard fluid key={store.storeId} store={store} />)}
+              <div className={`grid gap-4 ${kind === "shop-types" || kind === "top-brands" ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6" : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"}`}>
+                {kind === "shop-types" ? (items as DeliveryShopType[]).map((item) => <ShopTypeCard item={item} key={item.id} />) : kind === "top-brands" ? (items as DeliveryTopBrand[]).map((brand, index) => <BrandCard brand={brand} key={`${brand.vendorId ?? brand.name}-${index}`} />) : kind === "order-again" ? (items as DeliveryOrderAgainProduct[]).map((product) => <OrderAgainProductCard key={`${product.storeId}:${product.productId}`} product={product} />) : stores.map((store) => <StoreCard fluid key={store.storeId} store={store} />)}
               </div>
             )}
           </section>

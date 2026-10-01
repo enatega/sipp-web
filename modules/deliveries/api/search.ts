@@ -75,6 +75,7 @@ function parseProducts(value: unknown): SearchProduct[] {
     return [{
       productId: item.productId,
       storeId: item.storeId,
+      storeSlug: typeof item.storeSlug === "string" ? item.storeSlug : item.storeId,
       productName: typeof item.productName === "string" ? item.productName : "",
       productNameTranslations: Object.fromEntries(
         Object.entries(record(item.productNameTranslations) ?? {}).filter(

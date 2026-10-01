@@ -59,7 +59,7 @@ export function Footer() {
   const t = useTranslations("footer");
   return (
     <footer className="bg-[#F6F6F8] pb-[22px] pt-[54px] dark:bg-surface">
-      <div className="section-wrap">
+      <div className="app-wrap">
         <div className="grid grid-cols-1 gap-[30px] sm:grid-cols-2 md:grid-cols-[2fr_1fr_1.2fr_1fr] md:gap-10">
           <div className="col-span-full md:col-span-1">
             <Logo className="[&_img]:h-14 md:[&_img]:h-20" />

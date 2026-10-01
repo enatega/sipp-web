@@ -12,6 +12,7 @@ import {
   useProfileQuery,
   useProfileSummaryQuery,
   useSessionQuery,
+  useWalletQuery,
 } from "@/modules/account/queries/useAccountQueries";
 import { userInitials } from "@/modules/account/utils/userInitials";
 
@@ -75,6 +76,7 @@ export function ProfileDashboard() {
   const authenticated = session.data?.authenticated === true;
   const profile = useProfileQuery(authenticated);
   const summary = useProfileSummaryQuery(authenticated);
+  const wallet = useWalletQuery(authenticated);
   const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
 
   useEffect(() => {
@@ -104,7 +106,7 @@ export function ProfileDashboard() {
   ).format(orderChange)}%`;
   const formattedWalletBalance = formatAppCurrency(
     { number: (value, options) => new Intl.NumberFormat(locale, options).format(value) },
-    Number(summaryData?.wallet_balance ?? 0),
+    Number(wallet.data?.data?.wallet_balance ?? 0),
   );
   const loading = session.isPending || (authenticated && profile.isPending);
 
@@ -276,11 +278,11 @@ export function ProfileDashboard() {
             <p className="mt-5 text-[11px] font-medium uppercase tracking-[0.08em] text-white/80">
               {t("walletBalance")}
             </p>
-            {summary.isPending ? (
+            {wallet.isPending ? (
               <span className="mt-2 block h-8 w-28 animate-pulse rounded-md bg-white/15" />
             ) : (
               <strong className="mt-1 block text-[29px] font-semibold leading-none">
-                {summary.isError ? "—" : formattedWalletBalance}
+                {wallet.isError ? "—" : formattedWalletBalance}
               </strong>
             )}
           </section>

@@ -21,6 +21,7 @@ import {
 import { useFormatter, useTranslations } from "next-intl";
 import { useAppCurrency } from "@/lib/useAppCurrency";
 
+import { useActionToast } from "@/components/shared/useActionToast";
 import { AddCardModal } from "@/modules/account/components/profile/AddCardModal";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import { WalletTopUpModal } from "@/modules/account/components/profile/WalletTopUpModal";
@@ -251,7 +252,7 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [isAddingMoney, setIsAddingMoney] = useState(false);
   const [isBalanceVisible, setIsBalanceVisible] = useState(false);
-  const [cardActionError, setCardActionError] = useState("");
+  const notify = useActionToast();
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => {
@@ -280,27 +281,30 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
   const currencySymbol = currency.symbol;
 
   function openAddCard() {
-    setCardActionError("");
     setIsAddingCard(true);
     setupIntent.reset();
     setupIntent.mutate();
   }
 
   async function makeDefault(card: SavedCard) {
-    setCardActionError("");
     try {
       await setDefault.mutateAsync(card.id);
-    } catch {
-      setCardActionError(t("defaultCardError"));
+      notify.success("defaultCardUpdated");
+    } catch (caught) {
+      notify.error(caught, "defaultCardUpdateFailed");
     }
   }
 
   function refreshAfterTopUp() {
-    void queryClient.invalidateQueries({ queryKey: accountQueryKeys.wallet() });
+    const invalidateBalances = () => {
+      void queryClient.invalidateQueries({ queryKey: accountQueryKeys.wallet() });
+      void queryClient.invalidateQueries({ queryKey: accountQueryKeys.profileSummary() });
+    };
+    invalidateBalances();
     if (refreshTimer.current) clearTimeout(refreshTimer.current);
     let remainingRefreshes = 4;
     const refresh = () => {
-      void queryClient.invalidateQueries({ queryKey: accountQueryKeys.wallet() });
+      invalidateBalances();
       remainingRefreshes -= 1;
       if (remainingRefreshes > 0) refreshTimer.current = setTimeout(refresh, 3000);
     };
@@ -410,7 +414,6 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
                 <p className="mt-5 text-sm text-muted">{t("noCards")}</p>
               )}
 
-              {cardActionError ? <p className="mt-3 text-xs font-medium text-danger" role="alert">{cardActionError}</p> : null}
               <div className="mt-4 flex flex-wrap gap-2">
                 <button className="inline-flex min-h-10 items-center gap-2 rounded-full bg-brand px-4 text-xs font-bold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-65" disabled={setupIntent.isPending} onClick={openAddCard} type="button">
                   {setupIntent.isPending ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : <Plus aria-hidden="true" className="size-4" />}

@@ -7,7 +7,9 @@ import { useFormik } from "formik";
 import { ArrowRight, Check, CreditCard, LoaderCircle, Plus, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import * as yup from "yup";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { useWalletTopUpMutation } from "@/modules/account/queries/useAccountQueries";
+import { ApiError } from "@/services/api/client";
 import type { SavedCard } from "@/modules/account/types";
 import { useAppCurrency } from "@/lib/useAppCurrency";
 
@@ -33,7 +35,7 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
   const fractionDigits = code.toUpperCase() === "JPY" ? 0 : 2;
   const money = (value: number) => `${symbol} ${format.number(value, { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits })}`;
   const topUp = useWalletTopUpMutation();
-  const [paymentError, setPaymentError] = useState("");
+  const notify = useActionToast();
   const [isConfirming, setIsConfirming] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const submitLock = useRef(false);
@@ -49,7 +51,6 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
     onSubmit: async (values) => {
       if (submitLock.current) return;
       submitLock.current = true;
-      setPaymentError("");
       try {
         const result = await topUp.mutateAsync({ amount: Number(values.amount), paymentMethodId: values.paymentMethodId });
         let status = result.status;
@@ -65,8 +66,15 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
         if (status !== "succeeded" && status !== "processing") throw new Error(t("topUpError"));
         onCompleted();
         setIsCompleted(true);
+        notify.success("walletToppedUp");
       } catch (error) {
-        setPaymentError(error instanceof Error && error.message ? error.message : t("topUpError"));
+        // Errors raised here carry translated or Stripe customer-facing text;
+        // raw API errors are left to the toast helper's readability filter.
+        const detail =
+          error instanceof Error && !(error instanceof ApiError) && error.message !== t("topUpError")
+            ? error.message
+            : undefined;
+        notify.error(error, "walletTopUpFailed", detail);
       } finally {
         setIsConfirming(false);
         submitLock.current = false;
@@ -75,7 +83,6 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
   });
 
   function closeModal() {
-    setPaymentError("");
     setIsCompleted(false);
     formik.resetForm();
     onClose();
@@ -156,7 +163,6 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
               {amounts.map((preset) => <button aria-pressed={amount === preset} className={`min-h-11 rounded-xl border px-1 text-xs font-semibold tabular-nums transition-colors ${amount === preset ? "border-brand bg-brand text-ink" : "border-line bg-soft-surface text-body hover:border-brand/50"}`} disabled={isBusy} key={preset} onClick={() => void formik.setFieldValue("amount", String(preset))} type="button">{symbol} {format.number(preset)}</button>)}
             </div>
             {formik.submitCount && (formik.errors.amount || formik.errors.paymentMethodId) ? <p className="mt-3 text-sm text-danger" role="alert">{formik.errors.amount || formik.errors.paymentMethodId}</p> : null}
-            {paymentError ? <p className="mt-3 text-sm text-danger" role="alert">{paymentError}</p> : null}
             {!publishableKey ? <p className="mt-3 text-sm text-danger" role="alert">{t("topUpUnavailable")}</p> : null}
             <button className="mt-8 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 text-base font-semibold text-ink transition-colors hover:bg-brand/85 disabled:cursor-not-allowed disabled:bg-soft-surface disabled:text-muted" disabled={!isReady} type="submit">
               {isBusy ? <LoaderCircle aria-hidden="true" className="size-5 animate-spin" /> : null}

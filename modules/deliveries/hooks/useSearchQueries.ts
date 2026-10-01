@@ -2,12 +2,14 @@
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { InfiniteData } from "@tanstack/react-query";
+import { restaurantApi } from "@/modules/deliveries/api/restaurant";
 import { searchApi } from "@/modules/deliveries/api/search";
 import { deliveryQueryKeys } from "@/modules/deliveries/queries/queryKeys";
 import type { DiscoveryLocation } from "@/modules/deliveries/types/discovery";
 import type { SearchPage, SearchParams, SearchProduct, SearchStore } from "@/modules/deliveries/types/search";
 
 const RECOMMENDATIONS_STALE_TIME = 5 * 60_000;
+const RESULT_DETAILS_STALE_TIME = 2 * 60_000;
 
 function useDeliverySearchQuery<T>(
   resource: "products" | "stores",
@@ -53,5 +55,25 @@ export function useRecentSearchesQuery(enabled: boolean) {
     queryKey: deliveryQueryKeys.recentSearches(),
     queryFn: ({ signal }) => searchApi.recentSearches.list(signal),
     enabled,
+  });
+}
+
+// Product search results only carry names, prices and images; these load the
+// store header and description for each result card without menu-page polling.
+export function useSearchResultStoreQuery(storeId: string, location: DiscoveryLocation | null) {
+  return useQuery({
+    queryKey: deliveryQueryKeys.restaurant(storeId, location),
+    queryFn: ({ signal }) => restaurantApi.detail(storeId, location!, signal),
+    enabled: Boolean(storeId && location),
+    staleTime: RESULT_DETAILS_STALE_TIME,
+  });
+}
+
+export function useSearchResultProductQuery(productId: string) {
+  return useQuery({
+    queryKey: deliveryQueryKeys.productInfo(productId),
+    queryFn: ({ signal }) => restaurantApi.productInfo(productId, signal),
+    enabled: Boolean(productId),
+    staleTime: RESULT_DETAILS_STALE_TIME,
   });
 }

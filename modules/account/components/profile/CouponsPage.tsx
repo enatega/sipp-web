@@ -4,6 +4,7 @@ import { Gift, LoaderCircle, SearchX, TicketPercent } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { ApiError } from "@/services/api/client";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileBackLink } from "./ProfileBackLink";
@@ -20,7 +21,8 @@ export function CouponsPage() {
   const claim = useClaimCouponMutation();
   const activation = useCouponActivationMutation();
   const [code, setCode] = useState("");
-  const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+  const notify = useActionToast();
+  const [notice, setNotice] = useState<{ kind: "error"; text: string } | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const items = useMemo(() => coupons.data?.pages.flatMap((page) => page.data) ?? [], [coupons.data]);
 
@@ -28,10 +30,10 @@ export function CouponsPage() {
     if (!session.isPending && !authenticated) router.replace("/login");
   }, [authenticated, router, session.isPending]);
 
-  function errorMessage(error: unknown) {
+  function claimErrorDetail(error: unknown) {
     if (error instanceof ApiError && error.status === 409) return t("alreadyClaimed");
     if (error instanceof ApiError && error.status === 400) return t("invalidCode");
-    return t("genericError");
+    return undefined;
   }
 
   async function claimCode() {
@@ -44,9 +46,9 @@ export function CouponsPage() {
     try {
       await claim.mutateAsync(normalized);
       setCode("");
-      setNotice({ kind: "success", text: t("claimedSuccess") });
+      notify.success("couponClaimed");
     } catch (error) {
-      setNotice({ kind: "error", text: errorMessage(error) });
+      notify.error(error, "couponClaimFailed", claimErrorDetail(error));
     }
   }
 
@@ -55,9 +57,13 @@ export function CouponsPage() {
     setBusyId(id);
     try {
       await activation.mutateAsync({ id, isActive });
-      setNotice({ kind: "success", text: isActive ? t("activatedSuccess") : t("deactivatedSuccess") });
+      notify.success(isActive ? "couponActivated" : "couponDeactivated");
     } catch (error) {
-      setNotice({ kind: "error", text: error instanceof ApiError && error.status === 400 ? t("notApplicable") : t("genericError") });
+      notify.error(
+        error,
+        "couponUpdateFailed",
+        error instanceof ApiError && error.status === 400 ? t("notApplicable") : undefined,
+      );
     } finally {
       setBusyId(null);
     }
@@ -92,7 +98,7 @@ export function CouponsPage() {
             </div>
           </section>
 
-          {notice ? <p role={notice.kind === "error" ? "alert" : "status"} className={`mt-4 rounded-xl px-4 py-3 text-xs font-medium ${notice.kind === "error" ? "bg-danger-soft text-danger" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"}`}>{notice.text}</p> : null}
+          {notice ? <p role="alert" className="mt-4 rounded-xl bg-danger-soft px-4 py-3 text-xs font-medium text-danger">{notice.text}</p> : null}
 
           <section className="mt-9" aria-labelledby="claimed-coupons-title">
             <div className="flex items-end justify-between gap-4">

@@ -14,6 +14,7 @@ import { useFormik } from "formik";
 import { LoaderCircle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { createSavedCardSchema } from "@/modules/account/schemas/savedCardSchema";
 import type { SavedCardSetupIntent } from "@/modules/account/types";
 
@@ -28,6 +29,7 @@ interface AddCardFormProps {
 
 function AddCardForm({ clientSecret, onClose, onSaved }: AddCardFormProps) {
   const t = useTranslations("savedCards");
+  const notify = useActionToast();
   const stripe = useStripe();
   const elements = useElements();
   const { resolvedTheme } = useTheme();
@@ -57,8 +59,7 @@ function AddCardForm({ clientSecret, onClose, onSaved }: AddCardFormProps) {
   const formik = useFormik({
     initialValues: { cardholderName: "" },
     validationSchema: createSavedCardSchema(t("cardholderRequired")),
-    onSubmit: async (values, helpers) => {
-      helpers.setStatus(undefined);
+    onSubmit: async (values) => {
       setCardError("");
 
       if (!stripe || !elements) return;
@@ -73,18 +74,30 @@ function AddCardForm({ clientSecret, onClose, onSaved }: AddCardFormProps) {
         return;
       }
 
-      const result = await stripe.confirmCardSetup(clientSecret, {
-        payment_method: {
-          card: cardNumber,
-          billing_details: { name: values.cardholderName.trim() },
-        },
-      });
+      try {
+        const result = await stripe.confirmCardSetup(clientSecret, {
+          payment_method: {
+            card: cardNumber,
+            billing_details: { name: values.cardholderName.trim() },
+          },
+        });
 
-      if (result.error) {
-        helpers.setStatus(result.error.message || t("addError"));
+        if (result.error) {
+          // Field problems belong next to the card inputs; declines and
+          // processing failures are outcomes, reported as a toast.
+          if (result.error.type === "validation_error") {
+            setCardError(result.error.message || t("addError"));
+          } else {
+            notify.error(result.error, "cardAddFailed", result.error.message);
+          }
+          return;
+        }
+      } catch (caught) {
+        notify.error(caught, "cardAddFailed");
         return;
       }
 
+      notify.success("cardAdded");
       onSaved();
     },
   });
@@ -158,9 +171,9 @@ function AddCardForm({ clientSecret, onClose, onSaved }: AddCardFormProps) {
         </label>
       </div>
 
-      {cardError || formik.status ? (
+      {cardError ? (
         <p role="alert" className="mt-4 text-[11px] leading-relaxed text-brand">
-          {cardError || String(formik.status)}
+          {cardError}
         </p>
       ) : null}
 

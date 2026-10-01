@@ -1,93 +1,40 @@
-import Link from "next/link";
-import { useFormatter, useTranslations } from "next-intl";
-import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
-import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
-import {
-  Rail,
-  RailSkeleton,
-  SectionHeading,
-  SectionState,
-} from "@/modules/deliveries/components/discovery/DiscoverySection";
-import type { DeliveryOrderAgainOrder } from "@/modules/deliveries/types/discovery";
+import { useTranslations } from "next-intl";
+import { OrderAgainProductCard } from "@/modules/deliveries/components/discovery/OrderAgainProductCard";
+import { Rail, SectionHeading } from "@/modules/deliveries/components/discovery/DiscoverySection";
+import type { DeliveryOrderAgainProduct } from "@/modules/deliveries/types/discovery";
 
 interface Props {
-  items: DeliveryOrderAgainOrder[];
-  isLoading: boolean;
-  isError: boolean;
-  onRetry: () => void;
+  items: DeliveryOrderAgainProduct[];
   seeAllHref?: string;
   seeAllLabel?: string;
 }
 
-export function OrderAgainSection({ items, isLoading, isError, onRetry, seeAllHref, seeAllLabel }: Props) {
+/**
+ * Only rendered once the customer has order history. While loading, on
+ * failure, or with no previous orders the section is omitted entirely so the
+ * home screen never shows an empty or broken "Order again" heading.
+ */
+export function OrderAgainSection({ items, seeAllHref, seeAllLabel }: Props) {
   const t = useTranslations("deliveries.discovery");
-  const format = useFormatter();
-  const formatAppCurrency = useAppCurrencyFormatter();
+  if (items.length === 0) return null;
+
   return (
     <section className="space-y-4">
       <SectionHeading
-        actionHref={!isLoading && !isError && items.length > 0 ? seeAllHref : undefined}
-        actionLabel={!isLoading && !isError && items.length > 0 ? seeAllLabel : undefined}
+        actionHref={seeAllHref}
+        actionLabel={seeAllLabel}
         title={t("orderAgainTitle")}
         description={t("orderAgainDescription")}
       />
-      {isLoading ? (
-        <RailSkeleton />
-      ) : isError ? (
-        <SectionState
-          actionLabel={t("retry")}
-          message={t("errorMessage")}
-          onAction={onRetry}
-          title={t("errorTitle")}
-          tone="error"
-        />
-      ) : items.length === 0 ? (
-        <SectionState title={t("emptyTitle")} message={t("orderAgainEmpty")} />
-      ) : (
-        <Rail>
-          {items.map((order) => (
-            <Link
-              className="group w-[252px] shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand sm:w-[300px]"
-              href={`/orders/${encodeURIComponent(order.orderId)}`}
-              key={order.orderId}
-            >
-              <DeliveryImage
-                alt=""
-                className="aspect-[16/9] w-full"
-                imageClassName="transition-transform duration-500 ease-out group-hover:scale-105"
-                sizes="(max-width: 640px) 270px, 310px"
-                src={
-                  order.itemImages.find(Boolean) ??
-                  order.storeImage ??
-                  order.storeLogo
-                }
-              />
-              <div className="p-3.5 sm:p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3 className="truncate font-heading text-sm font-bold text-ink">{order.storeName}</h3>
-                    <p className="mt-1 truncate text-xs text-muted">
-                      {order.itemNames.join(", ")}
-                    </p>
-                  </div>
-                  <b className="shrink-0 text-xs text-brand">
-                    {formatAppCurrency(format, order.orderTotal)}
-                  </b>
-                </div>
-                <p className="mt-3 text-[10px] font-medium text-muted">
-                  {t("orderMeta", {
-                    count: order.itemCount,
-                    date: format.dateTime(new Date(order.orderedAt), {
-                      day: "numeric",
-                      month: "short",
-                    }),
-                  })}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </Rail>
-      )}
+      <Rail>
+        {items.map((product) => (
+          <OrderAgainProductCard
+            className="w-[252px] shrink-0 snap-start sm:w-[300px]"
+            key={`${product.storeId}:${product.productId}`}
+            product={product}
+          />
+        ))}
+      </Rail>
     </section>
   );
 }

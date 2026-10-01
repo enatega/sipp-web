@@ -11,6 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { AddCardModal } from "@/modules/account/components/profile/AddCardModal";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import { ProfileBackLink } from "@/modules/account/components/profile/ProfileBackLink";
@@ -158,14 +159,13 @@ export function SavedCards() {
   const removeCard = useRemoveSavedCardMutation();
   const setDefault = useSetDefaultSavedCardMutation();
   const [isAdding, setIsAdding] = useState(false);
-  const [actionError, setActionError] = useState("");
+  const notify = useActionToast();
 
   useEffect(() => {
     if (!session.isPending && !authenticated) router.replace("/login");
   }, [authenticated, router, session.isPending]);
 
   const openAddCard = () => {
-    setActionError("");
     setIsAdding(true);
     setupIntent.reset();
     setupIntent.mutate();
@@ -173,20 +173,20 @@ export function SavedCards() {
 
   const remove = async (card: SavedCard) => {
     if (!window.confirm(t("removeConfirmation", { last4: card.last4 }))) return;
-    setActionError("");
     try {
       await removeCard.mutateAsync(card.id);
-    } catch {
-      setActionError(t("removeError"));
+      notify.success("cardRemoved");
+    } catch (caught) {
+      notify.error(caught, "cardRemoveFailed");
     }
   };
 
   const makeDefault = async (card: SavedCard) => {
-    setActionError("");
     try {
       await setDefault.mutateAsync(card.id);
-    } catch {
-      setActionError(t("defaultError"));
+      notify.success("defaultCardUpdated");
+    } catch (caught) {
+      notify.error(caught, "defaultCardUpdateFailed");
     }
   };
 
@@ -260,12 +260,6 @@ export function SavedCards() {
               {!cards.data?.cards.length ? (
                 <p className="mt-5 text-center text-xs text-muted">
                   {t("empty")}
-                </p>
-              ) : null}
-
-              {actionError ? (
-                <p role="alert" className="mt-5 text-[12px] text-brand">
-                  {actionError}
                 </p>
               ) : null}
 

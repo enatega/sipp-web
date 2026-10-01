@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { LoaderCircle, Search, UtensilsCrossed } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { CategoryNavigation, MobileCategoryNavigation } from "./CategoryNavigation";
 import { ProductConfigurator } from "./ProductConfigurator";
 import { RestaurantHero } from "./RestaurantHero";
@@ -17,30 +18,44 @@ import {
   useRestaurantLocation,
   useRestaurantProductsQuery,
   useRestaurantQuery,
+  useRestaurantSlug,
   useToggleRestaurantFavourite,
 } from "../../hooks/useRestaurantQueries";
 import type { RestaurantCategory, RestaurantProduct } from "../../types/restaurant";
 
 interface Props {
-  storeId: string;
+  slug: string;
 }
 
-export function RestaurantPage({ storeId }: Props) {
+export function RestaurantPage({ slug }: Props) {
   const t = useTranslations("deliveries.restaurant");
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const { location, isReady } = useRestaurantLocation();
+  const isLegacyId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slug);
+  const slugQuery = useRestaurantSlug(isLegacyId ? "" : slug);
+  const storeId = isLegacyId ? slug : (slugQuery.data?.storeId ?? "");
   const restaurant = useRestaurantQuery(storeId, location);
   const cart = useCartQuery(authenticated);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [selectedSubcategories, setSelectedSubcategories] = useState<Record<string, string | null>>({});
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     searchParams.get("productId"),
   );
+
+  useEffect(() => {
+    if (!isLegacyId || !restaurant.data?.slug) return;
+    const query = searchParams.toString();
+    router.replace(
+      `/restaurants/${encodeURIComponent(restaurant.data.slug)}${query ? `?${query}` : ""}`,
+    );
+  }, [isLegacyId, restaurant.data?.slug, router, searchParams]);
   const productsQuery = useRestaurantProductsQuery(storeId, location, search);
   const favourite = useToggleRestaurantFavourite(storeId, location);
+  const notify = useActionToast();
   const { fetchNextPage, hasNextPage, isFetchingNextPage } = productsQuery;
 
   useEffect(() => {
@@ -104,7 +119,7 @@ export function RestaurantPage({ storeId }: Props) {
     openAuthRequiredDialog(returnTo);
   }
 
-  if (!isReady || restaurant.isPending) {
+  if (!isReady || (!isLegacyId && slugQuery.isPending) || restaurant.isPending) {
     return (
       <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="grid min-h-[60vh] place-items-center bg-background text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>
     );
@@ -116,18 +131,25 @@ export function RestaurantPage({ storeId }: Props) {
     );
   }
 
-  if (restaurant.isError || !restaurant.data) {
+  if ((!isLegacyId && slugQuery.isError) || restaurant.isError || !restaurant.data) {
     return (
       <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="section-wrap grid min-h-[60vh] place-items-center py-16 text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button className="mt-5 rounded-xl bg-brand px-5 py-3 text-sm font-bold text-ink" onClick={() => void restaurant.refetch()} type="button">{t("retry")}</button></div></main></>
     );
   }
 
   const store = restaurant.data;
+  const toggleFavourite = () => {
+    const wasFavourite = store.isFavorited;
+    favourite.mutate(undefined, {
+      onSuccess: () => notify.success(wasFavourite ? "removedFromFavourites" : "addedToFavourites"),
+      onError: (caught) => notify.error(caught, "favouriteUpdateFailed"),
+    });
+  };
   return (
     <>
       <Header cartCount={cart.data?.totalItems ?? 0} />
       <main className="min-w-0 bg-background">
-        <RestaurantHero isFavouritePending={authenticated && favourite.isPending} onShare={() => void shareRestaurant()} onToggleFavourite={() => authenticated ? favourite.mutate() : requireSignIn()} store={store} />
+        <RestaurantHero isFavouritePending={authenticated && favourite.isPending} onShare={() => void shareRestaurant()} onToggleFavourite={() => authenticated ? toggleFavourite() : requireSignIn()} store={store} />
         <MobileCategoryNavigation activeCategoryId={activeCategoryId} categories={categories} categoryLabel={t("categories")} onSelect={scrollToCategory} />
 
         <div className="mx-auto grid min-h-[700px] max-w-[1540px] grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)]">

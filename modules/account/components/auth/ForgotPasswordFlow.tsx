@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
-import { Check, Eye, EyeOff } from "lucide-react";
+import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import * as yup from "yup";
 import { OtpInput } from "@/modules/account/components/auth/OtpInput";
+import { PasswordInput } from "@/modules/account/components/auth/PasswordInput";
 import {
   errorNote,
   fieldInput,
@@ -48,8 +49,6 @@ export function ForgotPasswordFlow({
   const normalizedInitialEmail = initialEmail.trim().toLowerCase();
   const [stage, setStage] = useState<Stage>(normalizedInitialEmail ? "otp" : "email");
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const automaticSendStarted = useRef(false);
   const busy = sendOtp.isPending || verifyOtp.isPending || resetPassword.isPending;
 
@@ -148,21 +147,11 @@ export function ForgotPasswordFlow({
         <>
           <label className={fieldShell}>
             <span className={fieldLabel}>{t("newPassword")}</span>
-            <span className="relative flex items-center">
-              <input className={`${fieldInput} pr-12`} name="password" value={formik.values.password} onChange={formik.handleChange} type={showPassword ? "text" : "password"} autoComplete="new-password" disabled={busy} autoFocus />
-              <button type="button" className="absolute right-4 text-muted hover:text-foreground" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? t("hidePassword") : t("showPassword")}>
-                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              </button>
-            </span>
+            <PasswordInput name="password" value={formik.values.password} onChange={formik.handleChange} autoComplete="new-password" disabled={busy} autoFocus />
           </label>
           <label className={fieldShell}>
             <span className={fieldLabel}>{t("confirmPassword")}</span>
-            <span className="relative flex items-center">
-              <input className={`${fieldInput} pe-12`} name="confirmPassword" value={formik.values.confirmPassword} onChange={formik.handleChange} type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" disabled={busy} />
-              <button type="button" className="absolute end-3 rounded p-1 text-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-brand" onClick={() => setShowConfirmPassword((value) => !value)} aria-label={showConfirmPassword ? t("hidePassword") : t("showPassword")} aria-pressed={showConfirmPassword}>
-                {showConfirmPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
-              </button>
-            </span>
+            <PasswordInput name="confirmPassword" value={formik.values.confirmPassword} onChange={formik.handleChange} autoComplete="new-password" disabled={busy} />
           </label>
           <ul className="grid gap-1 text-[11px] text-muted" aria-label={t("passwordRequirements")}>
             {passwordRules.map((rule) => {

@@ -5,6 +5,7 @@ import { Bell, CheckCheck, LoaderCircle, RefreshCw, Settings2 } from "lucide-rea
 import { useFormatter, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { useSessionQuery } from "@/modules/account";
 import { useMarkAllNotificationsReadMutation, useMarkNotificationReadMutation, useNotificationInboxQuery, useUnreadNotificationsCountQuery } from "@/modules/account/queries/useNotificationInboxQueries";
 import type { InboxNotification } from "@/modules/account/types/notifications";
@@ -63,6 +64,7 @@ function InboxSection({ period, enabled }: { period: "today" | "past"; enabled: 
 
 export function NotificationInbox() {
   const t = useTranslations("notificationInbox");
+  const notify = useActionToast();
   const router = useRouter();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
@@ -104,9 +106,9 @@ export function NotificationInbox() {
     setNotice("");
     try {
       await markAll.mutateAsync();
-      setNotice(t("markedRead"));
-    } catch {
-      setNotice(t("markError"));
+      notify.success("allNotificationsRead");
+    } catch (caught) {
+      notify.error(caught, "notificationsReadFailed");
     }
   }
 

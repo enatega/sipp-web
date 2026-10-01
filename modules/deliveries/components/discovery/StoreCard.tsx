@@ -43,12 +43,12 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
     t("off"),
   );
   const hasFeeDetails =
-    typeof store.baseFee === "number" && Number.isFinite(store.baseFee);
+    typeof store.deliveryFee === "number" && Number.isFinite(store.deliveryFee);
   const fee =
-    hasFeeDetails && store.baseFee === 0
+    hasFeeDetails && store.deliveryFee === 0
       ? t("freeDelivery")
-      : formatAppCurrency(format, store.baseFee ?? 0, {
-          maximumFractionDigits: 0,
+      : formatAppCurrency(format, store.deliveryFee ?? 0, {
+          maximumFractionDigits: 2,
         });
   const deliveryTime = deliveryTimeLabel(store.deliveryTime, (count) =>
     t("minutes", { count }),
@@ -76,7 +76,7 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
     <Link
       aria-label={t("openStore", { name: store.name })}
       className={`group shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand ${fluid ? "w-full" : "w-[252px] sm:w-[282px]"}`}
-      href={`/restaurants/${encodeURIComponent(store.storeId)}`}
+      href={`/restaurants/${encodeURIComponent(store.slug || store.storeId)}`}
     >
       <div className="relative">
         <DeliveryImage

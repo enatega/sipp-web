@@ -3,6 +3,7 @@ import { requestJson } from "@/services/api/client";
 
 export type FavouriteStore = {
   storeId: string;
+  slug: string;
   name: string;
   logo?: string | null;
   coverImage?: string | null;

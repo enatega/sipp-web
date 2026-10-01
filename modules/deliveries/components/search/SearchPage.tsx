@@ -1,19 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { LoaderCircle, Search, X } from "lucide-react";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Footer } from "@/components/shared/app-shell/Footer";
 import { Header } from "@/components/shared/app-shell/Header";
-import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { useSessionQuery } from "@/modules/account";
 import { searchApi } from "@/modules/deliveries/api/search";
-import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
 import { StoreCard } from "@/modules/deliveries/components/discovery/StoreCard";
-import { getLocalizedProductName } from "@/modules/deliveries/utils/productTranslation";
+import { SearchProductCard } from "@/modules/deliveries/components/search/SearchProductCard";
 import { useDiscoveryLocation } from "@/modules/deliveries/hooks/useDiscoveryQueries";
 import {
   useClearRecentSearchesMutation,
@@ -26,14 +23,12 @@ import {
   useSearchRecommendationsQuery,
   useStoreSearchQuery,
 } from "@/modules/deliveries/hooks/useSearchQueries";
-import type { RecentSearchItem, SearchMeta, SearchProduct, SearchRecommendation } from "@/modules/deliveries/types/search";
+import type { RecentSearchItem, SearchMeta, SearchRecommendation } from "@/modules/deliveries/types/search";
 
 const isDevBuild = process.env.NODE_ENV !== "production";
 
 export function SearchPage() {
   const t = useTranslations("deliveries.search");
-  const format = useFormatter();
-  const formatAppCurrency = useAppCurrencyFormatter();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -137,7 +132,7 @@ export function SearchPage() {
     <>
       <Header />
       <main className="min-h-[70vh] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_480px)] pb-16">
-        <div className="section-wrap py-8 sm:py-12">
+        <div className="app-wrap py-8 sm:py-12">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="font-heading text-3xl font-bold text-ink sm:text-4xl">{t("title")}</h1>
             <p className="mt-2 text-sm text-muted sm:text-base">{t("description")}</p>
@@ -182,14 +177,14 @@ export function SearchPage() {
           ) : (
             <div className="mt-10 space-y-12">
               <section aria-labelledby="product-results-heading">
-                <div className="flex items-end justify-between gap-4">
+                <div className="flex items-center gap-3">
                   <h2 className="font-heading text-2xl font-bold text-ink" id="product-results-heading">{t("products")}</h2>
-                  <span className="text-sm text-muted">{products.data?.pages[0]?.total ?? 0}</span>
+                  <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-brand-soft px-2.5 text-xs font-bold tabular-nums text-brand">{products.data?.pages[0]?.total ?? 0}</span>
                 </div>
                 {products.isPending ? <SearchSkeleton /> : productItems.length ? (
-                  <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                     {productItems.map(({ item, meta, position }) => (
-                      <ProductResult key={item.productId} item={item} price={formatAppCurrency(format, item.price)} onOpen={() => track(meta, "product", item.productId, position)} />
+                      <SearchProductCard key={`${item.storeId}-${item.productId}`} item={item} location={location} onOpen={() => track(meta, "product", item.productId, position)} />
                     ))}
                   </div>
                 ) : <Notice>{products.isError ? t("error") : t("noProducts")}</Notice>}
@@ -197,12 +192,12 @@ export function SearchPage() {
               </section>
 
               <section aria-labelledby="store-results-heading">
-                <div className="flex items-end justify-between gap-4">
+                <div className="flex items-center gap-3">
                   <h2 className="font-heading text-2xl font-bold text-ink" id="store-results-heading">{t("stores")}</h2>
-                  <span className="text-sm text-muted">{stores.data?.pages[0]?.total ?? 0}</span>
+                  <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-brand-soft px-2.5 text-xs font-bold tabular-nums text-brand">{stores.data?.pages[0]?.total ?? 0}</span>
                 </div>
                 {stores.isPending ? <SearchSkeleton /> : storeItems.length ? (
-                  <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                     {storeItems.map(({ item, meta, position }) => (
                       <div key={item.storeId} onClick={() => track(meta, "store", item.storeId, position)}><StoreCard fluid store={item} /></div>
                     ))}
@@ -216,20 +211,6 @@ export function SearchPage() {
       </main>
       <Footer />
     </>
-  );
-}
-
-function ProductResult({ item, onOpen, price }: { item: SearchProduct; onOpen: () => void; price: string }) {
-  const locale = useLocale();
-  const productName = getLocalizedProductName(
-    { name: item.productName, nameTranslations: item.productNameTranslations },
-    locale,
-  );
-  return (
-    <Link className="group overflow-hidden rounded-2xl bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand" href={`/restaurants/${encodeURIComponent(item.storeId)}?productId=${encodeURIComponent(item.productId)}`} onClick={onOpen}>
-      <DeliveryImage alt={productName} className="aspect-[4/3] w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={item.productImage ?? item.storeImage ?? item.storeLogo} />
-      <div className="p-4"><h3 className="truncate font-heading font-bold text-ink">{productName}</h3><p className="mt-1 truncate text-xs text-muted">{item.storeName}</p><p className="mt-3 font-bold text-brand">{price}</p></div>
-    </Link>
   );
 }
 

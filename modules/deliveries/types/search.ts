@@ -8,6 +8,7 @@ export interface SearchMeta {
 export interface SearchProduct {
   productId: string;
   storeId: string;
+  storeSlug: string;
   productName: string;
   productNameTranslations: Record<string, string>;
   storeName: string;
