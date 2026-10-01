@@ -117,6 +117,7 @@ function parseRestaurantProduct(value: unknown): RestaurantProduct {
     shortDescription: optionalText(source.shortDescription),
     description: optionalText(source.description),
     price: number(source.price),
+    inStock: source.inStock !== false,
     imageUrl: optionalText(source.imageUrl),
     categoryId,
     subcategoryId,

@@ -2,7 +2,7 @@
 
 import { BadgePercent, CreditCard, ReceiptText } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import type { OrderDetail } from "../../types/orders";
 import { hasAmount } from "../../utils/orderDetail";
 
@@ -13,6 +13,7 @@ interface Props {
 export function OrderSummaryPanel({ order }: Props) {
   const t = useTranslations("deliveries.orderDetails");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const summary = order.summary;
   const hasAppliedCoupon = Boolean(
     summary?.couponCode && hasAmount(summary.discountAmount),

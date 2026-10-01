@@ -2,7 +2,7 @@
 
 import { Check, Copy, LoaderCircle, Store, Tag } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { useState } from "react";
 import type { ClaimedCoupon } from "@/modules/account/types/coupons";
 
@@ -25,6 +25,7 @@ export function couponUsability(coupon: ClaimedCoupon) {
 export function CouponListItem({ coupon, isBusy = false, onToggle, compact = false, disabledReason }: Props) {
   const t = useTranslations("coupons");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const [copied, setCopied] = useState(false);
   const usability = couponUsability(coupon);
   const unavailable = usability !== "available" && !coupon.is_active;

@@ -8,7 +8,7 @@ import { LoaderCircle, Search, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Footer } from "@/components/shared/app-shell/Footer";
 import { Header } from "@/components/shared/app-shell/Header";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { useSessionQuery } from "@/modules/account";
 import { searchApi } from "@/modules/deliveries/api/search";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
@@ -33,6 +33,7 @@ const isDevBuild = process.env.NODE_ENV !== "production";
 export function SearchPage() {
   const t = useTranslations("deliveries.search");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();

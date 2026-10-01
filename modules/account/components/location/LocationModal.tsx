@@ -54,6 +54,7 @@ export function LocationModal({
   showSavedAddresses = true,
 }: LocationModalProps) {
   const t = useTranslations("location");
+  const common = useTranslations("common");
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [chosen, setChosen] = useState<ChosenPlace | null>(null);
@@ -69,6 +70,7 @@ export function LocationModal({
   const placeDetails = usePlaceDetailsMutation();
   const reverseGeocode = useReverseGeocodeMutation();
   const savedAddresses = addressesQuery.data ?? [];
+  const selectedSavedAddress = savedAddresses.find((address) => address.is_selected);
 
   useEffect(() => {
     if (!open) return;
@@ -584,6 +586,21 @@ export function LocationModal({
                 className="h-12 flex-1 rounded-lg bg-brand text-sm font-semibold text-ink transition-colors hover:bg-brand/85"
               >
                 {t("confirm")}
+              </button>
+            </footer>
+          ) : !query.trim() && selectedSavedAddress && showSavedAddresses ? (
+            <footer className="border-t border-line px-5 py-4">
+              <button
+                type="button"
+                onClick={() => {
+                  const place = placeFromAddress(selectedSavedAddress);
+                  if (!place) return;
+                  storePlace(place);
+                  onClose();
+                }}
+                className="h-12 w-full rounded-lg bg-brand text-sm font-semibold text-ink transition-colors hover:bg-brand/85"
+              >
+                {common("continue")}
               </button>
             </footer>
           ) : null}

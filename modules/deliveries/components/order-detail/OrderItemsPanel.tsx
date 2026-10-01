@@ -2,7 +2,7 @@
 
 import { ShoppingBag } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import type { OrderProduct } from "../../types/orders";
 
@@ -13,6 +13,7 @@ interface Props {
 export function OrderItemsPanel({ products }: Props) {
   const t = useTranslations("deliveries.orderDetails");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const money = (value: number) =>
     formatAppCurrency(format, value);
 

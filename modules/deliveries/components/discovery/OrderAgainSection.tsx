@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
 import {
   Rail,
@@ -22,6 +22,7 @@ interface Props {
 export function OrderAgainSection({ items, isLoading, isError, onRetry, seeAllHref, seeAllLabel }: Props) {
   const t = useTranslations("deliveries.discovery");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   return (
     <section className="space-y-4">
       <SectionHeading

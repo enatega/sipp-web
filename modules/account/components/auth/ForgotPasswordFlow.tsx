@@ -49,6 +49,7 @@ export function ForgotPasswordFlow({
   const [stage, setStage] = useState<Stage>(normalizedInitialEmail ? "otp" : "email");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const automaticSendStarted = useRef(false);
   const busy = sendOtp.isPending || verifyOtp.isPending || resetPassword.isPending;
 
@@ -156,7 +157,12 @@ export function ForgotPasswordFlow({
           </label>
           <label className={fieldShell}>
             <span className={fieldLabel}>{t("confirmPassword")}</span>
-            <input className={fieldInput} name="confirmPassword" value={formik.values.confirmPassword} onChange={formik.handleChange} type="password" autoComplete="new-password" disabled={busy} />
+            <span className="relative flex items-center">
+              <input className={`${fieldInput} pe-12`} name="confirmPassword" value={formik.values.confirmPassword} onChange={formik.handleChange} type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" disabled={busy} />
+              <button type="button" className="absolute end-3 rounded p-1 text-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-brand" onClick={() => setShowConfirmPassword((value) => !value)} aria-label={showConfirmPassword ? t("hidePassword") : t("showPassword")} aria-pressed={showConfirmPassword}>
+                {showConfirmPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
+              </button>
+            </span>
           </label>
           <ul className="grid gap-1 text-[11px] text-muted" aria-label={t("passwordRequirements")}>
             {passwordRules.map((rule) => {

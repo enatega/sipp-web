@@ -1,6 +1,6 @@
 import { Check, Plus } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import type { RestaurantProduct } from "../../types/restaurant";
 import { getLocalizedProductName } from "../../utils/productTranslation";
@@ -20,6 +20,7 @@ export function RestaurantProductCard({
 }: Props) {
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const locale = useLocale();
   const productName = getLocalizedProductName(product, locale);
   const price = product.deal?.discountedPrice ?? product.price;
@@ -28,7 +29,7 @@ export function RestaurantProductCard({
   return (
     <article className={`group overflow-hidden rounded-2xl border bg-card shadow-rail-card transition duration-300 ease-out hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-card ${isInCart ? "border-brand/25" : "border-line"}`}>
       <button
-        aria-label={isInCart ? t("configureProductInCart", { name: productName, count: cartQuantity }) : t("configureProduct", { name: productName })}
+        aria-label={!product.inStock ? `${productName}: ${t("outOfStock")}` : isInCart ? t("configureProductInCart", { name: productName, count: cartQuantity }) : t("configureProduct", { name: productName })}
         className="flex min-h-[110px] w-full text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand"
         onClick={() => onSelect(product.id)}
         type="button"
@@ -60,7 +61,7 @@ export function RestaurantProductCard({
                 </span>
               ) : null}
             </div>
-            {!isStoreAvailable ? <span className="text-xs font-medium text-muted">{t("closed")}</span> : <span className={`relative grid size-7 shrink-0 place-items-center rounded-full border transition duration-200 group-hover:scale-105 ${isInCart ? "border-brand bg-brand text-ink" : "border-brand/25 bg-brand/8 text-brand group-hover:border-brand group-hover:bg-brand group-hover:text-ink"}`}>
+            {!product.inStock ? <span className="text-xs font-semibold text-danger">{t("outOfStock")}</span> : !isStoreAvailable ? <span className="text-xs font-medium text-muted">{t("closed")}</span> : <span className={`relative grid size-7 shrink-0 place-items-center rounded-full border transition duration-200 group-hover:scale-105 ${isInCart ? "border-brand bg-brand text-ink" : "border-brand/25 bg-brand/8 text-brand group-hover:border-brand group-hover:bg-brand group-hover:text-ink"}`}>
               {isInCart ? <Check aria-hidden="true" className="size-3.5" /> : <Plus aria-hidden="true" className="size-3.5" />}
               {isInCart ? <span aria-hidden="true" className="absolute -right-1.5 -top-1.5 grid min-h-4 min-w-4 place-items-center rounded-full border-2 border-card bg-surface px-0.5 text-[8px] font-extrabold leading-none text-brand tabular-nums">{cartQuantity > 99 ? "99+" : cartQuantity}</span> : null}
             </span>}

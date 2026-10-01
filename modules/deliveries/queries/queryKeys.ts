@@ -34,6 +34,10 @@ export const deliveryQueryKeys = {
     [...deliveryQueryKeys.orders(), "list", tab] as const,
   order: (orderId: string) =>
     [...deliveryQueryKeys.orders(), "detail", orderId] as const,
+  orderChat: (orderId: string) =>
+    [...deliveryQueryKeys.order(orderId), "chat"] as const,
+  orderChatUnread: () =>
+    [...deliveryQueryKeys.orders(), "chat-unread"] as const,
   orderReview: (orderId: string) =>
     [...deliveryQueryKeys.order(orderId), "review"] as const,
   route: (origin: string, destination: string) =>

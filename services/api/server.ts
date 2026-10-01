@@ -26,6 +26,7 @@ function safeErrorPayload(payload: unknown, fallback: string) {
           code?: string;
           status?: string;
           applicationId?: string;
+          fields?: unknown;
         })
       : {};
   return {
@@ -34,6 +35,9 @@ function safeErrorPayload(payload: unknown, fallback: string) {
     ...(candidate.status ? { status: candidate.status } : {}),
     ...(candidate.applicationId
       ? { applicationId: candidate.applicationId }
+      : {}),
+    ...(Array.isArray(candidate.fields)
+      ? { fields: candidate.fields.filter((field) => field === "email" || field === "phone") }
       : {}),
   };
 }
@@ -91,12 +95,7 @@ export async function callPublicApi(path: string, payload: unknown) {
     const data = await upstream.json().catch(() => null);
     if (!upstream.ok) {
       return NextResponse.json(
-        {
-          message: errorMessage(
-            data,
-            "We could not complete that request. Please try again.",
-          ),
-        },
+        safeErrorPayload(data, "We could not complete that request. Please try again."),
         { status: upstream.status },
       );
     }

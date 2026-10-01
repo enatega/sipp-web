@@ -73,7 +73,7 @@ export function ShopTypesSection(props: Props) {
                   src={item.image ?? item.icon}
                 />
                 <div className="flex min-h-16 items-start px-3.5 py-3">
-                  <h3 className="text-sm font-bold leading-5 text-ink [overflow-wrap:anywhere]">
+                  <h3 className="text-sm font-bold leading-5 text-ink">
                     {decodeDisplayText(item.name)}
                   </h3>
                 </div>

@@ -1,6 +1,6 @@
 import { AlertCircle } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { cn } from "@/lib/utils";
 import type { ProductCustomizationSection } from "../../types/restaurant";
 
@@ -23,6 +23,7 @@ export function CustomizationGroup({
 }: Props) {
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const isRequired = section.required || section.minSelect > 0;
   const errorId = `customization-${section.groupId}-error`;
 

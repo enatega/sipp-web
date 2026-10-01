@@ -40,6 +40,7 @@ export function AccountSecurity() {
   const [passwordError, setPasswordError] = useState("");
   const [resendIn, setResendIn] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   useEffect(() => {
@@ -151,7 +152,7 @@ export function AccountSecurity() {
                     ) : (
                       <>
                         <label className="block"><span className={fieldLabel}>{t("newPassword")}</span><span className="relative mt-2 flex items-center"><input className={`${fieldInput} pr-12`} name="password" value={passwordForm.values.password} onChange={passwordForm.handleChange} type={showPassword ? "text" : "password"} autoComplete="new-password" autoFocus /><button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute right-4 text-muted hover:text-foreground" aria-label={showPassword ? t("hidePassword") : t("showPassword")}>{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button></span></label>
-                        <label className="block"><span className={fieldLabel}>{t("confirmPassword")}</span><input className={`${fieldInput} mt-2`} name="confirmPassword" value={passwordForm.values.confirmPassword} onChange={passwordForm.handleChange} type="password" autoComplete="new-password" /></label>
+                        <label className="block"><span className={fieldLabel}>{t("confirmPassword")}</span><span className="relative mt-2 flex items-center"><input className={`${fieldInput} pe-12`} name="confirmPassword" value={passwordForm.values.confirmPassword} onChange={passwordForm.handleChange} type={showConfirmPassword ? "text" : "password"} autoComplete="new-password" /><button type="button" onClick={() => setShowConfirmPassword((value) => !value)} className="absolute end-3 rounded p-1 text-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-brand" aria-label={showConfirmPassword ? t("hidePassword") : t("showPassword")} aria-pressed={showConfirmPassword}>{showConfirmPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}</button></span></label>
                         <ul className="grid gap-1.5 text-[11px] text-muted" aria-label={t("requirements")}>
                           {["ruleLength", "ruleCase", "ruleNumber"].map((key, index) => <li key={key} className={`flex items-center gap-2 ${passwordChecks[index](passwordForm.values.password) ? "text-success" : ""}`}><Check className="size-3.5" />{t(key)}</li>)}
                         </ul>

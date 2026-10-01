@@ -3,7 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Filter, LayoutGrid, LoaderCircle, Map, Search, SlidersHorizontal, Tag, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -66,6 +66,7 @@ function ShopTypeCard({ item }: { item: DeliveryShopType }) {
 
 function OrderAgainCard({ order }: { order: DeliveryOrderAgainOrder }) {
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   return (
     <Link className="group block overflow-hidden rounded-2xl bg-card shadow-sm transition-transform hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand" href={`/orders/${encodeURIComponent(order.orderId)}`}>
       <DeliveryImage alt="" className="aspect-[16/9] w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" sizes="320px" src={order.itemImages.find(Boolean) ?? order.storeImage ?? order.storeLogo} />

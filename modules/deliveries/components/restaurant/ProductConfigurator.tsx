@@ -4,7 +4,7 @@ import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "
 import Link from "next/link";
 import { Check, ChevronRight, LoaderCircle, Minus, Plus, ShoppingCart, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { ApiError } from "@/services/api/client";
 import { cn } from "@/lib/utils";
 import { DeliveryNotice } from "../feedback/DeliveryNotice";
@@ -31,6 +31,7 @@ interface Props {
 export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose, onRequireSignIn, productId, storeName }: Props) {
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const locale = useLocale();
   const { info, customizations } = useProductConfiguration(productId);
   const cart = useCartQuery(isAuthenticated);

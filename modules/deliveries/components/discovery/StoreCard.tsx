@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Bike, Clock3, MapPin, Star, Tag } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { formatAppCurrency } from "@/config/currency";
+import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
 import type { DeliveryStore } from "@/modules/deliveries/types/discovery";
 
@@ -35,6 +35,7 @@ function deliveryTimeLabel(
 export function StoreCard({ store, fluid = false }: { store: DeliveryStore; fluid?: boolean }) {
   const t = useTranslations("deliveries.discovery");
   const format = useFormatter();
+  const formatAppCurrency = useAppCurrencyFormatter();
   const isClosed = store.isOpen === false || store.isAvailable === false;
   const offer = offerLabel(
     store,
