@@ -8,7 +8,7 @@ import type { AuthUser } from "@/modules/account/types";
 import { userInitials } from "@/modules/account/utils/userInitials";
 import { useUnreadNotificationsCountQuery } from "@/modules/account/queries/useNotificationInboxQueries";
 import { useNotificationLiveSync } from "@/modules/account/hooks/useNotificationLiveSync";
-import { browserNotificationsEnabled, browserPushAvailability, disableBrowserNotifications, enableBrowserNotifications } from "@/modules/account/api/browserNotifications";
+import { disableBrowserNotifications, enableBrowserNotifications, resolveBrowserPushState } from "@/modules/account/api/browserNotifications";
 
 /** The signed-in destinations, in the order the design lists them. */
 const LINKS: Array<{ labelKey: "profile" | "orders" | "wallet" | "support"; href: string; icon: IconName }> = [
@@ -79,12 +79,7 @@ export function AccountMenu({
 
   useEffect(() => {
     let active = true;
-    const availability = browserPushAvailability();
-    if (availability !== "available") { setPushState(availability); return; }
-    if (Notification.permission === "denied") { setPushState("denied"); return; }
-    void browserNotificationsEnabled()
-      .then((enabled) => { if (active) setPushState(enabled ? "enabled" : "available"); })
-      .catch(() => { if (active) setPushState("available"); });
+    void resolveBrowserPushState().then((state) => { if (active) setPushState(state); });
     return () => { active = false; };
   }, []);
 

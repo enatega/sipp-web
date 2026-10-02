@@ -122,6 +122,15 @@ export async function browserNotificationsEnabled() {
   return true;
 }
 
+export async function resolveBrowserPushState(): Promise<"available" | "unsupported" | "ios-install" | "denied" | "enabled"> {
+  const availability = browserPushAvailability();
+  if (availability !== "available") return availability;
+  if (Notification.permission === "denied") return "denied";
+  return browserNotificationsEnabled()
+    .then((enabled) => (enabled ? "enabled" as const : "available" as const))
+    .catch(() => "available" as const);
+}
+
 export async function disableBrowserNotifications() {
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
   await pendingPreparation?.catch(() => undefined);
