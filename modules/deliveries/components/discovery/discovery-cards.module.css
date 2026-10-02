@@ -92,6 +92,124 @@
   }
 }
 
+/* "Browse what you need" cards: soft gradient, artwork bleeding past the top edge. */
+.browseCard {
+  --browse-from: #ffeae0;
+  --browse-to: #ffcdb6;
+  --browse-ink: #3b1a12;
+  --browse-eyebrow: #ec6a4c;
+  --browse-glow: rgb(214 110 74 / 0.18);
+  background: linear-gradient(110deg, var(--browse-from) 0%, var(--browse-to) 100%);
+  color: var(--browse-ink);
+  border-radius: 1.25rem;
+  /* Let artwork rise above the card while the sides and bottom stay rounded and clipped. */
+  clip-path: inset(-3rem 0 0 0 round 0 0 1.25rem 1.25rem);
+  transition: translate 300ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 300ms ease;
+}
+
+.browseCard:hover {
+  translate: 0 -4px;
+}
+
+.browseMint {
+  --browse-from: #dcfbe6;
+  --browse-to: #a3e9d6;
+  --browse-ink: #0c3a29;
+  --browse-eyebrow: #2f8a55;
+  --browse-glow: rgb(36 130 96 / 0.18);
+}
+
+.browseSky {
+  --browse-from: #e3f4ff;
+  --browse-to: #b6e0fa;
+  --browse-ink: #123c5c;
+  --browse-eyebrow: #1f7fbf;
+  --browse-glow: rgb(22 120 180 / 0.18);
+}
+
+.browseLilac {
+  --browse-from: #efeaff;
+  --browse-to: #d4c9fb;
+  --browse-ink: #3f2f73;
+  --browse-eyebrow: #6b55c9;
+  --browse-glow: rgb(90 66 170 / 0.18);
+}
+
+:global(.dark) .browseCard {
+  --browse-from: #3a2620;
+  --browse-to: #5a3427;
+  --browse-ink: #ffe4d6;
+  --browse-eyebrow: #ff9a7d;
+  --browse-glow: rgb(0 0 0 / 0.35);
+}
+
+:global(.dark) .browseMint {
+  --browse-from: #17332a;
+  --browse-to: #1f4d3e;
+  --browse-ink: #d6f7e6;
+  --browse-eyebrow: #7fe0aa;
+}
+
+:global(.dark) .browseSky {
+  --browse-from: #172c3d;
+  --browse-to: #1e4260;
+  --browse-ink: #d6eeff;
+  --browse-eyebrow: #7cc6f5;
+}
+
+:global(.dark) .browseLilac {
+  --browse-from: #262040;
+  --browse-to: #362c5e;
+  --browse-ink: #e6e0ff;
+  --browse-eyebrow: #b6a6ff;
+}
+
+.browseEyebrow {
+  color: var(--browse-eyebrow);
+}
+
+.browsePill {
+  background: #fff;
+  color: var(--browse-ink);
+  box-shadow: 0 10px 24px var(--browse-glow), 0 1px 0 rgb(255 255 255 / 0.9) inset;
+}
+
+:global(.dark) .browsePill {
+  background: rgb(255 255 255 / 0.12);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+}
+
+.browseArt {
+  transform-origin: 70% 100%;
+  transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  filter: drop-shadow(0 14px 18px var(--browse-glow));
+}
+
+:global(.group):hover .browseArt {
+  transform: translateY(-4px) scale(1.03);
+}
+
+/* Artwork eases up into place once decoded, so it never pops in after the copy. */
+.browseArtLoading {
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+}
+
+.browseArtLoaded {
+  opacity: 1;
+  transition:
+    opacity 450ms ease-out,
+    transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .browseCard,
+  .browseArt,
+  .browseArtLoaded {
+    transition: none;
+  }
+}
+
 /* Shop type tiles: warm gradient, hard "ledge" shadow, floating photo. */
 .tile {
   --tile-from: #ffe5d5;

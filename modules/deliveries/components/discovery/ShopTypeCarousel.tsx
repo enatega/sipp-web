@@ -59,7 +59,7 @@ export function ShopTypeCarousel({ items, getItemHref }: Props) {
   return (
     <div className="relative">
       <div
-        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-4 px-4 pb-6 pt-3 [scrollbar-width:none] sm:mx-0 sm:scroll-px-0 sm:gap-4 sm:px-0 [&::-webkit-scrollbar]:hidden"
+        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-4 px-4 pb-6 pt-9 [scrollbar-width:none] sm:mx-0 sm:scroll-px-0 sm:gap-4 sm:px-0 [&::-webkit-scrollbar]:hidden"
         onScroll={syncControls}
         ref={trackRef}
       >
@@ -70,7 +70,7 @@ export function ShopTypeCarousel({ items, getItemHref }: Props) {
               "shrink-0 snap-start",
               items.length === 1
                 ? "basis-full"
-                : "basis-[80%] sm:basis-[calc((100%-1rem)/2)]",
+                : "basis-[86%] sm:basis-[calc((100%-1rem)/2)]",
             )}
             key={item.id}
             style={{ "--enter-delay": `${Math.min(index, 3) * 90}ms` } as React.CSSProperties}

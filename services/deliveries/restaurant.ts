@@ -86,6 +86,27 @@ export function proxyRestaurantRequest(request: NextRequest, storeId: string) {
   );
 }
 
+export function proxyRestaurantReviewsRequest(request: NextRequest, storeId: string) {
+  if (!UUID_PATTERN.test(storeId)) return invalid("Invalid store identifier.");
+
+  const incoming = request.nextUrl.searchParams;
+  const offset = pageNumber(incoming.get("offset"), 0, 100_000);
+  const limit = pageNumber(incoming.get("limit"), 10, 50);
+  if (offset === null || limit === null || limit < 1) {
+    return invalid("Invalid review pagination.");
+  }
+  const query = new URLSearchParams({ offset: String(offset), limit: String(limit) });
+  const rating = incoming.get("rating");
+  if (rating !== null) {
+    if (!/^[1-5]$/.test(rating)) return invalid("Invalid rating filter.");
+    query.set("rating", rating);
+  }
+  return callApi(
+    `/apps/deliveries/stores/${encodeURIComponent(storeId)}/reviews?${query}`,
+    { request },
+  );
+}
+
 export function proxyProductRequest(
   request: NextRequest,
   productId: string,

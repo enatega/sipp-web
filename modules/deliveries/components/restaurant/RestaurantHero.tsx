@@ -1,7 +1,9 @@
-import { Clock3, Heart, MapPin, Share2, Star } from "lucide-react";
+import { useState } from "react";
+import { Clock3, Heart, MapPin, MessageSquareText, Share2, Star } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { HistoryBackButton } from "@/components/shared/HistoryBackButton";
 import { DeliveryImage } from "../discovery/DeliveryImage";
+import { RestaurantReviewsModal } from "./RestaurantReviewsModal";
 import type { RestaurantStore } from "../../types/restaurant";
 
 function deliveryTime(value: RestaurantStore["deliveryTime"], minutes: (count: number) => string) {
@@ -25,6 +27,7 @@ export function RestaurantHero({
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
   const eta = deliveryTime(store.deliveryTime, (count) => t("minutes", { count }));
+  const [reviewsOpen, setReviewsOpen] = useState(false);
 
   return (
     <section className="relative isolate min-h-[270px] overflow-hidden bg-ink text-white sm:min-h-[310px]">
@@ -36,7 +39,7 @@ export function RestaurantHero({
         src={store.coverImage ?? store.logo}
       />
       <div className="absolute inset-0 bg-black/45" />
-      <div className="section-wrap relative flex min-h-[270px] items-end pb-7 pt-20 sm:min-h-[310px] sm:pb-9">
+      <div className="relative mx-auto flex min-h-[270px] w-full max-w-[1540px] items-end px-[18px] pb-7 pt-20 sm:min-h-[310px] sm:px-7 sm:pb-9 lg:pl-4 lg:pr-7 xl:pr-9">
         <HistoryBackButton
           className="absolute top-5 sm:top-6"
           href="/discovery"
@@ -59,10 +62,15 @@ export function RestaurantHero({
               {store.name}
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium sm:text-sm">
-              <span className="inline-flex items-center gap-1.5">
+              <button
+                aria-label={t("seeReviewsAria", { rating: store.averageRating.toFixed(1), count: store.reviewCount })}
+                className="inline-flex items-center gap-1.5 rounded-full underline-offset-4 hover:underline"
+                onClick={() => setReviewsOpen(true)}
+                type="button"
+              >
                 <Star aria-hidden="true" className="size-4 fill-[#f8c94f] text-[#f8c94f]" />
                 {store.averageRating.toFixed(1)} ({format.number(store.reviewCount)})
-              </span>
+              </button>
               {eta ? (
                 <span className="inline-flex items-center gap-1.5">
                   <Clock3 aria-hidden="true" className="size-4" />
@@ -82,6 +90,10 @@ export function RestaurantHero({
             </div>
           </div>
           <div className="hidden shrink-0 gap-3 md:flex">
+            <button className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/55 bg-black/20 px-4 text-sm font-semibold backdrop-blur-sm transition hover:bg-white hover:text-ink" onClick={() => setReviewsOpen(true)} type="button">
+              <MessageSquareText aria-hidden="true" className="size-4" />
+              {t("seeReviews")}
+            </button>
             <button aria-pressed={store.isFavorited} className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/55 bg-black/20 px-4 text-sm font-semibold backdrop-blur-sm transition hover:bg-white hover:text-ink disabled:opacity-50" disabled={isFavouritePending} onClick={onToggleFavourite} type="button">
               <Heart
                 aria-hidden="true"
@@ -100,6 +112,7 @@ export function RestaurantHero({
           </div>
         </div>
       </div>
+      {reviewsOpen ? <RestaurantReviewsModal onClose={() => setReviewsOpen(false)} store={store} /> : null}
     </section>
   );
 }
