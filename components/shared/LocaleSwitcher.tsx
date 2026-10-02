@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Icon } from "@/components/shared/brand/Icon";
+import { LocaleFlag } from "@/components/shared/LocaleFlag";
 import { localeNames, locales, type Locale } from "@/i18n/config";
 import { setUserLocale } from "@/lib/locale";
 import { requestJson } from "@/services/api/client";
@@ -62,8 +63,12 @@ export function LocaleSwitcher() {
   }, [activeLocale, activeLocales, configuredLanguages, router]);
 
   return (
-    <label className="relative inline-flex items-center">
+    <label className="relative inline-flex h-10 items-center rounded-full border border-line bg-card shadow-rail-card transition-[border-color,box-shadow] hover:shadow-pop has-[select:focus-visible]:border-brand has-[select:focus-visible]:ring-2 has-[select:focus-visible]:ring-brand/30">
       <span className="sr-only">{t("language")}</span>
+      <LocaleFlag
+        className="pointer-events-none absolute left-2.5"
+        locale={activeLocale}
+      />
       <select
         value={activeLocale}
         disabled={pending}
@@ -74,7 +79,7 @@ export function LocaleSwitcher() {
             router.refresh();
           });
         }}
-        className="h-9 appearance-none rounded-full border border-line bg-surface py-1 pl-3 pr-8 text-xs font-semibold text-foreground outline-none transition-colors focus:border-brand"
+        className="h-full cursor-pointer appearance-none rounded-full border-0 bg-transparent py-1 pl-9.5 pr-9 text-sm font-semibold text-ink outline-none disabled:cursor-wait disabled:opacity-70"
         aria-label={t("language")}
       >
         {activeLocales.map((locale) => (
@@ -85,7 +90,7 @@ export function LocaleSwitcher() {
       </select>
       <Icon
         name="chevron"
-        className="pointer-events-none absolute right-2.5 size-3 text-foreground"
+        className="pointer-events-none absolute right-3.5 size-3 text-ink"
       />
     </label>
   );

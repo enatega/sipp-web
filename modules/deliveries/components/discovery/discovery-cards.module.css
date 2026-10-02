@@ -222,3 +222,289 @@
     rotate: none;
   }
 }
+
+/* Glossy "3D" icon: tinted halo around a lit, rounded badge. */
+.glossHalo,
+.heroScene {
+  --gloss-halo: #e3f2fd;
+  --gloss-from: #8fd3fb;
+  --gloss-to: #2c8fe0;
+  --gloss-deep: rgb(18 92 160 / 0.45);
+  --gloss-glow: rgb(44 143 224 / 0.32);
+}
+
+.glossHalo {
+  background: radial-gradient(circle at 50% 40%, var(--gloss-halo), transparent 72%);
+}
+
+.glossBadge {
+  position: relative;
+  background: linear-gradient(160deg, var(--gloss-from) 10%, var(--gloss-to) 90%);
+  color: #fff;
+  box-shadow:
+    inset 0 2px 1px rgb(255 255 255 / 0.55),
+    inset 0 -5px 10px var(--gloss-deep),
+    0 10px 18px -6px var(--gloss-glow);
+  transition:
+    translate 300ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    rotate 300ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.glossBadge::before {
+  content: "";
+  position: absolute;
+  inset: 3px 18% auto;
+  height: 38%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.6), transparent);
+  pointer-events: none;
+}
+
+.glossBadge > svg {
+  position: relative;
+  filter: drop-shadow(0 2px 2px var(--gloss-deep));
+}
+
+:global(.group):hover .glossBadge,
+:global(.group):focus-visible .glossBadge {
+  translate: 0 -3px;
+  rotate: -6deg;
+}
+
+.glossOrange {
+  --gloss-halo: #ffeedd;
+  --gloss-from: #ffc46b;
+  --gloss-to: #ff7a1f;
+  --gloss-deep: rgb(196 80 10 / 0.45);
+  --gloss-glow: rgb(255 122 31 / 0.32);
+}
+
+.glossMint {
+  --gloss-halo: #dcf5e8;
+  --gloss-from: #f2c88b;
+  --gloss-to: #c47f3e;
+  --gloss-deep: rgb(120 66 20 / 0.45);
+  --gloss-glow: rgb(46 160 110 / 0.3);
+}
+
+.glossRose {
+  --gloss-halo: #ffe3e7;
+  --gloss-from: #ff8a98;
+  --gloss-to: #e5263f;
+  --gloss-deep: rgb(150 16 36 / 0.45);
+  --gloss-glow: rgb(229 38 63 / 0.3);
+}
+
+:global(.dark) .glossHalo {
+  --gloss-halo: #18324a;
+}
+
+:global(.dark) .glossOrange {
+  --gloss-halo: #3a2817;
+}
+
+:global(.dark) .glossMint {
+  --gloss-halo: #173528;
+}
+
+:global(.dark) .glossRose {
+  --gloss-halo: #3d1b22;
+}
+
+/* Soft outlined feature tiles used in the "why order" grid. */
+.softTile {
+  --soft-tile-bg: #e6f3fd;
+  --soft-tile-ink: #2c8fe0;
+  background: linear-gradient(160deg, #fff, var(--soft-tile-bg));
+  color: var(--soft-tile-ink);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 6px 14px -6px color-mix(in srgb, var(--soft-tile-ink) 45%, transparent);
+}
+
+.softTileMint {
+  --soft-tile-bg: #dcf3e6;
+  --soft-tile-ink: #1f9a63;
+}
+
+.softTileOrange {
+  --soft-tile-bg: #ffe9d8;
+  --soft-tile-ink: #f0701a;
+}
+
+:global(.dark) .softTile {
+  --soft-tile-bg: #1b3a52;
+  --soft-tile-ink: #8fd3fb;
+  background: linear-gradient(160deg, #22313f, var(--soft-tile-bg));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+
+:global(.dark) .softTileMint {
+  --soft-tile-bg: #18392b;
+  --soft-tile-ink: #67d6a9;
+}
+
+:global(.dark) .softTileOrange {
+  --soft-tile-bg: #3f2918;
+  --soft-tile-ink: #ffb070;
+}
+
+/* Delivery hero card: soft sky backdrop with a live-tracking map preview. */
+.heroScene {
+  --scene-sky-from: #f3faff;
+  --scene-sky-to: #d4ebfb;
+  --scene-cloud: rgb(255 255 255 / 0.85);
+  --scene-pill: #ffffff;
+  --map-bg: #eef5fb;
+  --map-block: #dde9f4;
+  --map-street: #ffffff;
+  --map-park: #d3eed9;
+  --map-water: #c9e5fa;
+  --map-frame: rgb(255 255 255 / 0.9);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgb(255 255 255 / 0.7), transparent 60%),
+    linear-gradient(120deg, var(--scene-sky-from) 0%, var(--scene-sky-to) 100%);
+}
+
+:global(.dark) .heroScene {
+  --scene-sky-from: #141f2a;
+  --scene-sky-to: #1a3246;
+  --scene-cloud: rgb(255 255 255 / 0.06);
+  --scene-pill: #2a3540;
+  --map-bg: #1b2733;
+  --map-block: #233342;
+  --map-street: rgb(255 255 255 / 0.07);
+  --map-park: #1d3a2b;
+  --map-water: #18354b;
+  --map-frame: rgb(255 255 255 / 0.1);
+  background: linear-gradient(120deg, var(--scene-sky-from) 0%, var(--scene-sky-to) 100%);
+}
+
+.cloud {
+  fill: var(--scene-cloud);
+}
+
+.cloudDrift {
+  animation: cloud-drift 14s ease-in-out infinite alternate;
+}
+
+.scenePill {
+  background: var(--scene-pill);
+}
+
+.map {
+  background: var(--map-bg);
+  border: 5px solid var(--map-frame);
+  box-shadow:
+    0 24px 40px -18px rgb(20 70 130 / 0.35),
+    0 2px 6px rgb(20 70 130 / 0.08);
+  rotate: 2deg;
+  transition: rotate 400ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+:global(.group):hover .map {
+  rotate: 0deg;
+}
+
+.mapBlock {
+  fill: var(--map-block);
+}
+
+.mapStreet {
+  stroke: var(--map-street);
+}
+
+.mapPark {
+  fill: var(--map-park);
+}
+
+.mapWater {
+  fill: var(--map-water);
+}
+
+/* Driven part of the route grows in, then the courier rides to its spot. */
+.routeDriven {
+  stroke-dasharray: 64 100;
+  animation: route-progress 1600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.courier {
+  offset-path: path("M38 112 C 70 112, 66 72, 100 72 S 140 40, 176 34");
+  offset-rotate: 0deg;
+  offset-distance: 64%;
+  animation: courier-ride 1600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+:global(.group):hover .routeDriven {
+  animation-name: route-progress-replay;
+}
+
+:global(.group):hover .courier {
+  animation-name: courier-ride-replay;
+}
+
+.statusCard {
+  animation: status-float 4s ease-in-out infinite;
+}
+
+@keyframes cloud-drift {
+  to {
+    transform: translateX(14px);
+  }
+}
+
+@keyframes route-progress {
+  from {
+    stroke-dasharray: 0 100;
+  }
+}
+
+@keyframes route-progress-replay {
+  from {
+    stroke-dasharray: 0 100;
+  }
+}
+
+@keyframes courier-ride {
+  from {
+    offset-distance: 0%;
+  }
+}
+
+@keyframes courier-ride-replay {
+  from {
+    offset-distance: 0%;
+  }
+}
+
+@keyframes status-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloudDrift,
+  .routeDriven,
+  .courier,
+  .statusCard,
+  :global(.group):hover .routeDriven,
+  :global(.group):hover .courier {
+    animation: none;
+  }
+
+  .map,
+  :global(.group):hover .map {
+    rotate: none;
+  }
+
+  :global(.group):hover .glossBadge,
+  :global(.group):focus-visible .glossBadge {
+    translate: none;
+    rotate: none;
+  }
+}
