@@ -1,15 +1,14 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { FormEvent, ReactNode } from "react";
-import { LoaderCircle, Search, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { LoaderCircle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Footer } from "@/components/shared/app-shell/Footer";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
 import { searchApi } from "@/modules/deliveries/api/search";
-import { StoreCard } from "@/modules/deliveries/components/discovery/StoreCard";
 import { SearchProductCard } from "@/modules/deliveries/components/search/SearchProductCard";
 import { useDiscoveryLocation } from "@/modules/deliveries/hooks/useDiscoveryQueries";
 import {
@@ -21,52 +20,26 @@ import {
   useProductSearchQuery,
   useRecentSearchesQuery,
   useSearchRecommendationsQuery,
-  useStoreSearchQuery,
 } from "@/modules/deliveries/hooks/useSearchQueries";
 import type { RecentSearchItem, SearchMeta, SearchRecommendation } from "@/modules/deliveries/types/search";
 
-const isDevBuild = process.env.NODE_ENV !== "production";
-
+/** Results for the query typed into the header search; the page has no field of its own. */
 export function SearchPage() {
   const t = useTranslations("deliveries.search");
   const router = useRouter();
-  const pathname = usePathname();
   const params = useSearchParams();
-  const parameterString = params.toString();
   const urlQuery = params.get("q")?.trim() ?? "";
-  const [input, setInput] = useState(urlQuery);
-  const pendingQueriesRef = useRef<string[]>([]);
   const [isOnline, setIsOnline] = useState(true);
   const session = useSessionQuery();
   const isAuthenticated = session.data?.authenticated === true;
   const { location, isLocationReady } = useDiscoveryLocation(isAuthenticated);
   const products = useProductSearchQuery(urlQuery, location);
-  const stores = useStoreSearchQuery(urlQuery, location);
   const recommendations = useSearchRecommendationsQuery();
   const recentSearches = useRecentSearchesQuery(isAuthenticated);
   const { mutate: saveRecentSearchTerm } = useSaveRecentSearchMutation();
   const removeRecentSearch = useRemoveRecentSearchMutation();
   const clearRecentSearches = useClearRecentSearchesMutation();
 
-  useEffect(() => {
-    // A previous replace can settle after the user has typed more characters.
-    const pendingIndex = pendingQueriesRef.current.indexOf(urlQuery);
-    if (pendingIndex !== -1) {
-      pendingQueriesRef.current.splice(0, pendingIndex + 1);
-      return;
-    }
-    pendingQueriesRef.current = [];
-    setInput(urlQuery);
-  }, [urlQuery]);
-
-  const applyQuery = useCallback((value: string) => {
-    const next = new URLSearchParams(parameterString);
-    const query = value.trim();
-    if (query === urlQuery) return;
-    if (query) next.set("q", query); else next.delete("q");
-    pendingQueriesRef.current.push(query);
-    router.replace(`${pathname}?${next}`, { scroll: false });
-  }, [parameterString, pathname, router, urlQuery]);
   useEffect(() => {
     if (!urlQuery || !isAuthenticated) return;
     saveRecentSearchTerm(urlQuery);
@@ -81,13 +54,6 @@ export function SearchPage() {
       window.removeEventListener("offline", sync);
     };
   }, []);
-  useEffect(() => {
-    if (input.trim() === urlQuery) return;
-    const timeout = window.setTimeout(() => {
-      applyQuery(input);
-    }, 400);
-    return () => window.clearTimeout(timeout);
-  }, [applyQuery, input, urlQuery]);
 
   const productItems = products.data?.pages.flatMap((page) =>
     page.items.map((item, index) => ({
@@ -96,41 +62,30 @@ export function SearchPage() {
       position: page.offset + index + 1,
     })),
   ) ?? [];
-  const storeItems = stores.data?.pages.flatMap((page) =>
-    page.items.map((item, index) => ({
-      item,
-      meta: page.searchMeta,
-      position: page.offset + index + 1,
-    })),
-  ) ?? [];
-  const total = (products.data?.pages[0]?.total ?? 0) + (stores.data?.pages[0]?.total ?? 0);
-  const status = useMemo(() => {
-    if (!isOnline) return t("offline");
-    if (products.isError || stores.isError) return t("error");
-    if (urlQuery && (products.isPending || stores.isPending)) return t("loading");
-    if (urlQuery) return t("resultCount", { count: total });
-    return t("hint");
-  }, [isOnline, products.isError, products.isPending, stores.isError, stores.isPending, t, total, urlQuery]);
-
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    applyQuery(input);
-  };
+  const total = products.data?.pages[0]?.total ?? 0;
+  const status = !isOnline
+    ? t("offline")
+    : products.isError
+      ? t("error")
+      : !urlQuery
+        ? t("hint")
+        : products.isPending
+          ? t("loading")
+          : t("resultCount", { count: total });
 
   const selectSuggestion = (value: string) => {
-    setInput(value);
-    applyQuery(value);
+    router.push(`/search?q=${encodeURIComponent(value.trim())}`);
   };
 
-  const track = (meta: SearchMeta | undefined, resourceType: "product" | "store", objectId: string, position: number) => {
+  const track = (meta: SearchMeta | undefined, objectId: string, position: number) => {
     if (!meta?.queryId) return;
     void searchApi.event({
       eventType: "click",
-      resourceType,
+      resourceType: "product",
       queryId: meta.queryId,
       objectId,
       position,
-      eventName: resourceType === "product" ? "Product Opened" : "Store Opened",
+      eventName: "Product Opened",
     }).catch(() => undefined);
   };
 
@@ -138,33 +93,11 @@ export function SearchPage() {
     <>
       <Header />
       <main className="min-h-[70vh] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_480px)] pb-16">
-        <div className="app-wrap py-8 sm:py-12">
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="font-heading text-3xl font-bold text-ink sm:text-4xl">{t("title")}</h1>
-            <p className="mt-2 text-sm text-muted sm:text-base">{t("description")}</p>
-            <form className="relative mt-6" onSubmit={submit} role="search">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted" />
-              <label className="sr-only" htmlFor="delivery-search">{t("label")}</label>
-              <input
-                aria-describedby="delivery-search-status"
-                autoComplete="off"
-                className="h-14 w-full rounded-2xl border border-line bg-card pl-12 pr-5 text-base text-ink shadow-sm outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15"
-                id="delivery-search"
-                maxLength={80}
-                onChange={(event) => setInput(event.target.value)}
-                placeholder={t("placeholder")}
-                value={input}
-              />
-            </form>
-            <p aria-live="polite" className="mt-3 text-sm text-muted" id="delivery-search-status">{status}</p>
-            {isDevBuild && urlQuery && (products.data || stores.data) ? (
-              <p className="mt-1 text-xs text-muted">
-                {t("products")}: {products.data?.pages[0]?.searchMeta?.provider === "algolia" ? t("poweredByAlgolia") : t("poweredByDatabase")}
-                {" · "}
-                {t("stores")}: {stores.data?.pages[0]?.searchMeta?.provider === "algolia" ? t("poweredByAlgolia") : t("poweredByDatabase")}
-              </p>
-            ) : null}
-          </div>
+        <div className="app-wrap py-6 sm:py-10">
+          <h1 className="font-heading text-2xl font-bold tracking-[-0.02em] text-ink [overflow-wrap:anywhere] sm:text-3xl">
+            {urlQuery ? t("resultsTitle", { query: urlQuery }) : t("title")}
+          </h1>
+          <p aria-live="polite" className="mt-1.5 text-sm text-muted">{status}</p>
 
           {!isLocationReady ? <SearchSkeleton /> : !location ? (
             <Notice>{t("chooseLocation")}</Notice>
@@ -181,37 +114,16 @@ export function SearchPage() {
               t={t}
             />
           ) : (
-            <div className="mt-10 space-y-12">
-              <section aria-labelledby="product-results-heading">
-                <div className="flex items-center gap-3">
-                  <h2 className="font-heading text-2xl font-bold text-ink" id="product-results-heading">{t("products")}</h2>
-                  <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-brand-soft px-2.5 text-xs font-bold tabular-nums text-brand">{products.data?.pages[0]?.total ?? 0}</span>
+            <section aria-label={t("products")} className="mt-6 sm:mt-8">
+              {products.isPending ? <SearchSkeleton /> : productItems.length ? (
+                <div className="grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+                  {productItems.map(({ item, meta, position }) => (
+                    <SearchProductCard key={`${item.storeId}-${item.productId}`} item={item} location={location} onOpen={() => track(meta, item.productId, position)} />
+                  ))}
                 </div>
-                {products.isPending ? <SearchSkeleton /> : productItems.length ? (
-                  <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                    {productItems.map(({ item, meta, position }) => (
-                      <SearchProductCard key={`${item.storeId}-${item.productId}`} item={item} location={location} onOpen={() => track(meta, "product", item.productId, position)} />
-                    ))}
-                  </div>
-                ) : <Notice>{products.isError ? t("error") : t("noProducts")}</Notice>}
-                {products.hasNextPage ? <LoadMore label={t("moreProducts")} loading={products.isFetchingNextPage} onClick={() => void products.fetchNextPage()} /> : null}
-              </section>
-
-              <section aria-labelledby="store-results-heading">
-                <div className="flex items-center gap-3">
-                  <h2 className="font-heading text-2xl font-bold text-ink" id="store-results-heading">{t("stores")}</h2>
-                  <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-brand-soft px-2.5 text-xs font-bold tabular-nums text-brand">{stores.data?.pages[0]?.total ?? 0}</span>
-                </div>
-                {stores.isPending ? <SearchSkeleton /> : storeItems.length ? (
-                  <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                    {storeItems.map(({ item, meta, position }) => (
-                      <div key={item.storeId} onClick={() => track(meta, "store", item.storeId, position)}><StoreCard fluid store={item} /></div>
-                    ))}
-                  </div>
-                ) : <Notice>{stores.isError ? t("error") : t("noStores")}</Notice>}
-                {stores.hasNextPage ? <LoadMore label={t("moreStores")} loading={stores.isFetchingNextPage} onClick={() => void stores.fetchNextPage()} /> : null}
-              </section>
-            </div>
+              ) : <Notice>{products.isError ? t("error") : t("noProducts")}</Notice>}
+              {products.hasNextPage ? <LoadMore label={t("moreProducts")} loading={products.isFetchingNextPage} onClick={() => void products.fetchNextPage()} /> : null}
+            </section>
           )}
         </div>
       </main>
@@ -239,7 +151,7 @@ function IdleSuggestions({
 }) {
   if (!isAuthenticated && recommendations.length === 0) return null;
   return (
-    <div className="mx-auto mt-10 max-w-3xl space-y-8">
+    <div className="mt-8 max-w-3xl space-y-8">
       {isAuthenticated && recentSearches.length > 0 ? (
         <section aria-labelledby="recent-searches-heading">
           <div className="flex items-center justify-between gap-4">

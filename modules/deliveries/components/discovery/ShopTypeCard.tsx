@@ -22,7 +22,7 @@ const ARTWORK = {
     tone: styles.browseMint,
     eyebrow: "fresh",
     src: restaurantArt,
-    className: "bottom-[4%] end-[3%] h-[100%] max-w-[48%] sm:bottom-[3%] sm:end-[4%] sm:h-[110%] sm:max-w-[50%]",
+    className: "bottom-0 end-0 h-[112%] max-w-[60%] sm:h-[118%] sm:max-w-[66%]",
   },
 } as const;
 

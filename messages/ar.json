@@ -711,6 +711,7 @@
   "deliveries": {
     "search": {
       "title": "العثور على الأغذية والمخازن المحلية",
+      "resultsTitle": "نتائج البحث عن «{query}»",
       "description": "ابحث عن رجال الأعمال و الأعمال الذين يوصلون إلى عنوانك المختار",
       "label": "البحث عن الأغذية والمخازن",
       "placeholder": "جرب البيتزا أو السوشي أو اسم المطعم",
@@ -838,7 +839,10 @@
       }
     },
     "discovery": {
-      "shopTypeTaglines": {"grocery": "احتياجاتك اليومية، تصلك طازجة.", "restaurant": "وجباتك المفضلة من المطاعم القريبة."},
+      "shopTypeTaglines": {
+        "grocery": "احتياجاتك اليومية، تصلك طازجة.",
+        "restaurant": "وجباتك المفضلة من المطاعم القريبة."
+      },
       "pageTitle": "اكتشف خدمات التوصيل المحلية",
       "foodDelivery": "توصيل SIPP",
       "signInTitle": "سجّل الدخول لاكتشاف الأنشطة التجارية المحلية",
@@ -982,7 +986,13 @@
       "reviewsEyebrow": "التقييمات والمراجعات",
       "reviewsClose": "إغلاق التقييمات",
       "reviewsBasedOn": "{count, plural, one {# تقييم} other {# تقييمات}}",
-      "reviewVerdict": {"excellent": "ممتاز", "veryGood": "جيد جدًا", "good": "جيد", "fair": "مقبول", "poor": "ضعيف"},
+      "reviewVerdict": {
+        "excellent": "ممتاز",
+        "veryGood": "جيد جدًا",
+        "good": "جيد",
+        "fair": "مقبول",
+        "poor": "ضعيف"
+      },
       "reviewsFilterLabel": "تصفية التقييمات حسب النجوم",
       "reviewsShowingStars": "تقييمات {count} نجوم",
       "reviewsShowAll": "عرض الكل",
@@ -1934,40 +1944,221 @@
   },
   "home": {
     "hero": {
-      "carousel": { "ariaLabel": "خدمات SIPP", "slidePosition": "الشريحة {current} من {total}: {name}", "showSlide": "عرض الشريحة {current}: {name}" },
+      "carousel": {
+        "ariaLabel": "خدمات SIPP",
+        "slidePosition": "الشريحة {current} من {total}: {name}",
+        "showSlide": "عرض الشريحة {current}: {name}"
+      },
       "ecosystem": {
-        "name": "منظومة SIPP", "eyebrow": "توصيل محلي في كوستاريكا", "titleLine1": "طعام وبقالة،", "titleAccentLine1": "مشروبات و", "titleAccentLine2": "احتياجات أساسية.",
-        "description": "يجمع SIPP المطاعم المحلية والمتاجر والمشروبات والاحتياجات اليومية لتوصيل مريح في المجتمعات الساحلية في كوستاريكا.", "networkLabel": "منظومة خدمات SIPP",
-        "stats": { "santaValue": "سانتا", "santaLabel": "تيريزا أولاً", "localValue": "محلي", "localLabel": "متاجر", "coastalValue": "ساحلي", "coastalLabel": "مجتمعات", "oneValue": "منصة", "oneLabel": "واحدة" },
-        "services": { "restaurants": "مطاعم", "groceries": "بقالة", "localShops": "متاجر محلية", "freshFinds": "منتجات طازجة", "beachTowns": "مدن ساحلية", "localDelivery": "توصيل محلي", "easyReorders": "إعادة طلب سهلة", "securePayments": "مدفوعات آمنة", "foodDelivery": "توصيل الطعام" }
+        "name": "منظومة SIPP",
+        "eyebrow": "توصيل محلي في كوستاريكا",
+        "titleLine1": "طعام وبقالة،",
+        "titleAccentLine1": "مشروبات و",
+        "titleAccentLine2": "احتياجات أساسية.",
+        "description": "يجمع SIPP المطاعم المحلية والمتاجر والمشروبات والاحتياجات اليومية لتوصيل مريح في المجتمعات الساحلية في كوستاريكا.",
+        "networkLabel": "منظومة خدمات SIPP",
+        "stats": {
+          "santaValue": "سانتا",
+          "santaLabel": "تيريزا أولاً",
+          "localValue": "محلي",
+          "localLabel": "متاجر",
+          "coastalValue": "ساحلي",
+          "coastalLabel": "مجتمعات",
+          "oneValue": "منصة",
+          "oneLabel": "واحدة"
+        },
+        "services": {
+          "restaurants": "مطاعم",
+          "groceries": "بقالة",
+          "localShops": "متاجر محلية",
+          "freshFinds": "منتجات طازجة",
+          "beachTowns": "مدن ساحلية",
+          "localDelivery": "توصيل محلي",
+          "easyReorders": "إعادة طلب سهلة",
+          "securePayments": "مدفوعات آمنة",
+          "foodDelivery": "توصيل الطعام"
+        }
       },
       "food": {
-        "name": "توصيل الطعام", "badgeFlag": "محلي", "badgeText": "متاح الآن في سانتا تيريزا", "titleLine1": "طعام محلي،", "titleAccent": "يصل إليك", "titleLine3": "في أنحاء المدينة.",
-        "description": "اطلب الوجبات والبقالة والمشروبات والاحتياجات الأساسية من المتاجر المحلية في سانتا تيريزا وبلايا كارمن ومال بايس وبلايا هيرموسا ومانزانيلو وسانتياغو.", "imageAlt": "عميل يحمل قطعة بيتزا",
-        "cards": { "status": "المندوب في الطريق", "etaCaption": "وقت الوصول المتوقع", "etaValue": "22 دقيقة", "rating": "خيارات محلية قريبة", "location": "الموقع", "destination": "عند الوجهة" },
-        "benefits": { "convenientDelivery": "توصيل مريح", "localFavorites": "مفضلات محلية", "secureCheckout": "دفع آمن" }
+        "name": "توصيل الطعام",
+        "badgeFlag": "محلي",
+        "badgeText": "متاح الآن في سانتا تيريزا",
+        "titleLine1": "طعام محلي،",
+        "titleAccent": "يصل إليك",
+        "titleLine3": "في أنحاء المدينة.",
+        "description": "اطلب الوجبات والبقالة والمشروبات والاحتياجات الأساسية من المتاجر المحلية في سانتا تيريزا وبلايا كارمن ومال بايس وبلايا هيرموسا ومانزانيلو وسانتياغو.",
+        "imageAlt": "عميل يحمل قطعة بيتزا",
+        "cards": {
+          "status": "المندوب في الطريق",
+          "etaCaption": "وقت الوصول المتوقع",
+          "etaValue": "22 دقيقة",
+          "rating": "خيارات محلية قريبة",
+          "location": "الموقع",
+          "destination": "عند الوجهة"
+        },
+        "benefits": {
+          "convenientDelivery": "توصيل مريح",
+          "localFavorites": "مفضلات محلية",
+          "secureCheckout": "دفع آمن"
+        }
       },
       "commerce": {
-        "name": "تجارة محلية", "badgeFlag": "SIPP", "badgeText": "أكثر من توصيل الطعام", "titleLine1": "مطاعم و", "titleAccent": "متاجر محلية.", "titleLine3": "دفع واحد.",
-        "description": "اكتشف احتياجاتك اليومية من المتاجر القريبة واستمتع بتوصيل بسيط سواء كنت في المنزل أو العمل أو بالقرب من الشاطئ.", "imageAlt": "خدمة التجارة المحلية من SIPP",
-        "cards": { "status": "الطلب في الطريق", "etaCaption": "وقت الوصول المتوقع", "etaValue": "قريباً", "rating": "مطاعم وبقالة واحتياجات أساسية", "destinationTitle": "الوجهة", "destinationCaption": "جاهز للتوصيل" },
-        "benefits": { "easyOrdering": "طلب سهل", "nearbyStores": "متاجر قريبة", "securePayments": "مدفوعات آمنة" }
+        "name": "تجارة محلية",
+        "badgeFlag": "SIPP",
+        "badgeText": "أكثر من توصيل الطعام",
+        "titleLine1": "مطاعم و",
+        "titleAccent": "متاجر محلية.",
+        "titleLine3": "دفع واحد.",
+        "description": "اكتشف احتياجاتك اليومية من المتاجر القريبة واستمتع بتوصيل بسيط سواء كنت في المنزل أو العمل أو بالقرب من الشاطئ.",
+        "imageAlt": "خدمة التجارة المحلية من SIPP",
+        "cards": {
+          "status": "الطلب في الطريق",
+          "etaCaption": "وقت الوصول المتوقع",
+          "etaValue": "قريباً",
+          "rating": "مطاعم وبقالة واحتياجات أساسية",
+          "destinationTitle": "الوجهة",
+          "destinationCaption": "جاهز للتوصيل"
+        },
+        "benefits": {
+          "easyOrdering": "طلب سهل",
+          "nearbyStores": "متاجر قريبة",
+          "securePayments": "مدفوعات آمنة"
+        }
       }
     },
-    "foodSection": { "badge": "متاح الآن في سانتا تيريزا", "titleAccent": "طعام محلي", "titleRest": "واحتياجات يومية", "description": "يربط SIPP العملاء بالمطاعم والمتاجر المحلية القريبة لتوصيل سهل في المجتمعات الساحلية في كوستاريكا.", "imageAlt": "مجموعة أطباق متاحة على SIPP", "localValue": "محلي", "businesses": "متاجر", "coastalValue": "ساحلي", "areas": "مناطق", "dailyValue": "يومي", "essentials": "احتياجات" },
+    "foodSection": {
+      "badge": "متاح الآن في سانتا تيريزا",
+      "titleAccent": "طعام محلي",
+      "titleRest": "واحتياجات يومية",
+      "description": "يربط SIPP العملاء بالمطاعم والمتاجر المحلية القريبة لتوصيل سهل في المجتمعات الساحلية في كوستاريكا.",
+      "imageAlt": "مجموعة أطباق متاحة على SIPP",
+      "localValue": "محلي",
+      "businesses": "متاجر",
+      "coastalValue": "ساحلي",
+      "areas": "مناطق",
+      "dailyValue": "يومي",
+      "essentials": "احتياجات"
+    },
     "everything": {
-      "titleLine1": "كل ما تحتاج إليه،", "titleAccent": "في مكان واحد.", "description": "يسهّل SIPP الطلب اليومي في المجتمعات الساحلية، ويجمع المطاعم المحلية والبقالة والمشروبات والاحتياجات الأساسية في تجربة توصيل واضحة.",
-      "localFavorites": { "title": "مفضلات محلية", "copy": "اطلب الوجبات من المطاعم والمقاهي القريبة." }, "groceriesDrinks": { "title": "بقالة ومشروبات", "copy": "تسوّق من المتاجر والأسواق المحلية." }, "coastalCoverage": { "title": "تغطية ساحلية", "copy": "بدءاً من سانتا تيريزا والمجتمعات القريبة." }, "usefulDeals": { "title": "عروض مفيدة", "copy": "اكتشف عروض المتاجر المحلية المشاركة." }, "everydayEssentials": { "title": "احتياجات يومية", "copy": "احصل على الأساسيات عندما يكون يومك مزدحماً." }, "simplePayments": { "title": "مدفوعات بسيطة", "copy": "ادفع بأمان وأكمل طلبك بسهولة." }
+      "titleLine1": "كل ما تحتاج إليه،",
+      "titleAccent": "في مكان واحد.",
+      "description": "يسهّل SIPP الطلب اليومي في المجتمعات الساحلية، ويجمع المطاعم المحلية والبقالة والمشروبات والاحتياجات الأساسية في تجربة توصيل واضحة.",
+      "localFavorites": {
+        "title": "مفضلات محلية",
+        "copy": "اطلب الوجبات من المطاعم والمقاهي القريبة."
+      },
+      "groceriesDrinks": {
+        "title": "بقالة ومشروبات",
+        "copy": "تسوّق من المتاجر والأسواق المحلية."
+      },
+      "coastalCoverage": {
+        "title": "تغطية ساحلية",
+        "copy": "بدءاً من سانتا تيريزا والمجتمعات القريبة."
+      },
+      "usefulDeals": {
+        "title": "عروض مفيدة",
+        "copy": "اكتشف عروض المتاجر المحلية المشاركة."
+      },
+      "everydayEssentials": {
+        "title": "احتياجات يومية",
+        "copy": "احصل على الأساسيات عندما يكون يومك مزدحماً."
+      },
+      "simplePayments": {
+        "title": "مدفوعات بسيطة",
+        "copy": "ادفع بأمان وأكمل طلبك بسهولة."
+      }
     },
-    "value": { "dailyDiscounts": "خصومات\nيومية", "liveTracking": "تتبّع\nمباشر", "quickDelivery": "توصيل\nسريع", "tagline": "نربط مجتمعات كوستاريكا الساحلية بالتوصيل المحلي اليومي" },
-    "appSection": { "title": "ثبّت التطبيق", "lead": "منصة واحدة للتوصيل المحلي.", "description": "اطلب الطعام والبقالة والمشروبات والاحتياجات اليومية من المتاجر القريبة ضمن مناطق خدمة SIPP.", "detailPhoneLabel": "طلب برغر في تطبيق SIPP", "servicesPhoneLabel": "الشاشة الرئيسية لخدمات تطبيق SIPP" },
+    "value": {
+      "dailyDiscounts": "خصومات\nيومية",
+      "liveTracking": "تتبّع\nمباشر",
+      "quickDelivery": "توصيل\nسريع",
+      "tagline": "نربط مجتمعات كوستاريكا الساحلية بالتوصيل المحلي اليومي"
+    },
+    "appSection": {
+      "title": "ثبّت التطبيق",
+      "lead": "منصة واحدة للتوصيل المحلي.",
+      "description": "اطلب الطعام والبقالة والمشروبات والاحتياجات اليومية من المتاجر القريبة ضمن مناطق خدمة SIPP.",
+      "detailPhoneLabel": "طلب برغر في تطبيق SIPP",
+      "servicesPhoneLabel": "الشاشة الرئيسية لخدمات تطبيق SIPP"
+    },
     "phone": {
-      "ariaLabel": "تطبيق SIPP للعملاء", "localDelivery": "توصيل محلي", "goodMorning": "صباح الخير", "deliverTo": "التوصيل إلى", "home": "المنزل", "searchPlaceholder": "ابحث عن الطعام والبقالة والمشروبات...",
-      "chips": { "food": "طعام", "groceries": "بقالة", "drinks": "مشروبات", "essentials": "احتياجات" }, "offer": { "upTo": "حتى", "offLocal": "خصم على", "order": "طلب محلي" }, "offersDeals": "العروض والخصومات", "flatOff": "خصم 20%", "selectedBusinesses": "لدى متاجر SIPP مختارة", "free": "مجاناً", "delivery": "توصيل", "orders": "الطلبات",
-      "categories": { "restaurants": "مطاعم", "groceries": "بقالة", "drinks": "مشروبات", "essentials": "احتياجات" }, "trending": "رائج بالقرب منك", "viewAll": "عرض الكل", "tabs": { "home": "الرئيسية", "category": "الفئات", "deals": "العروض", "cart": "السلة", "account": "الحساب" }
+      "ariaLabel": "تطبيق SIPP للعملاء",
+      "localDelivery": "توصيل محلي",
+      "goodMorning": "صباح الخير",
+      "deliverTo": "التوصيل إلى",
+      "home": "المنزل",
+      "searchPlaceholder": "ابحث عن الطعام والبقالة والمشروبات...",
+      "chips": {
+        "food": "طعام",
+        "groceries": "بقالة",
+        "drinks": "مشروبات",
+        "essentials": "احتياجات"
+      },
+      "offer": {
+        "upTo": "حتى",
+        "offLocal": "خصم على",
+        "order": "طلب محلي"
+      },
+      "offersDeals": "العروض والخصومات",
+      "flatOff": "خصم 20%",
+      "selectedBusinesses": "لدى متاجر SIPP مختارة",
+      "free": "مجاناً",
+      "delivery": "توصيل",
+      "orders": "الطلبات",
+      "categories": {
+        "restaurants": "مطاعم",
+        "groceries": "بقالة",
+        "drinks": "مشروبات",
+        "essentials": "احتياجات"
+      },
+      "trending": "رائج بالقرب منك",
+      "viewAll": "عرض الكل",
+      "tabs": {
+        "home": "الرئيسية",
+        "category": "الفئات",
+        "deals": "العروض",
+        "cart": "السلة",
+        "account": "الحساب"
+      }
     },
-    "products": { "cta": "ابدأ الآن", "appIconAlt": "أيقونة تطبيق {title}", "food": { "title": "SIPP Food", "copy": "اكتشف المطاعم المحلية واطلب الطعام في أنحاء المدينة." }, "store": { "title": "SIPP Store", "copy": "اعرض مطعمك أو متجرك للعملاء المحليين." }, "driver": { "title": "SIPP Driver", "copy": "وصّل الطلبات ضمن مناطق SIPP بخطوات واضحة." }, "rider": { "title": "SIPP Rider", "copy": "اعثر على الطعام والبقالة والمشروبات والاحتياجات في مكان واحد." } }
+    "products": {
+      "cta": "ابدأ الآن",
+      "appIconAlt": "أيقونة تطبيق {title}",
+      "food": {
+        "title": "SIPP Food",
+        "copy": "اكتشف المطاعم المحلية واطلب الطعام في أنحاء المدينة."
+      },
+      "store": {
+        "title": "SIPP Store",
+        "copy": "اعرض مطعمك أو متجرك للعملاء المحليين."
+      },
+      "driver": {
+        "title": "SIPP Driver",
+        "copy": "وصّل الطلبات ضمن مناطق SIPP بخطوات واضحة."
+      },
+      "rider": {
+        "title": "SIPP Rider",
+        "copy": "اعثر على الطعام والبقالة والمشروبات والاحتياجات في مكان واحد."
+      }
+    }
   },
-  "footer": { "description": "توصيل محلي للطعام والبقالة والمشروبات والاحتياجات اليومية في المجتمعات الساحلية في كوستاريكا.", "companyTitle": "الشركة", "about": "عن SIPP", "partners": "كن شريكاً", "howItWorks": "كيف يعمل", "getInTouch": "تواصل معنا", "legalTitle": "الشروط والدعم", "terms": "الشروط والأحكام", "contact": "اتصل بنا", "rights": "جميع الحقوق محفوظة", "downloadApp": "نزّل التطبيق" },
-  "storeButtons": { "downloadOn": "نزّله من", "appStore": "App Store", "getItOn": "احصل عليه من", "googlePlay": "Google Play" }
+  "footer": {
+    "description": "توصيل محلي للطعام والبقالة والمشروبات والاحتياجات اليومية في المجتمعات الساحلية في كوستاريكا.",
+    "companyTitle": "الشركة",
+    "about": "عن SIPP",
+    "partners": "كن شريكاً",
+    "howItWorks": "كيف يعمل",
+    "getInTouch": "تواصل معنا",
+    "legalTitle": "الشروط والدعم",
+    "terms": "الشروط والأحكام",
+    "contact": "اتصل بنا",
+    "rights": "جميع الحقوق محفوظة",
+    "downloadApp": "نزّل التطبيق"
+  },
+  "storeButtons": {
+    "downloadOn": "نزّله من",
+    "appStore": "App Store",
+    "getItOn": "احصل عليه من",
+    "googlePlay": "Google Play"
+  }
 }

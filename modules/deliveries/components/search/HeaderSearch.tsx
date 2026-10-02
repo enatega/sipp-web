@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useId, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
 import { ArrowRight, LoaderCircle, Search, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
@@ -30,19 +30,29 @@ function useDebouncedValue(value: string) {
 }
 
 export function HeaderSearch() {
-  const pathname = usePathname();
-  // The search page has its own full-size search field.
-  if (pathname?.startsWith("/search")) return null;
-  return <HeaderSearchField />;
+  // Search params need a Suspense boundary on statically rendered pages.
+  return (
+    <Suspense fallback={<HeaderSearchField initialQuery="" />}>
+      <HeaderSearchWithQuery />
+    </Suspense>
+  );
 }
 
-function HeaderSearchField() {
+/** On the search page the field shows the query being viewed. */
+function HeaderSearchWithQuery() {
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const query = pathname?.startsWith("/search") ? params.get("q")?.trim() ?? "" : "";
+  return <HeaderSearchField initialQuery={query} key={query} />;
+}
+
+function HeaderSearchField({ initialQuery }: { initialQuery: string }) {
   const t = useTranslations("deliveries.search");
   const router = useRouter();
   const listboxId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(initialQuery);
   const [isOpen, setIsOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
