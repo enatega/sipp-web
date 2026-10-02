@@ -1,26 +1,33 @@
 import type { Metadata } from "next";
-import { Inter, Poppins, Cinzel } from "next/font/google";
+import localFont from "next/font/local";
 import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { AppProviders } from "@/providers/AppProviders";
 import "./globals.css";
 
-const inter = Inter({
+// Self-hosted (latin + latin-ext) so builds never depend on fetching Google Fonts.
+const inter = localFont({
+  src: "./fonts/inter-variable.woff2",
   variable: "--font-sans",
-  subsets: ["latin"],
+  weight: "100 900",
   display: "swap",
 });
 
-const poppins = Poppins({
+const poppins = localFont({
+  src: [
+    { path: "./fonts/poppins-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/poppins-500.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/poppins-600.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/poppins-700.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/poppins-800.woff2", weight: "800", style: "normal" },
+  ],
   variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const cinzel = Cinzel({
+const cinzel = localFont({
+  src: "./fonts/cinzel-variable.woff2",
   variable: "--font-wordmark",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: "400 900",
   display: "swap",
 });
 

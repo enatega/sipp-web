@@ -9,7 +9,7 @@ import { useActionToast } from "@/components/shared/useActionToast";
 import { useSessionQuery } from "@/modules/account";
 import { useMarkAllNotificationsReadMutation, useMarkNotificationReadMutation, useNotificationInboxQuery, useUnreadNotificationsCountQuery } from "@/modules/account/queries/useNotificationInboxQueries";
 import type { InboxNotification } from "@/modules/account/types/notifications";
-import { browserNotificationsEnabled, browserPushAvailability, enableBrowserNotifications } from "@/modules/account/api/browserNotifications";
+import { enableBrowserNotifications, resolveBrowserPushState } from "@/modules/account/api/browserNotifications";
 
 function NotificationRow({ item, period }: { item: InboxNotification; period: "today" | "past" }) {
   const format = useFormatter();
@@ -84,10 +84,9 @@ export function NotificationInbox() {
 
   useEffect(() => {
     if (!authenticated) return;
-    const availability = browserPushAvailability();
-    if (availability !== "available") { setPushState(availability); return; }
-    if (Notification.permission === "denied") { setPushState("denied"); return; }
-    void browserNotificationsEnabled().then((enabled) => setPushState(enabled ? "enabled" : "available")).catch(() => setPushState("available"));
+    let active = true;
+    void resolveBrowserPushState().then((state) => { if (active) setPushState(state); });
+    return () => { active = false; };
   }, [authenticated]);
 
   async function optInToBrowserPush() {

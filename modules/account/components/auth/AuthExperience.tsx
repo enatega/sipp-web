@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
 import { LoaderCircle } from "lucide-react";
 import { parsePhoneNumberFromString } from "libphonenumber-js/max";
@@ -97,7 +97,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendIn, setResendIn] = useState(30);
-  const manuallySelectedCountry = useRef(false);
+  const [hasManuallySelectedCountry, setHasManuallySelectedCountry] = useState(false);
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -139,15 +139,15 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   const detectedCountry = countryRegion.data?.country
     ? countryByIso(countryRegion.data.country)
     : null;
-  const countryLookupPending = !manuallySelectedCountry.current && !phone.trim() && (
+  const countryLookupPending = !hasManuallySelectedCountry && !phone.trim() && (
     countryRegion.isPending || Boolean(detectedCountry && country.iso !== detectedCountry.iso)
   );
 
   useEffect(() => {
-    if (manuallySelectedCountry.current || phone.trim() || !countryRegion.data?.country) return;
+    if (hasManuallySelectedCountry || phone.trim() || !countryRegion.data?.country) return;
     const resolvedCountry = countryByIso(countryRegion.data.country);
     if (resolvedCountry) void formik.setFieldValue("country", resolvedCountry, false);
-  }, [countryRegion.data?.country, phone]);
+  }, [countryRegion.data?.country, hasManuallySelectedCountry, phone]);
 
   function validatedPhone() {
     if (!phoneValidation.e164) throw new Error(phoneGuidance);
@@ -155,7 +155,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   }
 
   function changeCountry(nextCountry: typeof country) {
-    manuallySelectedCountry.current = true;
+    setHasManuallySelectedCountry(true);
     void formik.setFieldValue("country", nextCountry, false);
     void formik.setFieldValue(
       "phone",
@@ -170,7 +170,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
       const parsed = parsePhoneNumberFromString(value);
       const detectedCountry = parsed?.country ? countryByIso(parsed.country) : null;
       if (detectedCountry) {
-        manuallySelectedCountry.current = true;
+        setHasManuallySelectedCountry(true);
         void formik.setFieldValue("country", detectedCountry, false);
         void formik.setFieldValue("phone", parsed!.formatNational(), false);
         void formik.setFieldError("phone", undefined);

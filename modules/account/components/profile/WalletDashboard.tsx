@@ -250,7 +250,8 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
   const setupIntent = useCreateSavedCardSetupIntentMutation();
   const setDefault = useSetDefaultSavedCardMutation();
   const [isAddingCard, setIsAddingCard] = useState(false);
-  const [isAddingMoney, setIsAddingMoney] = useState(false);
+  const [isAddingMoneyOverride, setIsAddingMoney] = useState<boolean | null>(null);
+  const isAddingMoney = isAddingMoneyOverride ?? (authenticated && initialTopUpAmount !== null);
   const [isBalanceVisible, setIsBalanceVisible] = useState(false);
   const notify = useActionToast();
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -262,10 +263,6 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
   useEffect(() => {
     if (!session.isPending && !authenticated) router.replace("/login");
   }, [authenticated, router, session.isPending]);
-
-  useEffect(() => {
-    if (authenticated && initialTopUpAmount !== null) setIsAddingMoney(true);
-  }, [authenticated, initialTopUpAmount]);
 
   const allTransactions = useMemo(() => {
     const byId = new Map<string, WalletTransaction>();
