@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { Eye, EyeOff } from "lucide-react";
 import { Icon, type IconName } from "@/components/shared/brand/Icon";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
@@ -78,6 +79,7 @@ export function ProfileDashboard() {
   const summary = useProfileSummaryQuery(authenticated);
   const wallet = useWalletQuery(authenticated);
   const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
+  const [isWalletBalanceVisible, setIsWalletBalanceVisible] = useState(false);
 
   useEffect(() => {
     if (!session.isPending && !authenticated) router.replace("/login");
@@ -99,11 +101,7 @@ export function ProfileDashboard() {
       }
     : null;
   const summaryData = summary.data?.data;
-  const orderChange = Number(summaryData?.orders_change_percent ?? 0);
-  const formattedOrderChange = `${orderChange > 0 ? "+" : ""}${new Intl.NumberFormat(
-    locale,
-    { maximumFractionDigits: 2 },
-  ).format(orderChange)}%`;
+  const currentMonthOrders = Number(summaryData?.current_month_orders ?? 0);
   const formattedWalletBalance = formatAppCurrency(
     { number: (value, options) => new Intl.NumberFormat(locale, options).format(value) },
     Number(wallet.data?.data?.wallet_balance ?? 0),
@@ -235,9 +233,10 @@ export function ProfileDashboard() {
         </div>
 
         <aside className="grid content-start gap-5 sm:grid-cols-2 xl:grid-cols-1">
-          <section className="rounded-xl bg-card p-5 shadow-card">
+          <section className="relative overflow-hidden rounded-2xl border border-line/70 bg-card p-5 shadow-card transition-shadow hover:shadow-pop">
+            <span className="pointer-events-none absolute -right-6 -top-6 size-24 rounded-full bg-brand/10" />
             <div className="flex items-start justify-between">
-              <span className="grid size-9 place-items-center rounded-full bg-brand/10 text-brand">
+              <span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand">
                 <Image src="/icons/order-icon.png" alt="" width={18} height={18} className="size-[17px] object-contain" />
               </span>
               {summary.isPending ? (
@@ -246,7 +245,9 @@ export function ProfileDashboard() {
                 <span className="rounded-full bg-brand/10 px-2.5 py-1 text-[9px] font-semibold text-brand">
                   {summary.isError
                     ? "—"
-                    : t("thisMonth", { change: formattedOrderChange })}
+                    : t("thisMonthOrders", {
+                        count: new Intl.NumberFormat(locale).format(currentMonthOrders),
+                      })}
                 </span>
               )}
             </div>
@@ -266,25 +267,42 @@ export function ProfileDashboard() {
             )}
           </section>
 
-          <section className="rounded-xl bg-brand p-5 text-ink shadow-[0_8px_24px_rgba(102,192,242,0.18)]">
+          <section className="relative overflow-hidden rounded-2xl bg-brand p-5 text-ink shadow-[0_8px_24px_rgba(102,192,242,0.18)]">
+            <span className="pointer-events-none absolute -bottom-10 -right-8 size-32 rounded-full bg-white/10" />
             <div className="flex items-start justify-between">
-              <span className="grid size-9 place-items-center rounded-full bg-white/15">
+              <span className="grid size-10 place-items-center rounded-xl bg-white/15">
                 <Image src="/icons/wallet-icon.png" alt="" width={18} height={18} className="size-[17px] brightness-0 invert" />
               </span>
-              <button type="button" className="rounded-full border border-brand bg-white px-3 py-1 text-[9px] font-semibold text-brand">
+              <button type="button" className="relative rounded-full border border-brand bg-white px-3 py-1 text-[9px] font-semibold text-brand">
                 {t("topUp")}
               </button>
             </div>
             <p className="mt-5 text-[11px] font-medium uppercase tracking-[0.08em] text-white/80">
               {t("walletBalance")}
             </p>
+            <div className="mt-2 flex items-center gap-2">
             {wallet.isPending ? (
               <span className="mt-2 block h-8 w-28 animate-pulse rounded-md bg-white/15" />
             ) : (
-              <strong className="mt-1 block text-[29px] font-semibold leading-none">
-                {wallet.isError ? "—" : formattedWalletBalance}
+              <strong className="block min-w-0 truncate text-[29px] font-semibold leading-none tabular-nums">
+                {wallet.isError
+                  ? "—"
+                  : isWalletBalanceVisible
+                    ? formattedWalletBalance
+                    : "••••••"}
               </strong>
             )}
+              <button
+                aria-label={isWalletBalanceVisible ? t("hideBalance") : t("showBalance")}
+                aria-pressed={isWalletBalanceVisible}
+                className="relative grid size-8 shrink-0 place-items-center rounded-lg bg-white/85 text-brand transition-colors hover:bg-white disabled:opacity-60"
+                disabled={wallet.isPending || wallet.isError}
+                onClick={() => setIsWalletBalanceVisible((value) => !value)}
+                type="button"
+              >
+                {isWalletBalanceVisible ? <EyeOff aria-hidden="true" className="size-4" /> : <Eye aria-hidden="true" className="size-4" />}
+              </button>
+            </div>
           </section>
 
           <section className="relative overflow-hidden rounded-xl bg-brand-soft p-5 text-ink shadow-[0_5px_22px_rgba(37,49,63,0.04)] sm:col-span-2 xl:col-span-1">

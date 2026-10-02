@@ -176,6 +176,7 @@
     "accountSecurityDescription": "تغيير كلمة سرك أو حذف حسابك",
     "totalOrders": "مجموع الطلبات",
     "thisMonth": "{change} هذا الشهر",
+    "thisMonthOrders": "هذا الشهر: {count}",
     "activeSubscriptions": "الفوائد المتحققة",
     "proMember": "SIPP العضو",
     "walletBalance": "الرصيد الجداري",

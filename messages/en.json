@@ -176,6 +176,7 @@
     "accountSecurityDescription": "Change your password or delete your account",
     "totalOrders": "Total orders",
     "thisMonth": "{change} this month",
+    "thisMonthOrders": "This month: {count}",
     "activeSubscriptions": "Saved benefits",
     "proMember": "SIPP Member",
     "walletBalance": "Wallet balance",

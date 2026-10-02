@@ -176,6 +176,7 @@
     "accountSecurityDescription": "Modifier votre mot de passe ou supprimer votre compte",
     "totalOrders": "Total des commandes",
     "thisMonth": "{change} ce mois-ci",
+    "thisMonthOrders": "Ce mois-ci : {count}",
     "activeSubscriptions": "Avantages enregistrés",
     "proMember": "SIPP État",
     "walletBalance": "Solde du portefeuille",
