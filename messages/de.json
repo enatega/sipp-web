@@ -891,6 +891,8 @@
       "off": "Rabatt",
       "closed": "Geschlossen",
       "openStore": "{name} öffnen",
+      "favouriteStore": "{name} zu Favoriten hinzufügen",
+      "unfavouriteStore": "{name} aus Favoriten entfernen",
       "storeFallback": "Lokales Unternehmen",
       "timeFallback": "Lieferzeit nicht verfügbar",
       "minutes": "{count} Min.",

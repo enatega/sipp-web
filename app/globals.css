@@ -6,6 +6,9 @@
 @theme {
   --color-brand: #66c0f2;
   --color-brand-soft: rgba(102, 192, 242, 0.1);
+  --color-brand-deep: #2f8fe3;
+  --color-promo: #ff4f8b;
+  --color-promo-light: #ff9fbf;
   --color-secondary: #e33935;
   --color-gold: #b98d45;
   --color-background: var(--background);
@@ -20,6 +23,7 @@
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
+  --color-rating: var(--rating);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-soft-surface: var(--soft-surface);
@@ -52,6 +56,7 @@
   --success-soft: #e8f5ef;
   --warning: #94620a;
   --warning-soft: #fff5dc;
+  --rating: #f5a524;
   --danger: #e33935;
   --danger-soft: rgba(102, 192, 242, 0.1);
   --soft-surface: #f4f6f9;
@@ -76,6 +81,7 @@
   --success-soft: #17352c;
   --warning: #f0c56c;
   --warning-soft: #382e18;
+  --rating: #f6c453;
   --danger: #ff91a1;
   --danger-soft: #1c3744;
   /* --danger-soft: #3d1e25; */

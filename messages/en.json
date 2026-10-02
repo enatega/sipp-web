@@ -891,6 +891,8 @@
       "off": "off",
       "closed": "Closed",
       "openStore": "Open {name}",
+      "favouriteStore": "Save {name} to favourites",
+      "unfavouriteStore": "Remove {name} from favourites",
       "storeFallback": "Local business",
       "timeFallback": "Delivery time unavailable",
       "minutes": "{count} min",

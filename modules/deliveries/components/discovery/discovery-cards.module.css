@@ -626,3 +626,40 @@
     rotate: none;
   }
 }
+
+/* Top-brand bubble ring: soft brand sweep that spins on hover. */
+.brandRing {
+  background: conic-gradient(
+    from 210deg,
+    var(--color-brand),
+    color-mix(in oklab, var(--color-brand) 25%, transparent),
+    var(--color-brand) 60%,
+    color-mix(in oklab, var(--color-secondary) 70%, var(--color-brand)),
+    var(--color-brand)
+  );
+}
+
+:global(.group):hover .brandRing,
+:global(.group):focus-visible .brandRing {
+  animation: brand-ring-spin 2.4s linear infinite;
+}
+
+:global(.group):hover .brandRing > *,
+:global(.group):focus-visible .brandRing > * {
+  animation: brand-ring-spin 2.4s linear infinite reverse;
+}
+
+@keyframes brand-ring-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(.group):hover .brandRing,
+  :global(.group):hover .brandRing > *,
+  :global(.group):focus-visible .brandRing,
+  :global(.group):focus-visible .brandRing > * {
+    animation: none;
+  }
+}

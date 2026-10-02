@@ -891,6 +891,8 @@
       "off": "خصم",
       "closed": "مغلق",
       "openStore": "مفتوح {name}",
+      "favouriteStore": "أضف {name} إلى المفضلة",
+      "unfavouriteStore": "أزل {name} من المفضلة",
       "storeFallback": "الأعمال التجارية المحلية",
       "timeFallback": "وقت التسليم غير متاح",
       "minutes": "{count} min",

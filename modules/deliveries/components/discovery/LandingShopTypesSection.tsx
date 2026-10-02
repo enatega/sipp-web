@@ -19,8 +19,6 @@ export function LandingShopTypesSection() {
   return (
     <div className="section-wrap my-12">
       <ShopTypesSection
-        emptyMessage={t("shopTypesEmpty")}
-        emptyTitle={t("emptyTitle")}
         errorMessage={t("errorMessage")}
         errorTitle={t("errorTitle")}
         getItemHref={storesHref}

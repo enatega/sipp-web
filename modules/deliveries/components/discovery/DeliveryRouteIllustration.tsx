@@ -24,8 +24,8 @@ export function DeliveryRouteIllustration() {
         </g>
       </svg>
 
-      <div className="absolute inset-x-5 top-5 h-56 sm:inset-x-auto sm:inset-y-6 sm:right-6 sm:h-auto sm:w-[48%]">
-        <div className={`${styles.map} absolute inset-0 overflow-hidden rounded-[22px]`}>
+      <div className="absolute inset-x-4 top-4 h-40 min-[400px]:h-48 sm:inset-x-auto sm:inset-y-6 sm:right-6 sm:h-auto sm:w-[48%]">
+        <div className={`${styles.map} absolute inset-0 overflow-hidden rounded-2xl sm:rounded-[22px]`}>
           <svg className="size-full" preserveAspectRatio="xMidYMid slice" viewBox="0 0 200 140">
             <defs>
               <linearGradient id={markerFill} x1="0" x2="1" y1="0" y2="1">
@@ -74,7 +74,7 @@ export function DeliveryRouteIllustration() {
           </svg>
         </div>
 
-        <TrackingStatusCard className="absolute bottom-3 right-3 sm:-left-8 sm:bottom-auto sm:right-auto sm:top-8" />
+        <TrackingStatusCard className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 sm:-left-8 sm:bottom-auto sm:right-auto sm:top-8" />
       </div>
     </div>
   );

@@ -12,8 +12,6 @@ interface Props {
   isError: boolean;
   title: string;
   description: string;
-  emptyTitle: string;
-  emptyMessage: string;
   errorTitle: string;
   errorMessage: string;
   retryLabel: string;
@@ -29,6 +27,8 @@ function defaultItemHref(item: DeliveryShopType) {
 }
 
 export function ShopTypesSection(props: Props) {
+  // Hide the whole section rather than showing an empty placeholder.
+  if (!props.isLoading && !props.isError && props.items.length === 0) return null;
   const showSeeAll = !props.isLoading && !props.isError && props.items.length > 0;
   const getItemHref = props.getItemHref ?? defaultItemHref;
   return (
@@ -52,8 +52,6 @@ export function ShopTypesSection(props: Props) {
           title={props.errorTitle}
           tone="error"
         />
-      ) : props.items.length === 0 ? (
-        <SectionState title={props.emptyTitle} message={props.emptyMessage} />
       ) : (
         <ShopTypeCarousel getItemHref={getItemHref} items={props.items} />
       )}

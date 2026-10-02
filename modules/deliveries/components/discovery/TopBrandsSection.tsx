@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { Tag } from "lucide-react";
-import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
 import {
   Rail,
   RailSkeleton,
@@ -11,6 +9,7 @@ import type {
   DeliveryStore,
   DeliveryTopBrand,
 } from "@/modules/deliveries/types/discovery";
+import { TopBrandCard } from "./TopBrandCard";
 
 function matchedStore(brand: DeliveryTopBrand, stores: DeliveryStore[]) {
   const name = brand.name.trim().toLowerCase();
@@ -27,8 +26,6 @@ interface Props {
   isError: boolean;
   title: string;
   description: string;
-  emptyTitle: string;
-  emptyMessage: string;
   errorTitle: string;
   errorMessage: string;
   offLabel: string;
@@ -39,6 +36,8 @@ interface Props {
 }
 
 export function TopBrandsSection(props: Props) {
+  // Hide the whole section rather than showing an empty placeholder.
+  if (!props.isLoading && !props.isError && props.items.length === 0) return null;
   const showSeeAll = !props.isLoading && !props.isError && props.items.length > 0;
   return (
     <section className="space-y-4">
@@ -59,39 +58,14 @@ export function TopBrandsSection(props: Props) {
           title={props.errorTitle}
           tone="error"
         />
-      ) : props.items.length === 0 ? (
-        <SectionState title={props.emptyTitle} message={props.emptyMessage} />
       ) : (
         <Rail>
           {props.items.map((brand) => {
             const store = brand.storeId ? { storeId: brand.storeId } : matchedStore(brand, props.stores);
-            const content = (
-              <article className="group w-40 shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-rail-card ring-1 ring-line transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-pop hover:ring-brand/40 sm:w-44">
-                <DeliveryImage
-                  alt={brand.name}
-                  className="aspect-[4/3] w-full"
-                  imageClassName="transition-transform duration-500 ease-out group-hover:scale-105"
-                  sizes="176px"
-                  src={brand.logo}
-                />
-                <div className="min-h-[4.75rem] px-3.5 py-3">
-                  <h3 className="text-sm font-bold leading-5 text-ink [overflow-wrap:anywhere]">
-                    {brand.name}
-                  </h3>
-                  {brand.dealAmount || brand.deal ? (
-                    <p className="mt-1.5 flex items-start gap-1 text-[10px] font-semibold leading-4 text-brand">
-                      <Tag aria-hidden="true" className="size-3" />
-                      {brand.dealAmount
-                        ? `${brand.dealAmount}${brand.dealType === "percentage" ? "%" : ""} ${props.offLabel}`
-                        : brand.deal}
-                    </p>
-                  ) : null}
-                </div>
-              </article>
-            );
+            const content = <TopBrandCard brand={brand} offLabel={props.offLabel} />;
             return store ? (
               <Link
-                className="focus-visible:rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand"
+                className="group rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand"
                 href={`/restaurants/${encodeURIComponent(("slug" in store ? store.slug : brand.slug) || store.storeId)}`}
                 key={`${brand.vendorId ?? brand.name}-${brand.name}`}
               >
