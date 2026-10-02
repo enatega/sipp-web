@@ -6,6 +6,8 @@ import type {
   RestaurantCategory,
   RestaurantProduct,
   RestaurantProductsPage,
+  RestaurantReview,
+  RestaurantReviewsPage,
   RestaurantStore,
   RestaurantSubcategory,
 } from "../types/restaurant";
@@ -220,5 +222,42 @@ export function parseProductCustomizations(value: unknown): ProductCustomization
   return {
     variations: parseSections(source.variations),
     addons: parseSections(source.addons),
+  };
+}
+
+function parseRestaurantReview(value: unknown): RestaurantReview {
+  const source = record(value);
+  const reviewer = record(source.reviewer);
+  return {
+    id: text(source.id),
+    rating: Math.min(5, Math.max(0, number(source.rating))),
+    comment: optionalText(source.comment),
+    createdAt: optionalText(source.createdAt),
+    reviewer: { name: optionalText(reviewer.name), image: optionalText(reviewer.image) },
+  };
+}
+
+export function parseRestaurantReviews(value: unknown): RestaurantReviewsPage {
+  const source = record(value);
+  const items = Array.isArray(source.items)
+    ? source.items.map(parseRestaurantReview).filter((item) => item.id)
+    : [];
+  const offset = number(source.offset);
+  const total = number(source.total, items.length);
+  const distribution = record(source.distribution);
+  return {
+    items,
+    offset,
+    total,
+    isEnd: offset + items.length >= total || items.length === 0,
+    averageRating: number(source.averageRating),
+    totalReviews: number(source.totalReviews, total),
+    distribution: {
+      1: number(distribution[1]),
+      2: number(distribution[2]),
+      3: number(distribution[3]),
+      4: number(distribution[4]),
+      5: number(distribution[5]),
+    },
   };
 }

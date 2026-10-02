@@ -4,9 +4,10 @@ import {
   parseProductCustomizations,
   parseProductInfo,
   parseRestaurantProducts,
+  parseRestaurantReviews,
   parseRestaurantStore,
 } from "../utils/restaurantMappers";
-import type { RestaurantLocation, RestaurantProductsInput } from "../types/restaurant";
+import type { RestaurantLocation, RestaurantProductsInput, ReviewStar } from "../types/restaurant";
 
 function locationQuery(location: RestaurantLocation) {
   return {
@@ -44,6 +45,15 @@ export const restaurantApi = {
       { signal },
     );
     return parseRestaurantProducts(payload);
+  },
+  async reviews(storeId: string, offset: number, rating: ReviewStar | null, signal?: AbortSignal) {
+    const query = new URLSearchParams({ offset: String(offset), limit: "10" });
+    if (rating) query.set("rating", String(rating));
+    const payload = await requestJson<unknown>(
+      `${apiRoutes.restaurants}/${encodeURIComponent(storeId)}/reviews?${query}`,
+      { signal },
+    );
+    return parseRestaurantReviews(payload);
   },
   async productInfo(productId: string, signal?: AbortSignal) {
     const payload = await requestJson<unknown>(

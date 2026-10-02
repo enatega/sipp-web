@@ -115,3 +115,23 @@ export interface RestaurantProductsInput {
   offset?: number;
   limit?: number;
 }
+
+export type ReviewStar = 1 | 2 | 3 | 4 | 5;
+
+export interface RestaurantReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string | null;
+  reviewer: { name: string | null; image: string | null };
+}
+
+export interface RestaurantReviewsPage {
+  items: RestaurantReview[];
+  offset: number;
+  total: number;
+  isEnd: boolean;
+  averageRating: number;
+  totalReviews: number;
+  distribution: Record<ReviewStar, number>;
+}

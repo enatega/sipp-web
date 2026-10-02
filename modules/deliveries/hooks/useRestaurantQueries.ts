@@ -5,7 +5,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { readStoredPlace } from "@/modules/account";
 import { restaurantApi } from "../api/restaurant";
 import { deliveryQueryKeys } from "../queries/queryKeys";
-import type { RestaurantLocation } from "../types/restaurant";
+import type { RestaurantLocation, ReviewStar } from "../types/restaurant";
 export { useCartMutations, useCartQuery } from "./useCart";
 
 const RESTAURANT_STALE_TIME = 2 * 60_000;
@@ -76,6 +76,23 @@ export function useRestaurantProductsQuery(
     getNextPageParam: (lastPage) =>
       lastPage.isEnd ? undefined : lastPage.offset + lastPage.items.length,
     enabled: Boolean(storeId && location),
+    staleTime: RESTAURANT_STALE_TIME,
+  });
+}
+
+export function useRestaurantReviewsQuery(
+  storeId: string,
+  rating: ReviewStar | null,
+  enabled: boolean,
+) {
+  return useInfiniteQuery({
+    queryKey: deliveryQueryKeys.restaurantReviews(storeId, rating),
+    queryFn: ({ pageParam, signal }) =>
+      restaurantApi.reviews(storeId, pageParam, rating, signal),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.isEnd ? undefined : lastPage.offset + lastPage.items.length,
+    enabled: Boolean(storeId) && enabled,
     staleTime: RESTAURANT_STALE_TIME,
   });
 }

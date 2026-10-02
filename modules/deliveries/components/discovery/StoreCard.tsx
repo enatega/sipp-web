@@ -9,6 +9,7 @@ import {
   storeHref,
   storeOfferLabel,
 } from "@/modules/deliveries/utils/storeCardLabels";
+import { StoreFavouriteButton } from "./StoreFavouriteButton";
 
 export function StoreCard({ store, fluid = false }: { store: DeliveryStore; fluid?: boolean }) {
   const t = useTranslations("deliveries.discovery");
@@ -51,90 +52,91 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
       : null;
   const hasRatingDetails = Boolean(rating || reviewCount);
   return (
-    <Link
-      aria-label={t("openStore", { name: store.name })}
-      className={`group shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-rail-card ring-1 ring-line transition duration-300 ease-out hover:-translate-y-1 hover:shadow-pop hover:ring-brand/40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand ${fluid ? "w-full" : "w-[252px] sm:w-[282px]"}`}
-      href={storeHref(store)}
+    <article
+      className={`group relative shrink-0 snap-start transition-transform duration-300 ease-out hover:-translate-y-1 ${fluid ? "w-full" : "w-[200px] min-[400px]:w-[224px] sm:w-[282px]"}`}
     >
-      <div className="relative">
-        <DeliveryImage
-          alt={store.name}
-          className="aspect-[16/9] w-full"
-          imageClassName="transition-transform duration-500 ease-out group-hover:scale-105"
-          sizes="(max-width: 640px) 255px, 282px"
-          src={store.coverImage ?? store.logo}
-        />
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/65 to-transparent" />
-        {offer ? (
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-brand px-2.5 py-1 text-[10px] font-bold text-ink shadow-sm">
-            <Tag aria-hidden="true" className="size-3" />
-            {offer}
-          </span>
-        ) : null}
-        {isClosed ? (
-          <span className="absolute inset-0 grid place-items-center bg-black/45">
-            <b className="rounded-full bg-surface px-4 py-2 text-[11px] uppercase tracking-[0.12em] text-ink">
-              {t("closed")}
-            </b>
-          </span>
-        ) : null}
-        {hasRatingDetails && !isClosed ? (
-          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-card/95 px-2.5 py-1 text-[10px] font-bold text-ink shadow-sm">
-            {rating ? (
-              <>
-                <Star aria-hidden="true" className="size-3 fill-brand text-brand" />
-                {rating.toFixed(1)}
-              </>
-            ) : null}
-            {reviewCount ? (
-              <span className="font-medium text-muted">
-                ({format.number(reviewCount)})
-              </span>
-            ) : null}
-          </span>
-        ) : null}
-      </div>
+      <Link
+        aria-label={t("openStore", { name: store.name })}
+        className="block overflow-hidden rounded-2xl bg-card shadow-rail-card ring-1 ring-line transition-shadow duration-300 group-hover:shadow-pop focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+        href={storeHref(store)}
+      >
+        <div className="relative">
+          <DeliveryImage
+            alt={store.name}
+            className="aspect-[16/10] w-full"
+            imageClassName="transition-transform duration-500 ease-out group-hover:scale-105"
+            sizes="(max-width: 640px) 224px, 282px"
+            src={store.coverImage ?? store.logo}
+          />
+          {offer ? (
+            <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold sm:left-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-[11px] text-ink shadow-sm">
+              <Tag aria-hidden="true" className="size-2.5 sm:size-3" />
+              {offer}
+            </span>
+          ) : null}
+          {isClosed ? (
+            <span className="absolute inset-0 grid place-items-center bg-black/45">
+              <b className="rounded-full bg-surface px-4 py-2 text-[11px] uppercase tracking-[0.12em] text-ink">
+                {t("closed")}
+              </b>
+            </span>
+          ) : null}
+          {hasRatingDetails && !isClosed ? (
+            <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-card/95 px-2 py-0.5 text-[11px] font-bold sm:bottom-3 sm:left-3 sm:px-2.5 sm:py-1 sm:text-xs text-ink shadow-sm backdrop-blur-sm">
+              {rating ? (
+                <>
+                  <Star aria-hidden="true" className="size-3 fill-rating sm:size-3.5 text-rating" />
+                  {rating.toFixed(1)}
+                </>
+              ) : null}
+              {reviewCount ? (
+                <span className="font-medium text-muted">
+                  ({format.number(reviewCount)})
+                </span>
+              ) : null}
+            </span>
+          ) : null}
+        </div>
 
-      <div className="p-3.5 sm:p-4">
-        <div className="min-w-0">
-          <h3 className="truncate font-heading text-[15px] font-bold text-ink">
+        <div className="px-3 pb-3 pt-2.5 sm:px-4 sm:pb-4 sm:pt-3">
+          <h3 className="truncate font-heading text-sm font-bold text-ink sm:text-base">
             {store.name}
           </h3>
-          <p className="mt-0.5 truncate text-xs text-muted">
+          <p className="mt-0.5 truncate text-xs text-muted sm:text-[13px]">
             {store.shopTypeName || store.address || t("storeFallback")}
           </p>
-        </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-line pt-3 text-[10px] font-medium text-muted">
-          {deliveryTime ? (
-            <span className="inline-flex items-center gap-1">
-              <Clock3
-                aria-hidden="true"
-                className="size-3 shrink-0 text-brand"
-              />
-              {deliveryTime}
-            </span>
-          ) : null}
-          {hasFeeDetails ? (
-            <span className="inline-flex items-center gap-1">
-              <Bike
-                aria-hidden="true"
-                className="size-3 shrink-0 text-brand"
-              />
-              {fee}
-            </span>
-          ) : null}
-          {distance !== null ? (
-            <span className="inline-flex items-center gap-1">
-              <MapPin
-                aria-hidden="true"
-                className="size-3 shrink-0 text-brand"
-              />
-              {t("distance", { distance })}
-            </span>
+          {deliveryTime || distance !== null || hasFeeDetails ? (
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium text-body sm:mt-3 sm:gap-x-4 sm:gap-y-1.5 sm:text-xs">
+              {deliveryTime ? (
+                <span className="inline-flex items-center gap-1 sm:gap-1.5">
+                  <Clock3 aria-hidden="true" className="size-3.5 shrink-0 sm:size-4 text-muted" />
+                  {deliveryTime}
+                </span>
+              ) : null}
+              {distance !== null ? (
+                <span className="inline-flex items-center gap-1 sm:gap-1.5">
+                  <MapPin aria-hidden="true" className="size-3.5 shrink-0 sm:size-4 text-brand" />
+                  {t("distance", { distance })}
+                </span>
+              ) : null}
+              {hasFeeDetails ? (
+                <span className="inline-flex items-center gap-1 sm:gap-1.5">
+                  <Bike aria-hidden="true" className="size-3.5 shrink-0 sm:size-4 text-muted" />
+                  {fee}
+                </span>
+              ) : null}
+            </div>
           ) : null}
         </div>
-      </div>
-    </Link>
+      </Link>
+
+      <StoreFavouriteButton
+        className="absolute right-2 top-2 z-10 size-8 sm:right-3 sm:top-3 sm:size-9"
+        isFavorite={store.isFavorite === true}
+        name={store.name}
+        storeId={store.storeId}
+      />
+    </article>
   );
 }

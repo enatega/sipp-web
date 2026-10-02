@@ -29,7 +29,7 @@ export function OrderAgainSection({ items, seeAllHref, seeAllLabel }: Props) {
       <Rail>
         {items.map((product) => (
           <OrderAgainProductCard
-            className="w-[252px] shrink-0 snap-start sm:w-[300px]"
+            className="w-[220px] shrink-0 snap-start sm:w-[256px]"
             key={`${product.storeId}:${product.productId}`}
             product={product}
           />

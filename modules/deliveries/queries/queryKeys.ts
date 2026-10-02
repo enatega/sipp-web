@@ -44,6 +44,8 @@ export const deliveryQueryKeys = {
     [...deliveryQueryKeys.all, "route", origin, destination] as const,
   restaurant: (storeId: string, location: RestaurantLocation | null) =>
     [...deliveryQueryKeys.all, "restaurant", storeId, location] as const,
+  restaurantReviews: (storeId: string, rating: number | null) =>
+    [...deliveryQueryKeys.all, "restaurant-reviews", storeId, rating] as const,
   restaurantProducts: (
     storeId: string,
     location: RestaurantLocation | null,

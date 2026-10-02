@@ -1,15 +1,12 @@
 import { SkeletonBlock } from "./SkeletonBlock";
 import { SkeletonLine } from "./SkeletonLine";
 
-/** Mirrors the top-brand tile: 4:3 logo above a two-line name. */
+/** Mirrors the top-brand bubble: round logo with a centered name below. */
 export function TopBrandCardSkeleton() {
   return (
-    <div className="w-40 shrink-0 snap-start overflow-hidden rounded-2xl bg-card shadow-rail-card ring-1 ring-line sm:w-44">
-      <SkeletonBlock className="aspect-[4/3] w-full rounded-none" />
-      <div className="min-h-[4.75rem] px-3.5 py-3">
-        <SkeletonLine barClassName="w-4/5" className="text-sm leading-5" />
-        <SkeletonLine barClassName="w-1/2" className="text-sm leading-5" />
-      </div>
+    <div className="flex w-[5.25rem] shrink-0 snap-start min-[400px]:w-24 flex-col items-center sm:w-[9.5rem]">
+      <SkeletonBlock className="size-[4.75rem] min-[400px]:size-[5.5rem] rounded-full sm:size-32" />
+      <SkeletonLine barClassName="mx-auto w-3/4" className="mt-2.5 w-full text-[11px] leading-[0.875rem] min-[400px]:text-xs sm:mt-3 sm:text-[13px] sm:leading-4" />
     </div>
   );
 }

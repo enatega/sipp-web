@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeft, LoaderCircle, ShoppingBag, ShoppingCart, Sparkles, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Clock, LoaderCircle, ShoppingBag, ShoppingCart, Sparkles, Store, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { Header } from "@/components/shared/app-shell/Header";
@@ -11,6 +11,7 @@ import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { CartItemCard } from "./CartItemCard";
 import { useCartMutations, useCartQuery } from "../../hooks/useCart";
 import { useRestaurantLocation, useRestaurantQuery } from "../../hooks/useRestaurantQueries";
+import { storeDeliveryTimeLabel } from "../../utils/storeCardLabels";
 
 function LoadingState() {
   const t = useTranslations("deliveries.cart");
@@ -76,6 +77,7 @@ export function CartPage() {
   if (!cart.data || cart.data.isEmpty) return <><Header cartCount={0} /><EmptyCart /></>;
 
   const data = cart.data;
+  const eta = restaurant.data ? storeDeliveryTimeLabel(restaurant.data.deliveryTime, (count) => restaurantText("minutes", { count })) : null;
   return (
     <>
       <Header cartCount={data.totalItems} />
@@ -95,11 +97,26 @@ export function CartPage() {
             </section>
 
             <aside className="rounded-3xl border border-line bg-card p-5 shadow-card lg:sticky lg:top-24 sm:p-6">
-              <h2 className="text-xl font-bold text-ink">{t("summary")}</h2>
-              <div className="mt-5 space-y-3 text-sm">
-                <div className="flex justify-between gap-4 text-body"><span>{t("subtotal")}</span><span className="font-medium text-ink">{price(data.totalPrice)}</span></div>
-                {data.discountAmount > 0 ? <div className="flex justify-between gap-4 text-emerald-600 dark:text-emerald-400"><span>{t("discount")}</span><span className="font-semibold">− {price(data.discountAmount)}</span></div> : null}
-              </div>
+              {restaurant.data ? (
+                <>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted">{t("orderingFrom")}</p>
+                  <Link href={`/restaurants/${restaurant.data.id}`} className="group mt-3 flex items-center gap-3 rounded-2xl border border-line bg-[var(--soft-surface)] p-3 transition-colors hover:border-brand/30">
+                    <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-card text-brand">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {restaurant.data.logo ? <img src={restaurant.data.logo} alt="" className="size-full object-contain p-1" /> : <Store aria-hidden="true" className="size-5" />}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[15px] font-bold text-ink group-hover:text-brand">{restaurant.data.name}</span>
+                      <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted">
+                        <span>{t("itemsShort", { count: data.totalItems })}</span>
+                        {eta ? <><span aria-hidden="true">·</span><Clock aria-hidden="true" className="size-3" /><span>{eta}</span></> : null}
+                      </span>
+                    </span>
+                    <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-muted transition-transform group-hover:translate-x-0.5 rtl:rotate-180" />
+                  </Link>
+                </>
+              ) : <h2 className="text-xl font-bold text-ink">{t("summary")}</h2>}
+              {data.discountAmount > 0 ? <div className="mt-4 flex justify-between gap-4 text-sm text-emerald-600 dark:text-emerald-400"><span>{t("discount")}</span><span className="font-semibold">− {price(data.discountAmount)}</span></div> : null}
               <div className="my-5 border-t border-dashed border-line" />
               <div className="flex items-end justify-between gap-4"><div><p className="font-bold text-ink">{t("cartTotal")}</p><p className="mt-1 text-[11px] text-muted">{t("feesAtCheckout")}</p></div><strong className="text-2xl text-brand">{price(data.finalPrice)}</strong></div>
               {isStoreClosed ? <button type="button" disabled className="mt-6 min-h-13 w-full rounded-full bg-brand px-5 text-sm font-bold text-ink opacity-50">{restaurantText("closed")}</button> : <Link href="/checkout" className="mt-6 inline-flex min-h-13 w-full items-center justify-center rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_10px_24px_rgba(102,192,242,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-brand/85">{t("checkout")}</Link>}

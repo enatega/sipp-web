@@ -6,6 +6,7 @@ import {
   SectionState,
 } from "@/modules/deliveries/components/discovery/DiscoverySection";
 import { DealCard } from "@/modules/deliveries/components/discovery/DealCard";
+import { DealPercentBadge } from "@/modules/deliveries/components/discovery/DealPercentBadge";
 import { DealCardSkeleton } from "@/modules/deliveries/components/discovery/skeletons/DealCardSkeleton";
 import { StoreCard } from "@/modules/deliveries/components/discovery/StoreCard";
 import type { DeliveryStore } from "@/modules/deliveries/types/discovery";
@@ -28,22 +29,64 @@ interface Props {
   onRetry: () => void;
   seeAllHref?: string;
   seeAllLabel?: string;
-  /** `deal` renders compact offer cards on a highlighted panel. */
+  /** `deal` renders a scrollable row of offer cards on a highlighted panel. */
   variant?: "store" | "deal";
 }
 
+const DEAL_SLOT = "w-60 shrink-0 snap-start sm:w-[23rem] lg:w-[26rem]";
+
 export function StoreRailSection(props: Props) {
+  // Hide the whole section rather than showing an empty placeholder.
+  if (props.hasLocation !== false && !props.isLoading && !props.isError && props.items.length === 0) return null;
   const isDeal = props.variant === "deal";
   const showSeeAll = props.hasLocation !== false && !props.isLoading && !props.isError && props.items.length > 0;
+  const body =
+    props.hasLocation === false ? (
+      <SectionState
+        title={props.emptyTitle}
+        message={props.locationMessage ?? props.emptyMessage}
+        tone="location"
+      />
+    ) : props.isLoading ? (
+      isDeal ? (
+        <div aria-hidden="true" className="flex gap-3 overflow-hidden pb-6 pt-3 sm:gap-4">
+          {[0, 1, 2].map((index) => (
+            <div className={DEAL_SLOT} key={index}>
+              <DealCardSkeleton />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <RailSkeleton />
+      )
+    ) : props.isError ? (
+      <SectionState
+        actionLabel={props.retryLabel}
+        message={props.errorMessage}
+        onAction={props.onRetry}
+        title={props.errorTitle}
+        tone="error"
+      />
+    ) : (
+      <Rail>
+        {isDeal
+          ? props.items.map((store, index) => (
+              <div
+                className={cn(styles.cardEnter, DEAL_SLOT)}
+                key={`${store.storeId}:${store.deal ?? ""}:${index}`}
+                style={{ "--enter-delay": `${Math.min(index, 5) * 70}ms` } as React.CSSProperties}
+              >
+                <DealCard store={store} />
+              </div>
+            ))
+          : props.items.map((store) => (
+              <StoreCard key={store.storeId} store={store} />
+            ))}
+      </Rail>
+    );
+
   return (
-    <section
-      className={cn(
-        "scroll-mt-28 space-y-4",
-        isDeal &&
-          "-mx-4 overflow-hidden bg-[radial-gradient(ellipse_at_100%_0%,color-mix(in_srgb,var(--color-brand)_22%,transparent),transparent_60%)] bg-brand/5 px-4 py-6 ring-1 ring-brand/15 sm:mx-0 sm:rounded-3xl sm:px-7 sm:py-7",
-      )}
-      id={props.id}
-    >
+    <section className="scroll-mt-28 space-y-4" id={props.id}>
       <SectionHeading
         actionHref={showSeeAll ? props.seeAllHref : undefined}
         actionLabel={props.seeAllLabel}
@@ -51,64 +94,16 @@ export function StoreRailSection(props: Props) {
         title={props.title}
         description={props.description}
       />
-      {props.hasLocation === false ? (
-        <SectionState
-          title={props.emptyTitle}
-          message={props.locationMessage ?? props.emptyMessage}
-          tone="location"
-        />
-      ) : props.isLoading ? (
-        isDeal ? (
-          <div aria-hidden="true" className="grid gap-3 sm:gap-4 md:grid-cols-2">
-            <DealCardSkeleton layout="wide" />
-            <DealCardSkeleton layout="wide" />
+      {isDeal ? (
+        <div className="relative -mx-4 mt-6 sm:mx-0 sm:mt-8">
+          <DealPercentBadge />
+          {/* Top padding keeps the cards clear of the corner tile. */}
+          <div className="overflow-hidden bg-[linear-gradient(180deg,color-mix(in_srgb,var(--color-brand)_16%,var(--color-surface)),color-mix(in_srgb,var(--color-brand)_10%,var(--color-surface)))] px-5 pt-5 shadow-[0_24px_50px_color-mix(in_srgb,var(--color-brand)_16%,transparent),inset_0_0_0_1px_rgb(255_255_255/0.6),inset_0_2px_12px_rgb(255_255_255/0.5)] sm:rounded-[2rem] sm:px-7 sm:pt-6 dark:shadow-none dark:ring-1 dark:ring-brand/20">
+            {body}
           </div>
-        ) : (
-          <RailSkeleton />
-        )
-      ) : props.isError ? (
-        <SectionState
-          actionLabel={props.retryLabel}
-          message={props.errorMessage}
-          onAction={props.onRetry}
-          title={props.errorTitle}
-          tone="error"
-        />
-      ) : props.items.length === 0 ? (
-        <SectionState title={props.emptyTitle} message={props.emptyMessage} />
-      ) : isDeal && props.items.length <= 2 ? (
-        <div
-          className={cn(
-            "grid gap-3 sm:gap-4",
-            props.items.length === 2 && "md:grid-cols-2",
-          )}
-        >
-          {props.items.map((store, index) => (
-            <div
-              className={styles.cardEnter}
-              key={`${store.storeId}:${store.deal ?? ""}:${index}`}
-              style={{ "--enter-delay": `${index * 90}ms` } as React.CSSProperties}
-            >
-              <DealCard layout="wide" store={store} />
-            </div>
-          ))}
         </div>
       ) : (
-        <Rail>
-          {isDeal
-            ? props.items.map((store, index) => (
-                <div
-                  className={cn(styles.cardEnter, "shrink-0 snap-start")}
-                  key={`${store.storeId}:${store.deal ?? ""}:${index}`}
-                  style={{ "--enter-delay": `${Math.min(index, 5) * 70}ms` } as React.CSSProperties}
-                >
-                  <DealCard store={store} />
-                </div>
-              ))
-            : props.items.map((store) => (
-                <StoreCard key={store.storeId} store={store} />
-              ))}
-        </Rail>
+        body
       )}
     </section>
   );

@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Bike, Clock3, Heart, Star } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { formatAppCurrency } from "@/config/currency";
 import { cn } from "@/lib/utils";
+import { DealSparkle } from "@/modules/deliveries/components/discovery/DealSparkle";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
 import type { DeliveryStore } from "@/modules/deliveries/types/discovery";
 import {
-  storeDeliveryTimeLabel,
   storeHref,
   storeOfferLabel,
 } from "@/modules/deliveries/utils/storeCardLabels";
@@ -14,37 +14,12 @@ import styles from "./discovery-cards.module.css";
 
 interface Props {
   store: DeliveryStore;
-  /** `wide` fills its grid cell with a side-by-side layout. */
-  layout?: "rail" | "wide";
 }
 
-export function DealCard({ store, layout = "rail" }: Props) {
+export function DealCard({ store }: Props) {
   const t = useTranslations("deliveries.discovery");
   const format = useFormatter();
-  const isWide = layout === "wide";
   const isClosed = store.isOpen === false || store.isAvailable === false;
-  const offer = storeOfferLabel(
-    store,
-    (value) => formatAppCurrency(format, value),
-    t("off"),
-  );
-  const hasFeeDetails =
-    typeof store.deliveryFee === "number" && Number.isFinite(store.deliveryFee);
-  const fee =
-    hasFeeDetails && store.deliveryFee === 0
-      ? t("freeDelivery")
-      : formatAppCurrency(format, store.deliveryFee ?? 0, {
-          maximumFractionDigits: 2,
-        });
-  const deliveryTime = storeDeliveryTimeLabel(store.deliveryTime, (count) =>
-    t("minutes", { count }),
-  );
-  const rating =
-    typeof store.averageRating === "number" &&
-    Number.isFinite(store.averageRating) &&
-    store.averageRating > 0
-      ? store.averageRating
-      : null;
   const price =
     typeof store.price === "number" && store.price >= 0 ? store.price : null;
   const discountedPrice =
@@ -60,40 +35,45 @@ export function DealCard({ store, layout = "rail" }: Props) {
   const title = dealName ?? store.name;
   const byline = dealName ? store.name.trim() : null;
   const category = store.shopTypeName?.trim() || t("storeFallback");
-  const hasMeta = Boolean(rating || deliveryTime || hasFeeDetails);
+  const offerLabel = storeOfferLabel(
+    store,
+    (value) => formatAppCurrency(format, value),
+    t("off"),
+  );
+  // Without an amount the label falls back to the deal name, already the title.
+  const offer = offerLabel && offerLabel !== title ? offerLabel : null;
 
   return (
     <Link
       aria-label={t("openStore", { name: store.name })}
-      className={cn(
-        "group relative flex h-full overflow-hidden rounded-[1.35rem] bg-card p-1.5 shadow-rail-card ring-1 ring-line transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-pop hover:ring-brand/40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand",
-        isWide
-          ? "w-full flex-row"
-          : "w-[204px] shrink-0 snap-start flex-col sm:w-[228px]",
-      )}
+      className="group relative isolate flex h-full w-full flex-col items-stretch gap-2.5 overflow-hidden rounded-[1.25rem] bg-card p-2 shadow-[0_10px_30px_color-mix(in_srgb,var(--color-brand)_16%,transparent)] ring-1 ring-white/70 transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_16px_36px_color-mix(in_srgb,var(--color-brand)_24%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand sm:flex-row sm:items-center sm:gap-3.5 sm:rounded-[1.5rem] sm:p-2.5 dark:ring-line"
       href={storeHref(store)}
     >
-      <div
-        className={cn(
-          "relative shrink-0 overflow-hidden rounded-2xl",
-          isWide && "w-32 self-stretch sm:w-44",
-        )}
-      >
+      {/* Soft "cloud" shapes behind the copy, as in the reference design. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-16 right-[-12%] -z-1 aspect-square w-[55%] rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-brand)_12%,transparent),transparent_70%)]"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-8 -top-12 -z-1 aspect-square w-[38%] rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-brand)_9%,transparent),transparent_70%)]"
+      />
+
+      <div className="relative w-full shrink-0 overflow-hidden rounded-[0.9rem] sm:w-40 sm:rounded-[1.1rem] lg:w-44">
         <DeliveryImage
           alt={store.name}
-          className={cn(
-            "aspect-[16/10] w-full",
-            isWide && "aspect-auto h-full min-h-32",
-            isClosed && "grayscale",
-          )}
+          className={cn("aspect-[16/9] w-full sm:aspect-[4/3]", isClosed && "grayscale")}
           imageClassName="transition-[scale] duration-700 ease-out group-hover:scale-110"
-          sizes={isWide ? "(max-width: 560px) 128px, 176px" : "(max-width: 560px) 204px, 228px"}
+          sizes="(max-width: 560px) 240px, 176px"
           src={store.coverImage ?? store.logo}
         />
         <span aria-hidden="true" className={styles.shine} />
         {offer ? (
-          <span className="absolute left-2 top-2 z-2 max-w-[calc(100%-1rem)] -rotate-3 truncate rounded-lg bg-secondary px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-white shadow-sm transition-[scale,rotate] duration-300 group-hover:rotate-0 group-hover:scale-105">
-            {offer}
+          <span className="absolute left-2 top-2 z-2 flex max-w-[calc(100%-1rem)] items-start sm:left-3 sm:top-3">
+            <span className="truncate rounded-full bg-secondary px-2 py-0.5 font-heading text-[10px] font-extrabold uppercase tracking-wide text-white shadow-[0_6px_14px_color-mix(in_srgb,var(--color-secondary)_35%,transparent)] transition-[scale] duration-300 group-hover:scale-105 sm:px-2.5 sm:py-1 sm:text-[11px]">
+              {offer}
+            </span>
+            <DealSparkle className="-ml-0.5 -mt-1 size-3.5 shrink-0 -scale-x-100 text-white sm:size-4" />
           </span>
         ) : null}
         {store.isFavorite ? (
@@ -110,99 +90,51 @@ export function DealCard({ store, layout = "rail" }: Props) {
         ) : null}
       </div>
 
-      <div
-        className={cn(
-          "flex min-w-0 flex-1 flex-col",
-          isWide
-            ? "@container justify-center px-3 py-2 sm:px-4"
-            : "px-1.5 pb-0.5 pt-2.5",
-        )}
-      >
-        <div
-          className={cn(
-            "flex min-w-0 flex-1 flex-col",
-            isWide && "justify-center gap-2.5 @lg:flex-row @lg:items-center @lg:justify-between @lg:gap-6",
+      <div className="flex min-w-0 flex-1 items-center gap-2 px-1 pb-1 sm:gap-2 sm:px-0 sm:py-1">
+        <div className="min-w-0 flex-1">
+          <span className="block truncate text-[9px] font-bold uppercase tracking-[0.2em] text-muted sm:text-[10px]">
+            {category}
+          </span>
+          <h3 className="mt-0.5 truncate font-heading text-sm font-extrabold leading-tight tracking-[-0.01em] text-ink sm:text-base">
+            {title}
+          </h3>
+          {byline ? (
+            <p className="truncate text-[11px] text-muted sm:text-xs">{byline}</p>
+          ) : null}
+          {price !== null ? (
+            <p className="mt-2 flex min-w-0 flex-wrap items-baseline gap-x-2 border-l-2 border-line pl-2.5 tabular-nums sm:mt-2">
+              <b className="font-heading text-[13px] font-extrabold text-ink sm:text-sm">
+                {formatAppCurrency(format, discountedPrice ?? price)}
+              </b>
+              {discountedPrice !== null ? (
+                <s className="text-xs font-medium text-muted decoration-secondary/70">
+                  {formatAppCurrency(format, price)}
+                </s>
+              ) : null}
+            </p>
+          ) : minimumOrder !== null ? (
+            <p className="mt-2 truncate border-l-2 border-line pl-2.5 text-[11px] text-muted sm:mt-2">
+              {t.rich("minimumOrder", {
+                amount: () => (
+                  <b className="font-heading font-extrabold text-ink tabular-nums">
+                    {formatAppCurrency(format, minimumOrder)}
+                  </b>
+                ),
+              })}
+            </p>
+          ) : (
+            <p className="mt-2 truncate border-l-2 border-line pl-2.5 text-[11px] font-bold text-brand sm:mt-2">
+              {t("exploreOffer")}
+            </p>
           )}
-        >
-          <div className="min-w-0">
-            <span className="block truncate text-[10px] font-bold uppercase tracking-[0.12em] text-muted">
-              {category}
-            </span>
-            <h3
-              className={cn(
-                "mt-0.5 truncate font-heading font-extrabold tracking-[-0.01em] text-ink",
-                isWide ? "text-base sm:text-lg" : "text-[15px]",
-              )}
-            >
-              {title}
-            </h3>
-            {byline ? (
-              <p className="truncate text-xs text-muted">{byline}</p>
-            ) : null}
-            {hasMeta ? (
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] font-semibold text-body">
-                {rating ? (
-                  <span className="inline-flex items-center gap-1">
-                    <Star aria-hidden="true" className="size-3 fill-brand text-brand" />
-                    {rating.toFixed(1)}
-                  </span>
-                ) : null}
-                {deliveryTime ? (
-                  <span className="inline-flex items-center gap-1">
-                    <Clock3 aria-hidden="true" className="size-3 text-brand" />
-                    {deliveryTime}
-                  </span>
-                ) : null}
-                {hasFeeDetails ? (
-                  <span className="inline-flex items-center gap-1">
-                    <Bike aria-hidden="true" className="size-3 text-brand" />
-                    {fee}
-                  </span>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-
-          <div
-            className={cn(
-              "flex items-center justify-between gap-2",
-              isWide ? "@lg:shrink-0 @lg:justify-end @lg:gap-4" : "mt-auto pt-2.5",
-            )}
-          >
-            {price !== null ? (
-              <p className="flex min-w-0 flex-wrap items-baseline gap-x-2 tabular-nums">
-                <b className={cn("font-heading font-extrabold text-ink", isWide ? "text-xl" : "text-lg")}>
-                  {formatAppCurrency(format, discountedPrice ?? price)}
-                </b>
-                {discountedPrice !== null ? (
-                  <s className="text-xs font-medium text-muted decoration-secondary/70">
-                    {formatAppCurrency(format, price)}
-                  </s>
-                ) : null}
-              </p>
-            ) : minimumOrder !== null ? (
-              <p className="min-w-0 text-xs text-muted">
-                {t.rich("minimumOrder", {
-                  amount: () => (
-                    <b className="font-heading text-sm font-extrabold text-ink tabular-nums">
-                      {formatAppCurrency(format, minimumOrder)}
-                    </b>
-                  ),
-                })}
-              </p>
-            ) : (
-              <span className="min-w-0 truncate text-xs font-bold text-brand">
-                {t("exploreOffer")}
-              </span>
-            )}
-            <span
-              aria-hidden="true"
-              className="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-ink shadow-sm transition-[scale,rotate] duration-300 group-hover:-rotate-12 group-hover:scale-110"
-            >
-              <ArrowRight className="size-4" strokeWidth={2.6} />
-            </span>
-          </div>
         </div>
+
+        <span
+          aria-hidden="true"
+          className="grid size-8 shrink-0 place-items-center rounded-full bg-[linear-gradient(160deg,var(--color-brand)_0%,var(--color-brand-deep)_85%)] text-white shadow-[0_10px_22px_color-mix(in_srgb,var(--color-brand-deep)_45%,transparent),0_2px_6px_color-mix(in_srgb,var(--color-brand-deep)_30%,transparent),inset_0_2px_1px_rgb(255_255_255/0.4)] transition-[scale,translate] duration-300 group-hover:translate-x-0.5 group-hover:scale-110 sm:size-10"
+        >
+          <ArrowRight className="size-4" strokeWidth={2.6} />
+        </span>
       </div>
     </Link>
   );

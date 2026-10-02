@@ -11,7 +11,6 @@ import {
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { DealCardSkeleton } from "./skeletons/DealCardSkeleton";
 import { StoreCardSkeleton } from "./skeletons/StoreCardSkeleton";
 import { TopBrandCardSkeleton } from "./skeletons/TopBrandCardSkeleton";
 
@@ -30,20 +29,20 @@ export function SectionHeading({
   isActionPending?: boolean;
 }) {
   return (
-    <div className="flex items-end justify-between gap-4">
-      <div className="max-w-2xl">
-        <h2 className="font-heading text-[1.35rem] font-extrabold tracking-[-0.03em] text-ink sm:text-[1.7rem]">
+    <div className="flex items-end justify-between gap-3 sm:gap-4">
+      <div className="min-w-0 max-w-2xl">
+        <h2 className="font-heading text-xl font-extrabold tracking-[-0.03em] text-ink sm:text-[1.7rem]">
           {title}
         </h2>
         {description ? (
-          <p className="mt-1 max-w-xl text-xs leading-5 text-muted sm:text-sm">
+          <p className="mt-1 max-w-xl text-xs leading-[1.45] text-muted sm:text-sm sm:leading-5">
             {description}
           </p>
         ) : null}
       </div>
       {actionHref && actionLabel ? (
         <Link
-          className="group/see-all inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-2 text-xs font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:text-sm"
+          className="group/see-all inline-flex shrink-0 items-center gap-0.5 rounded-full px-2 py-1.5 text-xs font-bold text-brand sm:gap-1 sm:px-3 sm:py-2 transition-colors hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:text-sm"
           href={actionHref}
         >
           {actionLabel}
@@ -55,7 +54,7 @@ export function SectionHeading({
       ) : isActionPending && actionLabel ? (
         <span
           aria-hidden="true"
-          className="invisible inline-flex shrink-0 items-center gap-1 px-3 py-2 text-xs font-bold sm:text-sm"
+          className="invisible inline-flex shrink-0 items-center gap-0.5 px-2 py-1.5 text-xs font-bold sm:gap-1 sm:px-3 sm:py-2 sm:text-sm"
         >
           {actionLabel}
           <span className="size-4" />
@@ -113,7 +112,7 @@ export function Rail({ children }: { children: React.ReactNode }) {
       <button
         aria-label={t("previousItems")}
         className={cn(
-          "absolute left-0 top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-card/95 text-ink shadow-pop transition duration-200 hover:scale-105 hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:-left-2",
+          "absolute left-0 top-1/2 z-10 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-card/95 text-ink shadow-pop transition duration-200 hover:scale-105 hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:-left-2 sm:grid",
           canScrollBack ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={() => move(-1)}
@@ -124,7 +123,7 @@ export function Rail({ children }: { children: React.ReactNode }) {
       <button
         aria-label={t("nextItems")}
         className={cn(
-          "absolute right-0 top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-card/95 text-ink shadow-pop transition duration-200 hover:scale-105 hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:-right-2",
+          "absolute right-0 top-1/2 z-10 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-card/95 text-ink shadow-pop transition duration-200 hover:scale-105 hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:-right-2 sm:grid",
           canScrollForward ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={() => move(1)}
@@ -187,7 +186,6 @@ export function SectionState({
 const RAIL_SKELETONS = {
   store: { Card: StoreCardSkeleton, count: 6 },
   brand: { Card: TopBrandCardSkeleton, count: 9 },
-  deal: { Card: DealCardSkeleton, count: 6 },
 } as const;
 
 /** A rail of card-shaped placeholders sized like the cards that replace them. */

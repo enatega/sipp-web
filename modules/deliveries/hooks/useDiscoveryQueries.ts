@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { readStoredPlace, useAddressesQuery } from "@/modules/account";
 import { discoveryApi } from "@/modules/deliveries/api/discovery";
+import { restaurantApi } from "@/modules/deliveries/api/restaurant";
 import { deliveryQueryKeys } from "@/modules/deliveries/queries/queryKeys";
 import type {
   DeliveryShopType,
@@ -135,5 +136,22 @@ export function useOrderAgainQuery(enabled: boolean, customerId?: string | null)
     queryFn: ({ signal }) => discoveryApi.orderAgain(signal),
     enabled,
     staleTime: 60_000,
+  });
+}
+
+/**
+ * Toggles a store favourite from a discovery card. Stays pending until the
+ * store lists refetch, so the card can show the next state without a flicker.
+ */
+export function useToggleStoreFavourite(storeId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => restaurantApi.toggleFavourite(storeId),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.discovery() }),
+        queryClient.invalidateQueries({ queryKey: [...deliveryQueryKeys.all, "search"] }),
+        queryClient.invalidateQueries({ queryKey: ["favourites"] }),
+      ]),
   });
 }

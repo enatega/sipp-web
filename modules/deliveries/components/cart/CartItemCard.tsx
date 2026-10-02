@@ -50,8 +50,8 @@ export function CartItemCard({ item, isUpdating, onQuantityChange, onRemove }: P
               <p className="mt-0.5 text-base font-bold text-brand">{price(item.lineTotal)}</p>
             </div>
             <div className="inline-flex h-10 items-center rounded-full border border-line bg-surface p-1 shadow-sm" aria-label={t("quantityFor", { name: item.name })}>
-              <button type="button" disabled={isUpdating} onClick={() => item.quantity === 1 ? onRemove() : onQuantityChange(item.quantity - 1)} aria-label={item.quantity === 1 ? t("removeItem", { name: item.name }) : t("decreaseQuantity")} className="grid size-8 place-items-center rounded-full text-ink transition-colors hover:bg-brand/10 hover:text-brand disabled:opacity-40">
-                {item.quantity === 1 ? <Trash2 aria-hidden="true" className="size-3.5" /> : <Minus aria-hidden="true" className="size-3.5" />}
+              <button type="button" disabled={isUpdating || item.quantity <= 1} onClick={() => onQuantityChange(item.quantity - 1)} aria-label={t("decreaseQuantity")} className="grid size-8 place-items-center rounded-full text-ink transition-colors hover:bg-brand/10 hover:text-brand disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink">
+                <Minus aria-hidden="true" className="size-3.5" />
               </button>
               <span className="min-w-8 text-center text-sm font-bold tabular-nums text-ink" aria-live="polite">{item.quantity}</span>
               <button type="button" disabled={isUpdating || item.quantity >= 99 || !item.inStock} onClick={() => onQuantityChange(item.quantity + 1)} aria-label={t("increaseQuantity")} className="grid size-8 place-items-center rounded-full bg-brand text-ink transition-colors hover:bg-brand/85 disabled:opacity-40">

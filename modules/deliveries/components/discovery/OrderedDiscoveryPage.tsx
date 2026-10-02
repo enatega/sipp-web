@@ -79,16 +79,16 @@ export function DiscoveryPage() {
                 ? <section key={section.key} className="space-y-4"><SectionHeading title={t("specialOffers")} /><SectionState title={t("errorTitle")} message={t("errorMessage")} tone="error" actionLabel={t("retry")} onAction={() => void banners.refetch()} /></section>
               : banners.data?.length
                 ? <OffersCarousel key={section.key} ctaLabel={t("exploreOffer")} items={banners.data} label={t("specialOffers")} nextLabel={t("nextOffer")} positionLabel={(position) => t("offerPosition", { position })} previousLabel={t("previousOffer")} />
-                : <section key={section.key} className="space-y-4"><SectionHeading title={t("specialOffers")} /><SectionState title={t("emptyTitle")} message={t("emptyMessage")} /></section>;
+                : null;
           }
           if (section.kind === "shop-types") {
-            return <ShopTypesSection key={section.key} emptyMessage={t("shopTypesEmpty")} emptyTitle={t("emptyTitle")} errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={shopTypes.isError} isLoading={shopTypes.isPending} items={shopTypes.data ?? []} onRetry={() => void shopTypes.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/shop-types" seeAllLabel={t("seeAll")} description={t("shopTypesDescription")} title={t("shopTypesTitle")} />;
+            return <ShopTypesSection key={section.key} errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={shopTypes.isError} isLoading={shopTypes.isPending} items={shopTypes.data ?? []} onRetry={() => void shopTypes.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/shop-types" seeAllLabel={t("seeAll")} description={t("shopTypesDescription")} title={t("shopTypesTitle")} />;
           }
           if (section.kind === "quick-actions") {
             return <QuickActionsNav key={section.key} />;
           }
           if (section.kind === "top-brands") {
-            return <TopBrandsSection key={section.key} emptyMessage={t("emptyMessage")} emptyTitle={t("emptyTitle")} errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={topBrands.isError} isLoading={topBrands.isPending} items={topBrands.data ?? []} offLabel={t("off")} onRetry={() => void topBrands.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/top-brands" seeAllLabel={t("seeAll")} stores={nearby.data ?? []} description={t("topBrandsDescription")} title={t("topBrandsTitle")} />;
+            return <TopBrandsSection key={section.key} errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={topBrands.isError} isLoading={topBrands.isPending} items={topBrands.data ?? []} offLabel={t("off")} onRetry={() => void topBrands.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/top-brands" seeAllLabel={t("seeAll")} stores={nearby.data ?? []} description={t("topBrandsDescription")} title={t("topBrandsTitle")} />;
           }
           if (section.kind === "nearby-stores") {
             return <StoreRailSection key={section.key} emptyMessage={t("nearbyEmpty")} emptyTitle={t("emptyTitle")} errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} hasLocation={isLocationReady ? Boolean(location) : true} isError={nearby.isError} isLoading={!isLocationReady || nearby.isPending} items={nearby.data ?? []} locationMessage={t("chooseLocation")} onRetry={() => void nearby.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/nearby" seeAllLabel={t("seeAll")} description={t("nearbyDescription")} title={t("nearbyTitle")} />;

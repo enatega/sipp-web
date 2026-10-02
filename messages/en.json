@@ -86,8 +86,8 @@
     "mobileTitle": "Sign in or create account",
     "mobileSubtitle": "Please enter your mobile number to continue.",
     "mobile": "Mobile number",
-    "signInEmail": "Sign in with email instead"
-    ,"accountAccess": "SIPP account access",
+    "signInEmail": "Sign in with email instead",
+    "accountAccess": "SIPP account access",
     "verificationImageAlt": "Secure two-factor verification",
     "heroTitle": "Order local food and essentials",
     "heroEmphasis": "across Costa Rica's coast.",
@@ -613,7 +613,7 @@
     "nameLabel": "Address name (optional)",
     "namePlaceholder": "e.g. Parents’ home"
   },
-    "vendorOnboarding": {
+  "vendorOnboarding": {
     "metaTitle": "Become a vendor | SIPP",
     "title": "Grow your business with SIPP",
     "subtitle": "Apply once, upload your verification documents, and our team will review your business for the local SIPP marketplace.",
@@ -711,6 +711,7 @@
   "deliveries": {
     "search": {
       "title": "Find food and local stores",
+      "resultsTitle": "Search results for “{query}”",
       "description": "Search menus and businesses that deliver to your selected address.",
       "label": "Search food and stores",
       "placeholder": "Try pizza, sushi, or a restaurant name",
@@ -838,6 +839,10 @@
       }
     },
     "discovery": {
+      "shopTypeTaglines": {
+        "grocery": "Everyday essentials, delivered fresh.",
+        "restaurant": "Your favourite meals from local spots."
+      },
       "pageTitle": "Discover local delivery",
       "foodDelivery": "SIPP delivery",
       "signInTitle": "Sign in to discover local businesses",
@@ -890,6 +895,8 @@
       "off": "off",
       "closed": "Closed",
       "openStore": "Open {name}",
+      "favouriteStore": "Save {name} to favourites",
+      "unfavouriteStore": "Remove {name} from favourites",
       "storeFallback": "Local business",
       "timeFallback": "Delivery time unavailable",
       "minutes": "{count} min",
@@ -970,6 +977,33 @@
       "openStore": "Open {name}"
     },
     "restaurant": {
+      "groupComplete": "Done",
+      "chooseUpTo": "Choose up to {count} · {selected}/{count} selected",
+      "quantityLabel": "Quantity",
+      "addToCartShort": "Add to cart",
+      "seeReviews": "Reviews",
+      "seeReviewsAria": "See reviews: rated {rating} from {count, plural, one {# review} other {# reviews}}",
+      "reviewsEyebrow": "Ratings & reviews",
+      "reviewsClose": "Close reviews",
+      "reviewsBasedOn": "{count, plural, one {# review} other {# reviews}}",
+      "reviewVerdict": {
+        "excellent": "Excellent",
+        "veryGood": "Very good",
+        "good": "Good",
+        "fair": "Fair",
+        "poor": "Poor"
+      },
+      "reviewsFilterLabel": "Filter reviews by rating",
+      "reviewsShowingStars": "{count}-star reviews",
+      "reviewsShowAll": "Show all",
+      "reviewStarsAria": "{rating} out of 5 stars",
+      "reviewAnonymous": "SIPP customer",
+      "reviewNoComment": "Left a rating without a comment.",
+      "reviewsLoadMore": "Show more reviews",
+      "reviewsEmptyTitle": "No reviews yet",
+      "reviewsEmptyMessage": "Order from {name} and be the first to share how it went.",
+      "reviewsErrorTitle": "Reviews could not be loaded",
+      "reviewsErrorMessage": "Please try again in a moment.",
       "originalPrice": "Original price {price}",
       "dealOffPercent": "{value}% off",
       "dealOffFixed": "{amount} off",
@@ -1233,20 +1267,62 @@
       "submittingReview": "Submitting review…",
       "submitReview": "Submit review",
       "status": {
-        "scheduled": { "title": "Order scheduled", "message": "Your order is confirmed for the selected time." },
-        "pending": { "title": "Waiting for confirmation", "message": "The business has received your order and will confirm it shortly." },
-        "accepted": { "title": "Order confirmed", "message": "The business has accepted your order." },
-        "preparing": { "title": "Preparing your order", "message": "The business is getting your items ready." },
-        "ready": { "title": "Your order is ready", "message": "Your order is packed and ready for the next step." },
-        "rider_assigned": { "title": "Courier assigned", "message": "A courier has been assigned to your delivery." },
-        "picked_up": { "title": "Order picked up", "message": "Your courier has collected the order from the business." },
-        "out_for_delivery": { "title": "On the way", "message": "Your order is travelling to the delivery address." },
-        "arrived": { "title": "Courier has arrived", "message": "Your courier is at the delivery location." },
-        "delivered": { "title": "Order delivered", "message": "Your order was delivered successfully." },
-        "cancelled": { "title": "This order was cancelled", "message": "The order is closed and no delivery will arrive. You can order again or choose another business." },
-        "rejected": { "title": "Order rejected — it won’t be delivered", "message": "The business did not confirm this order. It is now closed, and no delivery will arrive. You can order again or choose another business." },
-        "failed": { "title": "This order could not be completed", "message": "The order is closed and no delivery will arrive. You can try ordering again or choose another business." },
-        "unknown": { "title": "Status updated", "message": "The latest order status is shown here." }
+        "scheduled": {
+          "title": "Order scheduled",
+          "message": "Your order is confirmed for the selected time."
+        },
+        "pending": {
+          "title": "Waiting for confirmation",
+          "message": "The business has received your order and will confirm it shortly."
+        },
+        "accepted": {
+          "title": "Order confirmed",
+          "message": "The business has accepted your order."
+        },
+        "preparing": {
+          "title": "Preparing your order",
+          "message": "The business is getting your items ready."
+        },
+        "ready": {
+          "title": "Your order is ready",
+          "message": "Your order is packed and ready for the next step."
+        },
+        "rider_assigned": {
+          "title": "Courier assigned",
+          "message": "A courier has been assigned to your delivery."
+        },
+        "picked_up": {
+          "title": "Order picked up",
+          "message": "Your courier has collected the order from the business."
+        },
+        "out_for_delivery": {
+          "title": "On the way",
+          "message": "Your order is travelling to the delivery address."
+        },
+        "arrived": {
+          "title": "Courier has arrived",
+          "message": "Your courier is at the delivery location."
+        },
+        "delivered": {
+          "title": "Order delivered",
+          "message": "Your order was delivered successfully."
+        },
+        "cancelled": {
+          "title": "This order was cancelled",
+          "message": "The order is closed and no delivery will arrive. You can order again or choose another business."
+        },
+        "rejected": {
+          "title": "Order rejected — it won’t be delivered",
+          "message": "The business did not confirm this order. It is now closed, and no delivery will arrive. You can order again or choose another business."
+        },
+        "failed": {
+          "title": "This order could not be completed",
+          "message": "The order is closed and no delivery will arrive. You can try ordering again or choose another business."
+        },
+        "unknown": {
+          "title": "Status updated",
+          "message": "The latest order status is shown here."
+        }
       }
     },
     "cart": {
@@ -1271,7 +1347,9 @@
       "quantityFor": "Quantity for {name}",
       "decreaseQuantity": "Decrease quantity",
       "increaseQuantity": "Increase quantity",
-      "summary": "Order summary",
+      "summary": "Your cart",
+      "orderingFrom": "Your cart from",
+      "itemsShort": "{count, plural, one {# item} other {# items}}",
       "subtotal": "Subtotal",
       "discount": "Discount",
       "cartTotal": "Cart total",
@@ -1287,7 +1365,7 @@
       "clearing": "Clearing…",
       "confirmClear": "Clear cart"
     },
-      "checkout": {
+    "checkout": {
       "loading": "Loading checkout",
       "backToCart": "Back to cart",
       "eyebrow": "Final step",
@@ -1579,15 +1657,42 @@
     "definitions": {
       "heading": "1. Definitions",
       "items": [
-        { "term": "Application or Platform", "description": "the SIPP Delivery mobile application and website and related systems and support." },
-        { "term": "User", "description": "a person who requests Delivery Services through the Application as an end consumer." },
-        { "term": "Restaurant Partner", "description": "an establishment listed on the Application offering products for purchase by Users." },
-        { "term": "Delivery Partner", "description": "a person who, as an independent contractor, provides Delivery Services through the Application." },
-        { "term": "Delivery Services", "description": "the collection, transport and delivery of goods requested by Users through the Application." },
-        { "term": "Restaurant Partner Agreement", "description": "the bilateral agreement executed between a Restaurant Partner and SIPP CR governing the specific commercial terms of that relationship." },
-        { "term": "Delivery Partner Agreement", "description": "the bilateral agreement executed between a Delivery Partner and SIPP CR governing the specific terms of that independent-contractor relationship." },
-        { "term": "Content", "description": "text, images, ratings, comments and other material You post or upload to the Application." },
-        { "term": "Account", "description": "the registration profile You create to access the Application." }
+        {
+          "term": "Application or Platform",
+          "description": "the SIPP Delivery mobile application and website and related systems and support."
+        },
+        {
+          "term": "User",
+          "description": "a person who requests Delivery Services through the Application as an end consumer."
+        },
+        {
+          "term": "Restaurant Partner",
+          "description": "an establishment listed on the Application offering products for purchase by Users."
+        },
+        {
+          "term": "Delivery Partner",
+          "description": "a person who, as an independent contractor, provides Delivery Services through the Application."
+        },
+        {
+          "term": "Delivery Services",
+          "description": "the collection, transport and delivery of goods requested by Users through the Application."
+        },
+        {
+          "term": "Restaurant Partner Agreement",
+          "description": "the bilateral agreement executed between a Restaurant Partner and SIPP CR governing the specific commercial terms of that relationship."
+        },
+        {
+          "term": "Delivery Partner Agreement",
+          "description": "the bilateral agreement executed between a Delivery Partner and SIPP CR governing the specific terms of that independent-contractor relationship."
+        },
+        {
+          "term": "Content",
+          "description": "text, images, ratings, comments and other material You post or upload to the Application."
+        },
+        {
+          "term": "Account",
+          "description": "the registration profile You create to access the Application."
+        }
       ]
     },
     "sections": [
@@ -1938,12 +2043,30 @@
       "titleLine1": "Everything You Need,",
       "titleAccent": "All in One Place.",
       "description": "SIPP makes everyday ordering easier for coastal communities, bringing local restaurants, supermarkets, drinks, and essentials into one clear delivery experience.",
-      "localFavorites": { "title": "Local Favorites", "copy": "Order meals from nearby restaurants and cafes." },
-      "groceriesDrinks": { "title": "Groceries & Drinks", "copy": "Stock up from supermarkets and local shops." },
-      "coastalCoverage": { "title": "Coastal Coverage", "copy": "Starting in Santa Teresa and nearby communities." },
-      "usefulDeals": { "title": "Useful Deals", "copy": "Find offers from participating local businesses." },
-      "everydayEssentials": { "title": "Everyday Essentials", "copy": "Get the basics delivered when your day is full." },
-      "simplePayments": { "title": "Simple Payments", "copy": "Pay securely and keep checkout moving." }
+      "localFavorites": {
+        "title": "Local Favorites",
+        "copy": "Order meals from nearby restaurants and cafes."
+      },
+      "groceriesDrinks": {
+        "title": "Groceries & Drinks",
+        "copy": "Stock up from supermarkets and local shops."
+      },
+      "coastalCoverage": {
+        "title": "Coastal Coverage",
+        "copy": "Starting in Santa Teresa and nearby communities."
+      },
+      "usefulDeals": {
+        "title": "Useful Deals",
+        "copy": "Find offers from participating local businesses."
+      },
+      "everydayEssentials": {
+        "title": "Everyday Essentials",
+        "copy": "Get the basics delivered when your day is full."
+      },
+      "simplePayments": {
+        "title": "Simple Payments",
+        "copy": "Pay securely and keep checkout moving."
+      }
     },
     "value": {
       "dailyDiscounts": "Daily\nDiscounts",
@@ -1965,26 +2088,58 @@
       "deliverTo": "Deliver to",
       "home": "Home",
       "searchPlaceholder": "Search food, groceries, drinks...",
-      "chips": { "food": "Food", "groceries": "Groceries", "drinks": "Drinks", "essentials": "Essentials" },
-      "offer": { "upTo": "UP TO", "offLocal": "OFF LOCAL", "order": "ORDER" },
+      "chips": {
+        "food": "Food",
+        "groceries": "Groceries",
+        "drinks": "Drinks",
+        "essentials": "Essentials"
+      },
+      "offer": {
+        "upTo": "UP TO",
+        "offLocal": "OFF LOCAL",
+        "order": "ORDER"
+      },
       "offersDeals": "Offers & Deals",
       "flatOff": "FLAT 20% OFF",
       "selectedBusinesses": "At selected SIPP businesses",
       "free": "FREE",
       "delivery": "Delivery",
       "orders": "orders",
-      "categories": { "restaurants": "Restaurants", "groceries": "Groceries", "drinks": "Drinks", "essentials": "Essentials" },
+      "categories": {
+        "restaurants": "Restaurants",
+        "groceries": "Groceries",
+        "drinks": "Drinks",
+        "essentials": "Essentials"
+      },
       "trending": "Trending Near You",
       "viewAll": "View all",
-      "tabs": { "home": "Home", "category": "Category", "deals": "Deals", "cart": "Cart", "account": "Account" }
+      "tabs": {
+        "home": "Home",
+        "category": "Category",
+        "deals": "Deals",
+        "cart": "Cart",
+        "account": "Account"
+      }
     },
     "products": {
       "cta": "Get Started",
       "appIconAlt": "{title} app icon",
-      "food": { "title": "SIPP Food", "copy": "Discover local restaurants and order food across town." },
-      "store": { "title": "SIPP Store", "copy": "Bring your restaurant, supermarket, or shop to local customers." },
-      "driver": { "title": "SIPP Driver", "copy": "Deliver orders across SIPP service areas with clear order flow." },
-      "rider": { "title": "SIPP Rider", "copy": "Find food, groceries, drinks, and essentials in one place." }
+      "food": {
+        "title": "SIPP Food",
+        "copy": "Discover local restaurants and order food across town."
+      },
+      "store": {
+        "title": "SIPP Store",
+        "copy": "Bring your restaurant, supermarket, or shop to local customers."
+      },
+      "driver": {
+        "title": "SIPP Driver",
+        "copy": "Deliver orders across SIPP service areas with clear order flow."
+      },
+      "rider": {
+        "title": "SIPP Rider",
+        "copy": "Find food, groceries, drinks, and essentials in one place."
+      }
     }
   },
   "footer": {

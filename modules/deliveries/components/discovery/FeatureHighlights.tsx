@@ -24,19 +24,19 @@ export function FeatureHighlights() {
           className={cn(
             styles.cardEnter,
             styles.heroScene,
-            "group relative isolate flex min-h-112 flex-col justify-end overflow-hidden rounded-3xl p-5 shadow-rail-card ring-1 ring-line transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-pop focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand sm:min-h-72 sm:p-7",
+            "group relative isolate flex flex-col justify-end overflow-hidden rounded-[22px] p-4 shadow-rail-card ring-1 ring-line transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-pop focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand sm:min-h-72 sm:rounded-3xl sm:p-7",
           )}
           href="/orders"
         >
           <DeliveryRouteIllustration />
-          <div className="relative sm:max-w-[46%]">
-            <h3 className="font-heading text-xl font-extrabold tracking-[-0.02em] text-ink sm:text-2xl">
+          <div className="relative pt-48 min-[400px]:pt-56 sm:max-w-[46%] sm:pt-0">
+            <h3 className="font-heading text-lg font-extrabold tracking-[-0.02em] text-ink min-[400px]:text-xl sm:text-2xl">
               {t("trackTitle")}
             </h3>
-            <p className="mt-1.5 text-sm leading-6 text-body">
+            <p className="mt-1 text-[13px] leading-5 text-body sm:mt-1.5 sm:text-sm sm:leading-6">
               {t("trackDescription")}
             </p>
-            <span className={cn(styles.scenePill, "mt-4 inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-bold text-ink shadow-rail-card transition-[gap] duration-300 group-hover:gap-3")}>
+            <span className={cn(styles.scenePill, "mt-3 inline-flex min-h-9 items-center gap-2 rounded-full px-3.5 text-[13px] font-bold sm:mt-4 sm:min-h-10 sm:px-4 sm:text-sm text-ink shadow-rail-card transition-[gap] duration-300 group-hover:gap-3")}>
               {t("trackAction")}
               <ArrowRight aria-hidden="true" className="size-4 text-brand" />
             </span>
@@ -48,20 +48,20 @@ export function FeatureHighlights() {
             <article
               className={cn(
                 styles.cardEnter,
-                "group flex items-center gap-4 rounded-3xl bg-card p-5 shadow-rail-card ring-1 ring-line transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-pop sm:p-6",
+                "group flex items-center gap-3 rounded-[22px] bg-card p-4 shadow-rail-card ring-1 ring-line transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-pop sm:gap-4 sm:rounded-3xl sm:p-6",
                 key === "secure" && "sm:col-span-2",
               )}
               key={key}
               style={{ "--enter-delay": `${(index + 1) * 80}ms` } as React.CSSProperties}
             >
-              <span className={cn(styles.softTile, tile, "grid size-14 shrink-0 place-items-center rounded-2xl ring-1 ring-white/70 dark:ring-white/10")}>
-                <Icon aria-hidden="true" className={cn(styles.iconWiggle, "size-6")} strokeWidth={2} />
+              <span className={cn(styles.softTile, tile, "grid size-12 shrink-0 place-items-center rounded-xl ring-1 sm:size-14 sm:rounded-2xl ring-white/70 dark:ring-white/10")}>
+                <Icon aria-hidden="true" className={cn(styles.iconWiggle, "size-5 sm:size-6")} strokeWidth={2} />
               </span>
               <div className="min-w-0">
-                <h3 className="font-heading text-base font-extrabold tracking-[-0.01em] text-ink">
+                <h3 className="font-heading text-[15px] font-extrabold tracking-[-0.01em] text-ink sm:text-base">
                   {t(`${key}Title`)}
                 </h3>
-                <p className="mt-1 text-[13px] leading-5 text-muted">
+                <p className="mt-0.5 text-xs leading-[1.125rem] text-muted sm:mt-1 sm:text-[13px] sm:leading-5">
                   {t(`${key}Description`)}
                 </p>
               </div>
