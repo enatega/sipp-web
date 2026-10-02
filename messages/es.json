@@ -176,6 +176,7 @@
     "accountSecurityDescription": "Cambiar su contraseña o eliminar su cuenta",
     "totalOrders": "Total de órdenes",
     "thisMonth": "{change} este mes",
+    "thisMonthOrders": "Este mes: {count}",
     "activeSubscriptions": "Beneficios ahorrados",
     "proMember": "SIPP Miembro",
     "walletBalance": "Saldo de bolsillo",

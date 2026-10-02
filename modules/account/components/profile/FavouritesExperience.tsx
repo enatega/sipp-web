@@ -7,7 +7,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Heart, SearchX, Store } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/brand/Icon";
-import { useActionToast } from "@/components/shared/useActionToast";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { favouritesApi, type FavouriteStore } from "@/modules/account/api/favourites";
 
@@ -15,7 +14,6 @@ function StoreCard({ store }: { store: FavouriteStore }) {
   const client = useQueryClient();
   const router = useRouter();
   const [toggling, setToggling] = useState(false);
-  const notify = useActionToast();
   const image = store.coverImage ?? store.logo;
   const openRestaurant = () => router.push(`/restaurants/${store.slug || store.storeId}`);
   return <article role="link" tabIndex={0} onClick={openRestaurant} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openRestaurant(); } }} className="cursor-pointer overflow-hidden rounded-2xl bg-card shadow-card transition-transform hover:-translate-y-0.5">
@@ -47,7 +45,7 @@ export function FavouritesExperience() {
     <div className="min-[700px]:grid min-[700px]:grid-cols-[240px_1fr] min-[1100px]:h-[calc(100svh-4.75rem)] min-[1100px]:overflow-hidden">
       <ProfileSidebar />
       <main className="min-w-0 overflow-y-auto overflow-x-hidden bg-background px-4 py-6 min-[600px]:px-5 min-[900px]:px-10">
-        <div className="mx-auto max-w-[980px]">
+        <div className="mx-auto w-full max-w-[1400px]">
           <h1 className="text-2xl font-bold tracking-[-0.025em] text-ink">{t("title")}</h1>
 
           <section className="mt-5" aria-label={t("title")}>

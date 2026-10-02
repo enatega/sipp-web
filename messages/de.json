@@ -176,6 +176,7 @@
     "accountSecurityDescription": "Passwort ändern oder Konto löschen",
     "totalOrders": "Bestellungen gesamt",
     "thisMonth": "{change} diesen Monat",
+    "thisMonthOrders": "Diesen Monat: {count}",
     "activeSubscriptions": "Gespeicherte Vorteile",
     "proMember": "SIPP-Mitglied",
     "walletBalance": "Wallet-Guthaben",
