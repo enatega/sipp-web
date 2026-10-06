@@ -710,6 +710,20 @@
     "emptyDescription": "Neue Bestell- und Kontoinformationen erscheinen hier."
   },
   "deliveries": {
+    "favouriteFoods": {
+      "browse": "Lieblingsgerichte entdecken",
+      "open": "{name} entdecken",
+      "previous": "Vorherige Lieblingsgerichte",
+      "next": "Weitere Lieblingsgerichte",
+      "loadError": "Lieblingsgerichte sind gerade nicht verfügbar.",
+      "retry": "Erneut versuchen",
+      "productsTitle": "Lieblingsgerichte",
+      "resultCount": "{count, plural, =0 {Keine Produkte} one {# Produkt} other {# Produkte}}",
+      "loading": "Produkte werden geladen…",
+      "resultsError": "Diese Produkte konnten nicht geladen werden.",
+      "empty": "Hier sind noch keine Produkte verfügbar.",
+      "loadMore": "Weitere Produkte anzeigen"
+    },
     "search": {
       "title": "Essen und lokale Geschäfte finden",
       "resultsTitle": "Suchergebnisse für „{query}“",

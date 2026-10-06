@@ -15,6 +15,7 @@ import { useDiscoveryLocation, useShopTypesQuery } from "@/modules/deliveries/ho
 import type { DeliveryOrderAgainProduct, DeliveryShopType, DeliveryStore, DeliveryTopBrand, DiscoveryPriceTier, DiscoveryScrollPage, DiscoverySort, DiscoveryStock } from "@/modules/deliveries/types/discovery";
 import { decodeDisplayText } from "@/modules/deliveries/utils/discoveryMappers";
 import { DeliveryImage } from "./DeliveryImage";
+import { FavouriteFoodsCarousel } from "./FavouriteFoodsCarousel";
 import { DiscoveryFilterDrawer, type DiscoveryFilterValues } from "./DiscoveryFilterDrawer";
 import { OrderAgainProductCard } from "./OrderAgainProductCard";
 import { DiscoveryStoresMap } from "./DiscoveryStoresMap";
@@ -168,6 +169,12 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
               ) : null}
             </div>
           </header>
+
+          {kind === "stores" && shopTypeId ? (
+            <div className="mt-6 sm:mt-8">
+              <FavouriteFoodsCarousel shopTypeId={shopTypeId} />
+            </div>
+          ) : null}
 
           <div className="mt-5 flex items-center gap-3 rounded-2xl bg-card p-3 shadow-sm focus-within:ring-4 focus-within:ring-brand/10">
             <Search aria-hidden="true" className="size-5 flex-none text-muted" />

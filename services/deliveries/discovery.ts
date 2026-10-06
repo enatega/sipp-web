@@ -7,6 +7,7 @@ interface QueryOptions {
   acceptsLocation?: boolean;
   requiresLocation?: boolean;
   acceptsFilters?: boolean;
+  acceptsShopType?: boolean;
   requiresAuth?: boolean;
 }
 
@@ -110,6 +111,12 @@ export function proxyDiscoveryRequest(
     if (sortBy) query.set("sort_by", sortBy);
     if (shopTypeId) query.set("shop_type_id", shopTypeId);
     tiers.forEach((tier) => query.append("price_tiers", tier));
+  }
+
+  if (options.acceptsShopType) {
+    const shopTypeId = incoming.get("shop_type_id");
+    if (shopTypeId && !isUuid(shopTypeId)) return invalidQuery("Invalid shop type filter.");
+    if (shopTypeId) query.set("shop_type_id", shopTypeId);
   }
 
   return callApi(`${upstreamPath}?${query.toString()}`, { request });

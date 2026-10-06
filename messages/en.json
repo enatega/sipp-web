@@ -710,6 +710,20 @@
     "emptyDescription": "New order and account updates will appear here."
   },
   "deliveries": {
+    "favouriteFoods": {
+      "browse": "Browse favourite foods",
+      "open": "Explore {name}",
+      "previous": "Previous favourite foods",
+      "next": "Next favourite foods",
+      "loadError": "Favourite foods are unavailable right now.",
+      "retry": "Try again",
+      "productsTitle": "Favourite foods",
+      "resultCount": "{count, plural, =0 {No products} one {# product} other {# products}}",
+      "loading": "Loading products…",
+      "resultsError": "We could not load these products.",
+      "empty": "No products are available here yet.",
+      "loadMore": "Show more products"
+    },
     "search": {
       "title": "Find food and local stores",
       "resultsTitle": "Search results for “{query}”",
