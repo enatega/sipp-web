@@ -710,6 +710,20 @@
     "emptyDescription": "Aquí aparecerán nuevas actualizaciones de orden y cuenta."
   },
   "deliveries": {
+    "favouriteFoods": {
+      "browse": "Explorar comidas favoritas",
+      "open": "Explorar {name}",
+      "previous": "Comidas favoritas anteriores",
+      "next": "Más comidas favoritas",
+      "loadError": "Las comidas favoritas no están disponibles ahora.",
+      "retry": "Intentar de nuevo",
+      "productsTitle": "Comidas favoritas",
+      "resultCount": "{count, plural, =0 {No hay productos} one {# producto} other {# productos}}",
+      "loading": "Cargando productos…",
+      "resultsError": "No pudimos cargar estos productos.",
+      "empty": "Todavía no hay productos disponibles aquí.",
+      "loadMore": "Ver más productos"
+    },
     "search": {
       "title": "Encontrar comida y tiendas locales",
       "resultsTitle": "Resultados de búsqueda para «{query}»",

@@ -11,6 +11,9 @@ export const deliveryQueryKeys = {
   discovery: () => [...deliveryQueryKeys.all, "discovery"] as const,
   homeLayout: () => [...deliveryQueryKeys.discovery(), "home-layout"] as const,
   shopTypes: () => [...deliveryQueryKeys.discovery(), "shop-types"] as const,
+  favouriteFoods: () => [...deliveryQueryKeys.discovery(), "favourite-foods"] as const,
+  favouriteFoodProducts: (foodId: string, location: DiscoveryLocation | null, shopTypeId: string | null) =>
+    [...deliveryQueryKeys.favouriteFoods(), foodId, "products", location, shopTypeId] as const,
   banners: () => [...deliveryQueryKeys.discovery(), "banners"] as const,
   topBrands: (location: DiscoveryLocation | null) =>
     [...deliveryQueryKeys.discovery(), "top-brands", location] as const,

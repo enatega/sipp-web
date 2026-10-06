@@ -12,6 +12,14 @@ export interface DeliveryShopType {
   icon?: string | null;
 }
 
+export interface DeliveryFavouriteFood {
+  id: string;
+  name: string;
+  nameTranslations: Record<string, string>;
+  imageUrl: string | null;
+  shopTypeIds: string[];
+}
+
 export interface DeliveryTopBrand {
   storeId?: string;
   slug?: string;

@@ -50,6 +50,7 @@ export const apiRoutes = {
     nearbyStores: "/api/deliveries/discovery/nearby-stores",
     deals: "/api/deliveries/discovery/deals",
     orderAgain: "/api/deliveries/discovery/order-again",
+    favouriteFoods: "/api/deliveries/discovery/favourite-foods",
   },
   deliverySearch: {
     results: "/api/deliveries/search/results",

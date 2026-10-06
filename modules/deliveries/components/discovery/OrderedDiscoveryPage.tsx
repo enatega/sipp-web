@@ -5,6 +5,7 @@ import { Header } from "@/components/shared/app-shell/Header";
 import { Footer } from "@/components/shared/app-shell/Footer";
 import { useSessionQuery } from "@/modules/account";
 import { FeatureHighlights } from "./FeatureHighlights";
+import { FavouriteFoodsCarousel } from "./FavouriteFoodsCarousel";
 import { OffersCarousel } from "./OffersCarousel";
 import { OrderAgainSection } from "./OrderAgainSection";
 import { QuickActionsNav } from "./QuickActionsNav";
@@ -21,7 +22,7 @@ import {
 } from "@/modules/deliveries/hooks/useDiscoveryQueries";
 import { decodeDisplayText } from "@/modules/deliveries/utils/discoveryMappers";
 
-/** Banners lead the page, followed by shop types; other sections keep their configured order. */
+/** Banners and shop types lead the configured section order. */
 const PINNED_SECTION_KINDS = ["banners", "shop-types"];
 
 function pinLeadSections<T extends { kind: string }>(sections: T[]) {
@@ -82,7 +83,10 @@ export function DiscoveryPage() {
                 : null;
           }
           if (section.kind === "shop-types") {
-            return <ShopTypesSection key={section.key} errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={shopTypes.isError} isLoading={shopTypes.isPending} items={shopTypes.data ?? []} onRetry={() => void shopTypes.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/shop-types" seeAllLabel={t("seeAll")} description={t("shopTypesDescription")} title={t("shopTypesTitle")} />;
+            return <div className="space-y-6 sm:space-y-8" key={section.key}>
+              <ShopTypesSection errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={shopTypes.isError} isLoading={shopTypes.isPending} items={shopTypes.data ?? []} onRetry={() => void shopTypes.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/shop-types" seeAllLabel={t("seeAll")} description={t("shopTypesDescription")} title={t("shopTypesTitle")} />
+              <FavouriteFoodsCarousel />
+            </div>;
           }
           if (section.kind === "quick-actions") {
             return <QuickActionsNav key={section.key} />;
