@@ -70,10 +70,12 @@ export function LocationModal({
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [chosen, setChosen] = useState<ChosenPlace | null>(null);
-  const [busy, setBusy] = useState<"locate" | "resolve" | null>(null);
+  const [busy, setBusy] = useState<"locate" | "address" | "resolve" | null>(null);
   const [error, setError] = useState("");
   const [addressToEdit, setAddressToEdit] = useState<SavedAddress | null>(null);
   const mapSelectionRef = useRef(0);
+  const locationRequestRef = useRef(0);
+  const isLocatingRef = useRef(false);
   const addressesQuery = useAddressesQuery(open && canSaveAddress);
   const searchQuery = usePlaceSearchQuery(debouncedQuery, open);
   const selectAddress = useSelectAddressMutation();
@@ -85,6 +87,8 @@ export function LocationModal({
 
   const backToSearch = () => {
     mapSelectionRef.current += 1;
+    locationRequestRef.current += 1;
+    isLocatingRef.current = false;
     setStep({ name: "search" });
     setChosen(null);
     setAddressToEdit(null);
@@ -133,16 +137,29 @@ export function LocationModal({
   }, [query]);
 
   const showPlace = (place: ChosenPlace) => {
+    setError("");
     setChosen(place);
     setQuery("");
     setStep({ name: "confirm" });
   };
 
   const locateUser = async () => {
+    if (isLocatingRef.current) return;
+    isLocatingRef.current = true;
+    const request = ++locationRequestRef.current;
+    const isCurrentRequest = () => request === locationRequestRef.current;
+    const finishRequest = () => {
+      if (!isCurrentRequest()) return;
+      isLocatingRef.current = false;
+      setBusy(null);
+    };
+
     setError("");
+    setBusy("locate");
 
     if (!("geolocation" in navigator)) {
       setError(t("geolocationUnsupported"));
+      finishRequest();
       return;
     }
 
@@ -153,8 +170,10 @@ export function LocationModal({
         const status = await navigator.permissions.query({
           name: "geolocation" as PermissionName,
         });
+        if (!isCurrentRequest()) return;
         if (status.state === "denied") {
           setError(t("permissionBlocked"));
+          finishRequest();
           return;
         }
       } catch {
@@ -162,27 +181,32 @@ export function LocationModal({
       }
     }
 
-    setBusy("locate");
+    if (!isCurrentRequest()) return;
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
+        if (!isCurrentRequest()) return;
+        setBusy("address");
         try {
           const { address } = await reverseGeocode.mutateAsync({
             lat: coords.latitude,
             lng: coords.longitude,
           });
+          if (!isCurrentRequest()) return;
           showPlace({
             address,
             latitude: coords.latitude,
             longitude: coords.longitude,
           });
         } catch (caught) {
-          setError(caught instanceof Error ? caught.message : t("reverseError"));
+          if (isCurrentRequest()) {
+            setError(caught instanceof Error ? caught.message : t("reverseError"));
+          }
         } finally {
-          setBusy(null);
+          finishRequest();
         }
       },
       (positionError) => {
-        setBusy(null);
+        if (!isCurrentRequest()) return;
         setError(
           positionError.code === positionError.PERMISSION_DENIED
             ? t("permissionDeclined")
@@ -190,8 +214,9 @@ export function LocationModal({
               ? t("geolocationTimeout")
               : t("geolocationError"),
         );
+        finishRequest();
       },
-      { enableHighAccuracy: true, timeout: 12_000, maximumAge: 60_000 },
+      { enableHighAccuracy: false, timeout: 20_000, maximumAge: 60_000 },
     );
   };
 
@@ -311,7 +336,8 @@ export function LocationModal({
       case "current":
         return (
           <CurrentLocationStep
-            isLocating={busy === "locate"}
+            isLocating={busy === "locate" || busy === "address"}
+            isResolvingAddress={busy === "address"}
             error={error}
             onAllow={() => void locateUser()}
             onSearchManually={backToSearch}

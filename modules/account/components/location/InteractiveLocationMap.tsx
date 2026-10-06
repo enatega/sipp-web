@@ -73,8 +73,8 @@ export function InteractiveLocationMap({
   );
 
   useEffect(() => {
-    // A read-only preview always has a point; never ask for the visitor's.
-    if (isReadOnly || !navigator.geolocation) return;
+    // A selected delivery point already determines the map center and pin.
+    if (isReadOnly || selectedPoint || !navigator.geolocation) return;
     let isCancelled = false;
 
     navigator.geolocation.getCurrentPosition(
@@ -93,7 +93,7 @@ export function InteractiveLocationMap({
     return () => {
       isCancelled = true;
     };
-  }, [isReadOnly]);
+  }, [isReadOnly, selectedPoint]);
 
   useEffect(() => {
     if (!isLoaded) return;

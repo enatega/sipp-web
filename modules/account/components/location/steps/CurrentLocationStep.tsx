@@ -1,6 +1,6 @@
 "use client";
 
-import { LocateFixed } from "lucide-react";
+import { LoaderCircle, LocateFixed } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { LocationAlert } from "@/modules/account/components/location/steps/LocationAlert";
 import { LocationStepHeader } from "@/modules/account/components/location/steps/LocationStepHeader";
@@ -12,6 +12,7 @@ import {
 
 interface Props {
   isLocating: boolean;
+  isResolvingAddress: boolean;
   error: string;
   onAllow: () => void;
   onSearchManually: () => void;
@@ -21,6 +22,7 @@ interface Props {
 
 export function CurrentLocationStep({
   isLocating,
+  isResolvingAddress,
   error,
   onAllow,
   onSearchManually,
@@ -54,7 +56,16 @@ export function CurrentLocationStep({
           disabled={isLocating}
           className={`${PRIMARY_BUTTON} mt-6`}
         >
-          {isLocating ? t("findingYou") : t("allowLocation")}
+          {isLocating ? (
+            <LoaderCircle aria-hidden="true" className="me-2 size-4 animate-spin" />
+          ) : null}
+          <span aria-live="polite">
+            {isResolvingAddress
+              ? t("findingAddress")
+              : isLocating
+                ? t("findingYou")
+                : t("allowLocation")}
+          </span>
         </button>
         <button type="button" onClick={onSearchManually} className={`${SECONDARY_BUTTON} mt-2.5`}>
           {t("searchManually")}
