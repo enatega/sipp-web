@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/brand/Icon";
@@ -29,6 +29,9 @@ export function HeroLocationSearch({
   const router = useRouter();
   const listboxId = `hero-location-${useId().replaceAll(":", "")}`;
   const rootRef = useRef<HTMLDivElement>(null);
+  const locationRequestRef = useRef(0);
+  const locationWatchRef = useRef<number | null>(null);
+  const locationFailureTimerRef = useRef<number | null>(null);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
@@ -37,6 +40,17 @@ export function HeroLocationSearch({
   const searchQuery = usePlaceSearchQuery(debouncedQuery, suggestionsOpen);
   const placeDetails = usePlaceDetailsMutation();
   const reverseGeocode = useReverseGeocodeMutation();
+
+  const stopWatchingLocation = useCallback(() => {
+    if (locationWatchRef.current !== null) {
+      navigator.geolocation.clearWatch(locationWatchRef.current);
+      locationWatchRef.current = null;
+    }
+    if (locationFailureTimerRef.current !== null) {
+      window.clearTimeout(locationFailureTimerRef.current);
+      locationFailureTimerRef.current = null;
+    }
+  }, []);
 
   useEffect(() => {
     const term = query.trim();
@@ -56,6 +70,21 @@ export function HeroLocationSearch({
     document.addEventListener("pointerdown", closeSuggestions);
     return () => document.removeEventListener("pointerdown", closeSuggestions);
   }, []);
+
+  useEffect(() => {
+    const syncLocation = () => {
+      locationRequestRef.current += 1;
+      stopWatchingLocation();
+      setBusy((current) => current === "location" ? null : current);
+      setError("");
+    };
+    window.addEventListener("shaaneiol-location-change", syncLocation);
+    return () => {
+      locationRequestRef.current += 1;
+      stopWatchingLocation();
+      window.removeEventListener("shaaneiol-location-change", syncLocation);
+    };
+  }, [stopWatchingLocation]);
 
   const acceptLocation = (selectedPlace: ChosenPlace) => {
     storePlace(selectedPlace);
@@ -94,6 +123,7 @@ export function HeroLocationSearch({
   };
 
   const useCurrentLocation = () => {
+    stopWatchingLocation();
     setError("");
     if (!("geolocation" in navigator)) {
       setError(locationT("geolocationUnsupported"));
@@ -101,19 +131,34 @@ export function HeroLocationSearch({
     }
 
     setBusy("location");
-    navigator.geolocation.getCurrentPosition(
+    const request = ++locationRequestRef.current;
+    let isResolvingAddress = false;
+    let lastPositionError: GeolocationPositionError | null = null;
+    const failLocation = (message: string) => {
+      if (request !== locationRequestRef.current) return;
+      stopWatchingLocation();
+      setBusy(null);
+      setError(message);
+    };
+
+    const watchId = navigator.geolocation.watchPosition(
       async ({ coords }) => {
+        if (request !== locationRequestRef.current || isResolvingAddress) return;
+        isResolvingAddress = true;
+        stopWatchingLocation();
         try {
           const { address } = await reverseGeocode.mutateAsync({
             lat: coords.latitude,
             lng: coords.longitude,
           });
+          if (request !== locationRequestRef.current) return;
           acceptLocation({
             address,
             latitude: coords.latitude,
             longitude: coords.longitude,
           });
         } catch (caught) {
+          if (request !== locationRequestRef.current) return;
           setError(
             caught instanceof Error ? caught.message : locationT("reverseError"),
           );
@@ -121,17 +166,32 @@ export function HeroLocationSearch({
         }
       },
       (positionError) => {
-        setBusy(null);
-        setError(
-          positionError.code === positionError.PERMISSION_DENIED
-            ? locationT("permissionDeclined")
-            : positionError.code === positionError.TIMEOUT
-              ? locationT("geolocationTimeout")
-              : locationT("geolocationError"),
-        );
+        if (request !== locationRequestRef.current || isResolvingAddress) return;
+        if (positionError.code === positionError.PERMISSION_DENIED) {
+          failLocation(locationT("permissionDeclined"));
+          return;
+        }
+
+        // A location watch can recover after a temporary provider error.
+        lastPositionError = positionError;
+        if (locationFailureTimerRef.current === null) {
+          locationFailureTimerRef.current = window.setTimeout(() => {
+            if (request !== locationRequestRef.current || isResolvingAddress) return;
+            failLocation(
+              lastPositionError?.code === lastPositionError?.TIMEOUT
+                ? locationT("geolocationTimeout")
+                : locationT("geolocationError"),
+            );
+          }, 30_000);
+        }
       },
-      { enableHighAccuracy: true, timeout: 12_000, maximumAge: 60_000 },
+      { enableHighAccuracy: false, timeout: 20_000, maximumAge: 60_000 },
     );
+    if (request === locationRequestRef.current) {
+      locationWatchRef.current = watchId;
+    } else {
+      navigator.geolocation.clearWatch(watchId);
+    }
   };
 
   const visiblePredictions =
@@ -187,9 +247,13 @@ export function HeroLocationSearch({
             onClick={useCurrentLocation}
             disabled={busy !== null}
             className="inline-flex h-8 flex-none items-center justify-center gap-1.5 border-l border-brand/20 bg-transparent px-2.5 text-xs font-semibold text-brand transition-colors duration-200 hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand disabled:cursor-wait disabled:opacity-55 sm:px-3.5"
-            aria-label={t("currentLocation")}
+            aria-label={busy === "location" ? locationT("findingYou") : t("currentLocation")}
           >
-            <Icon name="locate" className="size-4" />
+            {busy === "location" ? (
+              <span aria-hidden="true" className="size-4 animate-spin rounded-full border-2 border-brand/25 border-t-brand" />
+            ) : (
+              <Icon name="locate" className="size-4" />
+            )}
             <span className="hidden sm:inline">
               {busy === "location" ? locationT("findingYou") : t("currentLocation")}
             </span>
