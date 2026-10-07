@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import type { AbstractIntlMessages } from "next-intl";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -20,11 +21,20 @@ export function AppProviders({
   messages: AbstractIntlMessages;
   timeZone: string;
 }) {
+  const [localTimeZone, setLocalTimeZone] = useState(timeZone);
+
+  useEffect(() => {
+    const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (browserTimeZone) {
+      setLocalTimeZone(browserTimeZone);
+    }
+  }, []);
+
   return (
     <NextIntlClientProvider
       locale={locale}
       messages={messages}
-      timeZone={timeZone}
+      timeZone={localTimeZone}
     >
       <QueryProvider>
         <ThemeProvider><ImpersonationBanner />{children}<SessionExpiredModal /><AuthRequiredModal /><AppToaster /></ThemeProvider>
