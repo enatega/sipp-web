@@ -551,6 +551,7 @@
     "transactionCredit": "Crédito de Wallet",
     "transactionRefund": "Reembolso del pedido",
     "transactionBalanceAdjustment": "Ajuste del equilibrio",
+    "adjustmentNote": "Nota de SIPP: {note}",
     "transactionLoyaltyCredit": "Recompensa de lealtad",
     "transactionMigratedOpeningBalance": "Saldo de apertura migratorio",
     "transactionWithdrawal": "Retirada",

@@ -551,6 +551,7 @@
     "transactionCredit": "Crédit de portefeuille",
     "transactionRefund": "Remboursement de commande",
     "transactionBalanceAdjustment": "Ajustement du solde",
+    "adjustmentNote": "Note de SIPP : {note}",
     "transactionLoyaltyCredit": "Récompense de fidélité",
     "transactionMigratedOpeningBalance": "Solde d'ouverture modifié",
     "transactionWithdrawal": "Retrait du portefeuille",

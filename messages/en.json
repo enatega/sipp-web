@@ -551,6 +551,7 @@
     "transactionCredit": "Wallet credit",
     "transactionRefund": "Order refund",
     "transactionBalanceAdjustment": "Balance adjustment",
+    "adjustmentNote": "Note from SIPP: {note}",
     "transactionLoyaltyCredit": "Loyalty reward",
     "transactionMigratedOpeningBalance": "Migrated opening balance",
     "transactionWithdrawal": "Wallet withdrawal",

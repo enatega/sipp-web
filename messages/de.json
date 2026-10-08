@@ -551,6 +551,7 @@
     "transactionCredit": "Wallet-Gutschrift",
     "transactionRefund": "Bestellerstattung",
     "transactionBalanceAdjustment": "Guthabenanpassung",
+    "adjustmentNote": "Hinweis von SIPP: {note}",
     "transactionLoyaltyCredit": "Treuebonus",
     "transactionMigratedOpeningBalance": "Migriertes Anfangsguthaben",
     "transactionWithdrawal": "Wallet-Auszahlung",

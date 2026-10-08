@@ -551,6 +551,7 @@
     "transactionCredit": "الائتمان الجداري",
     "transactionRefund": "رد الأمر",
     "transactionBalanceAdjustment": "تسوية الرصيد",
+    "adjustmentNote": "ملاحظة من SIPP: {note}",
     "transactionLoyaltyCredit": "جائزة الولاء",
     "transactionMigratedOpeningBalance": "الرصيد الافتتاحي المخفض",
     "transactionWithdrawal": "سحب الجدار",
