@@ -48,7 +48,7 @@ export function RestaurantPage({ slug }: Props) {
   );
 
   useEffect(() => {
-    if (!isLegacyId || !restaurant.data?.slug) return;
+    if (!isLegacyId || !restaurant.data?.slug || searchParams.get("productId")) return;
     const query = searchParams.toString();
     router.replace(
       `/restaurants/${encodeURIComponent(restaurant.data.slug)}${query ? `?${query}` : ""}`,
@@ -80,9 +80,9 @@ export function RestaurantPage({ slug }: Props) {
     const uncategorized = products.some((product) => !knownIds.has(product.categoryId));
     return uncategorized
       ? [
-          ...storeCategories,
-          { id: "uncategorized", name: t("otherCategory"), imageUrl: null, subcategoryIds: [] },
-        ]
+        ...storeCategories,
+        { id: "uncategorized", name: t("otherCategory"), imageUrl: null, subcategoryIds: [] },
+      ]
       : storeCategories;
   }, [products, restaurant.data?.categories, t]);
   const categoryIds = useMemo(() => categories.map((category) => category.id), [categories]);
@@ -148,9 +148,8 @@ export function RestaurantPage({ slug }: Props) {
 
   const store = restaurant.data;
   const toggleFavourite = () => {
-    const wasFavourite = store.isFavorited;
     favourite.mutate(undefined, {
-      onSuccess: () => notify.success(wasFavourite ? "removedFromFavourites" : "addedToFavourites"),
+      onSuccess: (result) => notify.success(result.isFavorite ? "addedToFavourites" : "removedFromFavourites"),
       onError: (caught) => notify.error(caught, "favouriteUpdateFailed"),
     });
   };

@@ -14,6 +14,7 @@ export function useCartQuery(enabled = true) {
     queryFn: ({ signal }) => cartApi.details(signal),
     enabled,
     staleTime: CART_STALE_TIME,
+    refetchOnWindowFocus: true,
   });
 }
 

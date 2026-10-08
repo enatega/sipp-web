@@ -42,6 +42,24 @@ function number(value: unknown, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function parseStoreTimings(value: unknown): RestaurantStore["storeTimings"] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const result: NonNullable<RestaurantStore["storeTimings"]> = {};
+  for (const [day, rawDay] of Object.entries(value)) {
+    const entry = record(rawDay);
+    result[day.toLowerCase()] = {
+      is_active: entry.is_active === true,
+      slots: Array.isArray(entry.slots) ? entry.slots.flatMap((rawSlot) => {
+        const slot = record(rawSlot);
+        const open = optionalText(slot.open);
+        const close = optionalText(slot.close);
+        return open && close ? [{ open, close }] : [];
+      }) : [],
+    };
+  }
+  return result;
+}
+
 function deal(value: unknown, price: number): ProductDeal | null {
   const source = record(value);
   const discountedPrice = number(source.discounted_price, Number.NaN);
@@ -74,9 +92,9 @@ function parseOpeningHours(value: unknown): StoreOpeningHours | null {
     const entry = record(raw);
     const slots = Array.isArray(entry.slots)
       ? entry.slots
-          .map((slot) => record(slot))
-          .filter((slot) => typeof slot.open === "string" && typeof slot.close === "string" && TIME_PATTERN.test(slot.open) && TIME_PATTERN.test(slot.close))
-          .map((slot) => ({ open: String(slot.open), close: String(slot.close) }))
+        .map((slot) => record(slot))
+        .filter((slot) => typeof slot.open === "string" && typeof slot.close === "string" && TIME_PATTERN.test(slot.open) && TIME_PATTERN.test(slot.close))
+        .map((slot) => ({ open: String(slot.open), close: String(slot.close) }))
       : [];
     hours[day.toLowerCase()] = { isOpen: entry.is_active === true && slots.length > 0, slots };
   }
@@ -87,30 +105,30 @@ export function parseRestaurantStore(value: unknown): RestaurantStore {
   const source = record(value);
   const categories = Array.isArray(source.categories)
     ? source.categories.map((item): RestaurantCategory => {
-        const category = record(item);
-        return {
-          id: text(category.id),
-          name: text(category.name),
-          imageUrl: optionalText(category.imageUrl),
-          subcategoryIds: Array.isArray(category.subcategoryIds)
-            ? category.subcategoryIds.filter(
-                (id): id is string => typeof id === "string",
-              )
-            : [],
-        };
-      })
+      const category = record(item);
+      return {
+        id: text(category.id),
+        name: text(category.name),
+        imageUrl: optionalText(category.imageUrl),
+        subcategoryIds: Array.isArray(category.subcategoryIds)
+          ? category.subcategoryIds.filter(
+            (id): id is string => typeof id === "string",
+          )
+          : [],
+      };
+    })
     : [];
   const subcategories = Array.isArray(source.subcategories)
     ? source.subcategories
-        .map((item): RestaurantSubcategory => {
-          const subcategory = record(item);
-          return {
-            id: text(subcategory.id),
-            name: text(subcategory.name),
-            imageUrl: optionalText(subcategory.imageUrl),
-          };
-        })
-        .filter((subcategory) => subcategory.id)
+      .map((item): RestaurantSubcategory => {
+        const subcategory = record(item);
+        return {
+          id: text(subcategory.id),
+          name: text(subcategory.name),
+          imageUrl: optionalText(subcategory.imageUrl),
+        };
+      })
+      .filter((subcategory) => subcategory.id)
     : [];
 
   return {
@@ -136,6 +154,9 @@ export function parseRestaurantStore(value: unknown): RestaurantStore {
     description: optionalText(source.description),
     isAvailable: source.isAvailable !== false && source.isClosed !== true,
     openingHours: parseOpeningHours(source.storeTimings),
+    isAdministrativelyAvailable: source.isAvailable !== false,
+    timezone: optionalText(source.timezone),
+    storeTimings: parseStoreTimings(source.storeTimings),
     isFavorited: source.isFavorited === true,
     categories,
     subcategories,
@@ -206,34 +227,34 @@ export function parseProductInfo(value: unknown): ProductInfo {
 function parseSections(value: unknown): ProductCustomizationSection[] {
   return Array.isArray(value)
     ? value.map((item) => {
-        const source = record(item);
-        const selectionType = source.selectionType === "single" ? "single" : "multiple";
-        return {
-          groupId: text(source.groupId),
-          name: text(source.name),
-          description: optionalText(source.description),
-          type: text(source.type),
-          minSelect: number(source.minSelect),
-          maxSelect:
-            source.maxSelect === null || source.maxSelect === undefined
-              ? null
-              : number(source.maxSelect),
-          required: source.required === true || number(source.minSelect) > 0,
-          selectionType,
-          helperText: optionalText(source.helperText),
-          options: Array.isArray(source.options)
-            ? source.options.map((optionValue) => {
-                const option = record(optionValue);
-                return {
-                  optionId: text(option.optionId),
-                  title: text(option.title),
-                  description: optionalText(option.description),
-                  price: number(option.price),
-                };
-              })
-            : [],
-        };
-      })
+      const source = record(item);
+      const selectionType = source.selectionType === "single" ? "single" : "multiple";
+      return {
+        groupId: text(source.groupId),
+        name: text(source.name),
+        description: optionalText(source.description),
+        type: text(source.type),
+        minSelect: number(source.minSelect),
+        maxSelect:
+          source.maxSelect === null || source.maxSelect === undefined
+            ? null
+            : number(source.maxSelect),
+        required: source.required === true || number(source.minSelect) > 0,
+        selectionType,
+        helperText: optionalText(source.helperText),
+        options: Array.isArray(source.options)
+          ? source.options.map((optionValue) => {
+            const option = record(optionValue);
+            return {
+              optionId: text(option.optionId),
+              title: text(option.title),
+              description: optionalText(option.description),
+              price: number(option.price),
+            };
+          })
+          : [],
+      };
+    })
     : [];
 }
 

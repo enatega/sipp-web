@@ -2,254 +2,98 @@
 
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { io } from "socket.io-client";
+import { useCustomerOrderSocket } from "../components/order-tracking/CustomerOrderLiveConnection";
 import { deliveryQueryKeys } from "../queries/queryKeys";
 import type { OrderDetail, OrderEta } from "../types/orders";
 
-interface SocketSession {
-  token: string;
-  userId: string;
-  url: string;
-  path: string;
-}
-
 interface OrderStatusUpdatedPayload {
-  orderId?: string;
-  status?: string;
-  riderId?: string | null;
-  riderUserId?: string | null;
-  updatedAt?: string;
-  eta?: OrderEta | null;
+  orderId?: string; status?: string; riderId?: string | null;
+  riderUserId?: string | null; updatedAt?: string; eta?: OrderEta | null;
 }
-
-interface RiderStatusUpdatedPayload {
-  orderId?: string;
-}
-
 interface RiderLocationPayload {
-  orderId?: string;
-  riderUserId?: string;
-  customerUserId?: string;
-  latitude?: number;
-  longitude?: number;
-  eta?: OrderEta | null;
+  orderId?: string; riderUserId?: string; customerUserId?: string;
+  latitude?: number; longitude?: number; eta?: OrderEta | null;
 }
 
-function isSocketSession(value: unknown): value is SocketSession {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  const session = value as Partial<SocketSession>;
-  return (
-    typeof session.token === "string" &&
-    typeof session.userId === "string" &&
-    typeof session.url === "string" &&
-    typeof session.path === "string"
-  );
-}
-
-function hasLocation(
-  payload: RiderLocationPayload,
-): payload is RiderLocationPayload & { latitude: number; longitude: number } {
-  return (
-    typeof payload.latitude === "number" &&
-    Number.isFinite(payload.latitude) &&
-    typeof payload.longitude === "number" &&
-    Number.isFinite(payload.longitude)
-  );
-}
-
-export function useOrderTrackingSync(
-  orderId: string,
-  riderUserId?: string | null,
-  enabled = true,
-) {
+export function useOrderTrackingSync(orderId: string, riderUserId?: string | null, enabled = true) {
   const queryClient = useQueryClient();
+  const connection = useCustomerOrderSocket();
   const riderUserIdRef = useRef(riderUserId ?? null);
+  useEffect(() => { riderUserIdRef.current = riderUserId ?? null; }, [riderUserId]);
 
   useEffect(() => {
-    riderUserIdRef.current = riderUserId ?? null;
-  }, [riderUserId]);
-
-  useEffect(() => {
-    if (!orderId || !enabled) return;
-
-    const controller = new AbortController();
-    let socket: ReturnType<typeof io> | undefined;
-    let removeVisibilityListener: (() => void) | undefined;
-    let removeOnlineListener: (() => void) | undefined;
-
-    void fetch("/api/deliveries/socket-session", {
-      cache: "no-store",
-      credentials: "same-origin",
-      signal: controller.signal,
-    })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Unable to start delivery updates");
-        const session: unknown = await response.json();
-        if (!isSocketSession(session)) {
-          throw new Error("Invalid delivery socket session");
-        }
-        return session;
-      })
-      .then((session) => {
-        if (controller.signal.aborted) return;
-
-        socket = io(session.url, {
-          auth: { token: session.token },
-          autoConnect: false,
-          path: session.path,
-          transports: ["websocket"],
-        });
-
-        socket.on("connect", () => {
-          socket?.emit("add-user", session.userId);
-          void queryClient.invalidateQueries({
-            queryKey: deliveryQueryKeys.order(orderId),
-          });
-        });
-
-        socket.on(
-          "order-status-updated",
-          (payload: OrderStatusUpdatedPayload) => {
-            if (payload?.orderId !== orderId) return;
-
-            queryClient.setQueryData<OrderDetail>(
-              deliveryQueryKeys.order(orderId),
-              (current) => {
-                if (!current) return current;
-
-                const nextRider = payload.riderId
-                  ? {
-                      ...(current.rider ?? {}),
-                      id: payload.riderId,
-                      userId:
-                        payload.riderUserId ?? current.rider?.userId ?? null,
-                    }
-                  : current.rider;
-                const nextStatus = payload.status ?? current.status;
-                const hasChangedStatus = nextStatus !== current.status;
-
-                return {
-                  ...current,
-                  eta: payload.eta ?? current.eta,
-                  status: nextStatus,
-                  rider: nextRider,
-                  orderLogs: hasChangedStatus
-                    ? [
-                        {
-                          status: nextStatus,
-                          actor: null,
-                          timestamp:
-                            payload.updatedAt ?? new Date().toISOString(),
-                          message: null,
-                        },
-                        ...(current.orderLogs ?? []),
-                      ]
-                    : current.orderLogs,
-                };
-              },
-            );
-
-            void queryClient.invalidateQueries({
-              queryKey: deliveryQueryKeys.order(orderId),
-            });
-            void queryClient.invalidateQueries({
-              queryKey: deliveryQueryKeys.orders(),
-            });
-          },
-        );
-
-        socket.on(
-          "rider-status-updated",
-          (payload: RiderStatusUpdatedPayload) => {
-            if (payload?.orderId !== orderId) return;
-            void queryClient.invalidateQueries({
-              queryKey: deliveryQueryKeys.order(orderId),
-            });
-          },
-        );
-
-        socket.on("get-rider-location", (payload: RiderLocationPayload) => {
-          if (!payload || !hasLocation(payload)) return;
-          if (payload.orderId && payload.orderId !== orderId) return;
-          if (
-            payload.customerUserId &&
-            payload.customerUserId !== session.userId
-          ) {
-            return;
-          }
-          if (
-            riderUserIdRef.current &&
-            payload.riderUserId &&
-            payload.riderUserId !== riderUserIdRef.current
-          ) {
-            return;
-          }
-
-          queryClient.setQueryData<OrderDetail>(
-            deliveryQueryKeys.order(orderId),
-            (current) => {
-              if (!current) return current;
-
-              return {
-                ...current,
-                eta:
-                  payload.eta === undefined ? current.eta : payload.eta,
-                rider: {
-                  ...(current.rider ?? {}),
-                  userId:
-                    payload.riderUserId ?? current.rider?.userId ?? null,
-                  currentLocation: {
-                    latitude: payload.latitude,
-                    longitude: payload.longitude,
-                  },
-                },
-              };
-            },
-          );
-        });
-
-        socket.on("receive-message", (payload: { orderId?: string; kind?: string }) => {
-          if (payload?.orderId !== orderId || payload.kind !== "customer_rider") return;
-          void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orderChat(orderId) });
-          void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orderChatUnread() });
-        });
-
-        socket.on("order-chat-read", (payload: { orderId?: string; kind?: string }) => {
-          if (payload?.orderId === orderId && payload.kind === "customer_rider") {
-            void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orderChatUnread() });
-          }
-        });
-
-        const handleVisibility = () => {
-          if (!socket) return;
-          if (document.visibilityState === "hidden") {
-            socket.disconnect();
-          } else if (!socket.connected) {
-            socket.connect();
-          }
-        };
-        const handleOnline = () => {
-          if (socket && !socket.connected) socket.connect();
-        };
-
-        document.addEventListener("visibilitychange", handleVisibility);
-        window.addEventListener("online", handleOnline);
-        removeVisibilityListener = () =>
-          document.removeEventListener("visibilitychange", handleVisibility);
-        removeOnlineListener = () =>
-          window.removeEventListener("online", handleOnline);
-
-        if (document.visibilityState !== "hidden") socket.connect();
-      })
-      .catch(() => {
-        // The order query remains a bounded polling fallback if live updates fail.
-      });
-
-    return () => {
-      controller.abort();
-      removeVisibilityListener?.();
-      removeOnlineListener?.();
-      socket?.disconnect();
+    if (!connection || !orderId || !enabled) return;
+    const { socket, userId } = connection;
+    const onConnect = () => {
+      void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.order(orderId) });
     };
-  }, [enabled, orderId, queryClient]);
+    const onStatus = (payload: OrderStatusUpdatedPayload) => {
+      if (payload?.orderId !== orderId) return;
+      queryClient.setQueryData<OrderDetail>(deliveryQueryKeys.order(orderId), (current) => {
+        if (!current) return current;
+        const nextStatus = payload.status ?? current.status;
+        return {
+          ...current,
+          status: nextStatus,
+          eta: payload.eta ?? current.eta,
+          rider: payload.riderId ? {
+            ...(current.rider ?? {}), id: payload.riderId,
+            userId: payload.riderUserId ?? current.rider?.userId ?? null,
+          } : current.rider,
+          orderLogs: nextStatus !== current.status ? [{
+            status: nextStatus, actor: null,
+            timestamp: payload.updatedAt ?? new Date().toISOString(), message: null,
+          }, ...(current.orderLogs ?? [])] : current.orderLogs,
+        };
+      });
+      void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.order(orderId) });
+    };
+    const onRiderStatus = (payload: { orderId?: string }) => {
+      if (payload?.orderId === orderId) void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.order(orderId) });
+    };
+    const onLocation = (payload: RiderLocationPayload) => {
+      const latitude = payload?.latitude;
+      const longitude = payload?.longitude;
+      if (!payload || (payload.orderId && payload.orderId !== orderId) ||
+          (payload.customerUserId && payload.customerUserId !== userId) ||
+          (riderUserIdRef.current && payload.riderUserId && payload.riderUserId !== riderUserIdRef.current) ||
+          typeof latitude !== "number" || !Number.isFinite(latitude) ||
+          typeof longitude !== "number" || !Number.isFinite(longitude)) return;
+      queryClient.setQueryData<OrderDetail>(deliveryQueryKeys.order(orderId), (current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          eta: payload.eta === undefined ? current.eta : payload.eta,
+          rider: {
+            ...(current.rider ?? {}),
+            userId: payload.riderUserId ?? current.rider?.userId ?? null,
+            currentLocation: { latitude, longitude },
+          },
+        };
+      });
+    };
+    const onMessage = (payload: { orderId?: string; kind?: string }) => {
+      if (payload?.orderId !== orderId || payload.kind !== "customer_rider") return;
+      void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orderChat(orderId) });
+      void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orderChatUnread() });
+    };
+    const onRead = (payload: { orderId?: string; kind?: string }) => {
+      if (payload?.orderId === orderId && payload.kind === "customer_rider")
+        void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orderChatUnread() });
+    };
+    socket.on("connect", onConnect);
+    socket.on("order-status-updated", onStatus);
+    socket.on("rider-status-updated", onRiderStatus);
+    socket.on("get-rider-location", onLocation);
+    socket.on("receive-message", onMessage);
+    socket.on("order-chat-read", onRead);
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("order-status-updated", onStatus);
+      socket.off("rider-status-updated", onRiderStatus);
+      socket.off("get-rider-location", onLocation);
+      socket.off("receive-message", onMessage);
+      socket.off("order-chat-read", onRead);
+    };
+  }, [connection, enabled, orderId, queryClient]);
 }

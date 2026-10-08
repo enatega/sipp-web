@@ -1,15 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { LoaderCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Footer } from "@/components/shared/app-shell/Footer";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useActionToast } from "@/components/shared/useActionToast";
 import { useSessionQuery } from "@/modules/account";
 import { searchApi } from "@/modules/deliveries/api/search";
+import { StoreCard } from "@/modules/deliveries/components/discovery/StoreCard";
 import { SearchProductCard } from "@/modules/deliveries/components/search/SearchProductCard";
 import { useDiscoveryLocation } from "@/modules/deliveries/hooks/useDiscoveryQueries";
 import {
@@ -21,6 +23,7 @@ import {
   useProductSearchQuery,
   useRecentSearchesQuery,
   useSearchRecommendationsQuery,
+  useStoreSearchQuery,
 } from "@/modules/deliveries/hooks/useSearchQueries";
 import type { RecentSearchItem, SearchMeta, SearchRecommendation } from "@/modules/deliveries/types/search";
 
@@ -35,6 +38,7 @@ export function SearchPage() {
   const isAuthenticated = session.data?.authenticated === true;
   const { location, isLocationReady } = useDiscoveryLocation(isAuthenticated);
   const products = useProductSearchQuery(urlQuery, location);
+  const stores = useStoreSearchQuery(urlQuery, location);
   const recommendations = useSearchRecommendationsQuery();
   const recentSearches = useRecentSearchesQuery(isAuthenticated);
   const { mutate: saveRecentSearchTerm } = useSaveRecentSearchMutation();
@@ -64,30 +68,38 @@ export function SearchPage() {
       position: page.offset + index + 1,
     })),
   ) ?? [];
-  const total = products.data?.pages[0]?.total ?? 0;
+  const storeItems = stores.data?.pages.flatMap((page) =>
+    page.items.map((item, index) => ({
+      item,
+      meta: page.searchMeta,
+      position: page.offset + index + 1,
+    })),
+  ) ?? [];
+  const productTotal = products.data?.pages[0]?.total ?? 0;
+  const storeTotal = stores.data?.pages[0]?.total ?? 0;
   const status = !isOnline
     ? t("offline")
-    : products.isError
-      ? t("error")
-      : !urlQuery
+    : !urlQuery
         ? t("hint")
-        : products.isPending
+        : products.isPending || stores.isPending
           ? t("loading")
-          : t("resultCount", { count: total });
+          : products.isError || stores.isError
+            ? t("error")
+            : t("resultCount", { count: productTotal + storeTotal });
 
   const selectSuggestion = (value: string) => {
     router.push(`/search?q=${encodeURIComponent(value.trim())}`);
   };
 
-  const track = (meta: SearchMeta | undefined, objectId: string, position: number) => {
+  const track = (meta: SearchMeta | undefined, resourceType: "product" | "store", objectId: string, position: number) => {
     if (!meta?.queryId) return;
     void searchApi.event({
       eventType: "click",
-      resourceType: "product",
+      resourceType,
       queryId: meta.queryId,
       objectId,
       position,
-      eventName: "Product Opened",
+      eventName: resourceType === "store" ? "Store Opened" : "Product Opened",
     }).catch(() => undefined);
   };
 
@@ -116,16 +128,43 @@ export function SearchPage() {
               t={t}
             />
           ) : (
-            <section aria-label={t("products")} className="mt-6 sm:mt-8">
-              {products.isPending ? <SearchSkeleton /> : productItems.length ? (
-                <div className="grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-                  {productItems.map(({ item, meta, position }) => (
-                    <SearchProductCard key={`${item.storeId}-${item.productId}`} item={item} location={location} onOpen={() => track(meta, item.productId, position)} />
-                  ))}
-                </div>
-              ) : <Notice>{products.isError ? t("error") : t("noProducts")}</Notice>}
-              {products.hasNextPage ? <LoadMore label={t("moreProducts")} loading={products.isFetchingNextPage} onClick={() => void products.fetchNextPage()} /> : null}
-            </section>
+            <div className="mt-6 space-y-10 sm:mt-8">
+              {stores.isPending || stores.isError || storeItems.length ? (
+                <section aria-labelledby="search-stores-heading">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h2 className="font-heading text-xl font-bold text-ink" id="search-stores-heading">{t("stores")}</h2>
+                    {storeTotal > 6 ? <Link className="text-sm font-semibold text-brand hover:underline" href={`/search/stores?q=${encodeURIComponent(urlQuery)}&page=1`}>{t("seeAllStores")}</Link> : null}
+                  </div>
+                  {stores.isPending ? <SearchSkeleton /> : stores.isError ? (
+                    <Notice><p>{t("error")}</p><button className="mt-3 font-semibold text-brand hover:underline" onClick={() => void stores.refetch()} type="button">{t("retry")}</button></Notice>
+                  ) : (
+                    <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {storeItems.slice(0, 6).map(({ item, meta, position }) => (
+                        <StoreCard key={item.storeId} store={item} fluid onOpen={() => track(meta, "store", item.storeId, position)} />
+                      ))}
+                    </div>
+                  )}
+                </section>
+              ) : null}
+              {products.isPending || products.isError || productItems.length ? (
+                <section aria-labelledby="search-products-heading">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h2 className="font-heading text-xl font-bold text-ink" id="search-products-heading">{t("products")}</h2>
+                    {productTotal > 6 ? <Link className="text-sm font-semibold text-brand hover:underline" href={`/search/products?q=${encodeURIComponent(urlQuery)}&page=1`}>{t("seeAllProducts")}</Link> : null}
+                  </div>
+                  {products.isPending ? <SearchSkeleton /> : products.isError ? (
+                    <Notice><p>{t("error")}</p><button className="mt-3 font-semibold text-brand hover:underline" onClick={() => void products.refetch()} type="button">{t("retry")}</button></Notice>
+                  ) : (
+                    <div className="mt-5 grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+                      {productItems.slice(0, 6).map(({ item, meta, position }) => (
+                        <SearchProductCard key={`${item.storeId}-${item.productId}`} item={item} location={location} onOpen={() => track(meta, "product", item.productId, position)} />
+                      ))}
+                    </div>
+                  )}
+                </section>
+              ) : null}
+              {!stores.isPending && !products.isPending && !stores.isError && !products.isError && !storeItems.length && !productItems.length ? <Notice>{t("resultCount", { count: 0 })}</Notice> : null}
+            </div>
           )}
         </div>
       </main>
@@ -193,4 +232,3 @@ function IdleSuggestions({
 
 function Notice({ children }: { children: ReactNode }) { return <div className="mt-5 rounded-2xl border border-line bg-card p-6 text-center text-sm text-muted">{children}</div>; }
 function SearchSkeleton() { return <div aria-busy="true" className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <div className="h-64 animate-pulse rounded-2xl bg-[var(--soft-surface)]" key={index} />)}</div>; }
-function LoadMore({ label, loading, onClick }: { label: string; loading: boolean; onClick: () => void }) { return <div className="mt-6 text-center"><button className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-card px-5 font-bold text-ink transition hover:border-brand disabled:opacity-60" disabled={loading} onClick={onClick} type="button">{loading ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : null}{label}</button></div>; }

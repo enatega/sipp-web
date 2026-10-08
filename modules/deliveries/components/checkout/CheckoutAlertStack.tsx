@@ -3,6 +3,8 @@ import { DeliveryNotice } from "../feedback/DeliveryNotice";
 import styles from "./checkout-transitions.module.css";
 
 export interface CheckoutAlert {
+  actionHref?: string;
+  actionLabel?: string;
   id: string;
   message: string;
   onDismiss: () => void;
@@ -32,6 +34,8 @@ export function CheckoutAlertStack({
         {notices.map((notice) => (
           <DeliveryNotice
             className={`pointer-events-auto shadow-pop ${styles.alertEnter}`}
+            actionHref={notice.actionHref}
+            actionLabel={notice.actionLabel}
             dismissLabel={dismissLabel}
             key={notice.id}
             message={notice.message}

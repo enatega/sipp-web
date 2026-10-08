@@ -37,7 +37,7 @@ export function SearchProductCard({ item, location, onOpen }: Props) {
   const description = product.data?.description?.trim();
   const deal = product.data?.deal;
   const isOutOfStock = product.data?.inStock === false;
-  const storeHref = `/restaurants/${encodeURIComponent(item.storeId)}`;
+  const storeHref = `/restaurants/${encodeURIComponent(item.storeSlug || item.storeId)}`;
   const productHref = `${storeHref}?productId=${encodeURIComponent(item.productId)}`;
 
   return (

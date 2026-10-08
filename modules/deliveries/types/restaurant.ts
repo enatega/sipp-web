@@ -38,6 +38,9 @@ export interface RestaurantStore {
   tagLine: string | null;
   description: string | null;
   isAvailable: boolean;
+  isAdministrativelyAvailable: boolean;
+  timezone: string | null;
+  storeTimings: Record<string, { is_active?: boolean; slots?: Array<{ open?: string; close?: string }> }> | null;
   isFavorited: boolean;
   /** Weekly opening hours in the store's local time, keyed by lowercase day name. */
   openingHours: StoreOpeningHours | null;

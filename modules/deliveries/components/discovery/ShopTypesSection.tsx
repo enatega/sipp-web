@@ -8,6 +8,7 @@ import type { DeliveryShopType } from "@/modules/deliveries/types/discovery";
 
 interface Props {
   items: DeliveryShopType[];
+  totalItems?: number;
   isLoading: boolean;
   isError: boolean;
   title: string;
@@ -29,7 +30,7 @@ function defaultItemHref(item: DeliveryShopType) {
 export function ShopTypesSection(props: Props) {
   // Hide the whole section rather than showing an empty placeholder.
   if (!props.isLoading && !props.isError && props.items.length === 0) return null;
-  const showSeeAll = !props.isLoading && !props.isError && props.items.length > 0;
+  const showSeeAll = !props.isLoading && !props.isError && (props.totalItems ?? props.items.length) > props.items.length;
   const getItemHref = props.getItemHref ?? defaultItemHref;
   return (
     <section className="space-y-4" aria-labelledby="shop-types-title">

@@ -147,11 +147,12 @@ export function useToggleStoreFavourite(storeId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => restaurantApi.toggleFavourite(storeId),
-    onSuccess: () =>
-      Promise.all([
+    onSuccess: () => {
+      void Promise.all([
         queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.discovery() }),
         queryClient.invalidateQueries({ queryKey: [...deliveryQueryKeys.all, "search"] }),
         queryClient.invalidateQueries({ queryKey: ["favourites"] }),
-      ]),
+      ]);
+    },
   });
 }

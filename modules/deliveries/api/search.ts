@@ -98,7 +98,7 @@ function query(params: SearchParams) {
   return new URLSearchParams({
     q: params.query,
     offset: String(params.offset),
-    limit: "12",
+    limit: String(params.limit ?? 12),
     latitude: String(params.location.latitude),
     longitude: String(params.location.longitude),
   });

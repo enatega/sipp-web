@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bike, Clock3, MapPin, Star, Tag } from "lucide-react";
+import { Clock3, Star, Tag } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
@@ -11,7 +11,7 @@ import {
 } from "@/modules/deliveries/utils/storeCardLabels";
 import { StoreFavouriteButton } from "./StoreFavouriteButton";
 
-export function StoreCard({ store, fluid = false }: { store: DeliveryStore; fluid?: boolean }) {
+export function StoreCard({ store, fluid = false, onOpen }: { store: DeliveryStore; fluid?: boolean; onOpen?: () => void }) {
   const t = useTranslations("deliveries.discovery");
   const format = useFormatter();
   const formatAppCurrency = useAppCurrencyFormatter();
@@ -21,23 +21,9 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
     (value) => formatAppCurrency(format, value),
     t("off"),
   );
-  const hasFeeDetails =
-    typeof store.deliveryFee === "number" && Number.isFinite(store.deliveryFee);
-  const fee =
-    hasFeeDetails && store.deliveryFee === 0
-      ? t("freeDelivery")
-      : formatAppCurrency(format, store.deliveryFee ?? 0, {
-          maximumFractionDigits: 2,
-        });
   const deliveryTime = storeDeliveryTimeLabel(store.deliveryTime, (count) =>
     t("minutes", { count }),
   );
-  const distance =
-    typeof store.distanceKm === "number" &&
-    Number.isFinite(store.distanceKm) &&
-    store.distanceKm >= 0
-      ? store.distanceKm
-      : null;
   const rating =
     typeof store.averageRating === "number" &&
     Number.isFinite(store.averageRating) &&
@@ -59,6 +45,7 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
         aria-label={t("openStore", { name: store.name })}
         className="block overflow-hidden rounded-2xl bg-card shadow-rail-card ring-1 ring-line transition-shadow duration-300 group-hover:shadow-pop focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
         href={storeHref(store)}
+        onClick={onOpen}
       >
         <div className="relative">
           <DeliveryImage
@@ -81,7 +68,7 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
               </b>
             </span>
           ) : null}
-          {hasRatingDetails && !isClosed ? (
+          {hasRatingDetails ? (
             <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-card/95 px-2 py-0.5 text-[11px] font-bold sm:bottom-3 sm:left-3 sm:px-2.5 sm:py-1 sm:text-xs text-ink shadow-sm backdrop-blur-sm">
               {rating ? (
                 <>
@@ -106,26 +93,12 @@ export function StoreCard({ store, fluid = false }: { store: DeliveryStore; flui
             {store.shopTypeName || store.address || t("storeFallback")}
           </p>
 
-          {deliveryTime || distance !== null || hasFeeDetails ? (
+          {deliveryTime ? (
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium text-body sm:mt-3 sm:gap-x-4 sm:gap-y-1.5 sm:text-xs">
-              {deliveryTime ? (
-                <span className="inline-flex items-center gap-1 sm:gap-1.5">
-                  <Clock3 aria-hidden="true" className="size-3.5 shrink-0 sm:size-4 text-muted" />
-                  {deliveryTime}
-                </span>
-              ) : null}
-              {distance !== null ? (
-                <span className="inline-flex items-center gap-1 sm:gap-1.5">
-                  <MapPin aria-hidden="true" className="size-3.5 shrink-0 sm:size-4 text-brand" />
-                  {t("distance", { distance })}
-                </span>
-              ) : null}
-              {hasFeeDetails ? (
-                <span className="inline-flex items-center gap-1 sm:gap-1.5">
-                  <Bike aria-hidden="true" className="size-3.5 shrink-0 sm:size-4 text-muted" />
-                  {fee}
-                </span>
-              ) : null}
+              <span className="inline-flex items-center gap-1 sm:gap-1.5">
+                <Clock3 aria-hidden="true" className="size-3.5 shrink-0 sm:size-4 text-muted" />
+                {deliveryTime}
+              </span>
             </div>
           ) : null}
         </div>

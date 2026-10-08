@@ -42,7 +42,11 @@ export const discoveryApi = {
       `${apiRoutes.discovery.shopTypes}?offset=0&limit=10${home ? '&home=true' : ''}`,
       { signal },
     );
-    return parseShopTypes(payload);
+    const items = parseShopTypes(payload);
+    const source = payload && typeof payload === "object" && !Array.isArray(payload)
+      ? payload as Record<string, unknown> : {};
+    const parsedTotal = Number(source.total);
+    return { items, total: Number.isSafeInteger(parsedTotal) && parsedTotal >= items.length ? parsedTotal : items.length };
   },
   async banners(signal?: AbortSignal, home = false) {
     const payload = await requestJson<unknown>(

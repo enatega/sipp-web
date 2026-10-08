@@ -157,6 +157,11 @@ export function LocationModal({
     setError("");
     setBusy("locate");
 
+    if (!window.isSecureContext) {
+      setError(t("geolocationSecureContext"));
+      finishRequest();
+      return;
+    }
     if (!("geolocation" in navigator)) {
       setError(t("geolocationUnsupported"));
       finishRequest();
@@ -182,42 +187,63 @@ export function LocationModal({
     }
 
     if (!isCurrentRequest()) return;
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        if (!isCurrentRequest()) return;
-        setBusy("address");
-        try {
-          const { address } = await reverseGeocode.mutateAsync({
-            lat: coords.latitude,
-            lng: coords.longitude,
-          });
-          if (!isCurrentRequest()) return;
-          showPlace({
-            address,
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-          });
-        } catch (caught) {
-          if (isCurrentRequest()) {
-            setError(caught instanceof Error ? caught.message : t("reverseError"));
-          }
-        } finally {
-          finishRequest();
-        }
-      },
-      (positionError) => {
-        if (!isCurrentRequest()) return;
-        setError(
-          positionError.code === positionError.PERMISSION_DENIED
-            ? t("permissionDeclined")
-            : positionError.code === positionError.TIMEOUT
-              ? t("geolocationTimeout")
-              : t("geolocationError"),
+    const requestPosition = (highAccuracy: boolean) => {
+      try {
+        navigator.geolocation.getCurrentPosition(
+          async ({ coords }) => {
+            if (!isCurrentRequest()) return;
+            setError("");
+            setBusy("address");
+            try {
+              const { address } = await reverseGeocode.mutateAsync({
+                lat: coords.latitude,
+                lng: coords.longitude,
+              });
+              if (!isCurrentRequest()) return;
+              if (!address?.trim()) throw new Error(t("reverseError"));
+              showPlace({
+                address,
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+              });
+            } catch {
+              if (isCurrentRequest()) setError(t("reverseError"));
+            } finally {
+              finishRequest();
+            }
+          },
+          (positionError) => {
+            if (!isCurrentRequest()) return;
+            if (
+              !highAccuracy &&
+              (positionError.code === positionError.POSITION_UNAVAILABLE ||
+                positionError.code === positionError.TIMEOUT)
+            ) {
+              requestPosition(true);
+              return;
+            }
+            setError(
+              positionError.code === positionError.PERMISSION_DENIED
+                ? t("permissionDeclined")
+                : positionError.code === positionError.TIMEOUT
+                  ? t("geolocationTimeout")
+                  : t("geolocationError"),
+            );
+            finishRequest();
+          },
+          {
+            enableHighAccuracy: highAccuracy,
+            timeout: highAccuracy ? 20_000 : 10_000,
+            maximumAge: highAccuracy ? 0 : 60_000,
+          },
         );
+      } catch {
+        if (!isCurrentRequest()) return;
+        setError(t("geolocationError"));
         finishRequest();
-      },
-      { enableHighAccuracy: false, timeout: 20_000, maximumAge: 60_000 },
-    );
+      }
+    };
+    requestPosition(false);
   };
 
   const pickPrediction = async (prediction: Prediction) => {
@@ -338,7 +364,7 @@ export function LocationModal({
           <CurrentLocationStep
             isLocating={busy === "locate" || busy === "address"}
             isResolvingAddress={busy === "address"}
-            error={error}
+            error={busy === "locate" || busy === "address" ? "" : error}
             onAllow={() => void locateUser()}
             onSearchManually={backToSearch}
             onBack={backToSearch}

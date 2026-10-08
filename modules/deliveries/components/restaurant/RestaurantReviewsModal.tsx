@@ -36,8 +36,8 @@ export function RestaurantReviewsModal({ onClose, store }: Props) {
 
   const summary = overview.data?.pages[0];
   const reviews = useMemo(() => list.data?.pages.flatMap((page) => page.items) ?? [], [list.data]);
-  const average = summary?.averageRating ?? store.averageRating;
-  const total = summary?.totalReviews ?? store.reviewCount;
+  const average = summary?.averageRating ?? 0;
+  const total = summary?.totalReviews ?? 0;
   const maxCount = summary ? Math.max(1, ...STARS.map((star) => summary.distribution[star])) : 1;
 
   const onCloseRef = useRef(onClose);
@@ -93,7 +93,7 @@ export function RestaurantReviewsModal({ onClose, store }: Props) {
             </button>
           </div>
 
-          <div className="relative mt-5 grid gap-5 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-center">
+          {summary ? <div className="relative mt-5 grid gap-5 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-center">
             <div className="flex items-center gap-4 sm:block">
               <p className="font-heading text-5xl font-bold leading-none text-ink tabular-nums">{format.number(average, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</p>
               <div className="sm:mt-2">
@@ -138,7 +138,9 @@ export function RestaurantReviewsModal({ onClose, store }: Props) {
                 );
               })}
             </div>
-          </div>
+          </div> : <p className="relative mt-5 text-sm text-body">
+            {overview.isPending ? t("reviewsLoading") : t("reviewsErrorMessage")}
+          </p>}
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-6 pt-4 sm:px-7">

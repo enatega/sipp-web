@@ -95,6 +95,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
    */
   const [lockedField, setLockedField] = useState<"email" | "phone" | null>(null);
   const [error, setError] = useState("");
+  const [socialError, setSocialError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendIn, setResendIn] = useState(30);
   const [hasManuallySelectedCountry, setHasManuallySelectedCountry] = useState(false);
@@ -202,6 +203,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
 
   const goTo = (next: View) => {
     setError("");
+    setSocialError("");
     formik.setErrors({});
     void formik.setFieldValue("otp", "", false);
     if (next !== "otp") setLockedField(null);
@@ -219,6 +221,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
 
   const run = async (task: () => Promise<void>) => {
     setError("");
+    setSocialError("");
     setLoading(true);
     try {
       await task();
@@ -327,6 +330,10 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
           setError(t("signupRateLimited"));
           return;
         }
+        if (caught instanceof AuthApiError && caught.status === 503) {
+          setError(t("signupOtpUnavailable"));
+          return;
+        }
         throw caught;
       }
       setOtpPurpose("signup");
@@ -374,6 +381,10 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
           if (handleSignupConflict(caught)) return;
           if (caught instanceof AuthApiError && caught.status === 429) {
             setError(t("signupRateLimited"));
+            return;
+          }
+          if (caught instanceof AuthApiError && caught.status === 503) {
+            setError(t("signupOtpUnavailable"));
             return;
           }
           throw caught;
@@ -472,7 +483,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
           </div>
         </div>
 
-        <div className="relative z-[3] grid min-w-0 items-start justify-items-center rounded-t-[28px] bg-surface px-[clamp(20px,6vw,44px)] pb-[clamp(32px,6svh,56px)] pt-[72px] shadow-[0_-14px_40px_rgba(63,20,30,0.12)] md:items-center md:overflow-y-auto md:rounded-none md:rounded-l-[32px] md:px-[clamp(24px,4vw,76px)] md:pt-[clamp(36px,6vh,72px)] md:pb-[clamp(60px,14vh,170px)] md:shadow-pop">
+        <div className="relative z-[3] grid min-w-0 items-start justify-items-center rounded-t-[28px] bg-surface px-[clamp(20px,6vw,44px)] pb-[clamp(32px,6svh,56px)] pt-[112px] shadow-[0_-14px_40px_rgba(63,20,30,0.12)] md:items-center md:overflow-y-auto md:rounded-none md:rounded-l-[32px] md:px-[clamp(24px,4vw,76px)] md:pt-[clamp(116px,14vh,152px)] md:pb-[clamp(60px,14vh,170px)] md:shadow-pop">
           {view !== "login" ? (
             <button
               type="button"
@@ -518,7 +529,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                   <input
                     className={fieldInput}
                     value={email}
-                    onChange={(event) => void formik.setFieldValue("email", event.target.value, false)}
+                    onChange={(event) => { setSocialError(""); void formik.setFieldValue("email", event.target.value, false); }}
                     placeholder={t("emailPlaceholder")}
                     type="email"
                     autoComplete="email"
@@ -531,8 +542,9 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                 </button>
                 <SocialAuthButtons
                   onAuthenticated={finishAuth}
-                  onError={setError}
+                  onError={setSocialError}
                 />
+                {socialError ? <p className={errorNote} role="alert">{socialError}</p> : null}
                 <button
                   className={`${inlineAction} self-center text-[clamp(12px,0.8vw,14px)]`}
                   type="button"

@@ -5,3 +5,4 @@ export { RestaurantPage } from "./components/restaurant/RestaurantPage";
 export { CartPage } from "./components/cart/CartPage";
 export { CheckoutPage } from "./components/checkout/CheckoutPage";
 export { HeaderSearch } from "./components/search/HeaderSearch";
+export { CustomerOrderLiveConnection } from "./components/order-tracking/CustomerOrderLiveConnection";

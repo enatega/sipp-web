@@ -5,7 +5,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { readStoredPlace } from "@/modules/account";
 import { restaurantApi } from "../api/restaurant";
 import { deliveryQueryKeys } from "../queries/queryKeys";
-import type { RestaurantLocation, ReviewStar } from "../types/restaurant";
+import type { RestaurantLocation, RestaurantStore, ReviewStar } from "../types/restaurant";
 export { useCartMutations, useCartQuery } from "./useCart";
 
 const RESTAURANT_STALE_TIME = 2 * 60_000;
@@ -121,9 +121,14 @@ export function useToggleRestaurantFavourite(
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => restaurantApi.toggleFavourite(storeId),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
+    onSuccess: (result) => {
+      queryClient.setQueryData<RestaurantStore>(
+        deliveryQueryKeys.restaurant(storeId, location),
+        (current) => current ? { ...current, isFavorited: result.isFavorite } : current,
+      );
+      void queryClient.invalidateQueries({
         queryKey: deliveryQueryKeys.restaurant(storeId, location),
-      }),
+      });
+    },
   });
 }

@@ -30,6 +30,8 @@ export const deliveryQueryKeys = {
   orderAgain: () => [...deliveryQueryKeys.discovery(), "order-again"] as const,
   search: (resource: "products" | "stores", query: string, location: DiscoveryLocation | null) =>
     [...deliveryQueryKeys.all, "search", resource, query, location] as const,
+  searchPage: (resource: "products" | "stores", query: string, location: DiscoveryLocation | null, page: number) =>
+    [...deliveryQueryKeys.search(resource, query, location), "page", page] as const,
   searchRecommendations: () => [...deliveryQueryKeys.all, "search", "recommendations"] as const,
   recentSearches: () => [...deliveryQueryKeys.all, "search", "recent-searches"] as const,
   orders: () => [...deliveryQueryKeys.all, "orders"] as const,
@@ -67,6 +69,8 @@ export const deliveryQueryKeys = {
   checkout: () => [...deliveryQueryKeys.all, "checkout"] as const,
   checkoutPreview: (input: CheckoutPreviewInput | null) =>
     [...deliveryQueryKeys.checkout(), "preview", input] as const,
+  placedOrderByBucket: (bucketId: string, storeId: string) =>
+    [...deliveryQueryKeys.checkout(), "placed-order", bucketId, storeId] as const,
   checkoutSchedule: (storeId: string | null) =>
     [...deliveryQueryKeys.checkout(), "schedule", storeId] as const,
   stripeOrderStatus: (draftId: string | null) =>
