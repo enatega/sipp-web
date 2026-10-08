@@ -120,15 +120,23 @@ export function RestaurantPage({ slug }: Props) {
     openAuthRequiredDialog(returnTo);
   }
 
-  if (!isReady || (!isLegacyId && slugQuery.isPending) || restaurant.isPending) {
+  if (!isReady || (!isLegacyId && slugQuery.isPending)) {
     return (
       <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="grid min-h-[60vh] place-items-center bg-background text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>
     );
   }
 
+  // Without a location the store request never runs (it stays "pending"),
+  // so ask for a location before treating the page as loading (BUG-006).
   if (!location) {
     return (
       <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="section-wrap grid min-h-[60vh] place-items-center py-16 text-center"><div><UtensilsCrossed aria-hidden="true" className="mx-auto size-10 text-brand" /><h1 className="mt-4 text-xl font-bold text-ink">{t("chooseLocationTitle")}</h1><p className="mt-2 text-sm text-body">{t("chooseLocationMessage")}</p></div></main></>
+    );
+  }
+
+  if (restaurant.isPending) {
+    return (
+      <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="grid min-h-[60vh] place-items-center bg-background text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>
     );
   }
 
