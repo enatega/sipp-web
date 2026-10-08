@@ -10,6 +10,7 @@ import type {
   RestaurantReviewsPage,
   RestaurantStore,
   RestaurantSubcategory,
+  StoreOpeningHours,
 } from "../types/restaurant";
 
 type RecordValue = Record<string, unknown>;
@@ -64,6 +65,24 @@ function deal(value: unknown, price: number): ProductDeal | null {
   };
 }
 
+const TIME_PATTERN = /^\d{1,2}:\d{2}$/;
+
+function parseOpeningHours(value: unknown): StoreOpeningHours | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const hours: StoreOpeningHours = {};
+  for (const [day, raw] of Object.entries(value as Record<string, unknown>)) {
+    const entry = record(raw);
+    const slots = Array.isArray(entry.slots)
+      ? entry.slots
+          .map((slot) => record(slot))
+          .filter((slot) => typeof slot.open === "string" && typeof slot.close === "string" && TIME_PATTERN.test(slot.open) && TIME_PATTERN.test(slot.close))
+          .map((slot) => ({ open: String(slot.open), close: String(slot.close) }))
+      : [];
+    hours[day.toLowerCase()] = { isOpen: entry.is_active === true && slots.length > 0, slots };
+  }
+  return Object.keys(hours).length ? hours : null;
+}
+
 export function parseRestaurantStore(value: unknown): RestaurantStore {
   const source = record(value);
   const categories = Array.isArray(source.categories)
@@ -116,6 +135,7 @@ export function parseRestaurantStore(value: unknown): RestaurantStore {
     tagLine: optionalText(source.tagLine),
     description: optionalText(source.description),
     isAvailable: source.isAvailable !== false && source.isClosed !== true,
+    openingHours: parseOpeningHours(source.storeTimings),
     isFavorited: source.isFavorited === true,
     categories,
     subcategories,
