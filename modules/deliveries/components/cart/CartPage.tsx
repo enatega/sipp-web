@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ChevronRight, Clock, LoaderCircle, ShoppingBag, ShoppingCart, Sparkles, Store, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
@@ -51,13 +51,15 @@ export function CartPage() {
   const mutations = useCartMutations();
   const [clearOpen, setClearOpen] = useState(false);
   const [error, setError] = useState("");
+  const pendingRemovalIds = useRef(new Set<string>());
+  const removalQueue = useRef<Promise<void>>(Promise.resolve());
+  const [removingItemIds, setRemovingItemIds] = useState<ReadonlySet<string>>(() => new Set());
 
   useEffect(() => {
     if (!session.isPending && !authenticated) openAuthRequiredDialog("/cart");
   }, [authenticated, session.isPending]);
 
   const price = (value: number) => formatAppCurrency(format, value);
-  const isMutating = mutations.updateQuantity.isPending || mutations.removeItem.isPending || mutations.clear.isPending;
 
   function updateQuantity(itemId: string, quantity: number) {
     setError("");
@@ -65,13 +67,24 @@ export function CartPage() {
   }
 
   function removeItem(itemId: string) {
+    if (pendingRemovalIds.current.has(itemId)) return;
     setError("");
-    mutations.removeItem.mutate(itemId, { onError: () => setError(t("removeError")) });
+    pendingRemovalIds.current.add(itemId);
+    setRemovingItemIds(new Set(pendingRemovalIds.current));
+
+    // Apply each server cart snapshot in click order so overlapping deletes
+    // cannot restore an item removed by a faster response.
+    const removal = removalQueue.current.then(() => mutations.removeItem.mutateAsync(itemId));
+    removalQueue.current = removal.then(() => undefined, () => undefined);
+    void removal.catch(() => setError(t("removeError"))).finally(() => {
+      pendingRemovalIds.current.delete(itemId);
+      setRemovingItemIds(new Set(pendingRemovalIds.current));
+    });
   }
 
   if (session.isPending || (authenticated && cart.isPending)) return <><Header /><LoadingState /></>;
   if (!authenticated) return <><Header cartCount={0} /><EmptyCart /></>;
-  if (cart.isError) {
+  if (cart.isError && !cart.data) {
     return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center py-12 text-center"><div><ShoppingCart className="mx-auto size-10 text-brand" aria-hidden="true" /><h1 className="mt-4 text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button type="button" onClick={() => void cart.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink hover:bg-brand/85">{t("retry")}</button></div></main></>;
   }
   if (!cart.data || cart.data.isEmpty) return <><Header cartCount={0} /><EmptyCart /></>;
@@ -87,12 +100,12 @@ export function CartPage() {
           <Link href={data.storeId ? `/restaurants/${data.storeId}` : "/discovery"} className="inline-flex items-center gap-2 text-sm font-semibold text-body transition-colors hover:text-brand"><ArrowLeft aria-hidden="true" className="size-4" />{t("continueShopping")}</Link>
           <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
             <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand">{t("eyebrow")}</p><h1 className="mt-1 text-3xl font-bold text-ink sm:text-4xl">{t("title")}</h1><p className="mt-2 text-sm text-body">{t("itemCount", { count: data.totalItems })}</p></div>
-            <button type="button" onClick={() => setClearOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-xs font-semibold text-muted transition-colors hover:bg-brand/10 hover:text-brand"><Trash2 aria-hidden="true" className="size-4" />{t("clearCart")}</button>
+            <button type="button" disabled={removingItemIds.size > 0} onClick={() => setClearOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-xs font-semibold text-muted transition-colors hover:bg-brand/10 hover:text-brand disabled:cursor-wait disabled:opacity-50"><Trash2 aria-hidden="true" className="size-4" />{t("clearCart")}</button>
           </div>
 
           <div className="mt-7 grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_360px] xl:gap-10">
             <section className="space-y-4" aria-label={t("itemsLabel")}>
-              {data.items.map((item) => <CartItemCard key={item.id} item={item} isUpdating={isMutating} onQuantityChange={(quantity) => updateQuantity(item.id, quantity)} onRemove={() => removeItem(item.id)} />)}
+              {data.items.map((item) => <CartItemCard key={item.id} item={item} isUpdating={mutations.clear.isPending || (mutations.updateQuantity.isPending && mutations.updateQuantity.variables?.itemId === item.id) || removingItemIds.has(item.id)} onQuantityChange={(quantity) => updateQuantity(item.id, quantity)} onRemove={() => removeItem(item.id)} />)}
               {error ? <p role="alert" className="rounded-xl border border-brand/20 bg-brand/5 px-4 py-3 text-sm text-brand">{error}</p> : null}
             </section>
 

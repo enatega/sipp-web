@@ -8,7 +8,6 @@ type InteractiveLocationMapProps = {
   latitude?: number;
   longitude?: number;
   onSelect?: (latitude: number, longitude: number) => void;
-  onInitialLocation?: (latitude: number, longitude: number) => void;
   ariaLabel: string;
   /** Preview only: same map and marker, but no dragging, clicks or controls. */
   isReadOnly?: boolean;
@@ -39,7 +38,6 @@ export function InteractiveLocationMap({
   latitude,
   longitude,
   onSelect,
-  onInitialLocation,
   ariaLabel,
   isReadOnly = false,
 }: InteractiveLocationMapProps) {
@@ -51,18 +49,14 @@ export function InteractiveLocationMap({
     libraries: LIBRARIES,
   });
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [userLocation, setUserLocation] =
-    useState<google.maps.LatLngLiteral | null>(null);
   const [isMarkerReady, setIsMarkerReady] = useState(false);
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const markerLibraryRef = useRef<google.maps.MarkerLibrary | null>(null);
   const onSelectRef = useRef(onSelect);
-  const onInitialLocationRef = useRef(onInitialLocation);
 
   useEffect(() => {
     onSelectRef.current = onSelect;
-    onInitialLocationRef.current = onInitialLocation;
-  }, [onInitialLocation, onSelect]);
+  }, [onSelect]);
 
   const selectedPoint = useMemo(
     () =>
@@ -71,29 +65,6 @@ export function InteractiveLocationMap({
         : null,
     [latitude, longitude],
   );
-
-  useEffect(() => {
-    // A selected delivery point already determines the map center and pin.
-    if (isReadOnly || selectedPoint || !navigator.geolocation) return;
-    let isCancelled = false;
-
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        if (isCancelled) return;
-        const point = { lat: coords.latitude, lng: coords.longitude };
-        setUserLocation(point);
-        onInitialLocationRef.current?.(point.lat, point.lng);
-      },
-      () => {
-        // Match the admin map: keep the fallback center when access is denied.
-      },
-      { enableHighAccuracy: false, maximumAge: 5 * 60_000, timeout: 10_000 },
-    );
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [isReadOnly, selectedPoint]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -112,14 +83,14 @@ export function InteractiveLocationMap({
   }, [isLoaded]);
 
   useEffect(() => {
-    const point = selectedPoint ?? userLocation;
+    const point = selectedPoint;
     if (!map || !point) return;
     map.setCenter(point);
-    map.setZoom(selectedPoint ? 17 : 15);
-  }, [map, selectedPoint, userLocation]);
+    map.setZoom(17);
+  }, [map, selectedPoint]);
 
   useEffect(() => {
-    const point = selectedPoint ?? userLocation;
+    const point = selectedPoint;
     if (!map || !point || !isMarkerReady || !markerLibraryRef.current) return;
 
     if (!markerRef.current) {
@@ -151,7 +122,7 @@ export function InteractiveLocationMap({
       markerRef.current.map = null;
       markerRef.current = null;
     };
-  }, [isMarkerReady, isReadOnly, map, selectedPoint, t, userLocation]);
+  }, [isMarkerReady, isReadOnly, map, selectedPoint, t]);
 
   const handleMapClick = useCallback((event: google.maps.MapMouseEvent) => {
     const point = event.latLng?.toJSON();
@@ -186,8 +157,8 @@ export function InteractiveLocationMap({
 
   return (
     <GoogleMap
-      center={selectedPoint ?? userLocation ?? DEFAULT_CENTER}
-      zoom={selectedPoint ? 17 : userLocation ? 15 : 10}
+      center={selectedPoint ?? DEFAULT_CENTER}
+      zoom={selectedPoint ? 17 : 10}
       mapContainerClassName="h-56 w-full overflow-hidden rounded-xl"
       onClick={isReadOnly ? undefined : handleMapClick}
       onLoad={setMap}

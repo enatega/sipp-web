@@ -70,7 +70,7 @@ export const restaurantApi = {
     return parseProductCustomizations(payload);
   },
   async toggleFavourite(storeId: string) {
-    return requestJson<unknown>(apiRoutes.favourites, {
+    return requestJson<{ isFavorite: boolean; message: string }>(apiRoutes.favourites, {
       method: "POST",
       body: JSON.stringify({ storeId }),
     });

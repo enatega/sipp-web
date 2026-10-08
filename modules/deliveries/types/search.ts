@@ -34,6 +34,7 @@ export interface SearchPage<T> {
 export interface SearchParams {
   query: string;
   offset: number;
+  limit?: number;
   location: DiscoveryLocation;
 }
 

@@ -41,6 +41,24 @@ function number(value: unknown, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function parseStoreTimings(value: unknown): RestaurantStore["storeTimings"] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const result: NonNullable<RestaurantStore["storeTimings"]> = {};
+  for (const [day, rawDay] of Object.entries(value)) {
+    const entry = record(rawDay);
+    result[day.toLowerCase()] = {
+      is_active: entry.is_active === true,
+      slots: Array.isArray(entry.slots) ? entry.slots.flatMap((rawSlot) => {
+        const slot = record(rawSlot);
+        const open = optionalText(slot.open);
+        const close = optionalText(slot.close);
+        return open && close ? [{ open, close }] : [];
+      }) : [],
+    };
+  }
+  return result;
+}
+
 function deal(value: unknown, price: number): ProductDeal | null {
   const source = record(value);
   const discountedPrice = number(source.discounted_price, Number.NaN);
@@ -116,6 +134,9 @@ export function parseRestaurantStore(value: unknown): RestaurantStore {
     tagLine: optionalText(source.tagLine),
     description: optionalText(source.description),
     isAvailable: source.isAvailable !== false && source.isClosed !== true,
+    isAdministrativelyAvailable: source.isAvailable !== false,
+    timezone: optionalText(source.timezone),
+    storeTimings: parseStoreTimings(source.storeTimings),
     isFavorited: source.isFavorited === true,
     categories,
     subcategories,

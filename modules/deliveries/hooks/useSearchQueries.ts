@@ -42,6 +42,35 @@ export function useStoreSearchQuery(query: string, location: DiscoveryLocation |
   return useDeliverySearchQuery<SearchStore>("stores", query, location, searchApi.stores);
 }
 
+function useDeliverySearchPageQuery<T>(
+  resource: "products" | "stores",
+  query: string,
+  location: DiscoveryLocation | null,
+  page: number,
+  fetcher: (params: SearchParams, signal?: AbortSignal) => Promise<SearchPage<T>>,
+  enabled: boolean,
+) {
+  return useQuery<SearchPage<T>>({
+    queryKey: deliveryQueryKeys.searchPage(resource, query, location, page),
+    queryFn: ({ signal }) => fetcher({
+      query,
+      offset: (page - 1) * 12,
+      limit: 12,
+      location: location!,
+    }, signal),
+    enabled: enabled && query.length > 0 && Boolean(location),
+    staleTime: 2 * 60_000,
+  });
+}
+
+export function useProductSearchPageQuery(query: string, location: DiscoveryLocation | null, page: number, enabled = true) {
+  return useDeliverySearchPageQuery("products", query, location, page, searchApi.products, enabled);
+}
+
+export function useStoreSearchPageQuery(query: string, location: DiscoveryLocation | null, page: number, enabled = true) {
+  return useDeliverySearchPageQuery("stores", query, location, page, searchApi.stores, enabled);
+}
+
 export function useSearchRecommendationsQuery() {
   return useQuery({
     queryKey: deliveryQueryKeys.searchRecommendations(),

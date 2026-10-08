@@ -55,10 +55,21 @@ export function usePlaceOrderMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: PlaceOrderInput) => checkoutApi.placeOrder(input),
-    onSuccess: async (response) => {
+    onSuccess: (response) => {
       if (response.mode === "wallet") {
-        await queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.cart() });
+        void queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.cart() });
       }
     },
   });
+}
+
+export function usePlacedOrderLookup() {
+  const queryClient = useQueryClient();
+  return (input: { bucketId: string; storeId: string }) =>
+    queryClient.fetchQuery({
+      queryKey: deliveryQueryKeys.placedOrderByBucket(input.bucketId, input.storeId),
+      queryFn: ({ signal }) => checkoutApi.placedOrderByBucket(input, signal),
+      staleTime: 0,
+      retry: false,
+    });
 }

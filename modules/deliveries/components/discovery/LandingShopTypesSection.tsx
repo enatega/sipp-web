@@ -14,7 +14,7 @@ function storesHref(item: DeliveryShopType) {
 export function LandingShopTypesSection() {
   const t = useTranslations("deliveries.discovery");
   const shopTypes = useShopTypesQuery(true);
-  const items = shopTypes.data ?? [];
+  const items = shopTypes.data?.items ?? [];
 
   return (
     <div className="section-wrap my-12">
@@ -25,6 +25,7 @@ export function LandingShopTypesSection() {
         isError={shopTypes.isError}
         isLoading={shopTypes.isPending}
         items={items}
+        totalItems={shopTypes.data?.total}
         onRetry={() => void shopTypes.refetch()}
         retryLabel={t("retry")}
         seeAllHref="/discovery/all/shop-types"

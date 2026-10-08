@@ -1,6 +1,7 @@
 "use client";
 
 import { Heart } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { useActionToast } from "@/components/shared/useActionToast";
@@ -20,8 +21,9 @@ export function StoreFavouriteButton({ storeId, name, isFavorite, className }: P
   const session = useSessionQuery();
   const notify = useActionToast();
   const favourite = useToggleStoreFavourite(storeId);
-  // Show the next state while the toggle and its refetch are in flight.
-  const isShownFavorite = favourite.isPending ? !isFavorite : isFavorite;
+  const [confirmedFavorite, setConfirmedFavorite] = useState<boolean | null>(null);
+  useEffect(() => { setConfirmedFavorite(null); }, [isFavorite, storeId]);
+  const isShownFavorite = favourite.isPending ? !(confirmedFavorite ?? isFavorite) : (confirmedFavorite ?? isFavorite);
 
   function toggle() {
     if (session.data?.authenticated !== true) {
@@ -29,8 +31,14 @@ export function StoreFavouriteButton({ storeId, name, isFavorite, className }: P
       return;
     }
     favourite.mutate(undefined, {
-      onSuccess: () => notify.success(isFavorite ? "removedFromFavourites" : "addedToFavourites"),
-      onError: (caught) => notify.error(caught, "favouriteUpdateFailed"),
+      onSuccess: (result) => {
+        setConfirmedFavorite(result.isFavorite);
+        notify.success(result.isFavorite ? "addedToFavourites" : "removedFromFavourites");
+      },
+      onError: (caught) => {
+        setConfirmedFavorite(null);
+        notify.error(caught, "favouriteUpdateFailed");
+      },
     });
   }
 

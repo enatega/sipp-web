@@ -54,7 +54,7 @@ export function DiscoveryPage() {
     { key: 'top-brands', kind: 'top-brands', title: '' },
     { key: 'nearby-stores', kind: 'nearby-stores', title: '' },
     { key: 'deals', kind: 'deals', title: '' },
-    ...(shopTypes.data ?? []).map((type) => ({ key: `shop-type:${type.id}`, kind: 'shop-type-stores', title: type.name })),
+    ...(shopTypes.data?.items ?? []).map((type) => ({ key: `shop-type:${type.id}`, kind: 'shop-type-stores', title: type.name })),
     { key: 'order-again', kind: 'order-again', title: '' },
   ]);
   const rows = homeSections.filter((section) => section.kind === "shop-type-stores");
@@ -84,7 +84,7 @@ export function DiscoveryPage() {
           }
           if (section.kind === "shop-types") {
             return <div className="space-y-6 sm:space-y-8" key={section.key}>
-              <ShopTypesSection errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={shopTypes.isError} isLoading={shopTypes.isPending} items={shopTypes.data ?? []} onRetry={() => void shopTypes.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/shop-types" seeAllLabel={t("seeAll")} description={t("shopTypesDescription")} title={t("shopTypesTitle")} />
+              <ShopTypesSection errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={shopTypes.isError} isLoading={shopTypes.isPending} items={shopTypes.data?.items ?? []} totalItems={shopTypes.data?.total} onRetry={() => void shopTypes.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/shop-types" seeAllLabel={t("seeAll")} description={t("shopTypesDescription")} title={t("shopTypesTitle")} />
               <FavouriteFoodsCarousel />
             </div>;
           }

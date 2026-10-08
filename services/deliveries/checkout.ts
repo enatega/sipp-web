@@ -136,6 +136,20 @@ export async function proxyPlaceOrder(request: NextRequest) {
   });
 }
 
+export function proxyPlacedOrderByBucket(request: NextRequest) {
+  const unauthorized = requireSession(request);
+  if (unauthorized) return unauthorized;
+  const bucketId = request.nextUrl.searchParams.get("bucketId");
+  const storeId = request.nextUrl.searchParams.get("storeId");
+  if (!bucketId || !UUID_PATTERN.test(bucketId) || !storeId || !UUID_PATTERN.test(storeId)) {
+    return invalid("Invalid cart details.");
+  }
+  return callApi(
+    `/apps/deliveries/orders/by-bucket/${encodeURIComponent(bucketId)}?storeId=${encodeURIComponent(storeId)}`,
+    { request },
+  );
+}
+
 export function proxyStripeOrderStatus(request: NextRequest, draftId: string) {
   const unauthorized = requireSession(request);
   if (unauthorized) return unauthorized;

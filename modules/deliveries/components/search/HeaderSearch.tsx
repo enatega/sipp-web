@@ -1,23 +1,29 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useId, useRef, useState } from "react";
+import { Fragment, Suspense, useEffect, useId, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
 import { ArrowRight, LoaderCircle, Search, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { formatAppCurrency } from "@/config/currency";
 import { useSessionQuery } from "@/modules/account";
+import { searchApi } from "@/modules/deliveries/api/search";
 import { DeliveryImage } from "@/modules/deliveries/components/discovery/DeliveryImage";
 import { useDiscoveryLocation } from "@/modules/deliveries/hooks/useDiscoveryQueries";
-import { useProductSearchQuery } from "@/modules/deliveries/hooks/useSearchQueries";
+import { useProductSearchQuery, useStoreSearchQuery } from "@/modules/deliveries/hooks/useSearchQueries";
 import { getLocalizedProductName } from "@/modules/deliveries/utils/productTranslation";
-import type { SearchProduct } from "@/modules/deliveries/types/search";
+import { storeHref } from "@/modules/deliveries/utils/storeCardLabels";
+import type { SearchMeta, SearchProduct, SearchStore } from "@/modules/deliveries/types/search";
 
 const MIN_SUGGESTION_LENGTH = 3;
 const SUGGESTION_DEBOUNCE_MS = 300;
 
+type Suggestion =
+  | { kind: "store"; item: SearchStore; meta?: SearchMeta; position: number }
+  | { kind: "product"; item: SearchProduct; meta?: SearchMeta; position: number };
+
 function productHref(product: SearchProduct) {
-  return `/restaurants/${encodeURIComponent(product.storeId)}?productId=${encodeURIComponent(product.productId)}`;
+  return `/restaurants/${encodeURIComponent(product.storeSlug || product.storeId)}?productId=${encodeURIComponent(product.productId)}`;
 }
 
 function useDebouncedValue(value: string) {
@@ -43,7 +49,7 @@ function HeaderSearchWithQuery() {
   const pathname = usePathname();
   const params = useSearchParams();
   const query = pathname?.startsWith("/search") ? params.get("q")?.trim() ?? "" : "";
-  return <HeaderSearchField initialQuery={query} key={query} />;
+  return <HeaderSearchField initialQuery={query} />;
 }
 
 function HeaderSearchField({ initialQuery }: { initialQuery: string }) {
@@ -52,10 +58,15 @@ function HeaderSearchField({ initialQuery }: { initialQuery: string }) {
   const listboxId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isComposing = useRef(false);
   const [input, setInput] = useState(initialQuery);
   const [isOpen, setIsOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+
+  useEffect(() => {
+    if (document.activeElement !== inputRef.current) setInput(initialQuery);
+  }, [initialQuery]);
 
   const session = useSessionQuery();
   const { location, isLocationReady } = useDiscoveryLocation(
@@ -65,9 +76,21 @@ function HeaderSearchField({ initialQuery }: { initialQuery: string }) {
   const debounced = useDebouncedValue(trimmed);
   const suggestionQuery = debounced.length >= MIN_SUGGESTION_LENGTH ? debounced : "";
   const products = useProductSearchQuery(suggestionQuery, location);
-  const suggestions = products.data?.pages.flatMap((page) => page.items) ?? [];
+  const stores = useStoreSearchQuery(suggestionQuery, location);
+  const storePage = stores.data?.pages[0];
+  const productPage = products.data?.pages[0];
+  const suggestions: Suggestion[] = [
+    ...(storePage?.items.slice(0, 3).map((item, index) => ({
+      kind: "store" as const, item, meta: storePage.searchMeta, position: index + 1,
+    })) ?? []),
+    ...(productPage?.items.slice(0, 5).map((item, index) => ({
+      kind: "product" as const, item, meta: productPage.searchMeta, position: index + 1,
+    })) ?? []),
+  ];
   const isTyping = trimmed !== debounced;
   const showPanel = isOpen && trimmed.length >= MIN_SUGGESTION_LENGTH;
+  const canSelectSuggestion = showPanel && !isTyping && isLocationReady && Boolean(location);
+  const isSearching = stores.isPending || products.isPending;
 
   useEffect(() => {
     const close = (event: PointerEvent) => {
@@ -115,25 +138,37 @@ function HeaderSearchField({ initialQuery }: { initialQuery: string }) {
     router.push(`/search?q=${encodeURIComponent(query)}`);
   };
 
-  const openProduct = (product: SearchProduct) => {
+  const openSuggestion = (suggestion: Suggestion) => {
     reset();
-    router.push(productHref(product));
+    if (suggestion.meta?.queryId) {
+      void searchApi.event({
+        eventType: "click",
+        resourceType: suggestion.kind,
+        queryId: suggestion.meta.queryId,
+        objectId: suggestion.kind === "store" ? suggestion.item.storeId : suggestion.item.productId,
+        position: suggestion.position,
+        eventName: suggestion.kind === "store" ? "Store Opened" : "Product Opened",
+      }).catch(() => undefined);
+    }
+    router.push(suggestion.kind === "store" ? storeHref(suggestion.item) : productHref(suggestion.item));
   };
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    const active = activeIndex >= 0 ? suggestions[activeIndex] : undefined;
-    if (active) openProduct(active);
+    if (isComposing.current) return;
+    const active = canSelectSuggestion && activeIndex >= 0 ? suggestions[activeIndex] : undefined;
+    if (active) openSuggestion(active);
     else goToSearchPage(input);
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.nativeEvent.isComposing) return;
     if (event.key === "Escape") {
       if (isOpen) setIsOpen(false);
       else reset();
       return;
     }
-    if (!showPanel || suggestions.length === 0) return;
+    if (!canSelectSuggestion || suggestions.length === 0) return;
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setActiveIndex((index) => (index + 1) % suggestions.length);
@@ -184,6 +219,11 @@ function HeaderSearchField({ initialQuery }: { initialQuery: string }) {
               setIsOpen(true);
               setActiveIndex(-1);
             }}
+            onCompositionStart={() => { isComposing.current = true; }}
+            onCompositionEnd={(event) => {
+              isComposing.current = false;
+              setInput(event.currentTarget.value);
+            }}
             onFocus={() => setIsOpen(true)}
             onKeyDown={onKeyDown}
             placeholder={t("headerPlaceholder")}
@@ -217,35 +257,42 @@ function HeaderSearchField({ initialQuery }: { initialQuery: string }) {
             <p className="border-b border-line px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted" id={`${listboxId}-heading`}>
               {t("suggestionsHeading")}
             </p>
-            {!isLocationReady || isTyping || (products.isPending && Boolean(location)) ? (
-              <div aria-live="polite" className="flex items-center gap-2 px-4 py-5 text-sm text-muted" role="status">
-                <LoaderCircle aria-hidden="true" className="size-4 animate-spin text-brand" />
-                {t("suggestionsLoading")}
-              </div>
+            {!isLocationReady || isTyping ? (
+              <SuggestionLoading />
             ) : !location ? (
               <p className="px-4 py-5 text-sm text-muted">{t("chooseLocation")}</p>
-            ) : products.isError ? (
-              <p className="px-4 py-5 text-sm text-muted">{t("error")}</p>
-            ) : suggestions.length === 0 ? (
-              <p className="px-4 py-5 text-sm text-muted">{t("noSuggestions", { query: trimmed })}</p>
             ) : (
-              <ul
-                aria-labelledby={`${listboxId}-heading`}
-                className="max-h-[min(360px,60vh)] overflow-y-auto overscroll-contain py-1.5"
-                id={listboxId}
-                role="listbox"
-              >
-                {suggestions.map((product, index) => (
-                  <SuggestionRow
-                    active={index === activeIndex}
-                    id={`${listboxId}-option-${index}`}
-                    key={`${product.storeId}-${product.productId}`}
-                    onHover={() => setActiveIndex(index)}
-                    onSelect={() => openProduct(product)}
-                    product={product}
-                  />
-                ))}
-              </ul>
+              <>
+                {suggestions.length > 0 ? (
+                  <ul
+                    aria-labelledby={`${listboxId}-heading`}
+                    className="max-h-[min(360px,60vh)] overflow-y-auto overscroll-contain py-1.5"
+                    id={listboxId}
+                    role="listbox"
+                  >
+                    {suggestions.map((suggestion, index) => (
+                      <Fragment key={`${suggestion.kind}-${suggestion.kind === "store" ? suggestion.item.storeId : suggestion.item.productId}`}>
+                        {index === 0 || suggestions[index - 1]?.kind !== suggestion.kind ? (
+                          <li className="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted" role="presentation">{t(suggestion.kind === "store" ? "stores" : "products")}</li>
+                        ) : null}
+                        <SuggestionRow
+                          active={index === activeIndex}
+                          id={`${listboxId}-option-${index}`}
+                          onHover={() => setActiveIndex(index)}
+                          onSelect={() => openSuggestion(suggestion)}
+                          suggestion={suggestion}
+                        />
+                      </Fragment>
+                    ))}
+                  </ul>
+                ) : null}
+                {isSearching ? <SuggestionLoading withResults={suggestions.length > 0} /> : null}
+                {stores.isError ? <SuggestionError label={t("stores")} /> : null}
+                {products.isError ? <SuggestionError label={t("products")} /> : null}
+                {!suggestions.length && !isSearching && !stores.isError && !products.isError ? (
+                  <p className="px-4 py-5 text-sm text-muted">{t("noSuggestions", { query: trimmed })}</p>
+                ) : null}
+              </>
             )}
             <button
               className="flex w-full items-center justify-between gap-3 border-t border-line px-4 py-3 text-left text-sm font-semibold text-brand transition hover:bg-[var(--soft-surface)]"
@@ -262,25 +309,52 @@ function HeaderSearchField({ initialQuery }: { initialQuery: string }) {
   );
 }
 
+function SuggestionLoading({ withResults = false }: { withResults?: boolean }) {
+  const t = useTranslations("deliveries.search");
+  return (
+    <div aria-live="polite" className={`flex items-center gap-3 px-4 py-4 ${withResults ? "border-t border-line" : ""}`} role="status">
+      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand ring-1 ring-brand/15">
+        <LoaderCircle aria-hidden="true" className="size-5 animate-spin" />
+      </span>
+      <span className="text-sm font-medium text-ink">{t("suggestionsLoading")}</span>
+    </div>
+  );
+}
+
+function SuggestionError({ label }: { label: string }) {
+  const t = useTranslations("deliveries.search");
+  return (
+    <p className="px-4 py-2 text-xs text-danger" role="alert">
+      {label}: {t("error")}
+    </p>
+  );
+}
+
 function SuggestionRow({
   active,
   id,
   onHover,
   onSelect,
-  product,
+  suggestion,
 }: {
   active: boolean;
   id: string;
   onHover: () => void;
   onSelect: () => void;
-  product: SearchProduct;
+  suggestion: Suggestion;
 }) {
+  const t = useTranslations("deliveries.search");
   const locale = useLocale();
   const format = useFormatter();
-  const name = getLocalizedProductName(
-    { name: product.productName, nameTranslations: product.productNameTranslations },
-    locale,
+  const name = suggestion.kind === "store" ? suggestion.item.name : getLocalizedProductName(
+    { name: suggestion.item.productName, nameTranslations: suggestion.item.productNameTranslations }, locale,
   );
+  const subtitle = suggestion.kind === "store"
+    ? suggestion.item.shopTypeName || suggestion.item.address || t("stores")
+    : suggestion.item.storeName;
+  const image = suggestion.kind === "store"
+    ? suggestion.item.logo ?? suggestion.item.coverImage
+    : suggestion.item.productImage ?? suggestion.item.storeImage ?? suggestion.item.storeLogo;
 
   return (
     <li
@@ -296,15 +370,15 @@ function SuggestionRow({
         alt=""
         className="size-12 flex-none overflow-hidden rounded-lg"
         sizes="48px"
-        src={product.productImage ?? product.storeImage ?? product.storeLogo}
+        src={image}
       />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-ink">{name}</p>
-        <p className="mt-0.5 truncate text-xs text-muted">{product.storeName}</p>
+        <p className="mt-0.5 truncate text-xs text-muted">{subtitle}</p>
       </div>
-      <span className="flex-none text-sm font-bold tabular-nums text-brand">
-        {formatAppCurrency(format, product.price)}
-      </span>
+      {suggestion.kind === "store" ? <ArrowRight aria-hidden="true" className="size-4 flex-none text-brand" /> : (
+        <span className="flex-none text-sm font-bold tabular-nums text-brand">{formatAppCurrency(format, suggestion.item.price)}</span>
+      )}
     </li>
   );
 }

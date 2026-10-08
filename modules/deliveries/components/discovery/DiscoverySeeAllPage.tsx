@@ -115,7 +115,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
   const total = query.data?.pages[0]?.total ?? items.length;
   const activeFilterCount = (stock !== "all" ? 1 : 0) + priceTiers.length + (selectedShopType ? 1 : 0) + (sortBy !== "recommended" ? 1 : 0);
   const title = customTitle || t(`titles.${kind}`);
-  const selectedShopTypeName = (shopTypes.data ?? []).find((item) => item.id === selectedShopType)?.name;
+  const selectedShopTypeName = (shopTypes.data?.items ?? []).find((item) => item.id === selectedShopType)?.name;
   const appliedFilters = [
     ...(stock !== "all" ? [{ key: "stock", label: t(`stock.${stock}`), remove: () => setStock("all") }] : []),
     ...priceTiers.map((tier) => ({ key: `price-${tier}`, label: tier, remove: () => setPriceTiers((current) => current.filter((item) => item !== tier)) })),
@@ -236,7 +236,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
         <DiscoveryFilterDrawer
           onApply={applyFilters}
           onClose={() => setFiltersOpen(false)}
-          shopTypes={shopTypes.data ?? []}
+          shopTypes={shopTypes.data?.items ?? []}
           showShopTypes={kind === "nearby"}
           value={{
             stock,

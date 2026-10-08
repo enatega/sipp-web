@@ -40,11 +40,11 @@ export function SocialAuthButtons({ onAuthenticated, onError }: Props) {
   const t = useTranslations("auth");
   const googleLogin = useGoogleLoginMutation();
   const googleButton = useRef<HTMLDivElement>(null);
+  const finishGoogleRef = useRef<(response: GoogleCredentialResponse) => Promise<void>>(async () => undefined);
   const [googleReady, setGoogleReady] = useState(false);
 
   const finishGoogle = useCallback(async (response: GoogleCredentialResponse) => {
     if (!response.credential) {
-      onError(t("googleInvalidResponse"));
       return;
     }
     try {
@@ -54,6 +54,7 @@ export function SocialAuthButtons({ onAuthenticated, onError }: Props) {
       onError(t("socialLoginError"));
     }
   }, [googleLogin, onAuthenticated, onError, t]);
+  finishGoogleRef.current = finishGoogle;
 
   useEffect(() => {
     const container = googleButton.current;
@@ -62,7 +63,7 @@ export function SocialAuthButtons({ onAuthenticated, onError }: Props) {
     container.replaceChildren();
     window.google.accounts.id.initialize({
       client_id: googleClientId,
-      callback: (response) => void finishGoogle(response),
+      callback: (response) => void finishGoogleRef.current(response),
       auto_select: false,
       cancel_on_tap_outside: true,
     });
@@ -75,7 +76,7 @@ export function SocialAuthButtons({ onAuthenticated, onError }: Props) {
       logo_alignment: "left",
       width: Math.max(240, Math.min(400, Math.floor(container.clientWidth))),
     });
-  }, [finishGoogle, googleReady]);
+  }, [googleReady]);
 
   if (!googleClientId) return null;
 

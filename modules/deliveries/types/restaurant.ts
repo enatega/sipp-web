@@ -31,6 +31,9 @@ export interface RestaurantStore {
   tagLine: string | null;
   description: string | null;
   isAvailable: boolean;
+  isAdministrativelyAvailable: boolean;
+  timezone: string | null;
+  storeTimings: Record<string, { is_active?: boolean; slots?: Array<{ open?: string; close?: string }> }> | null;
   isFavorited: boolean;
   categories: RestaurantCategory[];
   subcategories: RestaurantSubcategory[];

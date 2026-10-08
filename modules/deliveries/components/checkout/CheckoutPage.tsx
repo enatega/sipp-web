@@ -13,8 +13,8 @@ import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { ApiError } from "@/services/api/client";
 import { checkoutSchema, type CheckoutFormValues } from "../../schemas/checkoutSchema";
 import { useCartQuery } from "../../hooks/useCart";
-import { useCheckoutPreview, usePlaceOrderMutation, useStripeOrderStatus, useValidateCheckoutAddressMutation } from "../../hooks/useCheckout";
-import type { CheckoutPreviewInput, StripePaymentQuote } from "../../types/checkout";
+import { useCheckoutPreview, usePlaceOrderMutation, usePlacedOrderLookup, useStripeOrderStatus, useValidateCheckoutAddressMutation } from "../../hooks/useCheckout";
+import type { CheckoutPreviewInput, PlaceOrderInput, StripePaymentQuote } from "../../types/checkout";
 import { CheckoutAddressPicker } from "./CheckoutAddressPicker";
 import { CheckoutAlertStack, type CheckoutAlert } from "./CheckoutAlertStack";
 import { CheckoutCouponSection } from "./CheckoutCouponSection";
@@ -66,6 +66,10 @@ function FieldError({ message }: { message?: string }) {
   return message ? <p role="alert" className="mt-2 text-xs font-medium text-brand">{message}</p> : null;
 }
 
+function isMissingCartBucketError(error: unknown) {
+  return error instanceof ApiError && error.status === 404 && /bucket not found/i.test(error.message);
+}
+
 interface Props {
   initialStripeDraftId?: string;
   wasCardPaymentCancelled?: boolean;
@@ -84,8 +88,11 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const wallet = useWalletQuery(authenticated);
   const storedPlace = useStoredPlace();
   const placeOrder = usePlaceOrderMutation();
+  const lookupPlacedOrder = usePlacedOrderLookup();
   const validateAddress = useValidateCheckoutAddressMutation();
   const [submitError, setSubmitError] = useState("");
+  const [isOrderConfirmationUnknown, setIsOrderConfirmationUnknown] = useState(false);
+  const unconfirmedAttemptRef = useRef<Pick<PlaceOrderInput, "bucketId" | "paymentMethod"> | null>(null);
   const [dismissedPreviewError, setDismissedPreviewError] = useState<unknown>(null);
   const [isAddressPickerOpen, setIsAddressPickerOpen] = useState(false);
   const [addressPickerError, setAddressPickerError] = useState("");
@@ -128,7 +135,11 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     onSubmit: async (values) => {
       if (!cart.data?.bucketId || !cart.data.storeId) return;
       if (values.orderType === "delivery" && !deliveryPlace) return;
-      if (values.paymentMethod === "wallet") {
+      const retryingUnconfirmedWalletOrder =
+        values.paymentMethod === "wallet" &&
+        unconfirmedAttemptRef.current?.bucketId === cart.data.bucketId &&
+        unconfirmedAttemptRef.current.paymentMethod === "wallet";
+      if (values.paymentMethod === "wallet" && !retryingUnconfirmedWalletOrder) {
         if (wallet.isPending) {
           showSubmitError(t("walletLoading"));
           return;
@@ -143,23 +154,25 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         }
       }
       setSubmitError("");
+      setIsOrderConfirmationUnknown(false);
+      const input: PlaceOrderInput = {
+        storeId: cart.data.storeId,
+        bucketId: cart.data.bucketId,
+        orderType: values.orderType,
+        paymentMethod: values.paymentMethod,
+        ...(values.paymentMethod === "stripe" && resolvedPaymentMethodId
+          ? { paymentMethodId: resolvedPaymentMethodId }
+          : {}),
+        ...(values.orderType === "delivery" && deliveryPlace
+          ? {
+              ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId),
+              riderTip: values.riderTip || undefined,
+            }
+          : {}),
+        customerNote: buildNote(values),
+      };
       try {
-        const response = await placeOrder.mutateAsync({
-          storeId: cart.data.storeId,
-          bucketId: cart.data.bucketId,
-          orderType: values.orderType,
-          paymentMethod: values.paymentMethod,
-          ...(values.paymentMethod === "stripe" && resolvedPaymentMethodId
-            ? { paymentMethodId: resolvedPaymentMethodId }
-            : {}),
-          ...(values.orderType === "delivery" && deliveryPlace
-            ? {
-                ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId),
-                riderTip: values.riderTip || undefined,
-              }
-            : {}),
-          customerNote: buildNote(values),
-        });
+        const response = await placeOrder.mutateAsync(input);
         if (response.mode === "stripe") {
           if (response.orderId) {
             router.push(`/orders/${response.orderId}`);
@@ -186,7 +199,38 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           return;
         }
         router.push(`/orders/${response.orderId}`);
+        unconfirmedAttemptRef.current = null;
       } catch (error) {
+        if (!(error instanceof ApiError) || error.status === 408 || error.status >= 500) {
+          for (let attempt = 0; attempt < 3; attempt += 1) {
+            if (attempt > 0) {
+              await new Promise<void>((resolve) => window.setTimeout(resolve, 1_500));
+            }
+            try {
+              const placed = await lookupPlacedOrder({ bucketId: input.bucketId, storeId: input.storeId });
+              if (placed.orderId) {
+                void refetchCart();
+                router.push(`/orders/${placed.orderId}`);
+                return;
+              }
+            } catch (lookupError) {
+              if (lookupError instanceof ApiError && (lookupError.status === 401 || lookupError.status === 403)) {
+                setIsOrderConfirmationUnknown(true);
+                showSubmitError(checkoutErrorMessage(lookupError));
+                return;
+              }
+            }
+          }
+          unconfirmedAttemptRef.current = { bucketId: input.bucketId, paymentMethod: input.paymentMethod };
+          setIsOrderConfirmationUnknown(true);
+          showSubmitError(t("orderConfirmationUnknown"));
+          return;
+        }
+        if (isMissingCartBucketError(error)) {
+          await refetchCart();
+          showSubmitError(t("orderChangedError"));
+          return;
+        }
         showSubmitError(checkoutErrorMessage(error));
       }
     },
@@ -235,6 +279,12 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   }, [refetchCart, router, stripeOrderStatus.data?.orderId]);
 
   useEffect(() => {
+    if (isMissingCartBucketError(preview.error)) {
+      void refetchCart();
+    }
+  }, [preview.error, refetchCart]);
+
+  useEffect(() => {
     const store = preview.data?.store;
     if (!store) return;
     if (formik.values.orderType === "delivery" && !store.deliveryAllowed && store.pickupAllowed) void formik.setFieldValue("orderType", "pickup");
@@ -264,6 +314,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         return t("addressUnavailable");
       }
       if (error.status === 409) return t("orderChangedError");
+      if (isMissingCartBucketError(error)) return t("orderChangedError");
       if (/insufficient.*wallet|wallet.*balance/i.test(error.message)) {
         void wallet.refetch();
         setIsWalletDialogOpen(true);
@@ -341,7 +392,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div role={needsAttention ? "alert" : "status"}>{needsAttention ? null : <LoaderCircle aria-hidden="true" className="mx-auto size-8 animate-spin text-brand" />}<h1 className="mt-5 text-xl font-bold text-ink">{hasFailed ? t("cardPaymentError") : stripeOrderStatus.isError ? t("paymentConfirmationDelayedTitle") : t("confirmingPayment")}</h1><p className="mt-2 max-w-sm text-sm text-body">{hasFailed ? t("cardPaymentRetryHint") : stripeOrderStatus.isError ? t("paymentConfirmationDelayed") : t("confirmingPaymentHint")}</p>{needsAttention ? <div className="mt-5 flex justify-center gap-3"><Link href="/orders" className="inline-flex rounded-full bg-brand px-5 py-3 text-sm font-bold text-ink">{t("viewOrders")}</Link><Link href="/checkout" className="inline-flex rounded-full border border-line px-5 py-3 text-sm font-bold text-ink">{t("backToCheckout")}</Link></div> : null}</div></main></>;
   }
   if (cart.isError || !cart.data) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button type="button" onClick={() => void cart.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
-  if (cart.data.isEmpty) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><ShoppingBag aria-hidden="true" className="mx-auto size-10 text-brand" /><h1 className="mt-4 text-xl font-bold text-ink">{t("emptyTitle")}</h1><p className="mt-2 text-sm text-body">{t("emptyMessage")}</p><Link href="/discovery" className="mt-5 inline-flex rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("browseFood")}</Link></div></main></>;
+  if (cart.data.isEmpty) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><ShoppingBag aria-hidden="true" className="mx-auto size-10 text-brand" /><h1 className="mt-4 text-xl font-bold text-ink">{t("emptyTitle")}</h1><p className="mt-2 text-sm text-body">{t("emptyMessage")}</p><div className="mt-5 flex flex-wrap justify-center gap-3"><Link href="/orders" className="inline-flex rounded-full border border-line px-6 py-3 text-sm font-bold text-ink">{t("viewOrders")}</Link><Link href="/discovery" className="inline-flex rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("browseFood")}</Link></div></div></main></>;
 
   const store = preview.data?.store;
   const checkoutAlerts: CheckoutAlert[] = [
@@ -357,9 +408,10 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     ...(submitError
       ? [{
           id: "submit",
-          title: t("placeOrderErrorTitle"),
+          title: t(isOrderConfirmationUnknown ? "orderConfirmationUnknownTitle" : "placeOrderErrorTitle"),
           message: submitError,
-          onDismiss: () => setSubmitError(""),
+          ...(isOrderConfirmationUnknown ? { actionHref: "/orders", actionLabel: t("viewOrders") } : {}),
+          onDismiss: () => { setSubmitError(""); setIsOrderConfirmationUnknown(false); },
         }]
       : []),
   ];
@@ -421,7 +473,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MessageSquareText aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("notesTitle")}</h2><p className="text-xs text-muted">{t("notesDescription")}</p></div></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-xs font-semibold text-ink">{t("restaurantNote")}<textarea name="restaurantNote" maxLength={250} rows={3} value={formik.values.restaurantNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("restaurantNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.restaurantNote ? formik.errors.restaurantNote : undefined} /></label>{formik.values.orderType === "delivery" ? <label className="text-xs font-semibold text-ink">{t("courierNote")}<textarea name="courierNote" maxLength={250} rows={3} value={formik.values.courierNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("courierNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.courierNote ? formik.errors.courierNote : undefined} /></label> : null}</div></section>
 
             </div>
-            <CheckoutSummary preview={preview.data} isLoading={preview.isFetching} isPlacing={placeOrder.isPending} disabled={!formik.isValid || !previewInput || cart.data.items.some((item) => !item.inStock)} paymentMethod={formik.values.paymentMethod} />
+            <CheckoutSummary preview={preview.data} isLoading={preview.isFetching} isPlacing={placeOrder.isPending || formik.isSubmitting} disabled={!formik.isValid || !previewInput || cart.data.items.some((item) => !item.inStock)} paymentMethod={formik.values.paymentMethod} />
           </div>
         </form>
       </main>
