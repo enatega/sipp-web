@@ -21,6 +21,7 @@ import { CheckoutCouponSection } from "./CheckoutCouponSection";
 import { CheckoutSavedCardPicker } from "./CheckoutSavedCardPicker";
 import { CheckoutSummary } from "./CheckoutSummary";
 import { StripePaymentModal } from "./StripePaymentModal";
+import { clearCheckoutNotesDraft, readCheckoutNotesDraft, writeCheckoutNotesDraft } from "../../utils/checkoutNotesDraft";
 
 const TIP_OPTIONS = [0, 5, 10, 20];
 
@@ -160,6 +161,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
             : {}),
           customerNote: buildNote(values),
         });
+        clearCheckoutNotesDraft(cart.data.bucketId);
         if (response.mode === "stripe") {
           if (response.orderId) {
             router.push(`/orders/${response.orderId}`);
@@ -191,6 +193,22 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       }
     },
   });
+
+  // Keep typed notes across a quick trip back to the cart (BUG-035).
+  const bucketId = cart.data?.bucketId;
+  const restoredNotesFor = useRef<string | null>(null);
+  const { restaurantNote, courierNote } = formik.values;
+  const { setValues } = formik;
+  useEffect(() => {
+    if (!bucketId || restoredNotesFor.current === bucketId) return;
+    restoredNotesFor.current = bucketId;
+    const draft = readCheckoutNotesDraft(bucketId);
+    if (draft) void setValues((current) => ({ ...current, ...draft }), false);
+  }, [bucketId, setValues]);
+  useEffect(() => {
+    if (!bucketId || restoredNotesFor.current !== bucketId) return;
+    writeCheckoutNotesDraft(bucketId, { restaurantNote, courierNote });
+  }, [bucketId, restaurantNote, courierNote]);
 
   const previewInput = useMemo<CheckoutPreviewInput | null>(() => {
     if (!cart.data?.bucketId || !cart.data.storeId) return null;
