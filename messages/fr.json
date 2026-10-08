@@ -160,6 +160,8 @@
   },
   "profile": {
     "loading": "Chargement du profil...",
+    "showBalance": "Afficher le solde du portefeuille",
+    "hideBalance": "Cacher le solde du portefeuille",
     "edit": "Modifier le profil",
     "accountSettings": "Paramètres du compte",
     "personalInformation": "Renseignements personnels",

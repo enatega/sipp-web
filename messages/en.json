@@ -160,6 +160,8 @@
   },
   "profile": {
     "loading": "Loading profile…",
+    "showBalance": "Show wallet balance",
+    "hideBalance": "Hide wallet balance",
     "edit": "Edit Profile",
     "accountSettings": "Account Settings",
     "personalInformation": "Personal Information",

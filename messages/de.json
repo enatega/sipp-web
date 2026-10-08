@@ -160,6 +160,8 @@
   },
   "profile": {
     "loading": "Profil wird geladen…",
+    "showBalance": "Wallet-Guthaben anzeigen",
+    "hideBalance": "Wallet-Guthaben verbergen",
     "edit": "Profil bearbeiten",
     "accountSettings": "Kontoeinstellungen",
     "personalInformation": "Persönliche Daten",

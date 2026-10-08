@@ -160,6 +160,8 @@
   },
   "profile": {
     "loading": "Cargando perfil...",
+    "showBalance": "Mostrar saldo de la cartera",
+    "hideBalance": "Ocultar el saldo de la cartera",
     "edit": "Editar perfil",
     "accountSettings": "Ajustes de la cuenta",
     "personalInformation": "Información personal",
