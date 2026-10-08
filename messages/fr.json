@@ -1148,6 +1148,7 @@
         "delivered": "délivré",
         "cancelled": "Annulé",
         "rejected": "Rejeté",
+        "failed": "Échoué",
         "scheduled": "Prévue"
       },
       "closeReview": "Examen approfondi",

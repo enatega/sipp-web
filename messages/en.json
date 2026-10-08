@@ -1148,6 +1148,7 @@
         "delivered": "Delivered",
         "cancelled": "Cancelled",
         "rejected": "Rejected",
+        "failed": "Failed",
         "scheduled": "Scheduled"
       },
       "closeReview": "Close review",

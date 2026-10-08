@@ -1148,6 +1148,7 @@
         "delivered": "المبلغ",
         "cancelled": "ألغيت",
         "rejected": "Rejected",
+        "failed": "فشل",
         "scheduled": "الجدول الزمني"
       },
       "closeReview": "الاستعراض الدقيق",

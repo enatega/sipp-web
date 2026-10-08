@@ -1148,6 +1148,7 @@
         "delivered": "Geliefert",
         "cancelled": "Storniert",
         "rejected": "Abgelehnt",
+        "failed": "Fehlgeschlagen",
         "scheduled": "Geplant"
       },
       "closeReview": "Bewertung schließen",

@@ -1148,6 +1148,7 @@
         "delivered": "Entrega",
         "cancelled": "Cancelada",
         "rejected": "Rechazado",
+        "failed": "Fallido",
         "scheduled": "Programado"
       },
       "closeReview": "Close review",
