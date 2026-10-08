@@ -227,6 +227,7 @@
     "allNotificationsRead": "Toutes les notifications ont été marquées comme lues",
     "notificationsReadFailed": "Impossible de mettre à jour vos notifications. Veuillez réessayer.",
     "addedToCart": "{product} a été ajouté à votre panier",
+    "recentSearchUpdateFailed": "Impossible de mettre à jour vos recherches récentes. Veuillez réessayer.",
     "offline": "Vous semblez être hors ligne. Vérifiez votre connexion et réessayez.",
     "timeout": "Cela prend plus de temps que prévu. Veuillez réessayer.",
     "rateLimited": "Trop de tentatives. Patientez un instant puis réessayez.",

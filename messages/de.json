@@ -227,6 +227,7 @@
     "allNotificationsRead": "Alle Benachrichtigungen als gelesen markiert",
     "notificationsReadFailed": "Ihre Benachrichtigungen konnten nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
     "addedToCart": "{product} wurde zu Ihrem Warenkorb hinzugefügt",
+    "recentSearchUpdateFailed": "Deine letzten Suchen konnten nicht aktualisiert werden. Bitte versuche es erneut.",
     "offline": "Sie scheinen offline zu sein. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
     "timeout": "Das dauert länger als erwartet. Bitte versuchen Sie es erneut.",
     "rateLimited": "Zu viele Versuche. Bitte warten Sie einen Moment und versuchen Sie es erneut.",

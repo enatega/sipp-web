@@ -24,7 +24,7 @@ export type ToastKey =
   | "accountDeleted" | "accountDeleteFailed"
   | "addedToFavourites" | "removedFromFavourites" | "favouriteUpdateFailed"
   | "allNotificationsRead" | "notificationsReadFailed"
-  | "addedToCart"
+  | "addedToCart" | "recentSearchUpdateFailed"
   | "offline" | "timeout" | "rateLimited" | "sessionExpired";
 
 const MAX_SERVER_MESSAGE_LENGTH = 140;
