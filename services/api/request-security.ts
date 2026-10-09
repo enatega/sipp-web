@@ -31,6 +31,14 @@ export function isValidEmail(value: unknown): value is string {
   return typeof value === "string" && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+export function isUuid(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
+export function invalidIdentifier() {
+  return NextResponse.json({ message: "Invalid order identifier." }, { status: 400 });
+}
+
 export function isValidOtp(value: unknown): value is string {
   return typeof value === "string" && /^\d{4}$/.test(value);
 }
