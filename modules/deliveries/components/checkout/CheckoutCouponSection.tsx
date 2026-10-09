@@ -16,9 +16,10 @@ interface Props {
   appliedCouponId: string | null;
   appliedCouponCode: string | null;
   isCouponNotApplicable?: boolean;
+  previewCoupon?: { id: string; code: string; isApplied: boolean } | null;
 }
 
-export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCouponId: cartCouponId, appliedCouponCode, isCouponNotApplicable = false }: Props) {
+export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCouponId: cartCouponId, appliedCouponCode, isCouponNotApplicable = false, previewCoupon }: Props) {
   const t = useTranslations("deliveries.checkout");
   const couponT = useTranslations("coupons");
   const format = useFormatter();
@@ -30,10 +31,11 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
   const [busyId, setBusyId] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const items = useMemo(() => coupons.data?.pages.flatMap((page) => page.data) ?? [], [coupons.data]);
-  // The cart may not echo the coupon yet, so fall back to the customer's activated coupon.
-  const appliedCouponId = cartCouponId ?? items.find((coupon) => coupon.is_active)?.id ?? null;
-  const activeCoupon = items.find((coupon) => coupon.id === appliedCouponId && !disabledReason(coupon));
-  const activeCouponCode = activeCoupon?.code ?? appliedCouponCode ?? "";
+  // A claimed coupon can be active on the account without being applied to this order.
+  // Only the server's priced checkout preview may confirm the discount.
+  const appliedCouponId = previewCoupon?.isApplied ? previewCoupon.id : null;
+  const selectedCouponId = cartCouponId ?? null;
+  const activeCouponCode = previewCoupon?.code ?? appliedCouponCode ?? "";
 
   function disabledReason(coupon: ClaimedCoupon) {
     if (coupon.min_order_value > subtotal) return t("couponMinimumNotMet", { amount: formatAppCurrency(format, coupon.min_order_value) });
@@ -61,9 +63,10 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
   async function toggleCoupon(coupon: ClaimedCoupon) {
     setNotice(null);
     setBusyId(coupon.id);
+    const isRemoving = coupon.id === appliedCouponId;
     try {
-      await activation.mutateAsync({ id: coupon.id, isActive: !coupon.is_active });
-      setNotice({ kind: "success", text: coupon.is_active ? t("couponRemoved") : t("couponApplied") });
+      await activation.mutateAsync({ id: coupon.id, isActive: !isRemoving });
+      setNotice({ kind: "success", text: isRemoving ? t("couponRemoved") : t("couponApplied") });
     } catch (error) {
       setNotice({ kind: "error", text: error instanceof ApiError && error.status === 400 ? t("couponNotApplicable") : couponT("genericError") });
     } finally {
@@ -72,11 +75,11 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
   }
 
   async function removeAppliedCoupon() {
-    if (!appliedCouponId) return;
+    if (!selectedCouponId) return;
     setNotice(null);
-    setBusyId(appliedCouponId);
+    setBusyId(selectedCouponId);
     try {
-      await activation.mutateAsync({ id: appliedCouponId, isActive: false });
+      await activation.mutateAsync({ id: selectedCouponId, isActive: false });
       setNotice({ kind: "success", text: t("couponRemoved") });
     } catch {
       setNotice({ kind: "error", text: couponT("genericError") });
@@ -100,6 +103,11 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
 
       {notice ? <p role={notice.kind === "error" ? "alert" : "status"} className={`mt-3 rounded-xl px-4 py-3 text-xs font-medium ${notice.kind === "error" ? "bg-danger-soft text-danger" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"}`}>{notice.text}</p> : null}
 
+      {selectedCouponId && previewCoupon !== undefined && !appliedCouponId ? (
+        <p role="status" className="mt-4 rounded-xl bg-amber-50 p-4 text-xs font-medium text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+          {t("couponNotApplicable")}
+        </p>
+      ) : null}
       {appliedCouponId ? (
         <div className="mt-4 flex flex-col gap-3 rounded-xl border border-brand/20 bg-brand/5 p-4 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-xs font-bold text-ink">
@@ -108,11 +116,11 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, appliedCoupo
           </span>
           <button
             className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 text-xs font-bold text-ink hover:bg-[var(--soft-surface)] disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={activation.isPending && busyId === appliedCouponId}
+            disabled={activation.isPending && busyId === selectedCouponId}
             onClick={() => void removeAppliedCoupon()}
             type="button"
           >
-            {activation.isPending && busyId === appliedCouponId ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}
+            {activation.isPending && busyId === selectedCouponId ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}
             {couponT("deactivate")}
           </button>
         </div>

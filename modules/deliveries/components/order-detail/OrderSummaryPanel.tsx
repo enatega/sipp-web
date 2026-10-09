@@ -116,6 +116,17 @@ export function OrderSummaryPanel({ order }: Props) {
           <div className="mt-4 rounded-xl bg-[var(--soft-surface)] p-4 text-xs leading-5 text-body" role="status">{t("refundNotRecorded")}</div>
         ) : null}
       </section>
+      {["cancelled", "rejected"].includes(order.status.toLowerCase()) ? (
+        <section className="rounded-2xl border border-line bg-card p-5 shadow-card sm:p-6" aria-label={t("refundTitle")}>
+          <h2 className="text-sm font-bold text-ink">{t("refundTitle")}</h2>
+          {order.refund?.status === "completed" ? (
+            <p className="mt-2 text-sm leading-6 text-body">{t("refundCredited", { amount: money(order.refund.amount) })}</p>
+          ) : (
+            <p className="mt-2 text-sm leading-6 text-body">{t("refundNotRecorded")}</p>
+          )}
+          <Link href="/wallet" className="mt-3 inline-flex min-h-10 items-center text-sm font-bold text-brand underline-offset-4 hover:underline">{t("viewWallet")}</Link>
+        </section>
+      ) : null}
     </aside>
   );
 }

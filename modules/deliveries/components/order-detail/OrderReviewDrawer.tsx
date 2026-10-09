@@ -22,7 +22,7 @@ export function OrderReviewDrawer({ orderId, review, storeName, onClose }: Props
   const mutation = useSubmitOrderReview();
   const [isSaved, setIsSaved] = useState(Boolean(review?.is_reviewed));
   const canClose = !mutation.isPending;
-  const existingRating = review?.review_detail?.rating ?? 5;
+  const existingRating = review?.review_detail?.rating ?? 0;
   const existingDescription = review?.review_detail?.description ?? "";
   const formik = useFormik({
     initialValues: {
@@ -155,6 +155,9 @@ export function OrderReviewDrawer({ orderId, review, storeName, onClose }: Props
                 ))}
               </div>
             </fieldset>
+            {formik.submitCount > 0 && formik.errors.rating ? (
+              <p className="mt-2 text-center text-xs text-danger" role="alert">{formik.errors.rating}</p>
+            ) : null}
 
             <label className="mt-7 block text-sm font-semibold text-ink" htmlFor="order-review-description">
               {t("reviewLabel")}
