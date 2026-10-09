@@ -39,6 +39,20 @@ export function invalidIdentifier() {
   return NextResponse.json({ message: "Invalid order identifier." }, { status: 400 });
 }
 
+function pageNumber(value: string | null, fallback: number, minimum: number, maximum: number) {
+  if (value === null) return fallback;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= minimum && parsed <= maximum ? parsed : fallback;
+}
+
+// Forward only clamped offset/limit upstream; any other query parameter is dropped.
+export function paginationQuery(searchParams: URLSearchParams, defaultLimit = 10, maxLimit = 50) {
+  return new URLSearchParams({
+    offset: String(pageNumber(searchParams.get("offset"), 0, 0, 100_000)),
+    limit: String(pageNumber(searchParams.get("limit"), defaultLimit, 1, maxLimit)),
+  });
+}
+
 export function isValidOtp(value: unknown): value is string {
   return typeof value === "string" && /^\d{4}$/.test(value);
 }
