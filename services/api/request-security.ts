@@ -1,15 +1,11 @@
 import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
+import { isCrossSiteRequest } from "@/services/api/origin-check";
 import { authCookieNames, decodeSessionUser } from "@/services/auth/session";
 
 export function rejectCrossSiteRequest(request: NextRequest) {
-  const origin = request.headers.get("origin");
-  const fetchSite = request.headers.get("sec-fetch-site");
-  if (
-    (origin && origin !== request.nextUrl.origin) ||
-    fetchSite === "cross-site"
-  ) {
+  if (isCrossSiteRequest(request)) {
     return NextResponse.json({ message: "Request origin was not accepted." }, { status: 403 });
   }
   return null;
