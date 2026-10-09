@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callApi, requireSession } from "@/services/api/server";
 import { authCookieNames } from "@/services/auth/session";
+import { requiredServerEnv } from "@/services/api/env";
 
 function socketBaseUrl() {
   const configured =
     process.env.SHAANIEOL_SOCKET_URL ??
     process.env.NEXT_PUBLIC_SOCKET_URL ??
-    process.env.API_BASE_URL ??
-    "http://localhost:8080/api/v1";
+    requiredServerEnv("API_BASE_URL", "http://localhost:8080/api/v1");
 
   return new URL(configured).origin;
 }

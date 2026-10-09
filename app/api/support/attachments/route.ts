@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authCookieNames } from "@/services/auth/session";
+import { requiredServerEnv } from "@/services/api/env";
 import { matchesDeclaredType, sniffFileType } from "@/services/api/file-signature";
 import { clientIpHeaders, requireSession } from "@/services/api/server";
 
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     if (!sniffed || !matchesDeclaredType(file.type, sniffed)) return NextResponse.json({ message: `Choose a supported attachment under ${limit} MB.` }, { status: 400 });
     const body = new FormData();
     body.set("file", file);
-    const base = (process.env.API_BASE_URL ?? "http://localhost:3000/api/v1").replace(/\/$/, "");
+    const base = requiredServerEnv("API_BASE_URL", "http://localhost:3000/api/v1").replace(/\/$/, "");
     const upstream = await fetch(`${base}/deliveries/support-tickets/attachments`, { method: "POST", body, headers: { ...(await clientIpHeaders()), Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(25000) });
     const data: unknown = await upstream.json().catch(() => null);
     if (!upstream.ok) return NextResponse.json({ message: "Attachment upload failed." }, { status: upstream.status });

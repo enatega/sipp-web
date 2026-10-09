@@ -3,6 +3,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { clientIpFrom } from "@/services/api/client-ip";
+import { requiredServerEnv } from "@/services/api/env";
 import { authCookieNames } from "@/services/auth/session";
 
 // Forwarded so upstream per-IP rate limits (OTP, throttler) apply per user, not to the BFF host.
@@ -16,10 +17,7 @@ export async function clientIpHeaders(): Promise<Record<string, string>> {
 }
 
 function apiBaseUrl() {
-  const configured =
-    process.env.API_BASE_URL ??
-    "http://localhost:3000/api/v1";
-  return configured.replace(/\/$/, "");
+  return requiredServerEnv("API_BASE_URL", "http://localhost:3000/api/v1").replace(/\/$/, "");
 }
 
 function errorMessage(payload: unknown, fallback: string) {
