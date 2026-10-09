@@ -1,7 +1,7 @@
 "use client";
 
 import { Form, Formik } from "formik";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LoaderCircle, Mail, Tag, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ApiError } from "@/services/api/client";
@@ -17,6 +17,12 @@ export function ContactForm() {
   const t = useTranslations("contact.form");
   const submitMessage = useSubmitContactMessage();
   const [isSent, setIsSent] = useState(false);
+
+  useEffect(() => {
+    if (!isSent) return;
+    const timeout = window.setTimeout(() => setIsSent(false), 6000);
+    return () => window.clearTimeout(timeout);
+  }, [isSent]);
 
   const schema = useMemo(
     () =>
@@ -34,22 +40,20 @@ export function ContactForm() {
       : t("sendError")
     : null;
 
-  if (isSent) {
-    return (
-      <div role="status" className="rounded-[16px] border border-success-soft bg-success-soft p-6 text-center sm:p-10">
-        <h2 className="text-lg font-bold text-ink">{t("successTitle")}</h2>
-        <p className="mt-2 text-sm leading-[1.6] text-body">{t("successText")}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="rounded-[16px] border border-line bg-surface p-5 shadow-card sm:p-8">
       <h2 className="font-heading text-[20px] font-bold text-ink">{t("title")}</h2>
+      {isSent ? (
+        <div role="status" className="mt-5 rounded-[12px] border border-success-soft bg-success-soft p-4">
+          <p className="text-sm font-bold text-ink">{t("successTitle")}</p>
+          <p className="mt-1 text-sm text-body">{t("successText")}</p>
+        </div>
+      ) : null}
       <Formik
         initialValues={INITIAL_VALUES}
         validationSchema={schema}
         onSubmit={async (values, { resetForm }) => {
+          setIsSent(false);
           submitMessage.reset();
           try {
             await submitMessage.mutateAsync(values);

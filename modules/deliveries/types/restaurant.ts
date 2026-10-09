@@ -20,6 +20,8 @@ export interface RestaurantStore {
   slug: string;
   name: string;
   address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   logo: string | null;
   coverImage: string | null;
   averageRating: number;
@@ -27,6 +29,10 @@ export interface RestaurantStore {
   deliveryTime: string | number | null;
   distanceKm: number | null;
   baseFee: number;
+  minimumOrder: number;
+  pickupAllowed: boolean | null;
+  deliveryAllowed: boolean | null;
+  contact: { email: string | null; phone: string | null };
   shopTypeName: string;
   tagLine: string | null;
   description: string | null;

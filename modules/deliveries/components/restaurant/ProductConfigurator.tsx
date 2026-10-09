@@ -22,6 +22,7 @@ import {
 import styles from "./restaurant-transitions.module.css";
 import { getLocalizedProductName } from "../../utils/productTranslation";
 import { applyProductDeal } from "../../utils/dealPricing";
+import type { RestaurantProduct } from "../../types/restaurant";
 
 interface Props {
   isStoreAvailable: boolean;
@@ -30,9 +31,10 @@ interface Props {
   onRequireSignIn: () => void;
   productId: string;
   storeName: string;
+  previewProduct?: RestaurantProduct;
 }
 
-export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose, onRequireSignIn, productId, storeName }: Props) {
+export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose, onRequireSignIn, productId, storeName, previewProduct }: Props) {
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
   const formatAppCurrency = useAppCurrencyFormatter();
@@ -71,7 +73,19 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
     panelRef.current?.focus();
   }, [productId]);
 
-  const product = info.data;
+  const product = info.data ?? (previewProduct ? {
+    productId: previewProduct.id,
+    storeId: "",
+    name: previewProduct.name,
+    nameTranslations: previewProduct.nameTranslations,
+    imageUrl: previewProduct.imageUrl,
+    description: previewProduct.description ?? previewProduct.shortDescription,
+    price: previewProduct.price,
+    averageRating: 0,
+    reviewCount: 0,
+    inStock: previewProduct.inStock,
+    deal: previewProduct.deal,
+  } : undefined);
   const productName = product ? getLocalizedProductName(product, locale) : "";
   const customizationData = customizations.data ?? { variations: [], addons: [] };
   const missingGroups = missingCustomizationGroups(
@@ -261,7 +275,7 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
       </div>
       <div className="relative -mt-6 px-5 pb-1">
         <p className="truncate text-[11px] font-bold uppercase tracking-[0.16em] text-brand">{storeName}</p>
-        {info.isPending ? <div className="mt-2 h-6 w-48 animate-pulse rounded bg-[var(--soft-surface)]" /> : null}
+        {info.isPending && !previewProduct ? <div className="mt-2 h-6 w-48 animate-pulse rounded bg-[var(--soft-surface)]" /> : null}
         <h2 className="mt-1 text-xl font-bold leading-tight text-ink sm:text-2xl">{productName}</h2>
         {product?.description ? <p className="mt-2 line-clamp-3 text-sm leading-6 text-body">{product.description}</p> : null}
         {product ? (

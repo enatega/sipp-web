@@ -225,7 +225,18 @@ function OrderRow({ order, past, scheduled, expanded, onToggle, onRate }: OrderR
   const rawStatus = rawOrderStatus(order);
   const name = order.store?.name ?? order.storeName ?? t("storeFallback");
   const image = order.store?.logo ?? order.store?.image ?? order.storeLogo ?? order.storeImage;
-  const address = order.deliveryDetails?.address ?? order.deliveryAddress ?? t("notAvailable");
+  const detailQuery = useQuery({
+    queryKey: deliveryQueryKeys.order(order.orderId),
+    queryFn: ({ signal }) => ordersApi.detail(order.orderId, signal),
+    enabled: !order.itemsSummary || !(order.deliveryDetails?.address ?? order.deliveryAddress),
+    staleTime: 2 * 60_000,
+  });
+  const detail = detailQuery.data;
+  const address = detail?.orderType === "pickup"
+    ? detail.store?.address ?? order.store?.address ?? t("notAvailable")
+    : order.deliveryDetails?.address ?? order.deliveryAddress ?? detail?.deliveryDetails?.address ?? t("notAvailable");
+  const itemsSummary = order.itemsSummary ?? detail?.orderItems?.products
+    .map((product) => `${product.quantity} × ${product.name}`).join(", ");
   const reviewQuery = useQuery({
     queryKey: deliveryQueryKeys.orderReview(order.orderId),
     queryFn: ({ signal }) => ordersApi.reviewDetails(order.orderId, signal),
@@ -274,10 +285,10 @@ function OrderRow({ order, past, scheduled, expanded, onToggle, onRate }: OrderR
         </div>
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">{t("items")}</p>
-          <p className="line-clamp-2 text-xs text-body">{order.itemsSummary ?? t("noItems")}</p>
+          <p className="line-clamp-2 text-xs text-body">{itemsSummary || (detailQuery.isPending ? t("loadingDetails") : t("noItems"))}</p>
         </div>
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">{t("deliveryAddress")}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">{detail?.orderType === "pickup" ? t("pickupAddress") : t("deliveryAddress")}</p>
           <p className="line-clamp-2 text-xs text-body" title={address}>{address}</p>
         </div>
         <div className="min-[800px]:text-right">

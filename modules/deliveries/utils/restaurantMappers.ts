@@ -117,6 +117,8 @@ export function parseRestaurantStore(value: unknown): RestaurantStore {
     slug: text(source.slug),
     name: text(source.name),
     address: optionalText(source.address),
+    latitude: source.latitude == null ? null : number(source.latitude),
+    longitude: source.longitude == null ? null : number(source.longitude),
     logo: optionalText(source.logo),
     coverImage: optionalText(source.coverImage),
     averageRating: number(source.averageRating),
@@ -130,6 +132,13 @@ export function parseRestaurantStore(value: unknown): RestaurantStore {
         ? null
         : number(source.distanceKm),
     baseFee: number(source.baseFee),
+    minimumOrder: number(source.minimumOrder),
+    pickupAllowed: source.pickupAllowed == null ? null : source.pickupAllowed === true,
+    deliveryAllowed: source.deliveryAllowed == null ? null : source.deliveryAllowed === true,
+    contact: {
+      email: optionalText(record(source.contact).email),
+      phone: optionalText(record(source.contact).phone),
+    },
     shopTypeName: text(source.shopTypeName),
     tagLine: optionalText(source.tagLine),
     description: optionalText(source.description),

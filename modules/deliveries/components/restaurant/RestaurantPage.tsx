@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { LoaderCircle, Search, UtensilsCrossed } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
@@ -38,7 +38,6 @@ export function RestaurantPage({ slug }: Props) {
   const restaurant = useRestaurantQuery(storeId, location);
   const cart = useCartQuery(authenticated);
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [selectedSubcategories, setSelectedSubcategories] = useState<Record<string, string | null>>({});
@@ -46,13 +45,6 @@ export function RestaurantPage({ slug }: Props) {
     searchParams.get("productId"),
   );
 
-  useEffect(() => {
-    if (!isLegacyId || !restaurant.data?.slug || searchParams.get("productId")) return;
-    const query = searchParams.toString();
-    router.replace(
-      `/restaurants/${encodeURIComponent(restaurant.data.slug)}${query ? `?${query}` : ""}`,
-    );
-  }, [isLegacyId, restaurant.data?.slug, router, searchParams]);
   const productsQuery = useRestaurantProductsQuery(storeId, location, search);
   const favourite = useToggleRestaurantFavourite(storeId, location);
   const notify = useActionToast();
@@ -229,7 +221,7 @@ export function RestaurantPage({ slug }: Props) {
             )}
           </section>
 
-          {selectedProductId ? <ProductConfigurator isStoreAvailable={store.isAvailable} isAuthenticated={authenticated} key={selectedProductId} onClose={() => setSelectedProductId(null)} onRequireSignIn={requireSignIn} productId={selectedProductId} storeName={store.name} /> : null}
+          {selectedProductId ? <ProductConfigurator isStoreAvailable={store.isAvailable} isAuthenticated={authenticated} key={selectedProductId} onClose={() => setSelectedProductId(null)} onRequireSignIn={requireSignIn} previewProduct={products.find((product) => product.id === selectedProductId)} productId={selectedProductId} storeName={store.name} /> : null}
         </div>
       </main>
     </>
