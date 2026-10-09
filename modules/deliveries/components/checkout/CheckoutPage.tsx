@@ -23,6 +23,7 @@ import { CheckoutSummary } from "./CheckoutSummary";
 import { CheckoutPhoneVerification } from "./CheckoutPhoneVerification";
 import { StripePaymentModal } from "./StripePaymentModal";
 import { clearCheckoutNotesDraft, readCheckoutNotesDraft, writeCheckoutNotesDraft } from "../../utils/checkoutNotesDraft";
+import { isStripeCheckoutUrl } from "../../utils/stripeCheckoutUrl";
 
 const TIP_OPTIONS = [0, 5, 10, 20];
 
@@ -198,6 +199,10 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
             return;
           }
           if (response.checkoutUrl) {
+            if (!isStripeCheckoutUrl(response.checkoutUrl)) {
+              showSubmitError(t("paymentRedirectError"));
+              return;
+            }
             window.location.assign(response.checkoutUrl);
             return;
           }
