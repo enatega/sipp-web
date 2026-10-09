@@ -18,6 +18,7 @@ export {
   useAddressesQuery,
   usePlaceDetailsMutation,
   usePlaceSearchQuery,
+  useProfileQuery,
   useReverseGeocodeMutation,
   useSavedCardsQuery,
   useSessionQuery,

@@ -66,11 +66,26 @@ function isCreditTransaction(type: string) {
   );
 }
 
+// The API tags admin balance changes "admin_adjustment"; older data used
+// "admin_manual_adjustment".
+const ADMIN_ADJUSTMENT_ENTRIES = new Set(["admin_adjustment", "admin_manual_adjustment"]);
+
+function isAdminAdjustment(transaction: WalletTransaction) {
+  return ADMIN_ADJUSTMENT_ENTRIES.has(transaction.entryType ?? "");
+}
+
+/** The reason an admin typed for a balance adjustment, when there is one. */
+function adjustmentNote(transaction: WalletTransaction) {
+  if (!isAdminAdjustment(transaction)) return null;
+  const note = transaction.title?.trim();
+  return note && note !== "Wallet credit" && note !== "Wallet debit" ? note : null;
+}
+
 function transactionTitle(
   transaction: WalletTransaction,
   t: ReturnType<typeof useTranslations<"wallet">>,
 ) {
-  if (transaction.entryType === "admin_manual_adjustment") {
+  if (isAdminAdjustment(transaction)) {
     return t("transactionBalanceAdjustment");
   }
 
@@ -195,6 +210,11 @@ function TransactionRow({
         <p className="truncate text-sm font-semibold text-ink">
           {transactionTitle(transaction, t)}
         </p>
+        {adjustmentNote(transaction) ? (
+          <p className="mt-0.5 line-clamp-2 text-xs text-body">
+            {t("adjustmentNote", { note: adjustmentNote(transaction) ?? "" })}
+          </p>
+        ) : null}
         <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
           <span>
             {hasValidDate

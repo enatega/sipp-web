@@ -63,7 +63,10 @@ function AddressCard({
   const t = useTranslations("addressBook");
   const typeLabel = t(TYPE_KEYS[address.type] ?? "typeOther");
   const name = address.location_name || typeLabel;
-  const details = Object.values(address.additional_fields ?? {}).filter(Boolean);
+  // Migrated addresses also carry a non-text `legacy` record; show text only.
+  const details = Object.values<unknown>(address.additional_fields ?? {}).filter(
+    (value): value is string => typeof value === "string" && value.trim() !== "",
+  );
 
   return (
     <article

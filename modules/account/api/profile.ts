@@ -1,5 +1,5 @@
 import { apiRoutes } from "@/config/api";
-import { requestJson } from "@/services/api/client";
+import { postJson, requestJson } from "@/services/api/client";
 import type {
   ProfilePayload,
   ProfileImageUpdatePayload,
@@ -15,6 +15,12 @@ import type {
 } from "@/modules/account/types";
 
 export const profileApi = {
+  sendPhoneVerification(payload: { phone: string }) {
+    return postJson<{ message: string }>("/api/profile/phone/send", payload);
+  },
+  verifyPhoneVerification(payload: { phone: string; otp: string }) {
+    return postJson<{ message: string }>("/api/profile/phone/verify", payload);
+  },
   details() {
     return requestJson<ProfilePayload>(apiRoutes.profile, { cache: "no-store" });
   },

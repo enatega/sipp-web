@@ -127,6 +127,7 @@ export function OrdersExperience() {
                     <option value="delivered">{t("status.delivered")}</option>
                     <option value="cancelled">{t("status.cancelled")}</option>
                     <option value="rejected">{t("status.rejected")}</option>
+                    <option value="failed">{t("status.failed")}</option>
                   </>
                 ) : (
                   <>
@@ -253,6 +254,7 @@ function OrderRow({ order, past, scheduled, expanded, onToggle, onRate }: OrderR
       case "delivered": return t("status.delivered");
       case "cancelled": return t("status.cancelled");
       case "rejected": return t("status.rejected");
+      case "failed": return t("status.failed");
       case "scheduled": return t("status.scheduled");
       case "preparing": return t("status.preparing");
       case "ready": return t("status.ready");

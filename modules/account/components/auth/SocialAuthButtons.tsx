@@ -31,12 +31,13 @@ declare global {
 
 interface Props {
   onAuthenticated: () => void;
+  onPhoneRequired: (idToken: string) => void;
   onError: (message: string) => void;
 }
 
 const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim();
 
-export function SocialAuthButtons({ onAuthenticated, onError }: Props) {
+export function SocialAuthButtons({ onAuthenticated, onPhoneRequired, onError }: Props) {
   const t = useTranslations("auth");
   const googleLogin = useGoogleLoginMutation();
   const googleButton = useRef<HTMLDivElement>(null);
@@ -48,12 +49,14 @@ export function SocialAuthButtons({ onAuthenticated, onError }: Props) {
       return;
     }
     try {
-      await googleLogin.mutateAsync({ idToken: response.credential });
-      onAuthenticated();
+      const result = await googleLogin.mutateAsync({ idToken: response.credential });
+      if (result.phoneVerificationRequired) onPhoneRequired(response.credential);
+      else if (result.user) onAuthenticated();
+      else onError(t("socialLoginError"));
     } catch {
       onError(t("socialLoginError"));
     }
-  }, [googleLogin, onAuthenticated, onError, t]);
+  }, [googleLogin, onAuthenticated, onPhoneRequired, onError, t]);
   finishGoogleRef.current = finishGoogle;
 
   useEffect(() => {

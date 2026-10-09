@@ -6,7 +6,9 @@ import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { getLocalizedProductName } from "@/modules/deliveries/utils/productTranslation";
 import { useFavouriteFoodsQuery } from "@/modules/deliveries/hooks/useFavouriteFoodsQueries";
+import { FavouriteFoodsSkeleton } from "./skeletons/FavouriteFoodsSkeleton";
 import { DeliveryImage } from "./DeliveryImage";
+import styles from "./favourite-foods.module.css";
 
 interface Props {
   shopTypeId?: string;
@@ -76,7 +78,7 @@ export function FavouriteFoodsCarousel({ shopTypeId }: Props) {
   }, [isVisible, isPaused, isReducedMotion, scrollState, move]);
 
   if (foods.isPending) {
-    return <div aria-busy="true" className="flex gap-5 overflow-hidden py-3 sm:gap-8">{Array.from({ length: 8 }, (_, index) => <div aria-hidden="true" className="w-[calc((100%-2.5rem)/3)] shrink-0 space-y-3 sm:w-[calc((100%-6rem)/4)] lg:w-[calc((100%-10rem)/6)] xl:w-[calc((100%-14rem)/8)]" key={index}><div className="mx-auto aspect-square w-full max-w-40 animate-pulse rounded-full bg-brand-soft ring-1 ring-line"><div className="m-[18%] h-[64%] w-[64%] rounded-full bg-brand/15" /></div><div className="mx-auto h-4 w-2/3 animate-pulse rounded-full bg-line" /></div>)}</div>;
+    return <FavouriteFoodsSkeleton />;
   }
 
   if (foods.isError) {
@@ -106,32 +108,34 @@ export function FavouriteFoodsCarousel({ shopTypeId }: Props) {
       onTouchStart={() => { pauseUntilRef.current = Date.now() + 8000; }}
       ref={sectionRef}
     >
-      <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto py-3 [scrollbar-width:none] sm:gap-8 [&::-webkit-scrollbar]:hidden" dir="ltr" onScroll={syncScroll} ref={trackRef}>
+      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto py-2 [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden" dir="ltr" onScroll={syncScroll} ref={trackRef}>
         {visibleFoods.map((food) => {
           const name = getLocalizedProductName(food, locale);
           return (
             <Link
               aria-label={t("open", { name })}
-              className="group flex w-[calc((100%-2.5rem)/3)] shrink-0 snap-start flex-col items-center gap-3 rounded-2xl text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-[calc((100%-6rem)/4)] lg:w-[calc((100%-10rem)/6)] xl:w-[calc((100%-14rem)/8)]"
+              className={`${styles.item} group flex snap-start flex-col overflow-hidden rounded-xl bg-card ring-1 ring-line transition-colors hover:ring-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand`}
               href={`/discovery/favourite-foods/${encodeURIComponent(food.id)}${shopTypeId ? `?shopTypeId=${encodeURIComponent(shopTypeId)}` : ""}`}
               key={food.id}
             >
               <DeliveryImage
                 alt=""
-                className="mx-auto aspect-square w-full max-w-40 rounded-full bg-brand-soft shadow-[0_8px_22px_-12px_rgba(16,24,40,0.24)] ring-1 ring-line transition-[box-shadow,transform] duration-500 ease-out group-hover:-translate-y-0.5 group-hover:shadow-[0_13px_26px_-12px_rgba(16,24,40,0.25)] group-focus-visible:ring-brand motion-reduce:transition-none"
-                imageClassName="transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none"
-                sizes="(max-width: 640px) 112px, 160px"
+                className="min-h-0 w-full flex-1 bg-brand-soft"
+                imageClassName="scale-[1.25] transition-transform duration-300 group-hover:scale-[1.3] motion-reduce:transition-none"
+                sizes="(max-width: 560px) 50vw, (max-width: 1100px) 25vw, (max-width: 1535px) 17vw, 13vw"
                 src={food.imageUrl}
               />
-              <span className="line-clamp-2 max-w-full text-sm font-bold leading-snug text-ink transition-colors group-hover:text-brand sm:text-[15px]" dir="auto">{name}</span>
+              <span className="flex h-12 shrink-0 items-center bg-card px-3 text-sm font-bold leading-snug text-ink transition-colors group-hover:text-brand">
+                <span className="line-clamp-2" dir="auto">{name}</span>
+              </span>
             </Link>
           );
         })}
       </div>
       {isScrollable ? (
         <div className="mt-1 flex justify-end gap-2">
-          <button aria-label={t("previous")} className="grid size-10 place-items-center rounded-full bg-card text-ink shadow-sm ring-1 ring-line transition-colors hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" disabled={!scrollState.canBack} onClick={() => manualMove(-1)} type="button"><ChevronLeft aria-hidden="true" className="size-5" /></button>
-          <button aria-label={t("next")} className="grid size-10 place-items-center rounded-full bg-brand text-ink shadow-sm transition-colors hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" disabled={!scrollState.canForward} onClick={() => manualMove(1)} type="button"><ChevronRight aria-hidden="true" className="size-5" /></button>
+          <button aria-label={t("previous")} className="grid size-10 place-items-center rounded-lg bg-card text-ink shadow-sm ring-1 ring-line transition-colors hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" disabled={!scrollState.canBack} onClick={() => manualMove(-1)} type="button"><ChevronLeft aria-hidden="true" className="size-5" /></button>
+          <button aria-label={t("next")} className="grid size-10 place-items-center rounded-lg bg-brand text-ink shadow-sm transition-colors hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" disabled={!scrollState.canForward} onClick={() => manualMove(1)} type="button"><ChevronRight aria-hidden="true" className="size-5" /></button>
         </div>
       ) : null}
     </section>

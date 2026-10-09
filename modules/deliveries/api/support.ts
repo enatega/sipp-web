@@ -3,7 +3,8 @@ import type { CreatedTicket, SupportOptions, SupportThread, SupportTickets, Tick
 
 export const supportApi = {
   async upload(file: File) {
-    if (file.size > 5 * 1024 * 1024 || !["image/png", "image/jpeg", "image/webp", "application/pdf"].includes(file.type)) throw new Error("Invalid attachment");
+    const limit = ["image/webp", "application/pdf"].includes(file.type) ? 5 : 10;
+    if (file.size > limit * 1024 * 1024 || !["image/png", "image/jpeg", "image/heic", "image/heif", "image/webp", "application/pdf"].includes(file.type)) throw new Error(`Choose a supported attachment under ${limit} MB.`);
     const body = new FormData();
     body.set("file", file);
     const response = await fetch("/api/support/attachments", { method: "POST", body, signal: AbortSignal.timeout(30000) });

@@ -74,6 +74,7 @@ export interface OrderDetail {
   paymentMethod?: string;
   paymentStatus?: string;
   refund?: { status: "completed"; destination: "wallet"; amount: number; creditedAt: string } | null;
+  walletRefund?: { amount: number; creditedAt: string } | null;
   orderedAt: string;
   scheduledAt?: string | null;
   eta?: OrderEta | null;

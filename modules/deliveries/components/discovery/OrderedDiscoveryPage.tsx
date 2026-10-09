@@ -71,7 +71,7 @@ export function DiscoveryPage() {
     <Header />
     <main className="bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_520px)] pb-16 sm:pb-20">
       <h1 className="sr-only">{t("pageTitle")}</h1>
-      <div className="app-wrap space-y-7 py-4 sm:space-y-8 sm:py-6 lg:space-y-10">
+      <div className="app-wrap space-y-7 py-4 sm:space-y-8 sm:py-6">
         {homeSections.map((section) => {
           if (section.kind === "banners") {
             return banners.isPending
@@ -79,7 +79,7 @@ export function DiscoveryPage() {
               : banners.isError
                 ? <section key={section.key} className="space-y-4"><SectionHeading title={t("specialOffers")} /><SectionState title={t("errorTitle")} message={t("errorMessage")} tone="error" actionLabel={t("retry")} onAction={() => void banners.refetch()} /></section>
               : banners.data?.length
-                ? <OffersCarousel key={section.key} ctaLabel={t("exploreOffer")} items={banners.data} label={t("specialOffers")} nextLabel={t("nextOffer")} positionLabel={(position) => t("offerPosition", { position })} previousLabel={t("previousOffer")} />
+                ? <OffersCarousel key={section.key} ctaLabel={t("exploreOffer")} items={banners.data} label={t("specialOffers")} nextLabel={t("nextOffer")} positionLabel={(position) => t("offerPosition", { position })} />
                 : null;
           }
           if (section.kind === "shop-types") {

@@ -20,12 +20,15 @@ export async function POST(request: NextRequest, { params }: Context) {
   const text = payload && typeof payload === "object" && "text" in payload
     ? (payload as { text?: unknown }).text
     : null;
-  if (typeof text !== "string" || !text.trim() || text.trim().length > 4000) {
-    return NextResponse.json({ message: "Message must contain 1 to 4000 characters." }, { status: 400 });
+  const attachmentUrls = payload && typeof payload === "object" && "attachmentUrls" in payload
+    ? (payload as { attachmentUrls?: unknown }).attachmentUrls
+    : [];
+  if (typeof text !== "string" || text.trim().length > 4000 || !Array.isArray(attachmentUrls) || attachmentUrls.length > 5 || !attachmentUrls.every((url) => typeof url === "string" && url.length < 2048) || (!text.trim() && attachmentUrls.length === 0)) {
+    return NextResponse.json({ message: "Add a message or up to five photos." }, { status: 400 });
   }
   return callApi(`${orderChatPath((await params).id)}/send`, {
     method: "POST",
-    body: { text: text.trim() },
+    body: { text: text.trim(), attachmentUrls },
     request,
   });
 }

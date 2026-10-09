@@ -8,7 +8,8 @@ export async function POST(request: NextRequest) {
   try {
     const form = await request.formData();
     const file = form.get("file");
-    if (!(file instanceof File) || file.size > 5 * 1024 * 1024 || !["image/png", "image/jpeg", "image/webp", "application/pdf"].includes(file.type)) return NextResponse.json({ message: "Invalid attachment." }, { status: 400 });
+    const limit = file instanceof File && ["image/webp", "application/pdf"].includes(file.type) ? 5 : 10;
+    if (!(file instanceof File) || file.size > limit * 1024 * 1024 || !["image/png", "image/jpeg", "image/heic", "image/heif", "image/webp", "application/pdf"].includes(file.type)) return NextResponse.json({ message: `Choose a supported attachment under ${limit} MB.` }, { status: 400 });
     const body = new FormData();
     body.set("file", file);
     const base = (process.env.API_BASE_URL ?? "http://localhost:3000/api/v1").replace(/\/$/, "");

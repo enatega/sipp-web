@@ -1,0 +1,22 @@
+.item {
+  flex: 0 0 calc((100% - 0.75rem) / 2);
+  aspect-ratio: 1;
+}
+
+@media (min-width: 561px) {
+  .item {
+    flex-basis: calc((100% - 3rem) / 4);
+  }
+}
+
+@media (min-width: 1101px) {
+  .item {
+    flex-basis: calc((100% - 5rem) / 6);
+  }
+}
+
+@media (min-width: 1536px) {
+  .item {
+    flex-basis: calc((100% - 7rem) / 8);
+  }
+}

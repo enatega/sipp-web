@@ -46,7 +46,7 @@ export function CheckoutSummary({ preview, isLoading, isPlacing, disabled, payme
       ) : <p className="mt-5 rounded-xl bg-[var(--soft-surface)] p-4 text-sm leading-6 text-body">{t("completeDetails")}</p>}
 
       <button type="submit" disabled={disabled || !preview || isLoading || isPlacing} className="mt-6 inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_10px_24px_rgba(102,192,242,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0">
-        {isPlacing ? <><LoaderCircle aria-hidden="true" className="size-4 animate-spin" />{paymentMethod === "stripe" ? t("preparingPayment") : t("placingOrder")}</> : paymentMethod === "stripe" ? t("continueToPayment", { total: pricing ? price(pricing.totalAmount) : "" }) : t("placeOrder", { total: pricing ? price(pricing.totalAmount) : "" })}
+        {isPlacing ? <><LoaderCircle aria-hidden="true" className="size-4 animate-spin" />{paymentMethod === "stripe" ? t("preparingPayment") : t("placingOrder")}</> : paymentMethod === "stripe" ? t("continueToPayment") : t("placeOrder")}
       </button>
       <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted"><LockKeyhole aria-hidden="true" className="size-3.5" />{t("securePayment")}</p>
     </aside>

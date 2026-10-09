@@ -126,13 +126,21 @@ function ProfileDetails({ user }: { user: ProfileUser }) {
             {user.email || t("notProvided")}
           </span>
           {user.email ? (
-            <span className="ml-2 inline-flex items-center gap-1 text-[9px] font-semibold text-[#15935f] dark:text-[#63d8a5]">
-              <Icon name="shield" className="size-3" />
-              {t("verified")}
+            <span className={`ms-2 inline-flex items-center gap-1 text-[10px] font-semibold ${user.email_is_verified ? "text-[#137e52] dark:text-[#63d8a5]" : "text-body"}`}>
+              {user.email_is_verified ? <Icon name="shield" className="size-3" /> : null}
+              {t(user.email_is_verified ? "verified" : "unverified")}
             </span>
           ) : null}
         </Field>
-        <Field label={t("phoneNumber")}>{user.phone || t("notProvided")}</Field>
+        <Field label={t("phoneNumber")}>
+          <span className="min-w-0 flex-1 truncate">{user.phone || t("notProvided")}</span>
+          {user.phone ? (
+            <span className={`ms-2 inline-flex items-center gap-1 text-[10px] font-semibold ${user.phone_is_verified ? "text-[#137e52] dark:text-[#63d8a5]" : "text-body"}`}>
+              {user.phone_is_verified ? <Icon name="shield" className="size-3" /> : null}
+              {t(user.phone_is_verified ? "verified" : "unverified")}
+            </span>
+          ) : null}
+        </Field>
         <Field label={t("dateOfBirth")}>{formattedDate}</Field>
         <div className="sm:col-span-2">
           <dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-body">
@@ -207,21 +215,19 @@ function EditProfileForm({ user }: { user: ProfileUser }) {
               disabled
             />
             {user.email ? (
-              <span className="absolute right-4 top-1/2 mt-1 inline-flex -translate-y-1/2 items-center gap-1 text-[9px] font-semibold text-[#15935f] dark:text-[#63d8a5]">
-                <Icon name="shield" className="size-3" />
-                {t("verified")}
+              <span className={`absolute end-4 top-1/2 mt-1 inline-flex -translate-y-1/2 items-center gap-1 text-[10px] font-semibold ${user.email_is_verified ? "text-[#137e52] dark:text-[#63d8a5]" : "text-body"}`}>
+                {user.email_is_verified ? <Icon name="shield" className="size-3" /> : null}
+                {t(user.email_is_verified ? "verified" : "unverified")}
               </span>
             ) : null}
           </span>
         </label>
         <label className={labelClass}>
           {t("phoneNumber")}
-          <input
-            value={user.phone ?? ""}
-            className={inputClass}
-            autoComplete="tel"
-            disabled
-          />
+          <span className="relative block">
+            <input value={user.phone ?? ""} className={`${inputClass} pe-24`} autoComplete="tel" disabled />
+            {user.phone ? <span className={`absolute end-4 top-1/2 mt-1 -translate-y-1/2 text-[10px] font-semibold ${user.phone_is_verified ? "text-[#137e52] dark:text-[#63d8a5]" : "text-body"}`}>{t(user.phone_is_verified ? "verified" : "unverified")}</span> : null}
+          </span>
         </label>
         <label className={labelClass}>
           {t("dateOfBirth")}

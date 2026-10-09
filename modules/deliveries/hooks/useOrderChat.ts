@@ -27,7 +27,7 @@ export function useOrderChatUnread(enabled: boolean) {
 export function useSendOrderChatMessage(orderId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (text: string) => orderChatApi.send(orderId, text),
+    mutationFn: ({ text, attachmentUrls = [] }: { text: string; attachmentUrls?: string[] }) => orderChatApi.send(orderId, text, attachmentUrls),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: deliveryQueryKeys.orderChat(orderId) }),
   });
 }
