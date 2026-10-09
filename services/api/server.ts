@@ -1,13 +1,23 @@
 import "server-only";
 
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { clientIpFrom } from "@/services/api/client-ip";
+import { requiredServerEnv } from "@/services/api/env";
 import { authCookieNames } from "@/services/auth/session";
 
+// Forwarded so upstream per-IP rate limits (OTP, throttler) apply per user, not to the BFF host.
+export async function clientIpHeaders(): Promise<Record<string, string>> {
+  try {
+    const ip = clientIpFrom(await headers());
+    return ip ? { "X-Forwarded-For": ip } : {};
+  } catch {
+    return {};
+  }
+}
+
 function apiBaseUrl() {
-  const configured =
-    process.env.API_BASE_URL ??
-    "http://localhost:3000/api/v1";
-  return configured.replace(/\/$/, "");
+  return requiredServerEnv("API_BASE_URL", "http://localhost:3000/api/v1").replace(/\/$/, "");
 }
 
 function errorMessage(payload: unknown, fallback: string) {
@@ -57,6 +67,7 @@ export async function callApi(path: string, options: CallOptions = {}) {
       method,
       headers: {
         "Content-Type": "application/json",
+        ...(await clientIpHeaders()),
         ...(request?.headers.get("x-timezone")
           ? { "x-timezone": request.headers.get("x-timezone")! }
           : {}),
@@ -87,7 +98,7 @@ export async function callPublicApi(path: string, payload: unknown) {
   try {
     const upstream = await fetch(`${apiBaseUrl()}${path}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await clientIpHeaders()) },
       body: JSON.stringify(payload),
       cache: "no-store",
       signal: AbortSignal.timeout(20_000),
@@ -111,6 +122,7 @@ export async function callPublicApi(path: string, payload: unknown) {
 export async function getPublicApi(path: string) {
   try {
     const upstream = await fetch(`${apiBaseUrl()}${path}`, {
+      headers: await clientIpHeaders(),
       cache: "no-store",
       signal: AbortSignal.timeout(20_000),
     });
@@ -134,6 +146,7 @@ export async function callPublicMultipart(path: string, body: FormData) {
   try {
     const upstream = await fetch(`${apiBaseUrl()}${path}`, {
       method: "POST",
+      headers: await clientIpHeaders(),
       body,
       cache: "no-store",
       signal: AbortSignal.timeout(60_000),
@@ -169,6 +182,7 @@ export async function callAuthenticatedMultipart(
     const upstream = await fetch(`${apiBaseUrl()}${path}`, {
       method,
       headers: {
+        ...(await clientIpHeaders()),
         ...(request.headers.get("x-timezone")
           ? { "x-timezone": request.headers.get("x-timezone")! }
           : {}),

@@ -87,7 +87,11 @@ export async function PATCH(request: NextRequest) {
     );
 
     if (sessionUser && imageUrl) {
-      applySessionUser(response, { ...sessionUser, profile: imageUrl });
+      applySessionUser(
+        response,
+        { ...sessionUser, profile: imageUrl },
+        request.cookies.get(authCookieNames.token)?.value,
+      );
     }
 
     return response;
