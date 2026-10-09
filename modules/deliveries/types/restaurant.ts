@@ -15,6 +15,13 @@ export interface RestaurantSubcategory {
   imageUrl: string | null;
 }
 
+export interface StoreOpeningDay {
+  isOpen: boolean;
+  slots: { open: string; close: string }[];
+}
+
+export type StoreOpeningHours = Record<string, StoreOpeningDay>;
+
 export interface RestaurantStore {
   id: string;
   slug: string;
@@ -35,6 +42,8 @@ export interface RestaurantStore {
   timezone: string | null;
   storeTimings: Record<string, { is_active?: boolean; slots?: Array<{ open?: string; close?: string }> }> | null;
   isFavorited: boolean;
+  /** Weekly opening hours in the store's local time, keyed by lowercase day name. */
+  openingHours: StoreOpeningHours | null;
   categories: RestaurantCategory[];
   subcategories: RestaurantSubcategory[];
 }

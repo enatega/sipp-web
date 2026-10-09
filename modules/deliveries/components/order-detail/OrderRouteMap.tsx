@@ -13,6 +13,7 @@ import { useTheme } from "next-themes";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import { useOrderRoutePath } from "../../hooks/useOrderRoutePath";
 import type { OrderDetail } from "../../types/orders";
+import { plausibleRiderPoint } from "../../utils/riderLocation";
 
 interface Props {
   order: OrderDetail;
@@ -119,8 +120,10 @@ export function OrderRouteMap({ order, storeName }: Props) {
     [details?.latitude, details?.longitude],
   );
   const rider = useMemo(
-    () => riderPoint(order),
+    () => plausibleRiderPoint(riderPoint(order), [store, destinationPoint]),
     [
+      store,
+      destinationPoint,
       order.eta?.riderLocation?.latitude,
       order.eta?.riderLocation?.longitude,
       order.rider?.currentLocation?.latitude,

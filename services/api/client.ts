@@ -20,9 +20,12 @@ export class ApiError extends Error {
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 let intentionalLogout = false;
+// Background polls keep failing after a session expires; handle it once.
+let sessionExpiryHandled = false;
 
 export function setIntentionalLogout(value: boolean) {
   intentionalLogout = value;
+  if (!value) sessionExpiryHandled = false;
   if (value && typeof window !== "undefined") {
     window.dispatchEvent(new Event("shaanieol:intentional-logout"));
   }
@@ -91,9 +94,11 @@ export async function requestJson<T>(
     if (
       expiredToken &&
       !intentionalLogout &&
+      !sessionExpiryHandled &&
       !url.startsWith("/api/auth/") &&
       typeof window !== "undefined"
     ) {
+      sessionExpiryHandled = true;
       void fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
       window.dispatchEvent(new CustomEvent("shaanieol:session-expired"));
     }

@@ -11,6 +11,7 @@ import { useActionToast } from "@/components/shared/useActionToast";
 import { CategoryNavigation, MobileCategoryNavigation } from "./CategoryNavigation";
 import { ProductConfigurator } from "./ProductConfigurator";
 import { RestaurantHero } from "./RestaurantHero";
+import { StoreClosedNotice } from "./StoreClosedNotice";
 import { RestaurantProductCard } from "./RestaurantProductCard";
 import { useCategoryScrollSpy } from "../../hooks/useCategoryScrollSpy";
 import {
@@ -79,9 +80,9 @@ export function RestaurantPage({ slug }: Props) {
     const uncategorized = products.some((product) => !knownIds.has(product.categoryId));
     return uncategorized
       ? [
-          ...storeCategories,
-          { id: "uncategorized", name: t("otherCategory"), imageUrl: null, subcategoryIds: [] },
-        ]
+        ...storeCategories,
+        { id: "uncategorized", name: t("otherCategory"), imageUrl: null, subcategoryIds: [] },
+      ]
       : storeCategories;
   }, [products, restaurant.data?.categories, t]);
   const categoryIds = useMemo(() => categories.map((category) => category.id), [categories]);
@@ -119,15 +120,27 @@ export function RestaurantPage({ slug }: Props) {
     openAuthRequiredDialog(returnTo);
   }
 
-  if (!isReady || (!isLegacyId && slugQuery.isPending) || restaurant.isPending) {
+  if (!isReady || (!isLegacyId && slugQuery.isPending)) {
     return (
       <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="grid min-h-[60vh] place-items-center bg-background text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>
     );
   }
 
+  // Without a location the store request never runs (it stays "pending"),
+  // so ask for a location before treating the page as loading (BUG-006).
   if (!location) {
     return (
       <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="section-wrap grid min-h-[60vh] place-items-center py-16 text-center"><div><UtensilsCrossed aria-hidden="true" className="mx-auto size-10 text-brand" /><h1 className="mt-4 text-xl font-bold text-ink">{t("chooseLocationTitle")}</h1><p className="mt-2 text-sm text-body">{t("chooseLocationMessage")}</p></div></main></>
+    );
+  }
+
+  // Wait for the first page of products too, so opening a store shows one
+  // loading state instead of a page spinner followed by a menu spinner.
+  // (Later searches keep the in-page spinner.)
+  // No storeId means the link did not resolve; fall through to the error state.
+  if (storeId && (restaurant.isPending || (productsQuery.isPending && !search))) {
+    return (
+      <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="grid min-h-[60vh] place-items-center bg-background text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>
     );
   }
 
@@ -154,7 +167,7 @@ export function RestaurantPage({ slug }: Props) {
         <div className="mx-auto grid min-h-[700px] max-w-[1540px] grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)]">
           <CategoryNavigation activeCategoryId={activeCategoryId} categories={categories} categoryLabel={t("categories")} onSelect={scrollToCategory} />
           <section className="min-w-0 px-[18px] py-6 sm:px-7 lg:px-7 xl:px-9">
-            {!store.isAvailable ? <div role="status" className="mb-6 rounded-xl border border-line bg-soft-surface p-4 text-body"><strong className="block text-ink">{t("closed")}</strong><p className="mt-1 text-sm">{t("closedMessage")}</p></div> : null}
+            {!store.isAvailable ? <StoreClosedNotice openingHours={store.openingHours} onCheckAvailability={async () => { const result = await restaurant.refetch(); return result.data?.isAvailable !== true; }} /> : null}
             <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-2xl font-bold text-ink">{t("menu")}</h2>
               <div className="flex items-center gap-2">
