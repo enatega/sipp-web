@@ -1,7 +1,10 @@
 import { Check, Plus } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
+import { useQueryClient } from "@tanstack/react-query";
 import { DeliveryImage } from "../discovery/DeliveryImage";
+import { restaurantApi } from "../../api/restaurant";
+import { deliveryQueryKeys } from "../../queries/queryKeys";
 import type { RestaurantProduct } from "../../types/restaurant";
 import { getLocalizedProductName } from "../../utils/productTranslation";
 
@@ -19,6 +22,7 @@ export function RestaurantProductCard({
   product,
 }: Props) {
   const t = useTranslations("deliveries.restaurant");
+  const queryClient = useQueryClient();
   const format = useFormatter();
   const formatAppCurrency = useAppCurrencyFormatter();
   const locale = useLocale();
@@ -27,12 +31,27 @@ export function RestaurantProductCard({
   const isInCart = cartQuantity > 0;
   const isOutOfStock = !product.inStock;
 
+  function prefetchProduct() {
+    void queryClient.prefetchQuery({
+      queryKey: deliveryQueryKeys.productInfo(product.id),
+      queryFn: ({ signal }) => restaurantApi.productInfo(product.id, signal),
+      staleTime: 2 * 60_000,
+    });
+    void queryClient.prefetchQuery({
+      queryKey: deliveryQueryKeys.productCustomizations(product.id),
+      queryFn: ({ signal }) => restaurantApi.productCustomizations(product.id, signal),
+      staleTime: 2 * 60_000,
+    });
+  }
+
   return (
     <article className={`group overflow-hidden rounded-2xl border bg-card shadow-rail-card transition duration-300 ease-out ${isOutOfStock ? "border-line hover:border-line hover:shadow-card" : `hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-card ${isInCart ? "border-brand/25" : "border-line"}`}`}>
       <button
         aria-label={isOutOfStock ? t("viewOutOfStockProduct", { name: productName }) : isInCart ? t("configureProductInCart", { name: productName, count: cartQuantity }) : t("configureProduct", { name: productName })}
         className="flex min-h-[110px] w-full text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand"
         onClick={() => onSelect(product.id)}
+        onFocus={prefetchProduct}
+        onPointerEnter={prefetchProduct}
         type="button"
       >
         <div className="relative m-2.5 shrink-0 self-start">
