@@ -50,7 +50,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
-      <body>
+      {/* Extensions (e.g. ColorZilla's cz-shortcut-listen) add body attributes
+          before hydration; ignore those attribute-only differences. */}
+      <body suppressHydrationWarning>
         <AppProviders
           locale={locale}
           messages={messages}
