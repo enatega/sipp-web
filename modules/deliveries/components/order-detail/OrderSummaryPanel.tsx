@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { BadgePercent, CreditCard, ReceiptText } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
@@ -15,6 +16,7 @@ export function OrderSummaryPanel({ order }: Props) {
   const format = useFormatter();
   const formatAppCurrency = useAppCurrencyFormatter();
   const summary = order.summary;
+  const isCancelled = order.status.trim().toLowerCase() === "cancelled";
   const hasAppliedCoupon = Boolean(
     summary?.couponCode && hasAmount(summary.discountAmount),
   );
@@ -71,8 +73,8 @@ export function OrderSummaryPanel({ order }: Props) {
         <div className="my-5 border-t border-dashed border-line" />
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="font-bold text-ink">{t("total")}</p>
-            <p className="mt-1 text-[11px] text-muted">{t("totalHint")}</p>
+            <p className="font-bold text-ink">{t(isCancelled ? "originalTotal" : "total")}</p>
+            <p className="mt-1 text-[11px] text-muted">{t(isCancelled ? "originalTotalHint" : "totalHint")}</p>
           </div>
           <strong className="text-2xl tabular-nums text-brand">
             {money(summary?.totalAmount)}
@@ -96,13 +98,23 @@ export function OrderSummaryPanel({ order }: Props) {
             </p>
           </div>
           <span className="ml-auto rounded-full bg-[var(--soft-surface)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-body">
-            {order.paymentStatus === "paid" || order.paymentStatus === "succeeded"
+            {isCancelled ? t("paymentCancelled")
+              : order.paymentStatus === "paid" || order.paymentStatus === "succeeded"
               ? t("paymentPaid")
               : order.paymentStatus === "failed"
                 ? t("paymentFailed")
                 : t("paymentPending")}
           </span>
         </div>
+        {isCancelled && order.walletRefund ? (
+          <div className="mt-4 rounded-xl bg-success-soft p-4 text-sm text-success" role="status">
+            <p className="font-bold">{t("refundCredited", { amount: money(order.walletRefund.amount) })}</p>
+            <p className="mt-1 text-xs leading-5">{t("refundCreditedHint")}</p>
+            <Link href="/wallet" className="mt-2 inline-block text-xs font-bold underline underline-offset-2">{t("viewWallet")}</Link>
+          </div>
+        ) : isCancelled && ["card", "stripe", "wallet"].includes(order.paymentMethod ?? "") && ["paid", "succeeded", "cancelled"].includes(order.paymentStatus ?? "") ? (
+          <div className="mt-4 rounded-xl bg-[var(--soft-surface)] p-4 text-xs leading-5 text-body" role="status">{t("refundNotRecorded")}</div>
+        ) : null}
       </section>
     </aside>
   );

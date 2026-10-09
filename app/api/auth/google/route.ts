@@ -24,7 +24,13 @@ export async function POST(request: NextRequest) {
   });
   if (!upstream.ok) return upstream;
 
-  const data = (await upstream.json()) as AuthSuccess;
+  const data = (await upstream.json()) as AuthSuccess & { phoneVerificationRequired?: boolean };
+  if (data.phoneVerificationRequired) {
+    return NextResponse.json({ phoneVerificationRequired: true });
+  }
+  if (!data.accessToken || !data.user) {
+    return NextResponse.json({ message: "Google sign-in could not be completed." }, { status: 502 });
+  }
   const response = NextResponse.json({ user: data.user });
   applySession(response, data);
   return response;

@@ -7,6 +7,9 @@ export type ProfileUser = {
   name: string;
   email?: string | null;
   phone?: string | null;
+  email_is_verified?: boolean;
+  phone_is_verified?: boolean;
+  google_phone_verification_required?: boolean;
   date_of_birth?: string | null;
   gender?: ProfileGender | null;
   image?: string | null;

@@ -8,7 +8,7 @@ import { ArrowLeft, Bike, ChevronRight, CreditCard, LoaderCircle, MapPin, Messag
 import { useTranslations } from "next-intl";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useAppCurrency } from "@/lib/useAppCurrency";
-import { useAddressesQuery, useSavedCardsQuery, useSessionQuery, useStoredPlace, useWalletQuery, type ChosenPlace, type SavedAddress, type SavedCard } from "@/modules/account";
+import { useAddressesQuery, useProfileQuery, useSavedCardsQuery, useSessionQuery, useStoredPlace, useWalletQuery, type ChosenPlace, type SavedAddress, type SavedCard } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { ApiError } from "@/services/api/client";
 import { checkoutSchema, type CheckoutFormValues } from "../../schemas/checkoutSchema";
@@ -20,6 +20,7 @@ import { CheckoutAlertStack, type CheckoutAlert } from "./CheckoutAlertStack";
 import { CheckoutCouponSection } from "./CheckoutCouponSection";
 import { CheckoutSavedCardPicker } from "./CheckoutSavedCardPicker";
 import { CheckoutSummary } from "./CheckoutSummary";
+import { CheckoutPhoneVerification } from "./CheckoutPhoneVerification";
 import { StripePaymentModal } from "./StripePaymentModal";
 
 const TIP_OPTIONS = [0, 5, 10, 20];
@@ -84,6 +85,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const cart = useCartQuery(authenticated);
   const refetchCart = cart.refetch;
   const addresses = useAddressesQuery(authenticated);
+  const profile = useProfileQuery(authenticated);
   const savedCards = useSavedCardsQuery(authenticated);
   const wallet = useWalletQuery(authenticated);
   const storedPlace = useStoredPlace();
@@ -237,10 +239,11 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   });
 
   const previewInput = useMemo<CheckoutPreviewInput | null>(() => {
+    if (!profile.data?.data?.user || profile.data.data.user.google_phone_verification_required) return null;
     if (!cart.data?.bucketId || !cart.data.storeId) return null;
     if (formik.values.orderType === "delivery" && !deliveryPlace) return null;
     return { storeId: cart.data.storeId, bucketId: cart.data.bucketId, orderType: formik.values.orderType, paymentMethod: formik.values.paymentMethod, ...(formik.values.orderType === "delivery" && deliveryPlace ? { ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId), riderTip: formik.values.riderTip || undefined } : {}) };
-  }, [cart.data, deliveryPlace, formik.values.orderType, formik.values.paymentMethod, formik.values.riderTip, selectedSavedAddressId]);
+  }, [cart.data, deliveryPlace, formik.values.orderType, formik.values.paymentMethod, formik.values.riderTip, profile.data?.data?.user, selectedSavedAddressId]);
   const preview = useCheckoutPreview(previewInput);
   const activeStripeDraftId = stripePayment?.draftId ?? initialStripeDraftId ?? null;
   const stripeOrderStatus = useStripeOrderStatus(
@@ -385,14 +388,16 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     }
   }
 
-  if (session.isPending || cart.isPending || addresses.isPending || !storedPlace.isReady || !authenticated) return <><Header /><main className="grid min-h-[65vh] place-items-center text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>;
+  if (session.isPending || cart.isPending || addresses.isPending || profile.isPending || !storedPlace.isReady || !authenticated) return <><Header /><main className="grid min-h-[65vh] place-items-center text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>;
   if (initialStripeDraftId && !stripeOrderStatus.data?.orderId) {
     const hasFailed = stripeOrderStatus.data?.status === "payment_failed" || stripeOrderStatus.data?.status === "cancelled";
     const needsAttention = hasFailed || stripeOrderStatus.isError;
     return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div role={needsAttention ? "alert" : "status"}>{needsAttention ? null : <LoaderCircle aria-hidden="true" className="mx-auto size-8 animate-spin text-brand" />}<h1 className="mt-5 text-xl font-bold text-ink">{hasFailed ? t("cardPaymentError") : stripeOrderStatus.isError ? t("paymentConfirmationDelayedTitle") : t("confirmingPayment")}</h1><p className="mt-2 max-w-sm text-sm text-body">{hasFailed ? t("cardPaymentRetryHint") : stripeOrderStatus.isError ? t("paymentConfirmationDelayed") : t("confirmingPaymentHint")}</p>{needsAttention ? <div className="mt-5 flex justify-center gap-3"><Link href="/orders" className="inline-flex rounded-full bg-brand px-5 py-3 text-sm font-bold text-ink">{t("viewOrders")}</Link><Link href="/checkout" className="inline-flex rounded-full border border-line px-5 py-3 text-sm font-bold text-ink">{t("backToCheckout")}</Link></div> : null}</div></main></>;
   }
   if (cart.isError || !cart.data) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button type="button" onClick={() => void cart.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
+  if (profile.isError || !profile.data?.data?.user) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("phoneVerificationProfileError")}</h1><button type="button" onClick={() => void profile.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
   if (cart.data.isEmpty) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><ShoppingBag aria-hidden="true" className="mx-auto size-10 text-brand" /><h1 className="mt-4 text-xl font-bold text-ink">{t("emptyTitle")}</h1><p className="mt-2 text-sm text-body">{t("emptyMessage")}</p><div className="mt-5 flex flex-wrap justify-center gap-3"><Link href="/orders" className="inline-flex rounded-full border border-line px-6 py-3 text-sm font-bold text-ink">{t("viewOrders")}</Link><Link href="/discovery" className="inline-flex rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("browseFood")}</Link></div></div></main></>;
+  if (profile.data.data.user.google_phone_verification_required) return <CheckoutPhoneVerification initialPhone={profile.data.data.user.phone} onVerified={() => profile.refetch()} />;
 
   const store = preview.data?.store;
   const checkoutAlerts: CheckoutAlert[] = [

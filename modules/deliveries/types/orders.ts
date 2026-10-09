@@ -73,6 +73,7 @@ export interface OrderDetail {
   orderType?: string;
   paymentMethod?: string;
   paymentStatus?: string;
+  walletRefund?: { amount: number; creditedAt: string } | null;
   orderedAt: string;
   scheduledAt?: string | null;
   eta?: OrderEta | null;

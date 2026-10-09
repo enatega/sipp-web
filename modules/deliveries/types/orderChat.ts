@@ -2,6 +2,7 @@ export interface OrderChatMessage {
   id: string;
   sender_id: string;
   text: string | null;
+  attachmentUrls?: string[];
   createdAt: string;
 }
 

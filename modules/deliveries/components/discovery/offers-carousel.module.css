@@ -1,0 +1,102 @@
+.pair {
+  position: relative;
+  background: white;
+}
+
+.panel {
+  isolation: isolate;
+}
+
+.pair .panel {
+  animation: offer-enter 320ms ease-out both;
+}
+
+@keyframes offer-enter {
+  from { opacity: .35; }
+  to { opacity: 1; }
+}
+
+.offerLink:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pair .panel {
+    animation: none;
+  }
+}
+
+.offerLink:focus-visible .panel {
+  outline: 3px solid white;
+  outline-offset: -5px;
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+}
+
+.withCopy::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgb(8 31 48 / 94%) 0%,
+    rgb(8 31 48 / 82%) 32%,
+    rgb(8 31 48 / 42%) 58%,
+    transparent 82%
+  );
+  pointer-events: none;
+}
+
+.copy {
+  isolation: isolate;
+}
+
+@media (min-width: 1024px) {
+  .pair {
+    --slice-half: clamp(28px, 2.5vw, 40px);
+    --slice-width: clamp(56px, 5vw, 80px);
+    grid-template-columns: 50% 50%;
+  }
+
+  .pair > :first-child {
+    width: calc(100% + var(--slice-half));
+    clip-path: polygon(
+      0 0,
+      calc(100% - 4px) 0,
+      calc(100% - var(--slice-width) - 4px) 100%,
+      0 100%
+    );
+  }
+
+  .pair > :nth-child(2) {
+    width: calc(100% + var(--slice-half));
+    margin-left: calc(0px - var(--slice-half));
+    clip-path: polygon(
+      calc(var(--slice-width) + 4px) 0,
+      100% 0,
+      100% 100%,
+      4px 100%
+    );
+  }
+
+  .pair > :nth-child(2) .withCopy::after {
+    background: linear-gradient(
+      270deg,
+      rgb(8 31 48 / 94%) 0%,
+      rgb(8 31 48 / 82%) 32%,
+      rgb(8 31 48 / 42%) 58%,
+      transparent 82%
+    );
+  }
+
+  .pair > :nth-child(2) .copy {
+    left: auto;
+    right: 0;
+    align-items: flex-end;
+    text-align: right;
+  }
+}

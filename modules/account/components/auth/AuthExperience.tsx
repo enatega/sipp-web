@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormik } from "formik";
 import { LoaderCircle } from "lucide-react";
 import { parsePhoneNumberFromString } from "libphonenumber-js/max";
@@ -28,7 +28,7 @@ import {
   inlineAction,
   submitButton,
 } from "@/modules/account/components/auth/styles";
-import { AuthApiError } from "@/modules/account/api/auth";
+import { AuthApiError, authApi } from "@/modules/account/api/auth";
 import { setIntentionalLogout } from "@/services/api/client";
 import { countryByIso, defaultCountry } from "@/modules/account/data/countries";
 import {
@@ -49,8 +49,8 @@ import { createAuthSchemas } from "@/modules/account/schemas/authSchema";
 import { safeReturnTo } from "@/modules/account/utils/authRedirect";
 import { toast } from "sonner";
 
-type View = "login" | "password" | "phone" | "signup" | "otp" | "forgot";
-type OtpPurpose = "phone-login" | "signup";
+type View = "login" | "password" | "phone" | "google-phone" | "signup" | "otp" | "forgot";
+type OtpPurpose = "phone-login" | "signup" | "google-signup";
 
 /**
  * The login endpoints answer an unknown identifier with 404 ("User with this
@@ -88,6 +88,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   });
   const [view, setView] = useState<View>("login");
   const [otpPurpose, setOtpPurpose] = useState<OtpPurpose>("phone-login");
+  const [googleSignupIdToken, setGoogleSignupIdToken] = useState("");
   /**
    * The identifier we already resolved as having no account. It arrives on
    * the sign-up form pre-filled and locked: editing it there would silently
@@ -98,6 +99,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   const [socialError, setSocialError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendIn, setResendIn] = useState(30);
+  const lastAutoSubmittedOtp = useRef("");
   const [hasManuallySelectedCountry, setHasManuallySelectedCountry] = useState(false);
   const formik = useFormik({
     initialValues: {
@@ -114,6 +116,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
       if (view === "login") return submitEmail();
       if (view === "password") return submitPassword();
       if (view === "phone") return submitPhone();
+      if (view === "google-phone") return submitGooglePhone();
       if (view === "signup") return submitSignup();
       if (view === "otp") return verifyOtp();
     },
@@ -202,6 +205,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   }, [resendIn, view]);
 
   const goTo = (next: View) => {
+    lastAutoSubmittedOtp.current = "";
     setError("");
     setSocialError("");
     formik.setErrors({});
@@ -211,6 +215,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   };
 
   const finishAuth = () => {
+    setGoogleSignupIdToken("");
     formik.resetForm();
     setIntentionalLogout(false);
     window.dispatchEvent(new Event("shaaneiol-auth-change"));
@@ -294,6 +299,17 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
       setView("otp");
     });
 
+  const submitGooglePhone = () =>
+    run(async () => {
+      const composed = validatedPhone();
+      await schemas.phone.validate(composed);
+      if (!googleSignupIdToken) throw new Error(t("googleSessionExpired"));
+      await authApi.googleSignupSendPhone({ idToken: googleSignupIdToken, phone: composed });
+      setOtpPurpose("google-signup");
+      setResendIn(30);
+      setView("otp");
+    });
+
   const submitSignup = () =>
     run(async () => {
       formik.setErrors({});
@@ -346,7 +362,10 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
       await schemas.otp.validate(otp);
       const composed = validatedPhone();
 
-      if (otpPurpose === "phone-login") {
+      if (otpPurpose === "google-signup") {
+        if (!googleSignupIdToken) throw new Error(t("googleSessionExpired"));
+        await authApi.googleSignupVerifyPhone({ idToken: googleSignupIdToken, phone: composed, otp });
+      } else if (otpPurpose === "phone-login") {
         await verifyPhoneOtp.mutateAsync({ phone: composed, otp });
       } else {
         try {
@@ -365,11 +384,27 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
       finishAuth();
     });
 
+  useEffect(() => {
+    if (view !== "otp" || loading || !/^\d{4}$/.test(otp)) {
+      if (otp.length < 4) lastAutoSubmittedOtp.current = "";
+      return;
+    }
+    if (lastAutoSubmittedOtp.current === otp) return;
+    lastAutoSubmittedOtp.current = otp;
+    void verifyOtp();
+    // verifyOtp reads the current form state; re-run only when its four digits change.
+  }, [view, otp, loading]);
+
   const resendOtp = () => {
     if (resendIn > 0 || loading) return;
     void run(async () => {
+      lastAutoSubmittedOtp.current = "";
+      await formik.setFieldValue("otp", "", false);
       const composed = validatedPhone();
-      if (otpPurpose === "phone-login") {
+      if (otpPurpose === "google-signup") {
+        if (!googleSignupIdToken) throw new Error(t("googleSessionExpired"));
+        await authApi.googleSignupSendPhone({ idToken: googleSignupIdToken, phone: composed });
+      } else if (otpPurpose === "phone-login") {
         await sendPhoneOtp.mutateAsync({ phone: composed });
       } else {
         try {
@@ -418,6 +453,8 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
   const backTarget: View =
     view === "otp" && otpPurpose === "signup"
       ? "signup"
+      : view === "otp" && otpPurpose === "google-signup"
+        ? "google-phone"
       : view === "forgot"
         ? "password"
       : view === "signup"
@@ -542,6 +579,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                 </button>
                 <SocialAuthButtons
                   onAuthenticated={finishAuth}
+                  onPhoneRequired={(idToken) => { setGoogleSignupIdToken(idToken); setSocialError(""); setError(""); setView("google-phone"); }}
                   onError={setSocialError}
                 />
                 {socialError ? <p className={errorNote} role="alert">{socialError}</p> : null}
@@ -602,11 +640,11 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
               />
             ) : null}
 
-            {view === "phone" ? (
+            {view === "phone" || view === "google-phone" ? (
               <form className={formShell} onSubmit={formik.handleSubmit} noValidate>
                 <header className={formHeading}>
-                  <h2 className={formTitle}>{t("mobileTitle")}</h2>
-                  <p className={formSubtitle}>{t("mobileSubtitle")}</p>
+                  <h2 className={formTitle}>{t(view === "google-phone" ? "googlePhoneTitle" : "mobileTitle")}</h2>
+                  <p className={formSubtitle}>{t(view === "google-phone" ? "googlePhoneSubtitle" : "mobileSubtitle")}</p>
                 </header>
                 <label className={fieldShell}>
                   <span className={fieldLabel}>{t("mobile")}</span>

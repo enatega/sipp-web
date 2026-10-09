@@ -8,8 +8,13 @@ export const orderChatApi = {
     requestJson<OrderChatThread>(chatPath(orderId), { signal }),
   unread: (signal?: AbortSignal) =>
     requestJson<OrderChatUnread>("/api/orders/chat-unread", { signal }),
-  send: (orderId: string, text: string) =>
-    requestJson(chatPath(orderId), { method: "POST", body: JSON.stringify({ text }) }),
+  send: (orderId: string, text: string, attachmentUrls: string[] = []) =>
+    requestJson(chatPath(orderId), { method: "POST", body: JSON.stringify({ text, attachmentUrls }) }),
+  upload: async (orderId: string, file: File): Promise<{ url: string; mimeType: string }> => {
+    const form = new FormData();
+    form.set("file", file, file.name);
+    return requestJson(`${chatPath(orderId)}/upload`, { method: "POST", body: form });
+  },
   markRead: (orderId: string) =>
     requestJson(chatPath(orderId), { method: "PATCH" }),
 };

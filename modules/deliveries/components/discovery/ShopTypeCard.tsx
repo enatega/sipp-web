@@ -16,13 +16,13 @@ const ARTWORK = {
     tone: undefined,
     eyebrow: "good",
     src: groceryArt,
-    className: "bottom-0 end-0 h-[112%] max-w-[60%] sm:h-[118%] sm:max-w-[66%]",
+    className: "-bottom-2 end-0 h-[112%] max-w-[60%] sm:h-[118%] sm:max-w-[66%]",
   },
   restaurant: {
     tone: styles.browseMint,
     eyebrow: "fresh",
     src: restaurantArt,
-    className: "bottom-0 end-0 h-[112%] max-w-[60%] sm:h-[118%] sm:max-w-[66%]",
+    className: "-bottom-2 end-0 h-[112%] max-w-[60%] sm:h-[118%] sm:max-w-[66%]",
   },
 } as const;
 

@@ -34,7 +34,7 @@ export function BannerMedia({ banner }: Props) {
     <DeliveryImage
       alt={banner.title?.trim() || banner.shopType?.name?.trim() || "Promotional banner"}
       className="absolute inset-0 size-full bg-brand"
-      imageClassName={`transition-transform duration-700 ease-out group-hover:scale-[1.035] ${isImageOnly ? "object-contain" : ""}`}
+      imageClassName={isImageOnly ? "object-fill" : "transition-transform duration-700 ease-out group-hover:scale-[1.035]"}
       sizes="(max-width: 1100px) 100vw, 600px"
       src={banner.bannerImageLink}
     />

@@ -47,7 +47,13 @@ export const authApi = {
     return postJson<{ user: AuthUser }>(apiRoutes.auth.login, payload);
   },
   googleLogin(payload: { idToken: string }) {
-    return postJson<{ user: AuthUser }>(apiRoutes.auth.google, payload);
+    return postJson<{ user?: AuthUser; phoneVerificationRequired?: boolean }>(apiRoutes.auth.google, payload);
+  },
+  googleSignupSendPhone(payload: { idToken: string; phone: string }) {
+    return postJson<{ message: string }>(apiRoutes.auth.googlePhoneSend, payload);
+  },
+  googleSignupVerifyPhone(payload: { idToken: string; phone: string; otp: string }) {
+    return postJson<{ user: AuthUser }>(apiRoutes.auth.googlePhoneVerify, payload);
   },
   exchangeImpersonation(payload: { token: string }) {
     return postJson<{ user: AuthUser }>(

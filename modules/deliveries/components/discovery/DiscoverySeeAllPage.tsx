@@ -67,6 +67,7 @@ function ShopTypeCard({ item }: { item: DeliveryShopType }) {
 
 export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
   const t = useTranslations("deliveries.seeAll");
+  const discoveryT = useTranslations("deliveries.discovery");
   const router = useRouter();
   const params = useSearchParams();
   const session = useSessionQuery();
@@ -85,8 +86,9 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
   const [view, setView] = useState<"grid" | "map">("grid");
   const isStoreKind = STORE_KINDS.has(kind);
   const supportsFilters = kind === "nearby" || kind === "stores";
-  const source = kind === "stores" ? "shop-type" : kind === "deals" ? "deals" : "nearby";
+  const source = kind === "stores" && shopTypeId ? "shop-type" : kind === "deals" ? "deals" : "nearby";
   const effectiveShopType = kind === "stores" ? shopTypeId : selectedShopType;
+  const requiresLocation = kind === "nearby" || (kind === "stores" && !shopTypeId);
 
   useEffect(() => {
     if (!session.isPending && !authenticated && kind === "order-again") {
@@ -106,7 +108,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
       return discoveryApi.browseOrderAgain(offset, debouncedSearch, signal) as Promise<DiscoveryScrollPage<SeeAllItem>>;
     },
     initialPageParam: 0,
-    enabled: (kind !== "order-again" || authenticated) && isLocationReady && (!isStoreKind || kind === "deals" || Boolean(location)) && (kind !== "stores" || Boolean(shopTypeId)),
+    enabled: (kind !== "order-again" || authenticated) && isLocationReady && (!requiresLocation || Boolean(location)),
     getNextPageParam: (lastPage) => lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
   });
 
@@ -204,7 +206,11 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
           ) : null}
 
           <section aria-live="polite" className="mt-7">
-            {(kind === "order-again" && session.isPending) || query.isPending ? (
+            {isLocationReady && requiresLocation && !location ? (
+              <div className="grid min-h-72 place-items-center rounded-2xl bg-card p-8 text-center shadow-sm">
+                <p className="max-w-md text-sm text-body">{discoveryT("chooseLocation")}</p>
+              </div>
+            ) : (kind === "order-again" && session.isPending) || query.isPending ? (
               <div className="grid min-h-80 place-items-center"><LoaderCircle aria-hidden="true" className="size-7 animate-spin text-brand" /><span className="sr-only">{t("loading")}</span></div>
             ) : query.isError ? (
               <div className="grid min-h-72 place-items-center rounded-2xl bg-danger-soft p-8 text-center" role="alert">
