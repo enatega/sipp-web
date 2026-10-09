@@ -134,7 +134,11 @@ export function RestaurantPage({ slug }: Props) {
     );
   }
 
-  if (restaurant.isPending) {
+  // Wait for the first page of products too, so opening a store shows one
+  // loading state instead of a page spinner followed by a menu spinner.
+  // (Later searches keep the in-page spinner.)
+  // No storeId means the link did not resolve; fall through to the error state.
+  if (storeId && (restaurant.isPending || (productsQuery.isPending && !search))) {
     return (
       <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="grid min-h-[60vh] place-items-center bg-background text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>
     );
