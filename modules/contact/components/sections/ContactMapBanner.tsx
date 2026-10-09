@@ -20,9 +20,12 @@ export async function ContactMapBanner() {
 
   return (
     <section id="top" className="relative h-[220px] w-full overflow-hidden bg-[var(--soft-surface)] sm:h-[380px]">
+      {/* eslint-disable-next-line @next/next/no-img-element -- above-the-fold Google Static Maps image, kept eager */}
       <img
         src={staticMapSrc(1500, 500, 2)}
         alt={t("alt")}
+        width={1500}
+        height={500}
         draggable={false}
         className="pointer-events-none absolute inset-0 size-full select-none object-cover"
       />
