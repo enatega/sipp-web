@@ -68,6 +68,24 @@ export function decodeSessionUser(value?: string): AuthUser | null {
   }
 }
 
+/**
+ * True when the cookies describe a signed-in, unexpired session. Signature
+ * checks stay with the API; this only decides page-level redirects.
+ */
+export function hasActiveSession(token?: string, userCookie?: string): boolean {
+  if (!token || !decodeSessionUser(userCookie)) return false;
+  const encodedPayload = token.split(".")[1];
+  if (!encodedPayload) return false;
+  try {
+    const { exp } = JSON.parse(
+      Buffer.from(encodedPayload, "base64url").toString("utf8"),
+    ) as { exp?: number };
+    return typeof exp !== "number" || exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+}
+
 export const authCookieNames = {
   token: TOKEN_COOKIE,
   user: USER_COOKIE,

@@ -2,6 +2,7 @@
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notificationInboxApi } from "@/modules/account/api/notificationInbox";
+import { ApiError } from "@/services/api/client";
 
 export const notificationInboxKeys = {
   all: ["account", "notification-inbox"] as const,
@@ -25,7 +26,8 @@ export function useUnreadNotificationsCountQuery(enabled = true) {
     queryKey: notificationInboxKeys.unreadCount(),
     queryFn: ({ signal }) => notificationInboxApi.unreadCount(signal),
     enabled,
-    refetchInterval: 30_000,
+    // Stop polling once the session is gone instead of hammering a 401.
+    refetchInterval: (query) => (query.state.error instanceof ApiError && query.state.error.status === 401 ? false : 30_000),
     refetchOnWindowFocus: true,
   });
 }

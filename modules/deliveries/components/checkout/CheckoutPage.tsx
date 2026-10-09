@@ -22,6 +22,7 @@ import { CheckoutSavedCardPicker } from "./CheckoutSavedCardPicker";
 import { CheckoutSummary } from "./CheckoutSummary";
 import { CheckoutPhoneVerification } from "./CheckoutPhoneVerification";
 import { StripePaymentModal } from "./StripePaymentModal";
+import { clearCheckoutNotesDraft, readCheckoutNotesDraft, writeCheckoutNotesDraft } from "../../utils/checkoutNotesDraft";
 
 const TIP_OPTIONS = [0, 5, 10, 20];
 
@@ -56,11 +57,11 @@ function deliveryLocationInput(
   return selectedSavedAddressId
     ? { addressId: selectedSavedAddressId }
     : {
-        deliveryAddress: place.address,
-        deliveryLatitude: place.latitude,
-        deliveryLongitude: place.longitude,
-        ...(place.label ? { deliveryLabel: place.label } : {}),
-      };
+      deliveryAddress: place.address,
+      deliveryLatitude: place.latitude,
+      deliveryLongitude: place.longitude,
+      ...(place.label ? { deliveryLabel: place.label } : {}),
+    };
 }
 
 function FieldError({ message }: { message?: string }) {
@@ -167,14 +168,30 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           : {}),
         ...(values.orderType === "delivery" && deliveryPlace
           ? {
-              ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId),
-              riderTip: values.riderTip || undefined,
-            }
+            ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId),
+            riderTip: values.riderTip || undefined,
+          }
           : {}),
         customerNote: buildNote(values),
       };
       try {
-        const response = await placeOrder.mutateAsync(input);
+        const response = await placeOrder.mutateAsync({
+          storeId: cart.data.storeId,
+          bucketId: cart.data.bucketId,
+          orderType: values.orderType,
+          paymentMethod: values.paymentMethod,
+          ...(values.paymentMethod === "stripe" && resolvedPaymentMethodId
+            ? { paymentMethodId: resolvedPaymentMethodId }
+            : {}),
+          ...(values.orderType === "delivery" && deliveryPlace
+            ? {
+              ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId),
+              riderTip: values.riderTip || undefined,
+            }
+            : {}),
+          customerNote: buildNote(values),
+        });
+        clearCheckoutNotesDraft(cart.data.bucketId);
         if (response.mode === "stripe") {
           if (response.orderId) {
             router.push(`/orders/${response.orderId}`);
@@ -196,7 +213,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           });
           setIsStripeConfirmed(
             response.paymentStatus === "succeeded" ||
-              response.paymentStatus === "processing",
+            response.paymentStatus === "processing",
           );
           return;
         }
@@ -237,6 +254,22 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       }
     },
   });
+
+  // Keep typed notes across a quick trip back to the cart (BUG-035).
+  const bucketId = cart.data?.bucketId;
+  const restoredNotesFor = useRef<string | null>(null);
+  const { restaurantNote, courierNote } = formik.values;
+  const { setValues } = formik;
+  useEffect(() => {
+    if (!bucketId || restoredNotesFor.current === bucketId) return;
+    restoredNotesFor.current = bucketId;
+    const draft = readCheckoutNotesDraft(bucketId);
+    if (draft) void setValues((current) => ({ ...current, ...draft }), false);
+  }, [bucketId, setValues]);
+  useEffect(() => {
+    if (!bucketId || restoredNotesFor.current !== bucketId) return;
+    writeCheckoutNotesDraft(bucketId, { restaurantNote, courierNote });
+  }, [bucketId, restaurantNote, courierNote]);
 
   const previewInput = useMemo<CheckoutPreviewInput | null>(() => {
     if (!profile.data?.data?.user || profile.data.data.user.google_phone_verification_required) return null;
@@ -404,20 +437,20 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     ...(isCancellationNoticeVisible ? [{ id: "card-cancelled", title: t("cardPaymentTitle"), message: t("cardPaymentCancelled"), onDismiss: () => { setIsCancellationNoticeVisible(false); router.replace("/checkout"); } }] : []),
     ...(hasPreviewError
       ? [{
-          id: "preview",
-          title: preview.error instanceof ApiError && /store is currently closed/i.test(preview.error.message) ? t("storeClosedTitle") : t("previewErrorTitle"),
-          message: checkoutErrorMessage(preview.error),
-          onDismiss: () => setDismissedPreviewError(preview.error),
-        }]
+        id: "preview",
+        title: preview.error instanceof ApiError && /store is currently closed/i.test(preview.error.message) ? t("storeClosedTitle") : t("previewErrorTitle"),
+        message: checkoutErrorMessage(preview.error),
+        onDismiss: () => setDismissedPreviewError(preview.error),
+      }]
       : []),
     ...(submitError
       ? [{
-          id: "submit",
-          title: t(isOrderConfirmationUnknown ? "orderConfirmationUnknownTitle" : "placeOrderErrorTitle"),
-          message: submitError,
-          ...(isOrderConfirmationUnknown ? { actionHref: "/orders", actionLabel: t("viewOrders") } : {}),
-          onDismiss: () => { setSubmitError(""); setIsOrderConfirmationUnknown(false); },
-        }]
+        id: "submit",
+        title: t(isOrderConfirmationUnknown ? "orderConfirmationUnknownTitle" : "placeOrderErrorTitle"),
+        message: submitError,
+        ...(isOrderConfirmationUnknown ? { actionHref: "/orders", actionLabel: t("viewOrders") } : {}),
+        onDismiss: () => { setSubmitError(""); setIsOrderConfirmationUnknown(false); },
+      }]
       : []),
   ];
   const fieldClass = "mt-2 w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink outline-none transition-[border-color,box-shadow] focus:border-brand focus:ring-4 focus:ring-brand/10";
@@ -489,7 +522,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           draftId={activeStripeDraftId ?? ""}
           error={
             stripeOrderStatus.data?.status === "payment_failed" ||
-            stripeOrderStatus.data?.status === "cancelled"
+              stripeOrderStatus.data?.status === "cancelled"
               ? t("cardPaymentError")
               : stripeOrderStatus.isError
                 ? t("paymentConfirmationDelayed")

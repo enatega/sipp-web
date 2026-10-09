@@ -8,6 +8,7 @@ import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Footer } from "@/components/shared/app-shell/Footer";
 import { Header } from "@/components/shared/app-shell/Header";
+import { useActionToast } from "@/components/shared/useActionToast";
 import { useSessionQuery } from "@/modules/account";
 import { searchApi } from "@/modules/deliveries/api/search";
 import { StoreCard } from "@/modules/deliveries/components/discovery/StoreCard";
@@ -43,6 +44,7 @@ export function SearchPage() {
   const { mutate: saveRecentSearchTerm } = useSaveRecentSearchMutation();
   const removeRecentSearch = useRemoveRecentSearchMutation();
   const clearRecentSearches = useClearRecentSearchesMutation();
+  const notify = useActionToast();
 
   useEffect(() => {
     if (!urlQuery || !isAuthenticated) return;
@@ -118,8 +120,8 @@ export function SearchPage() {
           ) : !urlQuery ? (
             <IdleSuggestions
               isAuthenticated={isAuthenticated}
-              onClear={() => clearRecentSearches.mutate()}
-              onRemove={(id) => removeRecentSearch.mutate(id)}
+              onClear={() => clearRecentSearches.mutate(undefined, { onError: (caught) => notify.error(caught, "recentSearchUpdateFailed") })}
+              onRemove={(id) => removeRecentSearch.mutate(id, { onError: (caught) => notify.error(caught, "recentSearchUpdateFailed") })}
               onSelect={selectSuggestion}
               recentSearches={recentSearches.data ?? []}
               recommendations={recommendations.data ?? []}
