@@ -1087,6 +1087,7 @@
       "share": "Share",
       "categories": "Categories",
       "configureProduct": "الذرة {name}",
+      "quickAddProduct": "أضف {name} إلى السلة أو اختر الخيارات",
       "configureProductInCart": "الذرة {name}, {count} في العربة",
       "alreadyInCart": "{count, plural, one {# في السلة} other {# في السلة}}",
       "productDescriptionFallback": "جهزت أو حزمت طلبك",

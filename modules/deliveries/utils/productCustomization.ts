@@ -34,6 +34,17 @@ export function buildVariationChoices(
   }));
 }
 
+/** A quick add is safe only when the customer has no choices to make. */
+export function quickAddSelections(
+  customizations: ProductCustomizations,
+): CartSelectionInput[] | null {
+  if (customizations.addons.length || customizations.variations.length > 1) return null;
+  const choices = buildVariationChoices(customizations.variations);
+  if (choices.length > 1) return null;
+  if (customizations.variations.length && choices.length !== 1) return null;
+  return cartSelections(choices[0] ?? null, {});
+}
+
 export function missingCustomizationGroups(
   customizations: ProductCustomizations,
   selectedVariation: VariationChoice | null,

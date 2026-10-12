@@ -1087,6 +1087,7 @@
       "share": "Partager",
       "categories": "Catégories",
       "configureProduct": "Personnaliser {name}",
+      "quickAddProduct": "Ajouter {name} au panier ou choisir des options",
       "configureProductInCart": "Personnaliser {name}, {count} déjà dans le panier",
       "alreadyInCart": "{count, plural, one {# dans le panier} other {# dans le panier}}",
       "productDescriptionFallback": "Préparé ou emballé pour votre commande.",

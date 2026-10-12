@@ -1087,6 +1087,7 @@
       "share": "Teilen",
       "categories": "Kategorien",
       "configureProduct": "{name} anpassen",
+      "quickAddProduct": "{name} zum Warenkorb hinzufügen oder Optionen wählen",
       "configureProductInCart": "{name} anpassen, bereits {count} im Warenkorb",
       "alreadyInCart": "{count, plural, one {# im Warenkorb} other {# im Warenkorb}}",
       "productDescriptionFallback": "Für Ihre Bestellung zubereitet oder gepackt.",
