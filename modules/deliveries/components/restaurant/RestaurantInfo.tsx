@@ -17,10 +17,13 @@ export function formatStoreTime(value: string) {
   return `${hour % 12 || 12}:${match[2]} ${hour >= 12 && hour < 24 ? "PM" : "AM"}`;
 }
 
-export function RestaurantInfo({ store, onClose }: { store: RestaurantStore; onClose: () => void }) {
+export function RestaurantInfo({ store, onClose, focusOpeningHours = false }: { store: RestaurantStore; onClose: () => void; focusOpeningHours?: boolean }) {
   const t = useTranslations("deliveries.restaurant");
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const hoursRef = useRef<HTMLElement>(null);
+  const hoursHeadingRef = useRef<HTMLHeadingElement>(null);
   const [entered, setEntered] = useState(false);
   const [closing, setClosing] = useState(false);
   const coordinates = store.latitude != null && store.longitude != null && Number.isFinite(store.latitude) && Number.isFinite(store.longitude)
@@ -49,6 +52,19 @@ export function RestaurantInfo({ store, onClose }: { store: RestaurantStore; onC
     return () => window.clearTimeout(timeout);
   }, [closing, onClose]);
 
+  useEffect(() => {
+    if (!entered || !focusOpeningHours || !hoursRef.current || !contentRef.current) return;
+    const frame = window.requestAnimationFrame(() => {
+      const content = contentRef.current;
+      const hours = hoursRef.current;
+      if (!content || !hours) return;
+      const top = content.scrollTop + hours.getBoundingClientRect().top - content.getBoundingClientRect().top - 16;
+      content.scrollTo({ top, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+      hoursHeadingRef.current?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [entered, focusOpeningHours]);
+
   function trapFocus(event: ReactKeyboardEvent<HTMLDivElement>) {
     if (event.key !== "Tab") return;
     const controls = panelRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex="0"]');
@@ -66,7 +82,7 @@ export function RestaurantInfo({ store, onClose }: { store: RestaurantStore; onC
           <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-[0.14em] text-brand">{t("businessInfo")}</p><h2 id="restaurant-details-title" className="mt-1 truncate font-heading text-2xl font-bold text-ink">{store.name}</h2></div>
           <button ref={closeRef} type="button" onClick={() => setClosing(true)} aria-label={t("closeDetails")} className="grid size-10 shrink-0 place-items-center rounded-full border border-line text-ink transition-colors hover:bg-soft-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"><X className="size-5" aria-hidden="true" /></button>
         </header>
-        <div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-5 py-6 text-sm text-body sm:px-7">
+        <div ref={contentRef} className="min-h-0 flex-1 space-y-7 overflow-y-auto px-5 py-6 text-sm text-body sm:px-7">
           {store.description || store.tagLine ? <p className="leading-6">{store.description || store.tagLine}</p> : null}
           {store.deliveryAllowed !== null || store.pickupAllowed !== null ? <section aria-label={t("fulfillmentTitle")}><h3 className="font-bold text-ink">{t("fulfillmentTitle")}</h3><div className="mt-3 flex flex-wrap gap-2">{store.deliveryAllowed !== null ? <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${store.deliveryAllowed ? "bg-success-soft text-success" : "bg-soft-surface text-muted"}`}>{store.deliveryAllowed ? t("deliveryAvailable") : t("deliveryUnavailable")}</span> : null}{store.pickupAllowed !== null ? <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${store.pickupAllowed ? "bg-success-soft text-success" : "bg-soft-surface text-muted"}`}>{store.pickupAllowed ? t("pickupAvailable") : t("pickupUnavailable")}</span> : null}</div></section> : null}
           {mapQuery ? (
@@ -79,7 +95,7 @@ export function RestaurantInfo({ store, onClose }: { store: RestaurantStore; onC
               <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full bg-brand px-5 font-bold text-ink transition-colors hover:bg-brand/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">{t("directions")}<ExternalLink className="size-4" aria-hidden="true" /></a>
             </section>
           ) : null}
-          {store.storeTimings ? <section><h3 className="flex items-center gap-2 font-bold text-ink"><Clock3 className="size-4 text-brand" aria-hidden="true" />{t("openingHours")}</h3><dl className="mt-3 divide-y divide-line rounded-2xl border border-line px-4">{DAYS.map((day) => { const timing = store.storeTimings?.[day]; return <div className="flex justify-between gap-4 py-2.5" key={day}><dt>{t(`days.${day}`)}</dt><dd className="text-right font-semibold text-ink">{timing?.is_active && timing.slots?.length ? timing.slots.map((slot) => `${formatStoreTime(slot.open ?? "")}–${formatStoreTime(slot.close ?? "")}`).join(", ") : t("closed")}</dd></div>; })}</dl></section> : null}
+          <section ref={hoursRef}><h3 ref={hoursHeadingRef} tabIndex={-1} className="flex items-center gap-2 font-bold text-ink outline-none"><Clock3 className="size-4 text-brand" aria-hidden="true" />{t("openingHours")}</h3>{store.storeTimings || store.openingHours ? <dl className="mt-3 divide-y divide-line rounded-2xl border border-line px-4">{DAYS.map((day) => { const timing = store.storeTimings?.[day]; const fallback = store.openingHours?.[day]; const isOpen = timing ? timing.is_active : fallback?.isOpen; const slots = timing?.slots ?? fallback?.slots; return <div className="flex justify-between gap-4 py-2.5" key={day}><dt>{t(`days.${day}`)}</dt><dd className="text-right font-semibold text-ink">{isOpen && slots?.length ? slots.map((slot) => `${formatStoreTime(slot.open ?? "")}–${formatStoreTime(slot.close ?? "")}`).join(", ") : t("closed")}</dd></div>; })}</dl> : <p className="mt-3 rounded-xl bg-soft-surface px-4 py-3 text-body">{t("openingHoursUnavailable")}</p>}</section>
           {store.contact.phone || store.contact.email ? <section><h3 className="font-bold text-ink">{t("contactTitle")}</h3><div className="mt-3 space-y-2">{store.contact.phone ? <a href={`tel:${store.contact.phone}`} className="flex min-h-10 items-center gap-3 break-all hover:text-ink"><Phone className="size-4 shrink-0 text-brand" aria-hidden="true" />{store.contact.phone}</a> : null}{store.contact.email ? <a href={`mailto:${store.contact.email}`} className="flex min-h-10 items-center gap-3 break-all hover:text-ink"><Mail className="size-4 shrink-0 text-brand" aria-hidden="true" />{store.contact.email}</a> : null}</div></section> : null}
         </div>
       </div>

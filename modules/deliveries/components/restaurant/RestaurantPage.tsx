@@ -1,20 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LoaderCircle, Search, UtensilsCrossed } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { useActionToast } from "@/components/shared/useActionToast";
+import { ApiError } from "@/services/api/client";
 import { CategoryNavigation, MobileCategoryNavigation } from "./CategoryNavigation";
 import { ProductConfigurator } from "./ProductConfigurator";
 import { RestaurantHero } from "./RestaurantHero";
+import { RestaurantInfo } from "./RestaurantInfo";
 import { StoreClosedNotice } from "./StoreClosedNotice";
 import { RestaurantProductCard } from "./RestaurantProductCard";
 import { useCategoryScrollSpy } from "../../hooks/useCategoryScrollSpy";
 import {
+  useCartMutations,
   useCartQuery,
   useRestaurantLocation,
   useRestaurantProductsQuery,
@@ -22,6 +27,10 @@ import {
   useRestaurantSlug,
   useToggleRestaurantFavourite,
 } from "../../hooks/useRestaurantQueries";
+import { restaurantApi } from "../../api/restaurant";
+import { deliveryQueryKeys } from "../../queries/queryKeys";
+import { quickAddSelections } from "../../utils/productCustomization";
+import { getLocalizedProductName } from "../../utils/productTranslation";
 import type { RestaurantCategory, RestaurantProduct } from "../../types/restaurant";
 
 interface Props {
@@ -38,6 +47,12 @@ export function RestaurantPage({ slug }: Props) {
   const storeId = isLegacyId ? slug : (slugQuery.data?.storeId ?? "");
   const restaurant = useRestaurantQuery(storeId, location);
   const cart = useCartQuery(authenticated);
+  const { addItem } = useCartMutations();
+  const queryClient = useQueryClient();
+  const locale = useLocale();
+  const quickAddLock = useRef(false);
+  const [quickAddingProductId, setQuickAddingProductId] = useState<string | null>(null);
+  const [detailsSection, setDetailsSection] = useState<"overview" | "opening-hours" | null>(null);
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -112,6 +127,52 @@ export function RestaurantPage({ slug }: Props) {
     openAuthRequiredDialog(returnTo);
   }
 
+  async function quickAddProduct(product: RestaurantProduct) {
+    if (quickAddLock.current) return;
+    if (!authenticated) return requireSignIn();
+    if (!cart.data || cart.isPending || cart.isError) return setSelectedProductId(product.id);
+    quickAddLock.current = true;
+    setQuickAddingProductId(product.id);
+    try {
+      const [info, customizations] = await Promise.all([
+        queryClient.fetchQuery({
+          queryKey: deliveryQueryKeys.productInfo(product.id),
+          queryFn: ({ signal }) => restaurantApi.productInfo(product.id, signal),
+          staleTime: 2 * 60_000,
+        }),
+        queryClient.fetchQuery({
+          queryKey: deliveryQueryKeys.productCustomizations(product.id),
+          queryFn: ({ signal }) => restaurantApi.productCustomizations(product.id, signal),
+          staleTime: 2 * 60_000,
+        }),
+      ]);
+      const selections = quickAddSelections(customizations);
+      if (!info.inStock || !selections || (cart.data.storeId && cart.data.storeId !== info.storeId)) {
+        setSelectedProductId(product.id);
+        return;
+      }
+      const previousQuantity = cartQuantityByProduct.get(product.id) ?? 0;
+      const updatedCart = await addItem.mutateAsync({
+        productId: product.id,
+        quantity: 1,
+        selectedOptions: selections,
+      });
+      const updatedQuantity = updatedCart.items.reduce(
+        (total, item) => total + (item.productId === product.id ? item.quantity : 0),
+        0,
+      );
+      if (updatedQuantity < previousQuantity + 1) throw new ApiError("Cart item was not added.", 422);
+      notify.success("addedToCart", { product: getLocalizedProductName(product, locale) });
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) requireSignIn();
+      else if (error instanceof ApiError && error.status === 409) setSelectedProductId(product.id);
+      else toast.error(t("cartError"));
+    } finally {
+      quickAddLock.current = false;
+      setQuickAddingProductId(null);
+    }
+  }
+
   if (!isReady || (!isLegacyId && slugQuery.isPending)) {
     return (
       <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="grid min-h-[60vh] place-items-center bg-background text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>
@@ -153,13 +214,13 @@ export function RestaurantPage({ slug }: Props) {
     <>
       <Header cartCount={cart.data?.totalItems ?? 0} />
       <main className="min-w-0 bg-background">
-        <RestaurantHero isFavouritePending={authenticated && favourite.isPending} onShare={() => void shareRestaurant()} onToggleFavourite={() => authenticated ? toggleFavourite() : requireSignIn()} store={store} />
+        <RestaurantHero isFavouritePending={authenticated && favourite.isPending} onOpenDetails={() => setDetailsSection("overview")} onShare={() => void shareRestaurant()} onToggleFavourite={() => authenticated ? toggleFavourite() : requireSignIn()} store={store} />
         <MobileCategoryNavigation activeCategoryId={activeCategoryId} categories={categories} categoryLabel={t("categories")} onSelect={scrollToCategory} />
 
         <div className="mx-auto grid min-h-[700px] max-w-[1540px] grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)]">
           <CategoryNavigation activeCategoryId={activeCategoryId} categories={categories} categoryLabel={t("categories")} onSelect={scrollToCategory} />
           <section className="min-w-0 px-[18px] py-6 sm:px-7 lg:px-7 xl:px-9">
-            {!store.isAvailable ? <StoreClosedNotice openingHours={store.openingHours} onCheckAvailability={async () => { const result = await restaurant.refetch(); return result.data?.isAvailable !== true; }} /> : null}
+            {!store.isAvailable ? <StoreClosedNotice onViewOpeningHours={() => setDetailsSection("opening-hours")} /> : null}
             <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-2xl font-bold text-ink">{t("menu")}</h2>
               <div className="flex items-center gap-2">
@@ -221,7 +282,7 @@ export function RestaurantPage({ slug }: Props) {
                       ) : null}
                       {visibleProducts.length > 0 ? (
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                          {visibleProducts.map((product) => <RestaurantProductCard cartQuantity={cartQuantityByProduct.get(product.id) ?? 0} isStoreAvailable={store.isAvailable} key={product.id} onSelect={setSelectedProductId} product={product} />)}
+                          {visibleProducts.map((product) => <RestaurantProductCard cartQuantity={cartQuantityByProduct.get(product.id) ?? 0} isQuickAddBlocked={quickAddingProductId !== null} isQuickAdding={quickAddingProductId === product.id} isStoreAvailable={store.isAvailable} key={product.id} onQuickAdd={quickAddProduct} onSelect={setSelectedProductId} product={product} />)}
                         </div>
                       ) : (
                         <p className="rounded-xl bg-soft-surface px-4 py-5 text-sm text-body">{t("noSubcategoryProducts")}</p>
@@ -236,6 +297,7 @@ export function RestaurantPage({ slug }: Props) {
 
           {selectedProductId ? <ProductConfigurator isStoreAvailable={store.isAvailable} isAuthenticated={authenticated} key={selectedProductId} onClose={() => setSelectedProductId(null)} onRequireSignIn={requireSignIn} previewProduct={products.find((product) => product.id === selectedProductId)} productId={selectedProductId} storeName={store.name} /> : null}
         </div>
+        {detailsSection ? <RestaurantInfo focusOpeningHours={detailsSection === "opening-hours"} onClose={() => setDetailsSection(null)} store={store} /> : null}
       </main>
     </>
   );

@@ -1,4 +1,4 @@
-import { Check, Plus } from "lucide-react";
+import { LoaderCircle, Plus } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { useQueryClient } from "@tanstack/react-query";
@@ -10,14 +10,20 @@ import { getLocalizedProductName } from "../../utils/productTranslation";
 
 interface Props {
   cartQuantity: number;
+  isQuickAddBlocked: boolean;
+  isQuickAdding: boolean;
   isStoreAvailable: boolean;
+  onQuickAdd: (product: RestaurantProduct) => void;
   onSelect: (productId: string) => void;
   product: RestaurantProduct;
 }
 
 export function RestaurantProductCard({
   cartQuantity,
+  isQuickAddBlocked,
+  isQuickAdding,
   isStoreAvailable,
+  onQuickAdd,
   onSelect,
   product,
 }: Props) {
@@ -45,7 +51,7 @@ export function RestaurantProductCard({
   }
 
   return (
-    <article className={`group overflow-hidden rounded-2xl border bg-card shadow-rail-card transition duration-300 ease-out ${isOutOfStock ? "border-line hover:border-line hover:shadow-card" : `hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-card ${isInCart ? "border-brand/25" : "border-line"}`}`}>
+    <article className={`group relative overflow-hidden rounded-2xl border bg-card shadow-rail-card transition duration-300 ease-out ${isOutOfStock ? "border-line hover:border-line hover:shadow-card" : `hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-card ${isInCart ? "border-brand/25" : "border-line"}`}`}>
       <button
         aria-label={isOutOfStock ? t("viewOutOfStockProduct", { name: productName }) : isInCart ? t("configureProductInCart", { name: productName, count: cartQuantity }) : t("configureProduct", { name: productName })}
         className="flex min-h-[110px] w-full text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand"
@@ -68,7 +74,7 @@ export function RestaurantProductCard({
             </span>
           ) : null}
         </div>
-        <div className={`flex min-w-0 flex-1 flex-col self-stretch py-3 pl-0.5 pr-3 ${isOutOfStock ? "opacity-60" : ""}`}>
+        <div className={`flex min-w-0 flex-1 flex-col self-stretch py-3 pe-12 ps-0.5 ${isOutOfStock ? "opacity-60" : ""}`}>
           <div className="min-w-0 flex-1">
             <h3 className="line-clamp-2 text-[13px] font-bold leading-[18px] tracking-[-0.01em] text-ink">
               {productName}
@@ -88,13 +94,24 @@ export function RestaurantProductCard({
                 </span>
               ) : null}
             </div>
-            {isOutOfStock ? <span className="text-xs font-semibold text-danger">{t("outOfStock")}</span> : !isStoreAvailable ? <span className="text-xs font-medium text-muted">{t("closed")}</span> : <span className={`relative grid size-7 shrink-0 place-items-center rounded-full border transition duration-200 group-hover:scale-105 ${isInCart ? "border-brand bg-brand text-ink" : "border-brand/25 bg-brand/8 text-brand group-hover:border-brand group-hover:bg-brand group-hover:text-ink"}`}>
-              {isInCart ? <Check aria-hidden="true" className="size-3.5" /> : <Plus aria-hidden="true" className="size-3.5" />}
-              {isInCart ? <span aria-hidden="true" className="absolute -right-1.5 -top-1.5 grid min-h-4 min-w-4 place-items-center rounded-full border-2 border-card bg-surface px-0.5 text-[8px] font-extrabold leading-none text-brand tabular-nums">{cartQuantity > 99 ? "99+" : cartQuantity}</span> : null}
-            </span>}
+            {isOutOfStock ? <span className="text-xs font-semibold text-danger">{t("outOfStock")}</span> : !isStoreAvailable ? <span className="text-xs font-medium text-muted">{t("closed")}</span> : null}
           </div>
         </div>
       </button>
+      {!isOutOfStock && isStoreAvailable ? (
+        <button
+          aria-label={t("quickAddProduct", { name: productName })}
+          className={`absolute bottom-2.5 end-2.5 grid size-9 place-items-center rounded-full border transition-[background-color,border-color,transform] duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-wait disabled:opacity-65 ${isInCart ? "border-brand bg-brand text-ink" : "border-brand/25 bg-brand/8 text-brand hover:border-brand hover:bg-brand hover:text-ink"}`}
+          disabled={isQuickAddBlocked}
+          onClick={() => onQuickAdd(product)}
+          onFocus={prefetchProduct}
+          onPointerEnter={prefetchProduct}
+          type="button"
+        >
+          {isQuickAdding ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : <Plus aria-hidden="true" className="size-4" />}
+          {isInCart ? <span aria-hidden="true" className="absolute -end-1 -top-1 grid min-h-4 min-w-4 place-items-center rounded-full border-2 border-card bg-surface px-0.5 text-[8px] font-extrabold leading-none text-brand tabular-nums">{cartQuantity > 99 ? "99+" : cartQuantity}</span> : null}
+        </button>
+      ) : null}
     </article>
   );
 }

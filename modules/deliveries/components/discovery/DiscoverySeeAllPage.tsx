@@ -117,6 +117,12 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
   const total = query.data?.pages[0]?.total ?? items.length;
   const activeFilterCount = (stock !== "all" ? 1 : 0) + priceTiers.length + (selectedShopType ? 1 : 0) + (sortBy !== "recommended" ? 1 : 0);
   const title = customTitle || t(`titles.${kind}`);
+  const isShopTypePage = kind === "stores" && Boolean(shopTypeId);
+  const shopTypeSearchPlaceholder = /restaurant/i.test(title)
+    ? t("searchRestaurants")
+    : /grocery|supermarket/i.test(title)
+      ? t("searchGroceryStores")
+      : t("searchCategoryStores");
   const selectedShopTypeName = (shopTypes.data?.items ?? []).find((item) => item.id === selectedShopType)?.name;
   const appliedFilters = [
     ...(stock !== "all" ? [{ key: "stock", label: t(`stock.${stock}`), remove: () => setStock("all") }] : []),
@@ -150,7 +156,14 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
               <h1 className="font-heading text-3xl font-extrabold tracking-[-0.03em] text-ink sm:text-4xl">{title}</h1>
               <p className="mt-2 text-sm text-body">{t("resultCount", { count: total })}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto">
+              {isShopTypePage ? (
+                <div className="flex min-h-11 w-full min-w-0 items-center gap-2.5 rounded-xl border border-line bg-card px-3.5 transition-colors focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/15 sm:w-72">
+                  <Search aria-hidden="true" className="size-4 flex-none text-muted" />
+                  <label className="sr-only" htmlFor="discovery-search">{t("searchLabel")}</label>
+                  <input autoCapitalize="none" autoComplete="off" autoCorrect="off" className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted" id="discovery-search" onChange={(event) => setSearch(event.target.value)} placeholder={shopTypeSearchPlaceholder} spellCheck={false} type="search" value={search} />
+                </div>
+              ) : null}
               {supportsFilters ? (
                 <button className="relative inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-card px-4 text-xs font-bold text-ink hover:border-brand/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" onClick={() => setFiltersOpen((value) => !value)} type="button">
                   <Filter aria-hidden="true" className="size-4 text-brand" />{t("filters")}
@@ -172,17 +185,19 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
             </div>
           </header>
 
-          {kind === "stores" && shopTypeId ? (
+          {isShopTypePage ? (
             <div className="mt-6 sm:mt-8">
               <FavouriteFoodsCarousel shopTypeId={shopTypeId} />
             </div>
           ) : null}
 
-          <div className="mt-5 flex items-center gap-3 rounded-2xl bg-card p-3 shadow-sm focus-within:ring-4 focus-within:ring-brand/10">
-            <Search aria-hidden="true" className="size-5 flex-none text-muted" />
-            <label className="sr-only" htmlFor="discovery-search">{t("searchLabel")}</label>
-            <input className="min-h-10 min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted" id="discovery-search" onChange={(event) => setSearch(event.target.value)} placeholder={t("searchPlaceholder")} type="search" value={search} />
-          </div>
+          {!isShopTypePage ? (
+            <div className="mt-5 flex items-center gap-3 rounded-2xl bg-card p-3 shadow-sm focus-within:ring-4 focus-within:ring-brand/10">
+              <Search aria-hidden="true" className="size-5 flex-none text-muted" />
+              <label className="sr-only" htmlFor="discovery-search">{t("searchLabel")}</label>
+              <input className="min-h-10 min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted" id="discovery-search" onChange={(event) => setSearch(event.target.value)} placeholder={t("searchPlaceholder")} type="search" value={search} />
+            </div>
+          ) : null}
 
           {supportsFilters && appliedFilters.length ? (
             <section aria-label={t("appliedFilters")} className="mt-4 flex flex-wrap items-center gap-2">

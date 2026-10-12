@@ -5,6 +5,7 @@ import {
 import { ShopTypesSkeleton } from "@/modules/deliveries/components/discovery/skeletons/ShopTypesSkeleton";
 import { ShopTypeCarousel } from "@/modules/deliveries/components/discovery/ShopTypeCarousel";
 import type { DeliveryShopType } from "@/modules/deliveries/types/discovery";
+import { decodeDisplayText } from "@/modules/deliveries/utils/discoveryMappers";
 
 interface Props {
   items: DeliveryShopType[];
@@ -19,12 +20,12 @@ interface Props {
   onRetry: () => void;
   seeAllHref?: string;
   seeAllLabel?: string;
-  /** Overrides the default in-page anchor link for each card. */
+  /** Overrides the default filtered store listing link for each card. */
   getItemHref?: (item: DeliveryShopType) => string;
 }
 
 function defaultItemHref(item: DeliveryShopType) {
-  return `#shop-type-${item.id}`;
+  return `/discovery/all/stores?shopTypeId=${encodeURIComponent(item.id)}&title=${encodeURIComponent(decodeDisplayText(item.name))}`;
 }
 
 export function ShopTypesSection(props: Props) {

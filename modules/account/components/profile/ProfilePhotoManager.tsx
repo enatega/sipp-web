@@ -7,6 +7,7 @@ import { useActionToast } from "@/components/shared/useActionToast";
 import { useUpdateProfileImageMutation } from "@/modules/account/queries/useAccountQueries";
 import type { ProfileUser } from "@/modules/account/types";
 import { userInitials } from "@/modules/account/utils/userInitials";
+import { userPhotoUrl } from "@/modules/account/utils/userPhotoUrl";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -30,7 +31,7 @@ export function ProfilePhotoManager({ user }: Props) {
   const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
   const [error, setError] = useState("");
   const updateImage = useUpdateProfileImageMutation();
-  const currentPhoto = user.image?.trim() || null;
+  const currentPhoto = userPhotoUrl(user.image);
   const displayedPhoto = previewUrl ?? currentPhoto;
   const visiblePhoto =
     displayedPhoto && failedPhoto !== displayedPhoto ? displayedPhoto : null;
