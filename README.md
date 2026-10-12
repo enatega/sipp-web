@@ -27,7 +27,7 @@ Node.js 20.9 or newer is required by Next.js 16.
 
 ```bash
 npm install
-cp sample.env .env.local
+cp .env.example .env.local
 ```
 
 Run the website on a port that does not conflict with the backend:

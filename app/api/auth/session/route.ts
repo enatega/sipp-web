@@ -5,6 +5,7 @@ import {
   decodeSessionUser,
   decodeTokenImpersonation,
 } from "@/services/auth/session";
+import { optionalServerEnv } from "@/services/api/env";
 
 export const dynamic = "force-dynamic";
 
@@ -27,8 +28,9 @@ export async function GET(request: NextRequest) {
     impersonation: impersonation
       ? {
           ...impersonation,
+          // Unset in production -> omitted; the banner then returns to "/".
           adminReturnUrl:
-            process.env.ADMIN_WEB_URL ?? "http://localhost:3000/general/users",
+            optionalServerEnv("ADMIN_WEB_URL", "http://localhost:3000/general/users") ?? undefined,
         }
       : null,
   });
