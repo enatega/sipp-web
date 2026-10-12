@@ -997,6 +997,9 @@
       "mapView": "Mostrar vista del mapa",
       "searchLabel": "Resultados de búsqueda",
       "searchPlaceholder": "Búsqueda por nombre",
+      "searchRestaurants": "Buscar restaurantes",
+      "searchGroceryStores": "Buscar supermercados",
+      "searchCategoryStores": "Buscar tiendas de esta categoría",
       "availability": "Disponibilidad",
       "stock": {
         "all": "Todos",

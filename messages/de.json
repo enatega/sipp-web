@@ -997,6 +997,9 @@
       "mapView": "Kartenansicht anzeigen",
       "searchLabel": "Entdeckungsergebnisse durchsuchen",
       "searchPlaceholder": "Nach Namen suchen",
+      "searchRestaurants": "Restaurants suchen",
+      "searchGroceryStores": "Lebensmittelgeschäfte suchen",
+      "searchCategoryStores": "Geschäfte dieser Kategorie suchen",
       "availability": "Verfügbarkeit",
       "stock": {
         "all": "Alle",

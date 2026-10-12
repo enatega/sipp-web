@@ -997,6 +997,9 @@
       "mapView": "صورة خريطة",
       "searchLabel": "نتائج البحث",
       "searchPlaceholder": "البحث بالاسم",
+      "searchRestaurants": "ابحث عن المطاعم",
+      "searchGroceryStores": "ابحث عن متاجر البقالة",
+      "searchCategoryStores": "ابحث عن متاجر هذه الفئة",
       "availability": "التوافر",
       "stock": {
         "all": "كل شيء",
