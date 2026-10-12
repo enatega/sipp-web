@@ -1,20 +1,16 @@
 import { useState } from "react";
-import { Clock3, Heart, Info, MapPin, MessageSquareText, Share2, Star } from "lucide-react";
+import { Bike, Heart, Info, MapPin, MessageSquareText, Share2, Star } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { HistoryBackButton } from "@/components/shared/HistoryBackButton";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import { RestaurantReviewsModal } from "./RestaurantReviewsModal";
-import { RestaurantInfo } from "./RestaurantInfo";
+import { storeDeliveryTimeLabel } from "../../utils/storeCardLabels";
 import type { RestaurantStore } from "../../types/restaurant";
-
-function deliveryTime(value: RestaurantStore["deliveryTime"], minutes: (count: number) => string) {
-  if (typeof value === "number") return value > 0 ? minutes(value) : null;
-  return value?.trim() || null;
-}
 
 interface Props {
   isFavouritePending: boolean;
+  onOpenDetails: () => void;
   onShare: () => void;
   onToggleFavourite: () => void;
   store: RestaurantStore;
@@ -22,6 +18,7 @@ interface Props {
 
 export function RestaurantHero({
   isFavouritePending,
+  onOpenDetails,
   onShare,
   onToggleFavourite,
   store,
@@ -29,9 +26,8 @@ export function RestaurantHero({
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
   const formatAppCurrency = useAppCurrencyFormatter();
-  const eta = deliveryTime(store.deliveryTime, (count) => t("minutes", { count }));
+  const eta = storeDeliveryTimeLabel(store.deliveryTime, (count) => t("minutes", { count }));
   const [reviewsOpen, setReviewsOpen] = useState(false);
-  const [detailsOpen, setDetailsOpen] = useState(false);
 
   return (
     <section className="relative isolate min-h-[270px] overflow-hidden bg-ink text-white sm:min-h-[310px]">
@@ -75,9 +71,10 @@ export function RestaurantHero({
                 <Star aria-hidden="true" className="size-4 fill-[#f8c94f] text-[#f8c94f]" />
                 {store.averageRating.toFixed(1)} ({format.number(store.reviewCount)})
               </button>
-              {eta ? (
+              {store.isAvailable && eta ? (
                 <span className="inline-flex items-center gap-1.5">
-                  <Clock3 aria-hidden="true" className="size-4" />
+                  <Bike aria-hidden="true" className="size-4" />
+                  <span className="sr-only">{t("deliveryEstimate")}</span>
                   {eta}
                 </span>
               ) : null}
@@ -93,14 +90,14 @@ export function RestaurantHero({
               </span>
               {store.minimumOrder > 0 ? <span className="font-semibold text-white">{t("minimumOrder", { amount: formatAppCurrency(format, store.minimumOrder) })}</span> : null}
             </div>
-            <button className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/55 bg-black/20 px-4 text-sm font-semibold backdrop-blur-sm transition-colors hover:bg-white hover:text-ink md:hidden" onClick={() => setDetailsOpen(true)} type="button"><Info className="size-4" aria-hidden="true" />{t("details")}</button>
+            <button className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/55 bg-black/20 px-4 text-sm font-semibold backdrop-blur-sm transition-colors hover:bg-white hover:text-ink md:hidden" onClick={onOpenDetails} type="button"><Info className="size-4" aria-hidden="true" />{t("details")}</button>
           </div>
           <div className="hidden shrink-0 gap-3 md:flex">
             <button className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/55 bg-black/20 px-4 text-sm font-semibold backdrop-blur-sm transition hover:bg-white hover:text-ink" onClick={() => setReviewsOpen(true)} type="button">
               <MessageSquareText aria-hidden="true" className="size-4" />
               {t("seeReviews")}
             </button>
-            <button className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/55 bg-black/20 px-4 text-sm font-semibold backdrop-blur-sm transition-colors hover:bg-white hover:text-ink" onClick={() => setDetailsOpen(true)} type="button"><Info aria-hidden="true" className="size-4" />{t("details")}</button>
+            <button className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/55 bg-black/20 px-4 text-sm font-semibold backdrop-blur-sm transition-colors hover:bg-white hover:text-ink" onClick={onOpenDetails} type="button"><Info aria-hidden="true" className="size-4" />{t("details")}</button>
             <button aria-pressed={store.isFavorited} className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/55 bg-black/20 px-4 text-sm font-semibold backdrop-blur-sm transition hover:bg-white hover:text-ink disabled:opacity-50" disabled={isFavouritePending} onClick={onToggleFavourite} type="button">
               <Heart
                 aria-hidden="true"
@@ -120,7 +117,6 @@ export function RestaurantHero({
         </div>
       </div>
       {reviewsOpen ? <RestaurantReviewsModal onClose={() => setReviewsOpen(false)} store={store} /> : null}
-      {detailsOpen ? <RestaurantInfo onClose={() => setDetailsOpen(false)} store={store} /> : null}
     </section>
   );
 }

@@ -14,6 +14,7 @@ import { ApiError } from "@/services/api/client";
 import { CategoryNavigation, MobileCategoryNavigation } from "./CategoryNavigation";
 import { ProductConfigurator } from "./ProductConfigurator";
 import { RestaurantHero } from "./RestaurantHero";
+import { RestaurantInfo } from "./RestaurantInfo";
 import { StoreClosedNotice } from "./StoreClosedNotice";
 import { RestaurantProductCard } from "./RestaurantProductCard";
 import { useCategoryScrollSpy } from "../../hooks/useCategoryScrollSpy";
@@ -51,6 +52,7 @@ export function RestaurantPage({ slug }: Props) {
   const locale = useLocale();
   const quickAddLock = useRef(false);
   const [quickAddingProductId, setQuickAddingProductId] = useState<string | null>(null);
+  const [detailsSection, setDetailsSection] = useState<"overview" | "opening-hours" | null>(null);
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -212,13 +214,13 @@ export function RestaurantPage({ slug }: Props) {
     <>
       <Header cartCount={cart.data?.totalItems ?? 0} />
       <main className="min-w-0 bg-background">
-        <RestaurantHero isFavouritePending={authenticated && favourite.isPending} onShare={() => void shareRestaurant()} onToggleFavourite={() => authenticated ? toggleFavourite() : requireSignIn()} store={store} />
+        <RestaurantHero isFavouritePending={authenticated && favourite.isPending} onOpenDetails={() => setDetailsSection("overview")} onShare={() => void shareRestaurant()} onToggleFavourite={() => authenticated ? toggleFavourite() : requireSignIn()} store={store} />
         <MobileCategoryNavigation activeCategoryId={activeCategoryId} categories={categories} categoryLabel={t("categories")} onSelect={scrollToCategory} />
 
         <div className="mx-auto grid min-h-[700px] max-w-[1540px] grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)]">
           <CategoryNavigation activeCategoryId={activeCategoryId} categories={categories} categoryLabel={t("categories")} onSelect={scrollToCategory} />
           <section className="min-w-0 px-[18px] py-6 sm:px-7 lg:px-7 xl:px-9">
-            {!store.isAvailable ? <StoreClosedNotice openingHours={store.openingHours} onCheckAvailability={async () => { const result = await restaurant.refetch(); return result.data?.isAvailable !== true; }} /> : null}
+            {!store.isAvailable ? <StoreClosedNotice onViewOpeningHours={() => setDetailsSection("opening-hours")} /> : null}
             <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-2xl font-bold text-ink">{t("menu")}</h2>
               <div className="flex items-center gap-2">
@@ -295,6 +297,7 @@ export function RestaurantPage({ slug }: Props) {
 
           {selectedProductId ? <ProductConfigurator isStoreAvailable={store.isAvailable} isAuthenticated={authenticated} key={selectedProductId} onClose={() => setSelectedProductId(null)} onRequireSignIn={requireSignIn} previewProduct={products.find((product) => product.id === selectedProductId)} productId={selectedProductId} storeName={store.name} /> : null}
         </div>
+        {detailsSection ? <RestaurantInfo focusOpeningHours={detailsSection === "opening-hours"} onClose={() => setDetailsSection(null)} store={store} /> : null}
       </main>
     </>
   );
