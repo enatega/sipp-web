@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/shared/brand/Icon";
 import type { AuthUser } from "@/modules/account/types";
 import { userInitials } from "@/modules/account/utils/userInitials";
+import { userPhotoUrl } from "@/modules/account/utils/userPhotoUrl";
 import { useUnreadNotificationsCountQuery } from "@/modules/account/queries/useNotificationInboxQueries";
 import { disableBrowserNotifications, enableBrowserNotifications, resolveBrowserPushState } from "@/modules/account/api/browserNotifications";
 
@@ -110,9 +111,7 @@ export function AccountMenu({
     };
   }, [open]);
 
-  // `profile` is only usable as an avatar when it actually carries an image URL.
-  const photo =
-    user.profile && /^(https?:)?\/\//.test(user.profile) ? user.profile : null;
+  const photo = userPhotoUrl(user.profile);
   const visiblePhoto = photo && failedPhoto !== photo ? photo : null;
 
   return (

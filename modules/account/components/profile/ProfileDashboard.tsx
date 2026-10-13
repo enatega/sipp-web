@@ -16,6 +16,7 @@ import {
   useWalletQuery,
 } from "@/modules/account/queries/useAccountQueries";
 import { userInitials } from "@/modules/account/utils/userInitials";
+import { userPhotoUrl } from "@/modules/account/utils/userPhotoUrl";
 
 const SETTINGS: Array<{
   titleKey: "personalInformation" | "addressBook" | "savedCards" | "coupons" | "notificationSettings" | "accountSecurity";
@@ -125,8 +126,7 @@ export function ProfileDashboard() {
     );
   }
 
-  const photo =
-    user.profile && /^(https?:)?\/\//.test(user.profile) ? user.profile : null;
+  const photo = userPhotoUrl(user.profile);
   const visiblePhoto = photo && failedPhoto !== photo ? photo : null;
 
   return (
