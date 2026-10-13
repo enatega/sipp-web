@@ -18,6 +18,7 @@ import {
   buildVariationChoices,
   cartSelections,
   missingCustomizationGroups,
+  toggleCustomizationOption,
 } from "../../utils/productCustomization";
 import styles from "./restaurant-transitions.module.css";
 import { getLocalizedProductName } from "../../utils/productTranslation";
@@ -186,17 +187,10 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
     if (!section) return;
     setSelectedByGroup((current) => {
       const selected = current[groupId] ?? [];
-      let next: string[];
-      if (section.selectionType === "single") {
-        next = [optionId];
-      } else if (selected.includes(optionId)) {
-        next = selected.filter((id) => id !== optionId);
-      } else if (section.maxSelect && selected.length >= section.maxSelect) {
-        next = selected;
-      } else {
-        next = [...selected, optionId];
-      }
-      return { ...current, [groupId]: next };
+      return {
+        ...current,
+        [groupId]: toggleCustomizationOption(section, selected, optionId),
+      };
     });
   }
 

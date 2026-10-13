@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { quickAddSelections } from "./productCustomization.ts";
+import { quickAddSelections, toggleCustomizationOption } from "./productCustomization.ts";
 
 const choice = (optionId) => ({ optionId, title: optionId, description: null, price: 100 });
 const variation = (options) => ({
@@ -23,4 +23,21 @@ test("quick add includes the sole variation", () => {
 test("multiple variations and add-ons require the details sheet", () => {
   assert.equal(quickAddSelections({ variations: [variation(["small", "large"])], addons: [] }), null);
   assert.equal(quickAddSelections({ variations: [variation(["small"])], addons: [variation(["ice"])] }), null);
+});
+
+test("a selected single-choice add-on can be removed", () => {
+  const removeIngredient = {
+    ...variation(["no-onion", "no-tomato"]),
+    required: false,
+    minSelect: 0,
+  };
+
+  assert.deepEqual(
+    toggleCustomizationOption(removeIngredient, ["no-onion"], "no-onion"),
+    [],
+  );
+  assert.deepEqual(
+    toggleCustomizationOption(removeIngredient, ["no-onion"], "no-tomato"),
+    ["no-tomato"],
+  );
 });
