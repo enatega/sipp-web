@@ -747,6 +747,8 @@
       "storeFallback": "Deine Bestellung",
       "trackOrder": "Bestellung verfolgen",
       "moreActive": "{count, plural, one {# weitere aktive Bestellung} other {# weitere aktive Bestellungen}}",
+      "minimize": "Aktuelle Bestellung minimieren",
+      "expand": "Aktuelle Bestellung anzeigen",
       "status": {
         "pending": "Bestellung aufgegeben",
         "accepted": "Angenommen",
@@ -1475,6 +1477,9 @@
       "cartTotal": "Warenkorbsumme",
       "feesAtCheckout": "Steuern sind enthalten. Liefergebühren werden an der Kasse berechnet.",
       "checkout": "Weiter zur Kasse",
+      "minimumRemaining": "Noch {amount} bis zum Mindestbestellwert dieses Geschäfts",
+      "minimumInfo": "Details zum Mindestbestellwert",
+      "minimumAmount": "Dieses Geschäft verlangt nach Rabatten und vor Liefergebühren einen Bestellwert von mindestens {amount}.",
       "secureCheckout": "Sicherer Checkout · Summen werden vom Unternehmen bestätigt",
       "updateError": "Die Menge konnte nicht aktualisiert werden. Bitte erneut versuchen.",
       "removeError": "Der Artikel konnte nicht entfernt werden. Bitte erneut versuchen.",
