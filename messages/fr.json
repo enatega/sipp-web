@@ -727,6 +727,8 @@
       "storeFallback": "Votre commande",
       "trackOrder": "Suivre la commande",
       "moreActive": "{count, plural, one {# autre commande active} other {# autres commandes actives}}",
+      "minimize": "Réduire la commande en cours",
+      "expand": "Afficher la commande en cours",
       "status": {
         "pending": "Commande passée",
         "accepted": "Acceptée",

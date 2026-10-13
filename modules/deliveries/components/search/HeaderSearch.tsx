@@ -253,7 +253,7 @@ function HeaderSearchField({ initialQuery }: { initialQuery: string }) {
         </form>
 
         {showPanel ? (
-          <div className="absolute inset-x-4 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-line bg-card shadow-pop md:inset-x-auto md:right-0 md:w-[max(100%,400px)]">
+          <div data-minimize-floating-tracker className="absolute inset-x-4 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-line bg-card shadow-pop md:inset-x-auto md:right-0 md:w-[max(100%,400px)]">
             <p className="border-b border-line px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted" id={`${listboxId}-heading`}>
               {t("suggestionsHeading")}
             </p>

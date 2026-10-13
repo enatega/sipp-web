@@ -747,6 +747,8 @@
       "storeFallback": "Deine Bestellung",
       "trackOrder": "Bestellung verfolgen",
       "moreActive": "{count, plural, one {# weitere aktive Bestellung} other {# weitere aktive Bestellungen}}",
+      "minimize": "Aktuelle Bestellung minimieren",
+      "expand": "Aktuelle Bestellung anzeigen",
       "status": {
         "pending": "Bestellung aufgegeben",
         "accepted": "Angenommen",

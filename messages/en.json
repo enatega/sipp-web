@@ -747,6 +747,8 @@
       "storeFallback": "Your order",
       "trackOrder": "Track order",
       "moreActive": "{count, plural, one {# more active order} other {# more active orders}}",
+      "minimize": "Minimize live order",
+      "expand": "Show live order",
       "status": {
         "pending": "Order placed",
         "accepted": "Accepted",

@@ -727,6 +727,8 @@
       "storeFallback": "طلبك",
       "trackOrder": "تتبّع الطلب",
       "moreActive": "{count, plural, one {طلب نشط آخر} two {طلبان نشطان آخران} few {# طلبات نشطة أخرى} many {# طلبًا نشطًا آخر} other {# طلب نشط آخر}}",
+      "minimize": "تصغير الطلب الحالي",
+      "expand": "عرض الطلب الحالي",
       "status": {
         "pending": "تم تقديم الطلب",
         "accepted": "تم القبول",
