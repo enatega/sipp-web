@@ -10,6 +10,7 @@ import { AuthRequiredModal } from "@/components/shared/AuthRequiredModal";
 import { AppToaster } from "@/components/shared/AppToaster";
 import { ImpersonationBanner } from "@/modules/account/components/auth/ImpersonationBanner";
 import { CustomerOrderLiveConnection } from "@/modules/deliveries";
+import { NotificationAlerts } from "@/modules/account/components/notifications/NotificationAlerts";
 
 export function AppProviders({
   children,
@@ -38,7 +39,16 @@ export function AppProviders({
       timeZone={localTimeZone}
     >
       <QueryProvider>
-        <ThemeProvider><CustomerOrderLiveConnection><ImpersonationBanner />{children}<SessionExpiredModal /><AuthRequiredModal /><AppToaster /></CustomerOrderLiveConnection></ThemeProvider>
+        <ThemeProvider>
+          <CustomerOrderLiveConnection>
+            <ImpersonationBanner />
+            {children}
+            <SessionExpiredModal />
+            <AuthRequiredModal />
+            <AppToaster />
+            <NotificationAlerts />
+          </CustomerOrderLiveConnection>
+        </ThemeProvider>
       </QueryProvider>
     </NextIntlClientProvider>
   );

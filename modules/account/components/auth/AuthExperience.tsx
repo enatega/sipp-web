@@ -441,7 +441,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
     if (fields.includes("email")) void formik.setFieldError("email", t("signupEmailExists"));
     if (fields.includes("phone")) void formik.setFieldError("phone", t("signupPhoneExists"));
     if (lockedField && fields.includes(lockedField)) setLockedField(null);
-    if (fields.length === 0) setError(t("signupContactExists"));
+    if (fields.length === 0) setError(caught.code === "PHONE_PROTECTED" ? t("phoneProtected") : t("signupContactExists"));
     setView("signup");
     return true;
   }
@@ -645,6 +645,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                 <header className={formHeading}>
                   <h2 className={formTitle}>{t(view === "google-phone" ? "googlePhoneTitle" : "mobileTitle")}</h2>
                   <p className={formSubtitle}>{t(view === "google-phone" ? "googlePhoneSubtitle" : "mobileSubtitle")}</p>
+                  {view === "google-phone" ? <p className="mt-3 rounded-xl bg-amber-50 p-3 text-xs text-amber-950" role="note">{t("phoneTransferWarning")}</p> : null}
                 </header>
                 <label className={fieldShell}>
                   <span className={fieldLabel}>{t("mobile")}</span>
@@ -727,6 +728,7 @@ export function AuthExperience({ returnTo }: { returnTo?: string }) {
                   <p className={formSubtitle}>
                     {t("signupSubtitle")}
                   </p>
+                  <p className="mt-3 rounded-xl bg-amber-50 p-3 text-xs text-amber-950" role="note">{t("phoneTransferWarning")}</p>
                 </header>
                 <label className="flex flex-col gap-1.5">
                   <span className={fieldLabel}>{t("fullName")}</span>

@@ -11,6 +11,7 @@ import { OtpInput } from "@/modules/account/components/auth/OtpInput";
 import { countryByIso, defaultCountry } from "@/modules/account/data/countries";
 import { formatNationalPhoneInput, validateNationalPhone } from "@/modules/account/utils/phone";
 import { profileApi } from "@/modules/account/api/profile";
+import { ApiError } from "@/services/api/client";
 
 export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initialPhone?: string | null; onVerified: () => Promise<unknown> }) {
   const t = useTranslations("deliveries.checkout");
@@ -23,6 +24,16 @@ export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initia
   const [error, setError] = useState("");
   const attemptedOtp = useRef("");
   const validPhone = validateNationalPhone(phone, country).e164;
+  const messageFor = (reason: unknown, fallback: string) => {
+    if (reason instanceof ApiError) {
+      if (reason.code === "PHONE_PROTECTED") return t("phoneVerificationProtected");
+      if (reason.status === 429) return t("phoneVerificationRateLimited");
+      if (reason.status === 503) return t("phoneVerificationSendError");
+      if (/expired|already been used/i.test(reason.message)) return t("phoneVerificationExpired");
+      if (/invalid verification code/i.test(reason.message)) return t("phoneVerificationCodeError");
+    }
+    return reason instanceof Error ? reason.message : fallback;
+  };
 
   async function sendCode() {
     if (!validPhone || busy) return;
@@ -34,7 +45,7 @@ export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initia
       setOtp("");
       attemptedOtp.current = "";
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : t("phoneVerificationSendError"));
+      setError(messageFor(caught, t("phoneVerificationSendError")));
     } finally {
       setBusy(false);
     }
@@ -48,7 +59,7 @@ export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initia
       await profileApi.verifyPhoneVerification({ phone: sentPhone, otp: code });
       await onVerified();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : t("phoneVerificationCodeError"));
+      setError(messageFor(caught, t("phoneVerificationCodeError")));
     } finally {
       setBusy(false);
     }
@@ -62,6 +73,7 @@ export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initia
         <span className="grid size-12 place-items-center rounded-xl bg-brand/10 text-brand"><ShieldCheck className="size-6" aria-hidden="true" /></span>
         <h1 id="checkout-phone-title" className="mt-5 text-2xl font-bold tracking-tight text-ink">{t("phoneVerificationTitle")}</h1>
         <p className="mt-2 text-sm leading-6 text-body">{t("phoneVerificationDescription")}</p>
+        {!sentPhone ? <p className="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-950" role="note">{t("phoneTransferWarning")}</p> : null}
         {sentPhone ? <div className="mt-7">
           <p className="text-sm font-semibold text-ink">{t("phoneVerificationSentTo", { phone: sentPhone })}</p>
           <OtpInput value={otp} onChange={(value) => {

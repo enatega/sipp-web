@@ -7,7 +7,6 @@ import { Icon, type IconName } from "@/components/shared/brand/Icon";
 import type { AuthUser } from "@/modules/account/types";
 import { userInitials } from "@/modules/account/utils/userInitials";
 import { useUnreadNotificationsCountQuery } from "@/modules/account/queries/useNotificationInboxQueries";
-import { useNotificationLiveSync } from "@/modules/account/hooks/useNotificationLiveSync";
 import { disableBrowserNotifications, enableBrowserNotifications, resolveBrowserPushState } from "@/modules/account/api/browserNotifications";
 
 /** The signed-in destinations, in the order the design lists them. */
@@ -75,7 +74,6 @@ export function AccountMenu({
   const [pushNotice, setPushNotice] = useState("");
   const wrapRef = useRef<HTMLDivElement>(null);
   const unreadNotifications = useUnreadNotificationsCountQuery();
-  useNotificationLiveSync();
 
   useEffect(() => {
     let active = true;

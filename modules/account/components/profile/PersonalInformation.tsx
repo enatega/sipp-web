@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
+import { Pencil } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/brand/Icon";
 import { useActionToast } from "@/components/shared/useActionToast";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import { ProfilePhotoManager } from "@/modules/account/components/profile/ProfilePhotoManager";
 import { ProfileBackLink } from "@/modules/account/components/profile/ProfileBackLink";
+import { ProfilePhoneVerification } from "@/modules/account/components/profile/ProfilePhoneVerification";
 import type {
   ProfileGender,
   ProfileUpdateInput,
@@ -93,7 +95,7 @@ function GenderChoices({ value }: { value?: ProfileGender | null }) {
   );
 }
 
-function ProfileDetails({ user }: { user: ProfileUser }) {
+function ProfileDetails({ user, onEditPhone }: { user: ProfileUser; onEditPhone: () => void }) {
   const t = useTranslations("profileInformation");
   const locale = useLocale();
   const formattedDate = useMemo(() => {
@@ -140,6 +142,9 @@ function ProfileDetails({ user }: { user: ProfileUser }) {
               {t(user.phone_is_verified ? "verified" : "unverified")}
             </span>
           ) : null}
+          <button id="profile-phone-edit" type="button" onClick={onEditPhone} aria-label={t("phoneEditAction")} title={t("phoneEditAction")} className="ms-3 grid size-8 shrink-0 place-items-center rounded-full text-brand transition-colors hover:bg-brand/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+            <Pencil aria-hidden="true" className="size-4" />
+          </button>
         </Field>
         <Field label={t("dateOfBirth")}>{formattedDate}</Field>
         <div className="sm:col-span-2">
@@ -155,7 +160,7 @@ function ProfileDetails({ user }: { user: ProfileUser }) {
   );
 }
 
-function EditProfileForm({ user }: { user: ProfileUser }) {
+function EditProfileForm({ user, onEditPhone }: { user: ProfileUser; onEditPhone: () => void }) {
   const t = useTranslations("profileInformation");
   const router = useRouter();
   const updateProfile = useUpdateProfileMutation();
@@ -222,13 +227,16 @@ function EditProfileForm({ user }: { user: ProfileUser }) {
             ) : null}
           </span>
         </label>
-        <label className={labelClass}>
+        <div className={labelClass}>
           {t("phoneNumber")}
-          <span className="relative block">
-            <input value={user.phone ?? ""} className={`${inputClass} pe-24`} autoComplete="tel" disabled />
-            {user.phone ? <span className={`absolute end-4 top-1/2 mt-1 -translate-y-1/2 text-[10px] font-semibold ${user.phone_is_verified ? "text-[#137e52] dark:text-[#63d8a5]" : "text-body"}`}>{t(user.phone_is_verified ? "verified" : "unverified")}</span> : null}
-          </span>
-        </label>
+          <div className="mt-2 flex min-h-11 items-center rounded-full bg-[var(--soft-surface)] px-4 text-[13px] font-medium normal-case text-foreground">
+            <span className="min-w-0 flex-1 truncate">{user.phone || t("notProvided")}</span>
+            {user.phone ? <span className={`ms-2 text-[10px] font-semibold ${user.phone_is_verified ? "text-[#137e52] dark:text-[#63d8a5]" : "text-body"}`}>{t(user.phone_is_verified ? "verified" : "unverified")}</span> : null}
+            <button id="profile-phone-edit" type="button" onClick={onEditPhone} aria-label={t("phoneEditAction")} title={t("phoneEditAction")} className="ms-3 grid size-8 shrink-0 place-items-center rounded-full text-brand transition-colors hover:bg-brand/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+              <Pencil aria-hidden="true" className="size-4" />
+            </button>
+          </div>
+        </div>
         <label className={labelClass}>
           {t("dateOfBirth")}
           <input
@@ -350,6 +358,12 @@ export function PersonalInformation({ editing = false }: PersonalInformationProp
   const authenticated = session.data?.authenticated === true;
   const profile = useProfileQuery(authenticated);
   const savedCards = useSavedCardsQuery(authenticated);
+  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+
+  const closePhoneModal = () => {
+    setPhoneModalOpen(false);
+    window.requestAnimationFrame(() => document.getElementById("profile-phone-edit")?.focus());
+  };
 
   useEffect(() => {
     if (!session.isPending && !authenticated) router.replace("/login");
@@ -391,7 +405,7 @@ export function PersonalInformation({ editing = false }: PersonalInformationProp
                 <PrivacyNotice />
               </div>
               <div className="space-y-6">
-                {editing ? <EditProfileForm user={user} /> : <ProfileDetails user={user} />}
+                {editing ? <EditProfileForm user={user} onEditPhone={() => setPhoneModalOpen(true)} /> : <ProfileDetails user={user} onEditPhone={() => setPhoneModalOpen(true)} />}
                 <SummaryCards
                   addresses={addresses}
                   savedCard={
@@ -402,6 +416,7 @@ export function PersonalInformation({ editing = false }: PersonalInformationProp
               </div>
             </div>
           )}
+          {phoneModalOpen && user ? <ProfilePhoneVerification initialPhone={user.phone} onClose={closePhoneModal} onVerified={() => profile.refetch()} /> : null}
         </div>
       </div>
     </main>

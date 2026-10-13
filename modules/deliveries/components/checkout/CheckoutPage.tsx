@@ -225,6 +225,11 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         router.push(`/orders/${response.orderId}`);
         unconfirmedAttemptRef.current = null;
       } catch (error) {
+        if (error instanceof ApiError && /PHONE_VERIFICATION_REQUIRED/.test(error.message)) {
+          await profile.refetch();
+          showSubmitError(t("phoneVerificationNeededAgain"));
+          return;
+        }
         if (!(error instanceof ApiError) || error.status === 408 || error.status >= 500) {
           for (let attempt = 0; attempt < 3; attempt += 1) {
             if (attempt > 0) {
@@ -277,7 +282,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   }, [bucketId, restaurantNote, courierNote]);
 
   const previewInput = useMemo<CheckoutPreviewInput | null>(() => {
-    if (!profile.data?.data?.user || profile.data.data.user.google_phone_verification_required) return null;
+    if (!profile.data?.data?.user || (profile.data.data.user.phone_verification_required ?? (!profile.data.data.user.phone || !profile.data.data.user.phone_is_verified))) return null;
     if (!cart.data?.bucketId || !cart.data.storeId) return null;
     if (formik.values.orderType === "delivery" && !deliveryPlace) return null;
     return { storeId: cart.data.storeId, bucketId: cart.data.bucketId, orderType: formik.values.orderType, paymentMethod: formik.values.paymentMethod, ...(formik.values.orderType === "delivery" && deliveryPlace ? { ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId), riderTip: formik.values.riderTip || undefined } : {}) };
@@ -435,7 +440,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   if (cart.isError || !cart.data) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button type="button" onClick={() => void cart.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
   if (profile.isError || !profile.data?.data?.user) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("phoneVerificationProfileError")}</h1><button type="button" onClick={() => void profile.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
   if (cart.data.isEmpty) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><ShoppingBag aria-hidden="true" className="mx-auto size-10 text-brand" /><h1 className="mt-4 text-xl font-bold text-ink">{t("emptyTitle")}</h1><p className="mt-2 text-sm text-body">{t("emptyMessage")}</p><div className="mt-5 flex flex-wrap justify-center gap-3"><Link href="/orders" className="inline-flex rounded-full border border-line px-6 py-3 text-sm font-bold text-ink">{t("viewOrders")}</Link><Link href="/discovery" className="inline-flex rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("browseFood")}</Link></div></div></main></>;
-  if (profile.data.data.user.google_phone_verification_required) return <CheckoutPhoneVerification initialPhone={profile.data.data.user.phone} onVerified={() => profile.refetch()} />;
+  if (profile.data.data.user.phone_verification_required ?? (!profile.data.data.user.phone || !profile.data.data.user.phone_is_verified)) return <CheckoutPhoneVerification initialPhone={profile.data.data.user.phone} onVerified={() => profile.refetch()} />;
 
   const store = preview.data?.store;
   const checkoutAlerts: CheckoutAlert[] = [
