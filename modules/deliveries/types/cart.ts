@@ -37,6 +37,7 @@ export interface CartResponse {
   customerId: string;
   status: string;
   storeId: string | null;
+  minimumOrder: number;
   totalItems: number;
   uniqueItems: number;
   totalPrice: number;

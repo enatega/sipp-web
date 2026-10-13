@@ -67,6 +67,7 @@ export function parseCart(value: unknown): CartResponse {
     customerId: text(source.customerId),
     status: text(source.status),
     storeId: optionalText(source.storeId),
+    minimumOrder: Math.max(0, number(source.minimumOrder)),
     totalItems,
     uniqueItems: number(source.uniqueItems, items.length),
     totalPrice: number(source.totalPrice),
