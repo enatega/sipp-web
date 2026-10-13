@@ -82,41 +82,46 @@ export async function enableBrowserNotifications() {
   if (browserPushAvailability() !== "available") throw new Error("Browser push is unavailable");
   if (isNotificationPermissionDenied()) return "denied" as const;
   const prepared = preparedPush;
-  if (!prepared) throw new Error("Browser push is not ready");
-
-  // Start subscribe synchronously in the click handler. WebKit requires a user
-  // gesture for a new push subscription; permission is requested by subscribe.
-  const wasNew = !prepared.subscription;
-  const subscriptionPromise = prepared.subscription
-    ? Promise.resolve(prepared.subscription)
-    : prepared.registration.pushManager.subscribe({
+  // WebKit needs subscribe to begin in the click gesture. If preparation has
+  // not completed, request permission in that gesture before awaiting setup.
+  const subscriptionPromise = prepared && !prepared.subscription
+    ? prepared.registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: prepared.applicationServerKey,
-      });
+      })
+    : null;
+  const permissionPromise = Notification.permission === "default" && !subscriptionPromise
+    ? Notification.requestPermission()
+    : null;
 
   let subscription: PushSubscription;
   try {
-    subscription = await subscriptionPromise;
+    if (permissionPromise) {
+      const permission = await permissionPromise;
+      if (permission !== "granted") return permission === "denied" ? "denied" as const : "available" as const;
+    }
+    const ready = prepared ?? await prepareBrowserPush();
+    if (Notification.permission === "denied") return "denied" as const;
+    if (Notification.permission !== "granted" && !subscriptionPromise) return "available" as const;
+    const existing = subscriptionPromise ? null : await ready.registration.pushManager.getSubscription();
+    subscription = existing ?? await (subscriptionPromise ?? ready.registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: ready.applicationServerKey,
+    }));
+    ready.subscription = subscription;
   } catch (error) {
     if (isNotificationPermissionDenied()) return "denied" as const;
+    if (Notification.permission === "default") return "available" as const;
     throw error;
   }
-  prepared.subscription = subscription;
-  try {
-    await registerServerSubscription(subscription);
-  } catch (error) {
-    if (wasNew) {
-      await subscription.unsubscribe();
-      prepared.subscription = null;
-    }
-    throw error;
-  }
+  await registerServerSubscription(subscription);
   return "enabled" as const;
 }
 
 export async function browserNotificationsEnabled() {
   if (browserPushAvailability() !== "available") return false;
   const prepared = await prepareBrowserPush();
+  prepared.subscription = await prepared.registration.pushManager.getSubscription();
   if (Notification.permission !== "granted" || !prepared.subscription) return false;
   await registerServerSubscription(prepared.subscription);
   return true;
@@ -125,7 +130,10 @@ export async function browserNotificationsEnabled() {
 export async function resolveBrowserPushState(): Promise<"available" | "unsupported" | "ios-install" | "denied" | "enabled"> {
   const availability = browserPushAvailability();
   if (availability !== "available") return availability;
-  if (Notification.permission === "denied") return "denied";
+  if (Notification.permission === "denied") {
+    preparedPush = null;
+    return "denied";
+  }
   return browserNotificationsEnabled()
     .then((enabled) => (enabled ? "enabled" as const : "available" as const))
     .catch(() => "available" as const);
