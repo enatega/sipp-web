@@ -922,6 +922,11 @@
         "restaurant": "Your favourite meals from local spots."
       },
       "pageTitle": "Discover local delivery",
+      "outsideAreaTitle": "We're not delivering here yet",
+      "outsideAreaDescription": "This address is outside the SIPP delivery area. Choose another location to see restaurants and shops that can deliver to you.",
+      "coverageErrorTitle": "We couldn't check delivery availability",
+      "coverageErrorDescription": "Please try again or choose another location. We won't show businesses until we can confirm delivery is available.",
+      "changeLocation": "Change location",
       "foodDelivery": "SIPP delivery",
       "signInTitle": "Sign in to discover local businesses",
       "signInMessage": "Choose your delivery address and explore nearby restaurants, markets, offers, and past orders available to you.",

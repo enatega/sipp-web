@@ -896,6 +896,11 @@
         "restaurant": "Vos plats préférés des adresses du coin."
       },
       "pageTitle": "Découvrez la livraison locale",
+      "outsideAreaTitle": "Nous ne livrons pas encore dans cette zone",
+      "outsideAreaDescription": "Cette adresse se trouve hors de la zone de livraison de SIPP. Choisissez un autre lieu pour voir les restaurants et commerces disponibles.",
+      "coverageErrorTitle": "Impossible de vérifier la disponibilité de la livraison",
+      "coverageErrorDescription": "Réessayez ou choisissez un autre lieu. Nous n'afficherons pas de commerces tant que la livraison n'aura pas été confirmée.",
+      "changeLocation": "Changer de lieu",
       "foodDelivery": "SIPP livraison",
       "signInTitle": "Connectez-vous pour découvrir les entreprises locales",
       "signInMessage": "Choisissez votre adresse de livraison et explorez les restaurants, les marchés, les offres et les commandes passées à votre disposition.",

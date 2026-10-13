@@ -922,6 +922,11 @@
         "restaurant": "Deine Lieblingsgerichte aus der Nachbarschaft."
       },
       "pageTitle": "Lokale Lieferung entdecken",
+      "outsideAreaTitle": "Wir liefern noch nicht hierher",
+      "outsideAreaDescription": "Diese Adresse liegt außerhalb des SIPP-Liefergebiets. Wählen Sie einen anderen Standort, um verfügbare Restaurants und Geschäfte zu sehen.",
+      "coverageErrorTitle": "Lieferverfügbarkeit konnte nicht geprüft werden",
+      "coverageErrorDescription": "Bitte versuchen Sie es erneut oder wählen Sie einen anderen Standort. Wir zeigen erst Geschäfte an, wenn die Lieferverfügbarkeit bestätigt ist.",
+      "changeLocation": "Standort ändern",
       "foodDelivery": "SIPP-Lieferung",
       "signInTitle": "Anmelden und lokale Unternehmen entdecken",
       "signInMessage": "Wählen Sie Ihre Lieferadresse und entdecken Sie nahe Restaurants, Märkte, Angebote und frühere Bestellungen.",
