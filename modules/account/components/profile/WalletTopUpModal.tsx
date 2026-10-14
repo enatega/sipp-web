@@ -40,7 +40,9 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
   const [isCompleted, setIsCompleted] = useState(false);
   const submitLock = useRef(false);
   const amountInput = useRef<HTMLInputElement>(null);
+  const addCardButton = useRef<HTMLButtonElement>(null);
   const isBusy = topUp.isPending || isConfirming;
+  const hasCards = cards.length > 0;
   const defaultCard = cards.find((card) => card.isDefault) ?? cards[0];
   const formik = useFormik({
     initialValues: { amount: "", paymentMethodId: "" },
@@ -103,13 +105,14 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
 
   useEffect(() => {
     if (!open) return;
-    amountInput.current?.focus();
+    if (hasCards) amountInput.current?.focus();
+    else addCardButton.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !isBusy) closeModal();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isBusy, open]);
+  }, [hasCards, isBusy, open]);
 
   if (!open) return null;
 
@@ -139,7 +142,7 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
         ) : (
           <form className="mt-7" noValidate onSubmit={formik.handleSubmit}>
             <p className="text-sm font-semibold text-ink">{t("topUpPaymentMethod")}</p>
-            {cards.length ? (
+            {hasCards ? (
               <div className="mt-3 space-y-2" role="radiogroup" aria-label={t("topUpPaymentMethod")}>
                 {cards.map((card) => (
                   <label className={`flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border px-4 transition-colors ${formik.values.paymentMethodId === card.id ? "border-brand bg-brand/10" : "border-line bg-soft-surface hover:border-brand/50"}`} key={card.id}>
@@ -150,8 +153,21 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
                   </label>
                 ))}
               </div>
-            ) : <p className="mt-3 rounded-2xl bg-soft-surface p-4 text-sm text-muted">{t("topUpNoCards")}</p>}
-            <button className="mt-2 inline-flex min-h-11 w-full items-center gap-2 rounded-2xl bg-brand/10 px-4 text-sm font-semibold text-brand hover:bg-brand/15" disabled={isBusy} onClick={onAddCard} type="button"><Plus aria-hidden="true" className="size-4" />{t("addCard")}</button>
+            ) : (
+              <div className="mt-3 rounded-2xl border border-line bg-soft-surface p-4">
+                <div className="flex items-start gap-3">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand/10 text-brand">
+                    <CreditCard aria-hidden="true" className="size-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-ink">{t("topUpNoCardsTitle")}</p>
+                    <p className="mt-1 text-sm leading-5 text-muted">{t("topUpNoCards")}</p>
+                  </div>
+                </div>
+                <button ref={addCardButton} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-ink transition-colors hover:bg-brand/85 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/20" disabled={isBusy} onClick={onAddCard} type="button"><Plus aria-hidden="true" className="size-4" />{t("topUpAddCardToContinue")}</button>
+              </div>
+            )}
+            {hasCards ? <button className="mt-2 inline-flex min-h-11 w-full items-center gap-2 rounded-2xl bg-brand/10 px-4 text-sm font-semibold text-brand hover:bg-brand/15" disabled={isBusy} onClick={onAddCard} type="button"><Plus aria-hidden="true" className="size-4" />{t("addCard")}</button> : null}
 
             <label className="mt-7 block text-sm font-semibold text-ink" htmlFor="wallet-topup-amount">{t("topUpAmount")}</label>
             <div className="mt-2 flex h-20 items-center gap-2 rounded-2xl border border-line bg-soft-surface px-5 focus-within:border-brand">
@@ -164,11 +180,12 @@ export function WalletTopUpModal({ open, cards, initialAmount = null, returnToCh
             </div>
             {formik.submitCount && (formik.errors.amount || formik.errors.paymentMethodId) ? <p className="mt-3 text-sm text-danger" role="alert">{formik.errors.amount || formik.errors.paymentMethodId}</p> : null}
             {!publishableKey ? <p className="mt-3 text-sm text-danger" role="alert">{t("topUpUnavailable")}</p> : null}
-            <button className="mt-8 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 text-base font-semibold text-ink transition-colors hover:bg-brand/85 disabled:cursor-not-allowed disabled:bg-soft-surface disabled:text-muted" disabled={!isReady} type="submit">
+            <button aria-describedby={!hasCards ? "wallet-topup-card-required" : undefined} className="mt-8 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 text-base font-semibold text-ink transition-colors hover:bg-brand/85 disabled:cursor-not-allowed disabled:bg-soft-surface disabled:text-muted" disabled={!isReady} type="submit">
               {isBusy ? <LoaderCircle aria-hidden="true" className="size-5 animate-spin" /> : null}
               {isBusy ? t("topUpProcessing") : isValidAmount ? t("topUpSubmitAmount", { amount: money(amount) }) : t("topUpSubmit")}
               {!isBusy && isReady ? <ArrowRight aria-hidden="true" className="size-5" /> : null}
             </button>
+            {!hasCards ? <p className="mt-2 text-center text-xs leading-5 text-muted" id="wallet-topup-card-required">{t("topUpCardRequired")}</p> : null}
           </form>
         )}
       </div>
