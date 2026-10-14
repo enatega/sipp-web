@@ -92,6 +92,7 @@ export function CartPage() {
   const data = cart.data;
   const minimumRemaining = Math.max(0, data.minimumOrder - data.finalPrice);
   const isBelowMinimum = minimumRemaining > 0;
+  const unavailableItems = data.items.filter((item) => !item.inStock);
   const eta = restaurant.data ? storeDeliveryTimeLabel(restaurant.data.deliveryTime, (count) => restaurantText("minutes", { count })) : null;
   return (
     <>
@@ -135,7 +136,8 @@ export function CartPage() {
               <div className="my-5 border-t border-dashed border-line" />
               <div className="flex items-end justify-between gap-4"><div><p className="font-bold text-ink">{t("cartTotal")}</p><p className="mt-1 text-[11px] text-muted">{t("feesAtCheckout")}</p></div><strong className="text-2xl text-brand">{price(data.finalPrice)}</strong></div>
               {isBelowMinimum ? <div className="mt-5 rounded-2xl border border-line bg-soft-surface p-4 text-sm text-body"><div className="flex items-start gap-3"><ShoppingBag aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-brand" /><div className="min-w-0 flex-1"><p role="status" className="font-semibold text-ink">{t("minimumRemaining", { amount: price(minimumRemaining) })}</p><details className="mt-2"><summary className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-body underline underline-offset-2 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-brand"><Info aria-hidden="true" className="size-3.5" />{t("minimumInfo")}</summary><p className="mt-2 text-xs leading-5">{t("minimumAmount", { amount: price(data.minimumOrder) })}</p></details></div></div></div> : null}
-              {isStoreClosed || isBelowMinimum ? <button type="button" disabled className={`mt-6 min-h-13 w-full rounded-full bg-brand px-5 text-sm font-bold text-ink opacity-50 ${isBelowMinimum ? "cursor-not-allowed" : ""}`}>{isStoreClosed ? restaurantText("closed") : t("checkout")}</button> : <Link href="/checkout" className="mt-6 inline-flex min-h-13 w-full items-center justify-center rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_10px_24px_rgba(102,192,242,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-brand/85">{t("checkout")}</Link>}
+              {isStoreClosed || isBelowMinimum || unavailableItems.length > 0 ? <button type="button" disabled className="mt-6 min-h-13 w-full cursor-not-allowed rounded-full bg-brand px-5 text-sm font-bold text-ink opacity-50">{isStoreClosed ? restaurantText("closed") : t("checkout")}</button> : <Link href="/checkout" className="mt-6 inline-flex min-h-13 w-full items-center justify-center rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_10px_24px_rgba(102,192,242,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-brand/85">{t("checkout")}</Link>}
+              {unavailableItems.length > 0 ? <p role="status" className="mt-3 text-center text-xs font-medium leading-relaxed text-danger">{unavailableItems.length === 1 ? t("unavailableCheckoutItem", { name: unavailableItems[0].name }) : t("unavailableCheckoutItems", { count: unavailableItems.length })}</p> : null}
               <p className="mt-3 text-center text-[11px] leading-relaxed text-muted">{t("secureCheckout")}</p>
             </aside>
           </div>

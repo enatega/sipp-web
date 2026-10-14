@@ -1477,6 +1477,8 @@
       "cartTotal": "Total del carrito",
       "feesAtCheckout": "Los impuestos están incluidos. Las tasas de entrega se calculan a la salida.",
       "checkout": "Continuar con el checkout",
+      "unavailableCheckoutItem": "{name} no está disponible en este momento. Elimínalo o elige otro producto para continuar.",
+      "unavailableCheckoutItems": "Hay {count} productos no disponibles en este momento. Elimínalos o elige otros productos para continuar.",
       "minimumRemaining": "Agrega {amount} más para alcanzar el pedido mínimo de esta tienda",
       "minimumInfo": "Detalles del pedido mínimo",
       "minimumAmount": "Esta tienda requiere un pedido de al menos {amount} después de descuentos y antes del costo de entrega.",

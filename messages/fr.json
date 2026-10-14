@@ -1477,6 +1477,8 @@
       "cartTotal": "Total du panier",
       "feesAtCheckout": "Les impôts sont inclus. Les frais de livraison sont calculés à la caisse.",
       "checkout": "Continuer la commande",
+      "unavailableCheckoutItem": "{name} est actuellement indisponible. Retirez-le ou choisissez un autre produit pour continuer.",
+      "unavailableCheckoutItems": "{count} articles sont actuellement indisponibles. Retirez-les ou choisissez d'autres produits pour continuer.",
       "minimumRemaining": "Ajoutez encore {amount} pour atteindre le minimum de commande de cette boutique",
       "minimumInfo": "Détails du minimum de commande",
       "minimumAmount": "Cette boutique exige une commande d'au moins {amount} après les remises et avant les frais de livraison.",

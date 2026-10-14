@@ -1477,6 +1477,8 @@
       "cartTotal": "Cart total",
       "feesAtCheckout": "Taxes are included. Delivery fees are calculated at checkout.",
       "checkout": "Continue to checkout",
+      "unavailableCheckoutItem": "{name} is currently unavailable. Remove it or choose another product to continue.",
+      "unavailableCheckoutItems": "{count} items are currently unavailable. Remove them or choose other products to continue.",
       "minimumRemaining": "Add {amount} more to reach this store's minimum order",
       "minimumInfo": "Minimum order details",
       "minimumAmount": "This store requires an order of at least {amount} after discounts, before delivery fees.",

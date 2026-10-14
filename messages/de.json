@@ -1477,6 +1477,8 @@
       "cartTotal": "Warenkorbsumme",
       "feesAtCheckout": "Steuern sind enthalten. Liefergebühren werden an der Kasse berechnet.",
       "checkout": "Weiter zur Kasse",
+      "unavailableCheckoutItem": "{name} ist derzeit nicht verfügbar. Entfernen Sie den Artikel oder wählen Sie ein anderes Produkt, um fortzufahren.",
+      "unavailableCheckoutItems": "{count} Artikel sind derzeit nicht verfügbar. Entfernen Sie sie oder wählen Sie andere Produkte, um fortzufahren.",
       "minimumRemaining": "Noch {amount} bis zum Mindestbestellwert dieses Geschäfts",
       "minimumInfo": "Details zum Mindestbestellwert",
       "minimumAmount": "Dieses Geschäft verlangt nach Rabatten und vor Liefergebühren einen Bestellwert von mindestens {amount}.",
