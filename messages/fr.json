@@ -743,6 +743,8 @@
     "tracker": {
       "label": "Suivi de la commande en cours",
       "title": "Commande en cours",
+      "openTracker": "Ouvrir la commande en cours",
+      "closeTracker": "Réduire la commande en cours",
       "storeFallback": "Votre commande",
       "trackOrder": "Suivre la commande",
       "moreActive": "{count, plural, one {# autre commande active} other {# autres commandes actives}}",

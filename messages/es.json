@@ -743,6 +743,8 @@
     "tracker": {
       "label": "Seguimiento del pedido actual",
       "title": "Pedido en curso",
+      "openTracker": "Abrir pedido en curso",
+      "closeTracker": "Minimizar pedido en curso",
       "storeFallback": "Tu pedido",
       "trackOrder": "Seguir pedido",
       "moreActive": "{count, plural, one {# pedido activo más} other {# pedidos activos más}}",

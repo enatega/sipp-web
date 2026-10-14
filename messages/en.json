@@ -769,6 +769,8 @@
     "tracker": {
       "label": "Current order tracking",
       "title": "Live order",
+      "openTracker": "Open live order",
+      "closeTracker": "Minimize live order",
       "storeFallback": "Your order",
       "trackOrder": "Track order",
       "moreActive": "{count, plural, one {# more active order} other {# more active orders}}",

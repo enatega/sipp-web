@@ -769,6 +769,8 @@
     "tracker": {
       "label": "Aktuelle Bestellverfolgung",
       "title": "Aktuelle Bestellung",
+      "openTracker": "Aktuelle Bestellung öffnen",
+      "closeTracker": "Aktuelle Bestellung minimieren",
       "storeFallback": "Deine Bestellung",
       "trackOrder": "Bestellung verfolgen",
       "moreActive": "{count, plural, one {# weitere aktive Bestellung} other {# weitere aktive Bestellungen}}",

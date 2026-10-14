@@ -743,6 +743,8 @@
     "tracker": {
       "label": "تتبّع الطلب الحالي",
       "title": "طلب مباشر",
+      "openTracker": "فتح الطلب المباشر",
+      "closeTracker": "تصغير الطلب المباشر",
       "storeFallback": "طلبك",
       "trackOrder": "تتبّع الطلب",
       "moreActive": "{count, plural, one {طلب نشط آخر} two {طلبان نشطان آخران} few {# طلبات نشطة أخرى} many {# طلبًا نشطًا آخر} other {# طلب نشط آخر}}",
