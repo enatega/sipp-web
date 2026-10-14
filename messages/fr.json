@@ -1462,6 +1462,8 @@
       "discount": "Réduction",
       "cartTotal": "Total du panier",
       "feesAtCheckout": "Les impôts sont inclus. Les frais de livraison sont calculés à la caisse.",
+      "pricesUpdatedTitle": "Prix du panier mis à jour",
+      "pricesUpdatedMessage": "Le prix d’un ou plusieurs produits a changé. Votre panier affiche maintenant les derniers prix et remises du commerce.",
       "checkout": "Continuer la commande",
       "secureCheckout": "Paiement sécurisé · les totaux sont confirmés par l'entreprise",
       "updateError": "La quantité n'a pas pu être mise à jour. Veuillez réessayer.",

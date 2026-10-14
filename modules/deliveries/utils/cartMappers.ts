@@ -75,6 +75,7 @@ export function parseCart(value: unknown): CartResponse {
     appliedCouponId: optionalText(source.appliedCouponId),
     appliedCouponCode: optionalText(source.appliedCouponCode),
     isEmpty: source.isEmpty === true || totalItems === 0 || items.length === 0,
+    pricesUpdated: source.pricesUpdated === true,
     items,
   };
 }

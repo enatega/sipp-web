@@ -45,5 +45,6 @@ export interface CartResponse {
   appliedCouponId: string | null;
   appliedCouponCode: string | null;
   isEmpty: boolean;
+  pricesUpdated?: boolean;
   items: CartItem[];
 }

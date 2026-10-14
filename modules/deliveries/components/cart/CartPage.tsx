@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ChevronRight, Clock, LoaderCircle, ShoppingBag, ShoppingCart, Sparkles, Store, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Clock, Info, LoaderCircle, ShoppingBag, ShoppingCart, Sparkles, Store, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { Header } from "@/components/shared/app-shell/Header";
@@ -44,7 +44,7 @@ export function CartPage() {
   const formatAppCurrency = useAppCurrencyFormatter();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
-  const cart = useCartQuery(authenticated);
+  const cart = useCartQuery(authenticated, "always");
   const { location } = useRestaurantLocation();
   const restaurant = useRestaurantQuery(cart.data?.storeId ?? "", location);
   const isStoreClosed = restaurant.data?.isAvailable === false;
@@ -98,6 +98,15 @@ export function CartPage() {
         <div className="section-wrap">
           {isStoreClosed ? <div role="status" className="mb-5 rounded-xl border border-line bg-soft-surface p-4 text-body"><strong className="block text-ink">{restaurantText("closed")}</strong><p className="mt-1 text-sm">{restaurantText("closedMessage")}</p></div> : null}
           <Link href={data.storeId ? `/restaurants/${data.storeId}` : "/discovery"} className="inline-flex items-center gap-2 text-sm font-semibold text-body transition-colors hover:text-brand"><ArrowLeft aria-hidden="true" className="size-4" />{t("continueShopping")}</Link>
+          {data.pricesUpdated ? (
+            <div role="status" className="mt-5 flex items-start gap-3 rounded-2xl border border-brand/25 bg-brand/10 px-4 py-3 text-sm text-body">
+              <Info aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-brand" />
+              <div>
+                <p className="font-bold text-ink">{t("pricesUpdatedTitle")}</p>
+                <p className="mt-0.5 leading-5">{t("pricesUpdatedMessage")}</p>
+              </div>
+            </div>
+          ) : null}
           <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
             <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand">{t("eyebrow")}</p><h1 className="mt-1 text-3xl font-bold text-ink sm:text-4xl">{t("title")}</h1><p className="mt-2 text-sm text-body">{t("itemCount", { count: data.totalItems })}</p></div>
             <button type="button" disabled={removingItemIds.size > 0} onClick={() => setClearOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-xs font-semibold text-muted transition-colors hover:bg-brand/10 hover:text-brand disabled:cursor-wait disabled:opacity-50"><Trash2 aria-hidden="true" className="size-4" />{t("clearCart")}</button>
