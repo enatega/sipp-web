@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ChevronRight, Clock, Info, LoaderCircle, ShoppingBag, ShoppingCart, Sparkles, Store, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Clock, LoaderCircle, MapPinOff, ShoppingBag, ShoppingCart, Sparkles, Store, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { Header } from "@/components/shared/app-shell/Header";
@@ -47,7 +47,9 @@ export function CartPage() {
   const cart = useCartQuery(authenticated, "always");
   const { location } = useRestaurantLocation();
   const restaurant = useRestaurantQuery(cart.data?.storeId ?? "", location);
-  const isStoreClosed = restaurant.data?.isAvailable === false;
+  const isOutsideDeliveryArea = restaurant.data?.isWithinDeliveryArea === false;
+  const isStoreClosed = !isOutsideDeliveryArea && restaurant.data?.isAvailable === false;
+  const isCheckingStore = Boolean(cart.data?.storeId && location) && restaurant.isPending;
   const mutations = useCartMutations();
   const [clearOpen, setClearOpen] = useState(false);
   const [error, setError] = useState("");
@@ -96,17 +98,9 @@ export function CartPage() {
       <Header cartCount={data.totalItems} />
       <main className="min-h-[calc(100vh-76px)] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_300px)] pb-28 pt-7 sm:pb-12 sm:pt-10">
         <div className="section-wrap">
+          <Link href={data.storeId ? `/restaurants/${data.storeId}` : "/discovery"} className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-body transition-colors hover:text-brand"><ArrowLeft aria-hidden="true" className="size-4" />{t("continueShopping")}</Link>
           {isStoreClosed ? <div role="status" className="mb-5 rounded-xl border border-line bg-soft-surface p-4 text-body"><strong className="block text-ink">{restaurantText("closed")}</strong><p className="mt-1 text-sm">{restaurantText("closedMessage")}</p></div> : null}
-          <Link href={data.storeId ? `/restaurants/${data.storeId}` : "/discovery"} className="inline-flex items-center gap-2 text-sm font-semibold text-body transition-colors hover:text-brand"><ArrowLeft aria-hidden="true" className="size-4" />{t("continueShopping")}</Link>
-          {data.pricesUpdated ? (
-            <div role="status" className="mt-5 flex items-start gap-3 rounded-2xl border border-brand/25 bg-brand/10 px-4 py-3 text-sm text-body">
-              <Info aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-brand" />
-              <div>
-                <p className="font-bold text-ink">{t("pricesUpdatedTitle")}</p>
-                <p className="mt-0.5 leading-5">{t("pricesUpdatedMessage")}</p>
-              </div>
-            </div>
-          ) : null}
+          {isOutsideDeliveryArea ? <div role="alert" className="mb-5 flex items-start gap-3 rounded-xl border border-danger/30 bg-danger/10 p-4 text-danger"><span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-card text-danger"><MapPinOff aria-hidden="true" className="size-4" /></span><div className="min-w-0"><strong className="block">{restaurantText("outsideAreaTitle")}</strong><p className="mt-1 text-sm leading-6">{restaurantText("outsideAreaCartMessage")}</p></div></div> : null}
           <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
             <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand">{t("eyebrow")}</p><h1 className="mt-1 text-3xl font-bold text-ink sm:text-4xl">{t("title")}</h1><p className="mt-2 text-sm text-body">{t("itemCount", { count: data.totalItems })}</p></div>
             <button type="button" disabled={removingItemIds.size > 0} onClick={() => setClearOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-xs font-semibold text-muted transition-colors hover:bg-brand/10 hover:text-brand disabled:cursor-wait disabled:opacity-50"><Trash2 aria-hidden="true" className="size-4" />{t("clearCart")}</button>
@@ -141,7 +135,7 @@ export function CartPage() {
               {data.discountAmount > 0 ? <div className="mt-4 flex justify-between gap-4 text-sm text-emerald-600 dark:text-emerald-400"><span>{t("discount")}</span><span className="font-semibold">− {price(data.discountAmount)}</span></div> : null}
               <div className="my-5 border-t border-dashed border-line" />
               <div className="flex items-end justify-between gap-4"><div><p className="font-bold text-ink">{t("cartTotal")}</p><p className="mt-1 text-[11px] text-muted">{t("feesAtCheckout")}</p></div><strong className="text-2xl text-brand">{price(data.finalPrice)}</strong></div>
-              {isStoreClosed ? <button type="button" disabled className="mt-6 min-h-13 w-full rounded-full bg-brand px-5 text-sm font-bold text-ink opacity-50">{restaurantText("closed")}</button> : <Link href="/checkout" className="mt-6 inline-flex min-h-13 w-full items-center justify-center rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_10px_24px_rgba(102,192,242,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-brand/85">{t("checkout")}</Link>}
+              {isCheckingStore || isOutsideDeliveryArea || isStoreClosed ? <button type="button" disabled className="mt-6 inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-ink opacity-50">{isCheckingStore ? <><LoaderCircle aria-hidden="true" className="size-4 animate-spin" />{restaurantText("checkingArea")}</> : isOutsideDeliveryArea ? restaurantText("outsideAreaShort") : restaurantText("closed")}</button> : <Link href="/checkout" className="mt-6 inline-flex min-h-13 w-full items-center justify-center rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_10px_24px_rgba(102,192,242,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-brand/85">{t("checkout")}</Link>}
               <p className="mt-3 text-center text-[11px] leading-relaxed text-muted">{t("secureCheckout")}</p>
             </aside>
           </div>

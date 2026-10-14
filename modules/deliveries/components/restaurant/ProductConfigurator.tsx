@@ -13,7 +13,7 @@ import { DeliveryImage } from "../discovery/DeliveryImage";
 import { CustomizationGroup } from "./CustomizationGroup";
 import { CustomizationGroupBadge } from "./CustomizationGroupBadge";
 import { CustomizationOptionRow } from "./CustomizationOptionRow";
-import { useCartMutations, useCartQuery, useProductConfiguration } from "../../hooks/useRestaurantQueries";
+import { useCartMutations, useCartQuery, useProductConfiguration, useRestaurantLocation } from "../../hooks/useRestaurantQueries";
 import {
   buildVariationChoices,
   cartSelections,
@@ -26,6 +26,7 @@ import type { RestaurantProduct } from "../../types/restaurant";
 
 interface Props {
   isStoreAvailable: boolean;
+  isWithinDeliveryArea: boolean;
   isAuthenticated: boolean;
   onClose: () => void;
   onRequireSignIn: () => void;
@@ -34,12 +35,13 @@ interface Props {
   previewProduct?: RestaurantProduct;
 }
 
-export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose, onRequireSignIn, productId, storeName, previewProduct }: Props) {
+export function ProductConfigurator({ isStoreAvailable, isWithinDeliveryArea, isAuthenticated, onClose, onRequireSignIn, productId, storeName, previewProduct }: Props) {
   const t = useTranslations("deliveries.restaurant");
   const format = useFormatter();
   const formatAppCurrency = useAppCurrencyFormatter();
   const locale = useLocale();
   const { info, customizations } = useProductConfiguration(productId);
+  const { location } = useRestaurantLocation();
   const cart = useCartQuery(isAuthenticated);
   const { addItem, clear } = useCartMutations();
   const notify = useActionToast();
@@ -137,13 +139,14 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
   const isConfigurationLoading = info.isPending || customizations.isPending;
   const isMutationPending = addItem.isPending || clear.isPending;
   const isInteractionLocked =
-    !isStoreAvailable || isConfigurationLoading || (isAuthenticated && cart.isPending) || isMutationPending || !product || !product.inStock;
+    !isStoreAvailable || !isWithinDeliveryArea || isConfigurationLoading || (isAuthenticated && cart.isPending) || isMutationPending || !product || !product.inStock;
 
   function cartErrorMessage(error: unknown) {
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       return t("cartOfflineError");
     }
     if (error instanceof ApiError) {
+      if (error.code === "STORE_OUTSIDE_DELIVERY_AREA") return t("outsideAreaMessage");
       if (/store is currently closed/i.test(error.message)) return t("closedMessage");
       if (error.status === 401) return t("cartSignInError");
       if (error.status === 409) return t("cartConflictError");
@@ -202,11 +205,19 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
 
   async function addConfiguredProduct() {
     if (!product || !product.inStock) return;
+    if (!location) throw new ApiError("A delivery location is required", 400);
     if (!isStoreAvailable) throw new ApiError("Store is currently closed", 400);
+    if (!isWithinDeliveryArea) {
+      throw new ApiError("This store does not deliver to your selected area", 422, {
+        code: "STORE_OUTSIDE_DELIVERY_AREA",
+      });
+    }
     const updatedCart = await addItem.mutateAsync({
       productId: product.productId,
       quantity,
       selectedOptions: cartSelections(selectedVariation, selectedByGroup),
+      latitude: location.latitude,
+      longitude: location.longitude,
     });
     const updatedQuantity = updatedCart.items.reduce(
       (total, item) => item.productId === product.productId ? total + item.quantity : total,
@@ -229,6 +240,10 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
     }
     if (!isStoreAvailable) {
       setSubmitError(t("closedMessage"));
+      return;
+    }
+    if (!isWithinDeliveryArea) {
+      setSubmitError(t("outsideAreaMessage"));
       return;
     }
     setHasSubmitted(true);

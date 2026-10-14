@@ -73,6 +73,13 @@ function isMissingCartBucketError(error: unknown) {
   return error instanceof ApiError && error.status === 404 && /bucket not found/i.test(error.message);
 }
 
+function isOutsideDeliveryAreaError(error: unknown) {
+  return error instanceof ApiError && (
+    error.code === "STORE_OUTSIDE_DELIVERY_AREA" ||
+    /outside.*delivery area|does not deliver/i.test(error.message)
+  );
+}
+
 interface Props {
   initialStripeDraftId?: string;
   wasCardPaymentCancelled?: boolean;
@@ -301,9 +308,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const walletTopUpHref = `/wallet?topUpAmount=${encodeURIComponent(String(walletShortfall))}&returnTo=checkout`;
   const isAddressPreviewError =
     formik.values.orderType === "delivery" &&
-    preview.error instanceof ApiError &&
-    preview.error.status === 400 &&
-    /outside.*delivery area|does not deliver/i.test(preview.error.message);
+    isOutsideDeliveryAreaError(preview.error);
   const hasPreviewError =
     preview.isError &&
     !isAddressPreviewError &&
@@ -343,6 +348,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       return t("offlineError");
     }
     if (error instanceof ApiError) {
+      if (isOutsideDeliveryAreaError(error)) return t("addressUnavailable");
       if (/store is currently closed/i.test(error.message)) return t("storeClosedMessage");
       if (
         /USD conversion rate|Active currency configuration|USD minimum charge/i.test(
@@ -353,12 +359,6 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       }
       if (error.status === 401) return t("sessionError");
       if (error.status === 403) return t("permissionError");
-      if (
-        error.status === 400 &&
-        /outside.*delivery area|does not deliver/i.test(error.message)
-      ) {
-        return t("addressUnavailable");
-      }
       if (error.status === 409) return t("orderChangedError");
       if (isMissingCartBucketError(error)) return t("orderChangedError");
       if (/insufficient.*wallet|wallet.*balance/i.test(error.message)) {
@@ -418,9 +418,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       setIsAddressPickerOpen(false);
       window.requestAnimationFrame(() => addressTriggerRef.current?.focus());
     } catch (error) {
-      const isOutsideDeliveryArea =
-        error instanceof ApiError &&
-        /outside.*delivery area|does not deliver/i.test(error.message);
+      const isOutsideDeliveryArea = isOutsideDeliveryAreaError(error);
       setAddressPickerError(
         isOutsideDeliveryArea
           ? t("addressUnavailable")

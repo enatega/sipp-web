@@ -13,6 +13,7 @@ interface Props {
   isQuickAddBlocked: boolean;
   isQuickAdding: boolean;
   isStoreAvailable: boolean;
+  isWithinDeliveryArea: boolean;
   onQuickAdd: (product: RestaurantProduct) => void;
   onSelect: (productId: string) => void;
   product: RestaurantProduct;
@@ -23,6 +24,7 @@ export function RestaurantProductCard({
   isQuickAddBlocked,
   isQuickAdding,
   isStoreAvailable,
+  isWithinDeliveryArea,
   onQuickAdd,
   onSelect,
   product,
@@ -94,11 +96,11 @@ export function RestaurantProductCard({
                 </span>
               ) : null}
             </div>
-            {isOutOfStock ? <span className="text-xs font-semibold text-danger">{t("outOfStock")}</span> : !isStoreAvailable ? <span className="text-xs font-medium text-muted">{t("closed")}</span> : null}
+            {isOutOfStock ? <span className="text-xs font-semibold text-danger">{t("outOfStock")}</span> : !isWithinDeliveryArea ? <span className="text-xs font-medium text-muted">{t("outsideAreaShort")}</span> : !isStoreAvailable ? <span className="text-xs font-medium text-muted">{t("closed")}</span> : null}
           </div>
         </div>
       </button>
-      {!isOutOfStock && isStoreAvailable ? (
+      {!isOutOfStock && isStoreAvailable && isWithinDeliveryArea ? (
         <button
           aria-label={t("quickAddProduct", { name: productName })}
           className={`absolute bottom-2.5 end-2.5 grid size-9 place-items-center rounded-full border transition-[background-color,border-color,transform] duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-wait disabled:opacity-65 ${isInCart ? "border-brand bg-brand text-ink" : "border-brand/25 bg-brand/8 text-brand hover:border-brand hover:bg-brand hover:text-ink"}`}

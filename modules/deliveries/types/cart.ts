@@ -7,6 +7,8 @@ export interface AddCartItemInput {
   productId: string;
   quantity?: number;
   selectedOptions?: CartSelectionInput[];
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface CartSelectedOption {
