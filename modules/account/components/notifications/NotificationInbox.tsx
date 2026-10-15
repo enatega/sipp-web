@@ -4,12 +4,12 @@ import Link from "next/link";
 import { Bell, CheckCheck, LoaderCircle, RefreshCw, Settings2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useActionToast } from "@/components/shared/useActionToast";
 import { useSessionQuery } from "@/modules/account";
 import { useMarkAllNotificationsReadMutation, useMarkNotificationReadMutation, useNotificationInboxQuery, useUnreadNotificationsCountQuery } from "@/modules/account/queries/useNotificationInboxQueries";
 import type { InboxNotification } from "@/modules/account/types/notifications";
-import { enableBrowserNotifications, resolveBrowserPushState } from "@/modules/account/api/browserNotifications";
+import { browserPushAvailability, enableBrowserNotifications, resolveBrowserPushState } from "@/modules/account/api/browserNotifications";
 
 function NotificationRow({ item, period }: { item: InboxNotification; period: "today" | "past" }) {
   const format = useFormatter();
@@ -74,6 +74,8 @@ export function NotificationInbox() {
   const unreadQuery = useUnreadNotificationsCountQuery(authenticated);
   const [notice, setNotice] = useState("");
   const [pushState, setPushState] = useState<"unknown" | "available" | "unsupported" | "ios-install" | "enabled" | "denied" | "busy">("unknown");
+  const isEnablingPush = useRef(false);
+  const permissionRevision = useRef(0);
   const allItems = [...(today.data?.pages.flatMap((page) => page.items) ?? []), ...(past.data?.pages.flatMap((page) => page.items) ?? [])];
   const unread = unreadQuery.data?.unreadCount ?? allItems.filter((item) => !item.isRead).length;
   const isEmpty = !today.isPending && !past.isPending && !today.isError && !past.isError && allItems.length === 0;
@@ -85,19 +87,49 @@ export function NotificationInbox() {
   useEffect(() => {
     if (!authenticated) return;
     let active = true;
-    void resolveBrowserPushState().then((state) => { if (active) setPushState(state); });
-    return () => { active = false; };
+    const refreshPermission = () => {
+      if (isEnablingPush.current) return;
+      const request = ++permissionRevision.current;
+      const availability = browserPushAvailability();
+      setNotice("");
+      setPushState(availability !== "available"
+        ? availability
+        : Notification.permission === "denied"
+          ? "denied"
+          : Notification.permission === "default" ? "available" : "unknown");
+      void resolveBrowserPushState().then((state) => {
+        if (active && request === permissionRevision.current && !isEnablingPush.current) setPushState(state);
+      });
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshPermission();
+    };
+    refreshPermission();
+    window.addEventListener("focus", refreshPermission);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", refreshPermission);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [authenticated]);
 
   async function optInToBrowserPush() {
+    if (isEnablingPush.current) return;
+    isEnablingPush.current = true;
+    permissionRevision.current += 1;
     setPushState("busy");
+    setNotice("");
     try {
       const outcome = await enableBrowserNotifications();
       setPushState(outcome);
-      if (outcome === "enabled") setNotice(t("browserEnabled"));
+      if (outcome === "denied") setNotice(t("browserDenied"));
+      if (outcome === "available") setNotice(t("browserPermissionDismissed"));
     } catch {
       setPushState("available");
       setNotice(t("browserError"));
+    } finally {
+      isEnablingPush.current = false;
     }
   }
 
@@ -121,14 +153,14 @@ export function NotificationInbox() {
             <p className="mt-2 text-sm leading-6 text-body">{t("subtitle")}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {pushState === "available" || pushState === "busy" ? <button type="button" onClick={() => void optInToBrowserPush()} disabled={pushState === "busy"} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-brand bg-card px-4 text-xs font-bold text-ink hover:bg-brand/10 disabled:opacity-55"><Bell className="size-4 text-brand" aria-hidden="true" />{t("enableBrowser")}</button> : null}
+            {pushState === "available" || pushState === "denied" || pushState === "busy" ? <button type="button" onClick={() => void optInToBrowserPush()} disabled={pushState === "busy"} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-brand bg-card px-4 text-xs font-bold text-ink hover:bg-brand/10 disabled:opacity-55"><Bell className="size-4 text-brand" aria-hidden="true" />{t("enableBrowser")}</button> : null}
             <Link href="/profile/notification-settings" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-line bg-card px-4 text-xs font-bold text-ink hover:border-brand/30"><Settings2 className="size-4 text-brand" aria-hidden="true" />{t("settings")}</Link>
             <button type="button" onClick={() => void markEverythingRead()} disabled={unread === 0 || markAll.isPending} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand px-4 text-xs font-bold text-ink hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-45">{markAll.isPending ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <CheckCheck className="size-4" aria-hidden="true" />}{t("markAll")}</button>
           </div>
         </header>
 
         {pushState === "ios-install" ? <p className="mt-4 rounded-xl bg-[var(--soft-surface)] px-4 py-3 text-xs text-body">{t("iosInstall")}</p> : null}
-        {pushState === "denied" ? <p className="mt-4 rounded-xl bg-[var(--soft-surface)] px-4 py-3 text-xs text-body">{t("browserDenied")}</p> : null}
+        {pushState === "denied" && !notice ? <p className="mt-4 rounded-xl bg-[var(--soft-surface)] px-4 py-3 text-xs text-body">{t("browserDenied")}</p> : null}
         {pushState === "unsupported" ? <p className="mt-4 rounded-xl bg-[var(--soft-surface)] px-4 py-3 text-xs text-body">{t("browserUnsupported")}</p> : null}
         {pushState === "enabled" ? <p className="mt-4 rounded-xl bg-[var(--soft-surface)] px-4 py-3 text-xs text-body">{t("browserEnabled")}</p> : null}
 

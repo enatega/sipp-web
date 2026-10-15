@@ -41,13 +41,18 @@ export interface CartResponse {
   customerId: string;
   status: string;
   storeId: string | null;
+  minimumOrder: number;
   totalItems: number;
   uniqueItems: number;
   totalPrice: number;
   discountAmount: number;
   finalPrice: number;
+  /** Sum of item lines (product deals included, coupons never); coupons are priced at checkout. */
+  itemsTotal: number;
   appliedCouponId: string | null;
   appliedCouponCode: string | null;
+  /** Every coupon applied to the cart, in the order it was applied. */
+  appliedCouponIds: string[];
   isEmpty: boolean;
   pricesUpdated?: boolean;
   items: CartItem[];

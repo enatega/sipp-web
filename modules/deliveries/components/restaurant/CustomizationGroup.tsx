@@ -67,7 +67,7 @@ export function CustomizationGroup({
             onChange={() => onToggle(section.groupId, option.optionId)}
             price={option.price > 0 ? <span className="text-muted">+ {formatAppCurrency(format, option.price)}</span> : null}
             title={option.title}
-            type={section.selectionType === "single" ? "radio" : "checkbox"}
+            type="checkbox"
           />
         ))}
       </div>

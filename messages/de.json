@@ -1,11 +1,4 @@
 {
-  "notFound": {
-    "codeLabel": "Fehler 404",
-    "title": "Diese Seite ist nicht auf der Karte",
-    "description": "Die Adresse ist möglicherweise falsch oder die Seite wurde verschoben. Kehren Sie zur Startseite zurück oder entdecken Sie Geschäfte in Ihrer Nähe.",
-    "homeAction": "Zur Startseite",
-    "browseAction": "In der Nähe stöbern"
-  },
   "impersonation": {
     "banner": "Sie imitieren derzeit ein Kundenkonto.",
     "exit": "Imitation beenden",
@@ -281,12 +274,11 @@
     "unavailable": "Nicht verfügbar",
     "upcoming": "Demnächst",
     "expired": "Abgelaufen",
-    "copyCode": "Angebotscode {code} kopieren",
     "validUntil": "Gültig bis {date}",
     "minimumOrder": "Mindestbestellwert {value}",
     "selectedStores": "Bei {stores}",
     "allStores": "Bei teilnehmenden SIPP-Unternehmen verfügbar",
-    "activate": "Angebot aktivieren",
+    "activate": "Angebot nutzen",
     "deactivate": "Angebot entfernen",
     "claimedSuccess": "Angebot eingelöst. Sie können es jetzt aktivieren.",
     "activatedSuccess": "Angebot für Ihren passenden Warenkorb aktiviert.",
@@ -294,7 +286,38 @@
     "alreadyClaimed": "Sie haben dieses Angebot bereits eingelöst.",
     "invalidCode": "Dieser Angebotscode ist ungültig oder nicht mehr verfügbar.",
     "notApplicable": "Dieses Angebot passt nicht zu Ihrem aktuellen Warenkorb. Prüfen Sie Geschäft, Zeitraum und Mindestbestellwert.",
-    "genericError": "Ihre Angebote konnten nicht aktualisiert werden. Bitte versuchen Sie es erneut."
+    "genericError": "Ihre Angebote konnten nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+    "notApplied": "Nicht angewendet",
+    "fullyRedeemed": "Vollständig eingelöst",
+    "limitReached": "Limit erreicht",
+    "requirementsPayment": "Bezahlen mit {methods}",
+    "requirementsOrderType": "Gültig für {types}",
+    "usesLeft": "{count, plural, =0 {Keine Nutzung mehr übrig} one {# Nutzung übrig} other {# Nutzungen übrig}}",
+    "paymentMethods": {
+      "any": "jeder Zahlungsart",
+      "CARD": "Karte",
+      "WALLET": "SIPP-Wallet"
+    },
+    "deliveryTypes": {
+      "ALL": "Lieferung und Abholung",
+      "DELIVERY": "Lieferung",
+      "PICKUP": "Abholung"
+    },
+    "issues": {
+      "COUPON_INACTIVE": "Dieses Angebot ist nicht mehr aktiv.",
+      "COUPON_EXPIRED": "Dieses Angebot ist abgelaufen oder hat noch nicht begonnen.",
+      "COUPON_MIN_ORDER": "Dieses Angebot gilt erst ab einem Bestellwert von {amount}. Füge weitere Artikel hinzu.",
+      "COUPON_STORE": "Dieses Angebot kann bei diesem Geschäft nicht verwendet werden.",
+      "COUPON_PRODUCTS": "Dieses Angebot gilt nur für bestimmte Artikel, die nicht in deinem Warenkorb sind.",
+      "COUPON_ORDER_TYPE": "Dieses Angebot gilt nur für Bestellungen per {types}. Ändere die Bestellart oder entferne das Angebot.",
+      "COUPON_PAYMENT_METHOD": "Dieses Angebot gilt nur bei Zahlung mit {methods}. Ändere die Zahlungsart oder entferne das Angebot.",
+      "COUPON_PREMIUM_ONLY": "Dieses Angebot gilt nur bei Premium-Geschäften.",
+      "COUPON_NEW_USERS_ONLY": "Dieses Angebot gilt nur für deine erste Bestellung.",
+      "COUPON_USAGE_LIMIT": "Dieses Angebot wurde vollständig eingelöst und kann nicht mehr verwendet werden.",
+      "COUPON_USER_LIMIT": "Du hast dieses Angebot bereits so oft wie erlaubt verwendet ({count, plural, one {# Nutzung} other {# Nutzungen}}).",
+      "STORE_MINIMUM_AFTER_COUPON": "Mit diesem Angebot beträgt deine Bestellung {total} und liegt unter dem Mindestbestellwert von {minimum}. Füge {remaining} hinzu oder entferne das Angebot."
+    },
+    "youSave": "Du sparst {amount}"
   },
   "accountSecurity": {
     "title": "Kontosicherheit",
@@ -742,21 +765,15 @@
     "contactSupport": "Support kontaktieren"
   },
   "notificationInbox": {
-    "newAlert": "Neue Benachrichtigung",
     "dismissAlert": "Benachrichtigung schließen",
-    "viewAlert": "Benachrichtigung ansehen",
-    "enableSound": "Benachrichtigungston aktivieren",
-    "disableSound": "Benachrichtigungston deaktivieren",
-    "soundOn": "Ton an",
-    "soundOff": "Ton einschalten",
-    "soundUnavailable": "Der Browser blockiert den Ton. Versuchen Sie es nach einer Interaktion mit der Seite erneut.",
     "title": "Benachrichtigungen",
     "subtitle": "Updates zu Ihren SIPP-Bestellungen, Ihrem Konto und lokalen Lieferungen.",
     "settings": "Benachrichtigungseinstellungen",
     "enableBrowser": "Browser-Benachrichtigungen aktivieren",
     "browserEnabled": "Browser-Benachrichtigungen sind aktiviert.",
     "browserError": "Browser-Benachrichtigungen konnten nicht aktiviert werden. Ihr Posteingang funktioniert weiterhin.",
-    "browserDenied": "Browser-Benachrichtigungen sind blockiert. Sie können sie in den Browser-Einstellungen erlauben; Ihr Posteingang funktioniert weiterhin.",
+    "browserDenied": "Benachrichtigungen sind für diese Website blockiert. Erlauben Sie sie in den Website-Einstellungen Ihres Browsers und versuchen Sie es erneut.",
+    "browserPermissionDismissed": "Die Berechtigung wurde nicht erteilt. Erlauben Sie Benachrichtigungen bei der Browser-Nachfrage und versuchen Sie es erneut.",
     "browserUnsupported": "Dieser Browser kann keine Systembenachrichtigungen anzeigen. Ihr Posteingang zeigt weiterhin Updates an, solange die Website geöffnet ist.",
     "iosInstall": "Auf iPhone oder iPad müssen Sie SIPP zum Home-Bildschirm hinzufügen, um Browser-Benachrichtigungen zu aktivieren. Ihr Posteingang funktioniert auch hier.",
     "markAll": "Alle als gelesen markieren",
@@ -777,8 +794,6 @@
     "tracker": {
       "label": "Aktuelle Bestellverfolgung",
       "title": "Aktuelle Bestellung",
-      "openTracker": "Aktuelle Bestellung öffnen",
-      "closeTracker": "Aktuelle Bestellung minimieren",
       "storeFallback": "Deine Bestellung",
       "trackOrder": "Bestellung verfolgen",
       "moreActive": "{count, plural, one {# weitere aktive Bestellung} other {# weitere aktive Bestellungen}}",
@@ -792,7 +807,11 @@
         "outForDelivery": "Unterwegs",
         "arrived": "Kurier angekommen",
         "unknown": "In Bearbeitung"
-      }
+      },
+      "openTracker": "Aktuelle Bestellung öffnen",
+      "closeTracker": "Aktuelle Bestellung minimieren",
+      "minimize": "Aktuelle Bestellung minimieren",
+      "expand": "Aktuelle Bestellung anzeigen"
     },
     "favouriteFoods": {
       "browse": "Lieblingsgerichte entdecken",
@@ -1147,7 +1166,15 @@
       "pickupAvailable": "Abholung verfügbar",
       "pickupUnavailable": "Abholung nicht verfügbar",
       "openingHours": "Öffnungszeiten",
-      "days": { "monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "thursday": "Donnerstag", "friday": "Freitag", "saturday": "Samstag", "sunday": "Sonntag" },
+      "days": {
+        "monday": "Montag",
+        "tuesday": "Dienstag",
+        "wednesday": "Mittwoch",
+        "thursday": "Donnerstag",
+        "friday": "Freitag",
+        "saturday": "Samstag",
+        "sunday": "Sonntag"
+      },
       "favourite": "Favorit",
       "share": "Teilen",
       "categories": "Kategorien",
@@ -1204,7 +1231,6 @@
       "weeklyHours": "Wöchentliche Öffnungszeiten",
       "openAllDay": "24 Stunden geöffnet",
       "storeTimeZone": "Ortszeit des Restaurants: {zone}",
-      "openingHours": "Öffnungszeiten",
       "closedAllDay": "Geschlossen",
       "stillClosed": "Derzeit weiterhin geschlossen. Bitte schau während der Öffnungszeiten wieder vorbei.",
       "dismissMessage": "Meldung schließen",
@@ -1410,10 +1436,10 @@
       "originalTotal": "Ursprünglicher Bestellbetrag",
       "originalTotalHint": "Vor der Stornierung",
       "paymentCancelled": "Storniert",
-      "refundCredited": "{amount} Ihrem Wallet gutgeschrieben",
+      "refundCredited": "{amount} wurde deinem SIPP-Guthaben gutgeschrieben.",
       "refundCreditedHint": "Die Gutschrift ist in Ihren SIPP-Wallet-Transaktionen erfasst.",
-      "refundNotRecorded": "Für diese Bestellung ist noch keine Wallet-Erstattung erfasst. Prüfen Sie Ihr Wallet oder kontaktieren Sie den Support.",
-      "viewWallet": "Wallet-Transaktionen ansehen",
+      "refundNotRecorded": "Für diese Bestellung ist keine abgeschlossene Rückerstattung verzeichnet. Falls eine Zahlung abgebucht wurde, kontaktiere bitte den Support.",
+      "viewWallet": "Guthabenverlauf anzeigen",
       "paymentTitle": "Zahlungsmethode",
       "paymentCard": "Kredit- oder Debitkarte",
       "paymentWallet": "Wallet",
@@ -1422,9 +1448,6 @@
       "paymentPaid": "Bezahlt",
       "paymentPending": "Ausstehend",
       "refundTitle": "Rückerstattungsstatus",
-      "refundCredited": "{amount} wurde deinem SIPP-Guthaben gutgeschrieben.",
-      "refundNotRecorded": "Für diese Bestellung ist keine abgeschlossene Rückerstattung verzeichnet. Falls eine Zahlung abgebucht wurde, kontaktiere bitte den Support.",
-      "viewWallet": "Guthabenverlauf anzeigen",
       "paymentFailed": "Fehlgeschlagen",
       "rateOrder": "Bestellung bewerten",
       "deliveryCompletionTitle": "Bestellung geliefert",
@@ -1526,7 +1549,6 @@
       "itemsLabel": "Artikel im Warenkorb",
       "removeItem": "{name} entfernen",
       "outOfStock": "Derzeit nicht verfügbar",
-      "limitedStock": "Nur {count} verfügbar. Reduzieren Sie die Gesamtmenge dieses Artikels in Ihrem Warenkorb.",
       "unitPrice": "Je {price}",
       "quantityFor": "Menge für {name}",
       "decreaseQuantity": "Menge verringern",
@@ -1547,7 +1569,13 @@
       "clearMessage": "Dadurch werden alle Artikel und Anpassungen aus Ihrem aktuellen Warenkorb entfernt.",
       "cancel": "Warenkorb behalten",
       "clearing": "Wird geleert…",
-      "confirmClear": "Warenkorb leeren"
+      "confirmClear": "Warenkorb leeren",
+      "limitedStock": "Nur {count} verfügbar. Reduzieren Sie die Gesamtmenge dieses Artikels in Ihrem Warenkorb.",
+      "unavailableCheckoutItem": "{name} ist derzeit nicht verfügbar. Entfernen Sie den Artikel oder wählen Sie ein anderes Produkt, um fortzufahren.",
+      "unavailableCheckoutItems": "{count} Artikel sind derzeit nicht verfügbar. Entfernen Sie sie oder wählen Sie andere Produkte, um fortzufahren.",
+      "minimumRemaining": "Noch {amount} bis zum Mindestbestellwert dieses Geschäfts",
+      "minimumInfo": "Details zum Mindestbestellwert",
+      "minimumAmount": "Dieses Geschäft verlangt nach Rabatten und vor Liefergebühren einen Bestellwert von mindestens {amount}."
     },
     "checkout": {
       "loading": "Checkout wird geladen",
@@ -1640,7 +1668,7 @@
       "couponApplied": "Angebot angewendet. Der Gesamtbetrag wurde aktualisiert.",
       "couponRemoved": "Angebot entfernt. Der Gesamtbetrag wurde aktualisiert.",
       "couponNotApplicable": "Dieses Angebot gilt nicht für den aktuellen Warenkorb.",
-      "couponMinimumNotMet": "Fügen Sie weitere Artikel hinzu, um den Mindestwert von {amount} zu erreichen.",
+      "couponMinimumNotMet": "Füge weitere Artikel hinzu, um die Mindestzwischensumme von {amount} zu erreichen.",
       "couponWrongStore": "Dieses Angebot ist bei diesem Unternehmen nicht verfügbar.",
       "couponPaymentMethodMismatch": "Dieses Angebot gilt nicht für die gewählte Zahlungsmethode, daher wird kein Rabatt angewendet.",
       "loadingCoupons": "Angebote werden geladen…",
@@ -1665,7 +1693,6 @@
       "storeClosedTitle": "Restaurant ist derzeit geschlossen",
       "storeClosedMessage": "Dieses Restaurant nimmt derzeit keine Bestellungen an. Ihr Warenkorb bleibt gespeichert. Kommen Sie während der Öffnungszeiten zurück oder wählen Sie ein anderes Restaurant.",
       "previewErrorMessage": "Prüfen Sie Ihre Angaben und versuchen Sie es erneut.",
-      "inventoryChangedTitle": "Die Verfügbarkeit eines Warenkorbartikels hat sich geändert",
       "placeOrderErrorTitle": "Bestellung nicht aufgegeben",
       "placeOrderError": "Ihre Bestellung konnte nicht aufgegeben werden. Bitte erneut versuchen.",
       "orderConfirmationUnknownTitle": "Bestellstatus prüfen",
@@ -1723,6 +1750,8 @@
       "completeDetails": "Vervollständigen Sie die Lieferangaben, um die bestätigte Gesamtsumme zu sehen.",
       "placeOrder": "Bestellen",
       "placingOrder": "Bestellung wird aufgegeben…",
+      "securePayment": "Sichere Zahlung und bestätigte Preise",
+      "inventoryChangedTitle": "Die Verfügbarkeit eines Warenkorbartikels hat sich geändert",
       "placingOrderTitle": "Bestellung wird aufgegeben",
       "placingOrderMessage": "Wir bestätigen Ihre Artikel, den Gesamtbetrag und die Zahlung sicher.",
       "orderTakingLongerTitle": "Ihre Bestellung wird noch verarbeitet",
@@ -1738,7 +1767,15 @@
       "orderSuccessMessage": "Ihre Bestellung ist bestätigt. Die Live-Bestelldetails werden geöffnet…",
       "orderReference": "Bestellreferenz: #{code}",
       "viewOrder": "Bestellung anzeigen",
-      "securePayment": "Sichere Zahlung und bestätigte Preise"
+      "deliveryUnavailable": "Dieses Unternehmen bietet keine Lieferung an.",
+      "pickupUnavailable": "Dieses Unternehmen bietet keine Abholung an.",
+      "stripeUnavailable": "Dieses Unternehmen akzeptiert keine Kartenzahlungen.",
+      "couponChecking": "Dein Angebot wird geprüft…",
+      "couponNotAppliedCode": "Angebot {code} wurde nicht angewendet.",
+      "couponFixToContinue": "Entferne das Angebot oder passe deine Bestellung an, um fortzufahren.",
+      "storeMinimumNotMet": "Deine Bestellung liegt unter dem Mindestbestellwert dieses Geschäfts. Füge weitere Artikel hinzu.",
+      "couponsAppliedSaving": "{count, plural, one {# Angebot angewendet} other {# Angebote angewendet}}. Du sparst {amount}.",
+      "addAnotherCoupon": "{count, plural, one {# weiteres Angebot hinzufügen} other {Weiteres Angebot hinzufügen (# verfügbar)}}"
     }
   },
   "about": {
@@ -2378,5 +2415,12 @@
     "appStore": "App Store",
     "getItOn": "JETZT BEI",
     "googlePlay": "Google Play"
+  },
+  "notFound": {
+    "codeLabel": "Fehler 404",
+    "title": "Diese Seite ist nicht auf der Karte",
+    "description": "Die Adresse ist möglicherweise falsch oder die Seite wurde verschoben. Kehren Sie zur Startseite zurück oder entdecken Sie Geschäfte in Ihrer Nähe.",
+    "homeAction": "Zur Startseite",
+    "browseAction": "In der Nähe stöbern"
   }
 }

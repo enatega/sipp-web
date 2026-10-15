@@ -10,6 +10,8 @@ import { deliveryQueryKeys } from "../../queries/queryKeys";
 import type { OrderCard } from "../../types/orders";
 import { getOrderStatusKey } from "../../utils/orderDetail";
 
+const POSITION_CLASS = "fixed bottom-20 end-4 z-40 sm:bottom-5 sm:end-5 [body:has([aria-modal=true])_&]:hidden!";
+
 export function FloatingOrderTracker() {
   const t = useTranslations("deliveries.tracker");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -46,7 +48,7 @@ export function FloatingOrderTracker() {
         aria-expanded="false"
         aria-controls="live-order-tracker"
         onClick={() => setIsExpanded(true)}
-        className="group fixed bottom-20 end-4 z-40 grid size-14 place-items-center rounded-full bg-[linear-gradient(145deg,var(--color-brand)_0%,var(--color-brand-deep)_90%)] text-white shadow-[0_14px_30px_color-mix(in_srgb,var(--color-brand-deep)_38%,transparent),inset_0_2px_1px_rgb(255_255_255/0.38)] ring-4 ring-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_18px_34px_color-mix(in_srgb,var(--color-brand-deep)_46%,transparent),inset_0_2px_1px_rgb(255_255_255/0.42)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-deep active:translate-y-0 active:scale-95 motion-reduce:transition-none sm:bottom-5 sm:end-5"
+        className={`${POSITION_CLASS} group grid size-14 place-items-center rounded-full bg-brand text-ink shadow-[0_14px_30px_color-mix(in_srgb,var(--color-brand)_38%,transparent),inset_0_2px_1px_rgb(255_255_255/0.38)] ring-4 ring-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:bg-brand/85 hover:shadow-[0_18px_34px_color-mix(in_srgb,var(--color-brand)_46%,transparent),inset_0_2px_1px_rgb(255_255_255/0.42)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand active:translate-y-0 active:scale-95 motion-reduce:transition-none`}
       >
         <PackageCheck aria-hidden="true" className="size-6 drop-shadow-[0_1px_1px_rgb(0_0_0/0.16)]" />
         <span aria-hidden="true" className="absolute -end-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-card shadow-[0_2px_7px_rgb(0_0_0/0.16)]">
@@ -64,7 +66,7 @@ export function FloatingOrderTracker() {
     <aside
       id="live-order-tracker"
       aria-label={t("label")}
-      className="fixed bottom-20 end-4 z-40 w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-line bg-card p-4 text-ink shadow-pop sm:bottom-5 sm:end-5"
+      className={`${POSITION_CLASS} w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-line bg-card p-4 text-ink shadow-pop`}
     >
       <div className="flex items-start gap-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand/15 text-brand"><PackageCheck aria-hidden="true" className="size-5" /></span>

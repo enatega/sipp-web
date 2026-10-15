@@ -8,6 +8,27 @@ export interface VariationChoice {
   price: number;
 }
 
+/**
+ * Add-on groups may allow only one choice while still permitting customers to
+ * remove that choice. Variations use a separate, required radio selection.
+ */
+export function toggleCustomizationOption(
+  section: ProductCustomizationSection,
+  selectedOptionIds: string[],
+  optionId: string,
+): string[] {
+  if (selectedOptionIds.includes(optionId)) {
+    return selectedOptionIds.filter((id) => id !== optionId);
+  }
+  if (section.selectionType === "single") {
+    return [optionId];
+  }
+  if (section.maxSelect && selectedOptionIds.length >= section.maxSelect) {
+    return selectedOptionIds;
+  }
+  return [...selectedOptionIds, optionId];
+}
+
 export function buildVariationChoices(
   sections: ProductCustomizationSection[],
 ): VariationChoice[] {

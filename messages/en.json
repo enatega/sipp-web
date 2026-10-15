@@ -1,11 +1,4 @@
 {
-  "notFound": {
-    "codeLabel": "Error 404",
-    "title": "Page not found",
-    "description": "The page you're looking for doesn't exist.",
-    "homeAction": "Go home",
-    "browseAction": "Browse nearby"
-  },
   "impersonation": {
     "banner": "You are impersonating a customer account.",
     "exit": "Exit impersonation",
@@ -281,12 +274,11 @@
     "unavailable": "Unavailable",
     "upcoming": "Upcoming",
     "expired": "Expired",
-    "copyCode": "Copy offer code {code}",
     "validUntil": "Valid until {date}",
     "minimumOrder": "Minimum order {value}",
     "selectedStores": "At {stores}",
     "allStores": "Available at participating SIPP businesses",
-    "activate": "Activate offer",
+    "activate": "Use offer",
     "deactivate": "Remove offer",
     "claimedSuccess": "Offer claimed. You can activate it now.",
     "activatedSuccess": "Offer activated for your eligible cart.",
@@ -294,7 +286,38 @@
     "alreadyClaimed": "You have already claimed this offer.",
     "invalidCode": "That offer code is not valid or is no longer available.",
     "notApplicable": "This offer does not match your current cart. Check its store, dates, and minimum order.",
-    "genericError": "We couldn’t update your offers. Please try again."
+    "genericError": "We couldn’t update your offers. Please try again.",
+    "notApplied": "Not applied",
+    "fullyRedeemed": "Fully redeemed",
+    "limitReached": "Limit reached",
+    "requirementsPayment": "Pay with {methods}",
+    "requirementsOrderType": "Valid for {types}",
+    "usesLeft": "{count, plural, =0 {No uses left} one {# use left} other {# uses left}}",
+    "paymentMethods": {
+      "any": "any payment method",
+      "CARD": "card",
+      "WALLET": "SIPP wallet"
+    },
+    "deliveryTypes": {
+      "ALL": "delivery and pickup",
+      "DELIVERY": "delivery",
+      "PICKUP": "pickup"
+    },
+    "issues": {
+      "COUPON_INACTIVE": "This offer is no longer active.",
+      "COUPON_EXPIRED": "This offer has expired or hasn’t started yet.",
+      "COUPON_MIN_ORDER": "This offer needs an order of at least {amount}. Add more items to use it.",
+      "COUPON_STORE": "This offer can’t be used at this business.",
+      "COUPON_PRODUCTS": "This offer only applies to specific items that aren’t in your cart.",
+      "COUPON_ORDER_TYPE": "This offer is only valid for {types} orders. Change the order type or remove the offer.",
+      "COUPON_PAYMENT_METHOD": "This offer can only be used when paying by {methods}. Change the payment method or remove the offer.",
+      "COUPON_PREMIUM_ONLY": "This offer is only valid at premium businesses.",
+      "COUPON_NEW_USERS_ONLY": "This offer is only for your first order.",
+      "COUPON_USAGE_LIMIT": "This offer has been fully redeemed and can’t be used anymore.",
+      "COUPON_USER_LIMIT": "You’ve already used this offer the maximum number of times ({count, plural, one {# use} other {# uses}}).",
+      "STORE_MINIMUM_AFTER_COUPON": "With this offer your order comes to {total}, below this business’s {minimum} minimum order. Add {remaining} more or remove the offer."
+    },
+    "youSave": "You save {amount}"
   },
   "accountSecurity": {
     "title": "Account security",
@@ -742,21 +765,15 @@
     "contactSupport": "Contact support"
   },
   "notificationInbox": {
-    "newAlert": "New notification",
     "dismissAlert": "Dismiss notification",
-    "viewAlert": "View notification",
-    "enableSound": "Enable notification sound",
-    "disableSound": "Disable notification sound",
-    "soundOn": "Sound on",
-    "soundOff": "Turn on sound",
-    "soundUnavailable": "Sound is blocked by this browser. Try again after interacting with the page.",
     "title": "Notifications",
     "subtitle": "Updates about your SIPP orders, account, and local deliveries.",
     "settings": "Notification settings",
     "enableBrowser": "Enable browser notifications",
     "browserEnabled": "Browser notifications are enabled.",
     "browserError": "Browser notifications could not be enabled. Your inbox still works.",
-    "browserDenied": "Browser notifications are blocked. You can allow them in your browser settings; your inbox will continue to work.",
+    "browserDenied": "Notifications are blocked for this site. Allow them in your browser's site settings, then try again.",
+    "browserPermissionDismissed": "Permission wasn't granted. Allow notifications when your browser asks, then try again.",
     "browserUnsupported": "This browser cannot show system notifications. Your inbox still shows your updates while the site is open.",
     "iosInstall": "On iPhone or iPad, add SIPP to your Home Screen to enable browser notifications. Your inbox works here too.",
     "markAll": "Mark all as read",
@@ -777,8 +794,6 @@
     "tracker": {
       "label": "Current order tracking",
       "title": "Live order",
-      "openTracker": "Open live order",
-      "closeTracker": "Minimize live order",
       "storeFallback": "Your order",
       "trackOrder": "Track order",
       "moreActive": "{count, plural, one {# more active order} other {# more active orders}}",
@@ -792,7 +807,11 @@
         "outForDelivery": "On the way",
         "arrived": "Courier arrived",
         "unknown": "In progress"
-      }
+      },
+      "openTracker": "Open live order",
+      "closeTracker": "Minimize live order",
+      "minimize": "Minimize live order",
+      "expand": "Show live order"
     },
     "favouriteFoods": {
       "browse": "Browse favourite foods",
@@ -1147,7 +1166,15 @@
       "pickupAvailable": "Pickup available",
       "pickupUnavailable": "Pickup unavailable",
       "openingHours": "Opening hours",
-      "days": { "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday", "sunday": "Sunday" },
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      },
       "favourite": "Favourite",
       "share": "Share",
       "categories": "Categories",
@@ -1199,7 +1226,6 @@
       "outsideAreaShort": "Outside delivery area",
       "checkingArea": "Checking delivery area…",
       "checkAvailability": "Check availability",
-      "openingHours": "Opening hours",
       "closedAllDay": "Closed",
       "stillClosed": "Still closed right now. Please check back during opening hours.",
       "nextOpening": "Next opening: {time}",
@@ -1410,10 +1436,10 @@
       "originalTotal": "Original order total",
       "originalTotalHint": "Before cancellation",
       "paymentCancelled": "Canceled",
-      "refundCredited": "{amount} credited to your wallet",
+      "refundCredited": "{amount} has been credited to your SIPP wallet.",
       "refundCreditedHint": "This credit is recorded in your SIPP wallet transactions.",
-      "refundNotRecorded": "A wallet refund is not recorded for this order yet. Check your wallet or contact support if you expected one.",
-      "viewWallet": "View wallet transactions",
+      "refundNotRecorded": "No completed refund is recorded for this order. If a payment was taken, please contact support.",
+      "viewWallet": "View wallet activity",
       "paymentTitle": "Payment method",
       "paymentCard": "Credit or debit card",
       "paymentWallet": "Wallet",
@@ -1422,9 +1448,6 @@
       "paymentPaid": "Paid",
       "paymentPending": "Pending",
       "refundTitle": "Refund status",
-      "refundCredited": "{amount} has been credited to your SIPP wallet.",
-      "refundNotRecorded": "No completed refund is recorded for this order. If a payment was taken, please contact support.",
-      "viewWallet": "View wallet activity",
       "paymentFailed": "Failed",
       "rateOrder": "Rate order",
       "deliveryCompletionTitle": "Order delivered",
@@ -1526,7 +1549,6 @@
       "itemsLabel": "Cart items",
       "removeItem": "Remove {name}",
       "outOfStock": "Currently unavailable",
-      "limitedStock": "Only {count} available. Reduce the total quantity of this item in your cart.",
       "unitPrice": "{price} each",
       "quantityFor": "Quantity for {name}",
       "decreaseQuantity": "Decrease quantity",
@@ -1547,7 +1569,13 @@
       "clearMessage": "This removes every item and customization from your current cart.",
       "cancel": "Keep cart",
       "clearing": "Clearing…",
-      "confirmClear": "Clear cart"
+      "confirmClear": "Clear cart",
+      "limitedStock": "Only {count} available. Reduce the total quantity of this item in your cart.",
+      "unavailableCheckoutItem": "{name} is currently unavailable. Remove it or choose another product to continue.",
+      "unavailableCheckoutItems": "{count} items are currently unavailable. Remove them or choose other products to continue.",
+      "minimumRemaining": "Add {amount} more to reach this store's minimum order",
+      "minimumInfo": "Minimum order details",
+      "minimumAmount": "This store requires an order of at least {amount} after discounts, before delivery fees."
     },
     "checkout": {
       "loading": "Loading checkout",
@@ -1640,7 +1668,7 @@
       "couponApplied": "Offer applied. Your total has been updated.",
       "couponRemoved": "Offer removed. Your total has been updated.",
       "couponNotApplicable": "This offer is not eligible for the current cart.",
-      "couponMinimumNotMet": "Add more items to reach the {amount} minimum.",
+      "couponMinimumNotMet": "Add more items to reach the subtotal of {amount} minimum.",
       "couponWrongStore": "This offer is not available at this business.",
       "couponPaymentMethodMismatch": "This offer is not valid for the selected payment method, so no discount is applied.",
       "loadingCoupons": "Loading offers…",
@@ -1665,7 +1693,6 @@
       "storeClosedMessage": "This restaurant is not accepting orders right now. Your cart is saved. Please return during opening hours or choose another restaurant.",
       "previewErrorTitle": "Total could not be confirmed",
       "previewErrorMessage": "Check your details and try again.",
-      "inventoryChangedTitle": "Cart item availability changed",
       "placeOrderErrorTitle": "Order not placed",
       "placeOrderError": "We could not place your order. Please try again.",
       "orderConfirmationUnknownTitle": "Order status needs checking",
@@ -1723,6 +1750,8 @@
       "completeDetails": "Complete your delivery details to see the backend-confirmed total.",
       "placeOrder": "Place order",
       "placingOrder": "Placing order…",
+      "securePayment": "Secure payment and backend-confirmed pricing",
+      "inventoryChangedTitle": "Cart item availability changed",
       "placingOrderTitle": "Placing your order",
       "placingOrderMessage": "We are confirming your items, total, and payment securely.",
       "orderTakingLongerTitle": "Your order is still processing",
@@ -1738,7 +1767,15 @@
       "orderSuccessMessage": "Your order is confirmed. Opening the live order details now…",
       "orderReference": "Order reference: #{code}",
       "viewOrder": "View order",
-      "securePayment": "Secure payment and backend-confirmed pricing"
+      "deliveryUnavailable": "This business does not offer delivery.",
+      "pickupUnavailable": "This business does not offer pickup.",
+      "stripeUnavailable": "This business does not accept card payments.",
+      "couponChecking": "Checking your offer…",
+      "couponNotAppliedCode": "Offer {code} was not applied.",
+      "couponFixToContinue": "Remove the offer, or change your order so it qualifies, to continue.",
+      "storeMinimumNotMet": "Your order is below this business’s minimum order amount. Add more items to continue.",
+      "couponsAppliedSaving": "{count, plural, one {# offer applied} other {# offers applied}}. You save {amount}.",
+      "addAnotherCoupon": "{count, plural, one {Add # more offer} other {Add another offer (# available)}}"
     }
   },
   "about": {
@@ -2378,5 +2415,12 @@
     "appStore": "App Store",
     "getItOn": "GET IT ON",
     "googlePlay": "Google Play"
+  },
+  "notFound": {
+    "codeLabel": "Error 404",
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist.",
+    "homeAction": "Go home",
+    "browseAction": "Browse nearby"
   }
 }

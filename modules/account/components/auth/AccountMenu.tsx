@@ -8,7 +8,7 @@ import type { AuthUser } from "@/modules/account/types";
 import { userInitials } from "@/modules/account/utils/userInitials";
 import { userPhotoUrl } from "@/modules/account/utils/userPhotoUrl";
 import { useUnreadNotificationsCountQuery } from "@/modules/account/queries/useNotificationInboxQueries";
-import { disableBrowserNotifications, enableBrowserNotifications, resolveBrowserPushState } from "@/modules/account/api/browserNotifications";
+import { disableBrowserNotifications } from "@/modules/account/api/browserNotifications";
 
 /** The signed-in destinations, in the order the design lists them. */
 const LINKS: Array<{ labelKey: "profile" | "orders" | "wallet" | "support"; href: string; icon: IconName }> = [
@@ -70,30 +70,8 @@ export function AccountMenu({
   const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
   const navigation = useTranslations("navigation");
   const common = useTranslations("common");
-  const notifications = useTranslations("notificationInbox");
-  const [pushState, setPushState] = useState<"unknown" | "available" | "busy" | "enabled" | "denied" | "unsupported" | "ios-install">("unknown");
-  const [pushNotice, setPushNotice] = useState("");
   const wrapRef = useRef<HTMLDivElement>(null);
   const unreadNotifications = useUnreadNotificationsCountQuery();
-
-  useEffect(() => {
-    let active = true;
-    void resolveBrowserPushState().then((state) => { if (active) setPushState(state); });
-    return () => { active = false; };
-  }, []);
-
-  async function enablePush() {
-    setPushState("busy");
-    setPushNotice("");
-    try {
-      const result = await enableBrowserNotifications();
-      setPushState(result === "enabled" ? "enabled" : "denied");
-      setPushNotice(notifications(result === "enabled" ? "browserEnabled" : "browserDenied"));
-    } catch {
-      setPushState("available");
-      setPushNotice(notifications("browserError"));
-    }
-  }
 
   useEffect(() => {
     if (!open) return;
@@ -170,13 +148,6 @@ export function AccountMenu({
                   {navigation(labelKey)}
                 </Link>
               ))}
-              {pushState === "available" || pushState === "busy" ? (
-                <button className={ROW} disabled={pushState === "busy"} onClick={() => void enablePush()} role="menuitem" type="button">
-                  <Icon name="bell" className="size-5 flex-none text-brand max-sm:size-[18px]" />
-                  {notifications("enableBrowser")}
-                </button>
-              ) : null}
-              {pushNotice ? <p className="px-3 py-2 text-xs leading-5 text-body" role="status">{pushNotice}</p> : null}
               <button
                 type="button"
                 role="menuitem"

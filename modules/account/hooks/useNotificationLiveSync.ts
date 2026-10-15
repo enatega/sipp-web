@@ -12,8 +12,6 @@ interface SocketSession { token: string; userId: string; url: string; path: stri
 interface NotificationEvent { id?: unknown; type?: unknown; orderId?: unknown; status?: unknown; title?: unknown; body?: unknown; href?: unknown }
 export interface LiveNotificationAlert { id: string; type: string | null; orderId: string | null; status: string | null; title: string; body: string; href: string | null }
 
-const SOUND_KEY = "sipp:notification-sound";
-
 function safeHref(value: unknown): string | null {
   return typeof value === "string" && /^\/orders\/[0-9a-f-]{36}$/i.test(value) ? value : null;
 }
@@ -47,21 +45,12 @@ export function useNotificationLiveSync() {
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const [alert, setAlert] = useState<LiveNotificationAlert | null>(null);
-  const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const audioContext = useRef<AudioContext | null>(null);
   const seenIds = useRef(new Set<string>());
   const lastSeenAt = useRef(0);
-  const soundEnabled = useRef(false);
 
   useEffect(() => {
-    let preferenceTimer: number | null = null;
-    try {
-      const enabled = localStorage.getItem(SOUND_KEY) === "on";
-      soundEnabled.current = enabled;
-      preferenceTimer = window.setTimeout(() => setIsSoundEnabled(enabled), 0);
-    } catch { /* Storage is optional. */ }
     const unlock = () => {
-      if (!soundEnabled.current) return;
       try {
         const context = audioContext.current ?? new AudioContext();
         audioContext.current = context;
@@ -73,14 +62,12 @@ export function useNotificationLiveSync() {
     return () => {
       window.removeEventListener("pointerdown", unlock);
       window.removeEventListener("keydown", unlock);
-      if (preferenceTimer !== null) window.clearTimeout(preferenceTimer);
       void audioContext.current?.close();
       audioContext.current = null;
     };
   }, []);
 
   const playSound = useCallback(async () => {
-    if (!soundEnabled.current) return;
     try {
       const context = audioContext.current ?? new AudioContext();
       audioContext.current = context;
@@ -99,24 +86,6 @@ export function useNotificationLiveSync() {
         oscillator.stop(start + index * 0.15 + 0.14);
       }
     } catch { /* Browsers can block playback until a user gesture. */ }
-  }, []);
-
-  const enableSound = useCallback(async () => {
-    try {
-      const context = audioContext.current ?? new AudioContext();
-      audioContext.current = context;
-      await context.resume();
-      soundEnabled.current = true;
-      setIsSoundEnabled(true);
-      try { localStorage.setItem(SOUND_KEY, "on"); } catch { /* Optional preference. */ }
-      return true;
-    } catch { return false; }
-  }, []);
-
-  const disableSound = useCallback(() => {
-    soundEnabled.current = false;
-    setIsSoundEnabled(false);
-    try { localStorage.setItem(SOUND_KEY, "off"); } catch { /* Optional preference. */ }
   }, []);
 
   useEffect(() => {
@@ -209,5 +178,5 @@ export function useNotificationLiveSync() {
     };
   }, [authenticated, pathname, playSound, queryClient]);
 
-  return { authenticated, alert, dismiss: () => setAlert(null), isSoundEnabled, enableSound, disableSound };
+  return { authenticated, alert, dismiss: () => setAlert(null) };
 }

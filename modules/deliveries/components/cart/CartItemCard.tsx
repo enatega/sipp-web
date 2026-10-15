@@ -43,7 +43,7 @@ export function CartItemCard({ item, isUpdating, onQuantityChange, onRemove }: P
           </div>
 
           {!item.inStock ? (
-            <p className="mt-2 text-xs font-semibold text-brand">
+            <p className="mt-2 text-xs font-semibold text-danger">
               {item.inventoryIssue === "insufficient_stock" && item.availableQuantity !== null
                 ? t("limitedStock", { count: item.availableQuantity })
                 : t("outOfStock")}

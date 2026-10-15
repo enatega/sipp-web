@@ -18,6 +18,7 @@ import {
   buildVariationChoices,
   cartSelections,
   missingCustomizationGroups,
+  toggleCustomizationOption,
 } from "../../utils/productCustomization";
 import styles from "./restaurant-transitions.module.css";
 import { getLocalizedProductName } from "../../utils/productTranslation";
@@ -205,17 +206,10 @@ export function ProductConfigurator({ isStoreAvailable, isWithinDeliveryArea, is
     if (!section) return;
     setSelectedByGroup((current) => {
       const selected = current[groupId] ?? [];
-      let next: string[];
-      if (section.selectionType === "single") {
-        next = [optionId];
-      } else if (selected.includes(optionId)) {
-        next = selected.filter((id) => id !== optionId);
-      } else if (section.maxSelect && selected.length >= section.maxSelect) {
-        next = selected;
-      } else {
-        next = [...selected, optionId];
-      }
-      return { ...current, [groupId]: next };
+      return {
+        ...current,
+        [groupId]: toggleCustomizationOption(section, selected, optionId),
+      };
     });
   }
 
@@ -465,7 +459,7 @@ export function ProductConfigurator({ isStoreAvailable, isWithinDeliveryArea, is
                     </span>
                   </span>
                   <b className="shrink-0 text-sm tabular-nums">
-                    {formatAppCurrency(format, cart.data.finalPrice)}
+                    {formatAppCurrency(format, cart.data.itemsTotal)}
                   </b>
                   <ChevronRight aria-hidden="true" className="size-4 shrink-0 rtl:rotate-180" />
                 </Link>
