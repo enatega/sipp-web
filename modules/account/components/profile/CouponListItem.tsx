@@ -46,11 +46,11 @@ export function CouponListItem({ coupon, isBusy = false, onToggle, compact = fal
 
   return (
     <article className={`relative overflow-hidden rounded-2xl bg-card ${coupon.is_active ? "ring-2 ring-brand/25" : "border border-line"}`}>
-      <div className="flex min-w-0">
-        <div className={`grid w-[82px] flex-none place-items-center bg-brand text-center text-ink sm:w-[104px] ${compact ? "min-h-40" : "min-h-48"}`}>
-          <div className="px-2">
-            <Tag className="mx-auto size-5 opacity-80" aria-hidden="true" />
-            <strong className="mt-2 block text-base leading-tight tracking-[-0.02em] sm:text-lg">{value}</strong>
+      <div className={compact ? "flex min-w-0 flex-col sm:flex-row" : "flex min-w-0"}>
+        <div className={`flex-none bg-brand text-ink ${compact ? "flex min-h-0 w-full items-center px-4 py-3 text-start sm:grid sm:min-h-40 sm:w-[104px] sm:place-items-center sm:px-0 sm:py-0 sm:text-center" : "grid min-h-48 w-[82px] place-items-center text-center sm:w-[104px]"}`}>
+          <div className={compact ? "flex min-w-0 items-center gap-2 sm:block sm:px-2" : "px-2"}>
+            <Tag className={compact ? "size-5 shrink-0 opacity-80 sm:mx-auto" : "mx-auto size-5 opacity-80"} aria-hidden="true" />
+            <strong className={compact ? "block min-w-0 text-base leading-tight tracking-[-0.02em] sm:mt-2 sm:text-lg" : "mt-2 block text-base leading-tight tracking-[-0.02em] sm:text-lg"}>{value}</strong>
           </div>
         </div>
         <div className={`min-w-0 flex-1 ${compact ? "p-4" : "p-5 sm:p-6"}`}>

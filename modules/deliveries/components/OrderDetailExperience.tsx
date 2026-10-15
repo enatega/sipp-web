@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   CalendarDays,
@@ -13,6 +13,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { useAppCurrency } from "@/lib/useAppCurrency";
 import { HistoryBackButton } from "@/components/shared/HistoryBackButton";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
 import { OrderDetailSkeleton } from "./order-detail/OrderDetailSkeleton";
@@ -21,8 +22,13 @@ import { OrderRiderChatDialog } from "./order-detail/OrderRiderChatDialog";
 import { OrderItemsPanel } from "./order-detail/OrderItemsPanel";
 import { OrderRouteMap } from "./order-detail/OrderRouteMap";
 import { OrderReviewDrawer } from "./order-detail/OrderReviewDrawer";
+import { OrderCompletionDialog } from "./order-detail/OrderCompletionDialog";
 import { OrderStatusPanel } from "./order-detail/OrderStatusPanel";
 import { OrderSummaryPanel } from "./order-detail/OrderSummaryPanel";
+import {
+  CancelOrderDialog,
+  type CancelOrderStage,
+} from "./order-detail/CancelOrderDialog";
 import {
   useOrderDetailQuery,
   useOrderReviewQuery,
@@ -36,6 +42,10 @@ import {
   RATEABLE_ORDER_STATUSES,
   TERMINAL_ORDER_STATUSES,
 } from "../utils/orderDetail";
+import {
+  hasSeenOrderCompletionPrompt,
+  markOrderCompletionPromptSeen,
+} from "../utils/orderCompletionPrompt";
 
 interface Props {
   orderId: string;
@@ -44,6 +54,7 @@ interface Props {
 export function OrderDetailExperience({ orderId }: Props) {
   const t = useTranslations("deliveries.orderDetails");
   const format = useFormatter();
+  const { symbol: currencySymbol } = useAppCurrency();
   const orderQuery = useOrderDetailQuery(orderId);
   useOrderTrackingSync(
     orderId,
@@ -57,12 +68,65 @@ export function OrderDetailExperience({ orderId }: Props) {
   );
   const orderAgain = useOrderAgain();
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isCompletionOpen, setIsCompletionOpen] = useState(false);
+  const completionPromptCheckedRef = useRef<string | null>(null);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [cancelStage, setCancelStage] = useState<CancelOrderStage>("confirm");
+  const [cancelRefundAmount, setCancelRefundAmount] = useState<number | null>(null);
   const [isRiderChatOpen, setIsRiderChatOpen] = useState(false);
   const chatUnread = useOrderChatUnread(Boolean(orderQuery.data?.rider?.userId));
   const cancelOrder = useCancelOrder();
-  const isRateable = RATEABLE_ORDER_STATUSES.has(orderQuery.data?.status ?? "");
+  const isRateable = RATEABLE_ORDER_STATUSES.has(
+    orderQuery.data?.status?.trim().toLowerCase() ?? "",
+  );
   const reviewQuery = useOrderReviewQuery(orderId, isRateable);
+
+  const closeCompletionDialog = useCallback(() => {
+    setIsCompletionOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (!isRateable || reviewQuery.isPending) return;
+    if (completionPromptCheckedRef.current === orderId) return;
+
+    if (reviewQuery.data?.is_reviewed) return;
+    if (hasSeenOrderCompletionPrompt(orderId)) return;
+
+    const openPrompt = window.setTimeout(() => {
+      if (completionPromptCheckedRef.current === orderId) return;
+
+      completionPromptCheckedRef.current = orderId;
+      markOrderCompletionPromptSeen(orderId);
+      setIsCompletionOpen(true);
+    }, 0);
+
+    return () => window.clearTimeout(openPrompt);
+  }, [isRateable, orderId, reviewQuery.data?.is_reviewed, reviewQuery.isPending]);
+
+  function openCancelDialog() {
+    cancelOrder.reset();
+    setCancelRefundAmount(null);
+    setCancelStage("confirm");
+    setIsCancelOpen(true);
+  }
+
+  function closeCancelDialog() {
+    if (cancelStage === "processing") return;
+    setIsCancelOpen(false);
+  }
+
+  async function confirmCancellation() {
+    setCancelStage("processing");
+    try {
+      const cancelled = await cancelOrder.mutateAsync(orderId);
+      setCancelRefundAmount(
+        cancelled.walletRefund?.amount ?? cancelled.refund?.amount ?? null,
+      );
+      setCancelStage("success");
+    } catch {
+      setCancelStage("confirm");
+    }
+  }
 
   if (orderQuery.isPending) return <OrderDetailSkeleton />;
 
@@ -131,7 +195,7 @@ export function OrderDetailExperience({ orderId }: Props) {
               {canCancel ? (
                 <button
                   className="inline-flex min-h-11 items-center gap-2 rounded-full border border-danger/30 bg-card px-5 text-sm font-bold text-danger transition-colors hover:bg-danger-soft"
-                  onClick={() => setIsCancelOpen(true)}
+                  onClick={openCancelDialog}
                   type="button"
                 >
                   <XCircle aria-hidden="true" className="size-4" />
@@ -211,21 +275,33 @@ export function OrderDetailExperience({ orderId }: Props) {
         />
       ) : null}
 
+      {isCompletionOpen ? (
+        <OrderCompletionDialog
+          onClose={closeCompletionDialog}
+          onRateOrder={() => {
+            closeCompletionDialog();
+            setIsReviewOpen(true);
+          }}
+          orderType={order.orderType}
+          storeName={storeName}
+        />
+      ) : null}
+
       {isCancelOpen ? (
-        <div aria-labelledby="cancel-order-title" aria-modal="true" className="fixed inset-0 z-[80] grid place-items-center bg-black/55 p-5" role="dialog">
-          <div className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-[0_24px_70px_rgba(20,10,14,0.3)]">
-            <span className="grid size-11 place-items-center rounded-xl bg-danger-soft text-danger"><XCircle aria-hidden="true" className="size-5" /></span>
-            <h2 className="mt-4 text-xl font-bold text-ink" id="cancel-order-title">{t("cancelOrderTitle")}</h2>
-            <p className="mt-2 text-sm leading-6 text-body">{t("cancelOrderMessage")}</p>
-            {cancelOrder.isError ? <p className="mt-3 text-sm font-medium text-danger" role="alert">{t("cancelOrderError")}</p> : null}
-            <div className="mt-6 flex justify-end gap-2">
-              <button className="min-h-10 rounded-full px-4 text-sm font-semibold text-body hover:bg-[var(--soft-surface)]" disabled={cancelOrder.isPending} onClick={() => setIsCancelOpen(false)} type="button">{t("keepOrder")}</button>
-              <button className="inline-flex min-h-10 items-center gap-2 rounded-full bg-danger px-5 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50" disabled={cancelOrder.isPending} onClick={() => cancelOrder.mutate(order.orderId, { onSuccess: () => setIsCancelOpen(false) })} type="button">
-                {cancelOrder.isPending ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : null}{t("confirmCancelOrder")}
-              </button>
-            </div>
-          </div>
-        </div>
+        <CancelOrderDialog
+          error={cancelOrder.isError}
+          refundAmount={
+            cancelRefundAmount && cancelRefundAmount > 0
+              ? `${currencySymbol}${format.number(cancelRefundAmount, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`
+              : undefined
+          }
+          onClose={closeCancelDialog}
+          onConfirm={() => void confirmCancellation()}
+          stage={cancelStage}
+        />
       ) : null}
 
       {isRiderChatOpen ? (

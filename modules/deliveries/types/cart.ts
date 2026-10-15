@@ -7,6 +7,8 @@ export interface AddCartItemInput {
   productId: string;
   quantity?: number;
   selectedOptions?: CartSelectionInput[];
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface CartSelectedOption {
@@ -30,6 +32,8 @@ export interface CartItem {
   selectedOptions: CartSelectedOption[];
   storeId: string;
   inStock: boolean;
+  availableQuantity: number | null;
+  inventoryIssue: "out_of_stock" | "insufficient_stock" | null;
 }
 
 export interface CartResponse {
@@ -50,5 +54,6 @@ export interface CartResponse {
   /** Every coupon applied to the cart, in the order it was applied. */
   appliedCouponIds: string[];
   isEmpty: boolean;
+  pricesUpdated?: boolean;
   items: CartItem[];
 }

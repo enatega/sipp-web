@@ -12,7 +12,18 @@ function parsePage(value: unknown): NotificationInboxPage {
     if (!item || typeof item.id !== "string" || typeof item.title !== "string" || !item.title.trim() || typeof item.description !== "string" || !item.description.trim() || typeof item.createdAt !== "string") return [];
     const rawLink = typeof item.deep_link === "string" ? item.deep_link : "";
     const href = /^\/orders\/[0-9a-f-]{36}$/i.test(rawLink) ? rawLink : null;
-    return [{ id: item.id, title: item.title, description: item.description, createdAt: item.createdAt, isRead: item.isRead === true, href }];
+    const data = item.data && typeof item.data === "object" ? item.data as JsonRecord : {};
+    return [{
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      createdAt: item.createdAt,
+      isRead: item.isRead === true,
+      href,
+      type: typeof data.type === "string" ? data.type : null,
+      orderId: typeof data.orderId === "string" ? data.orderId : null,
+      status: typeof data.status === "string" ? data.status : null,
+    }];
   });
   const offset = typeof source.offset === "number" ? source.offset : 0;
   const limit = typeof source.limit === "number" ? source.limit : 10;

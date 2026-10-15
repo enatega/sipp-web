@@ -22,6 +22,15 @@ export function useHomeLayoutQuery() {
   });
 }
 
+export function useDeliveryCoverageQuery(location: DiscoveryLocation | null, enabled: boolean) {
+  return useQuery({
+    queryKey: [...deliveryQueryKeys.discovery(), "coverage", location],
+    queryFn: ({ signal }) => discoveryApi.coverage(location!, signal),
+    enabled: enabled && Boolean(location),
+    staleTime: DISCOVERY_STALE_TIME,
+  });
+}
+
 export function useDiscoveryLocation(isAuthenticated: boolean) {
   const [location, setLocation] = useState<DiscoveryLocation | null>(null);
   const [isStoredLocationReady, setIsStoredLocationReady] = useState(false);

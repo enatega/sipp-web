@@ -5,6 +5,7 @@ import { Header } from "@/components/shared/app-shell/Header";
 import { Footer } from "@/components/shared/app-shell/Footer";
 import { useSessionQuery } from "@/modules/account";
 import { FeatureHighlights } from "./FeatureHighlights";
+import { DeliveryCoverageState } from "./DeliveryCoverageState";
 import { FavouriteFoodsCarousel } from "./FavouriteFoodsCarousel";
 import { OffersCarousel } from "./OffersCarousel";
 import { OrderAgainSection } from "./OrderAgainSection";
@@ -16,7 +17,7 @@ import { SectionHeading, SectionState } from "./DiscoverySection";
 import { BannerSkeleton } from "./skeletons/BannerSkeleton";
 import { DiscoveryPageSkeleton } from "./skeletons/DiscoveryPageSkeleton";
 import {
-  useBannersQuery, useDealsQuery, useDiscoveryLocation, useHomeLayoutQuery,
+  useBannersQuery, useDealsQuery, useDeliveryCoverageQuery, useDiscoveryLocation, useHomeLayoutQuery,
   useNearbyStoresQuery, useOrderAgainQuery, useShopTypeStoreQueries,
   useShopTypesQuery, useTopBrandsQuery,
 } from "@/modules/deliveries/hooks/useDiscoveryQueries";
@@ -40,6 +41,7 @@ export function DiscoveryPage() {
   const session = useSessionQuery();
   const isAuthenticated = session.data?.authenticated === true;
   const { location, isLocationReady } = useDiscoveryLocation(isAuthenticated);
+  const coverage = useDeliveryCoverageQuery(location, isLocationReady);
   const layout = useHomeLayoutQuery();
   const shopTypes = useShopTypesQuery(true, true);
   const banners = useBannersQuery(true, true);
@@ -65,7 +67,18 @@ export function DiscoveryPage() {
     true,
   );
 
-  if (session.isPending || layout.isPending) return <DiscoveryPageSkeleton />;
+  if (session.isPending || layout.isPending || !isLocationReady || (location && coverage.isPending)) return <DiscoveryPageSkeleton />;
+
+  if (location && (coverage.isError || coverage.data?.available === false)) {
+    return <>
+      <Header />
+      <main className="bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_520px)]">
+        <h1 className="sr-only">{t("pageTitle")}</h1>
+        <DeliveryCoverageState isError={coverage.isError} onRetry={() => void coverage.refetch()} />
+      </main>
+      <Footer />
+    </>;
+  }
 
   return <>
     <Header />

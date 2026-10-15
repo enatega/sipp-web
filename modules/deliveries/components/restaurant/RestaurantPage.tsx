@@ -16,6 +16,7 @@ import { ProductConfigurator } from "./ProductConfigurator";
 import { RestaurantHero } from "./RestaurantHero";
 import { RestaurantInfo } from "./RestaurantInfo";
 import { StoreClosedNotice } from "./StoreClosedNotice";
+import { StoreOutOfAreaNotice } from "./StoreOutOfAreaNotice";
 import { RestaurantProductCard } from "./RestaurantProductCard";
 import { useCategoryScrollSpy } from "../../hooks/useCategoryScrollSpy";
 import {
@@ -130,6 +131,11 @@ export function RestaurantPage({ slug }: Props) {
   async function quickAddProduct(product: RestaurantProduct) {
     if (quickAddLock.current) return;
     if (!authenticated) return requireSignIn();
+    if (!location) return;
+    if (restaurant.data?.isWithinDeliveryArea === false) {
+      toast.error(t("outsideAreaMessage"));
+      return;
+    }
     if (!cart.data || cart.isPending || cart.isError) return setSelectedProductId(product.id);
     quickAddLock.current = true;
     setQuickAddingProductId(product.id);
@@ -156,6 +162,8 @@ export function RestaurantPage({ slug }: Props) {
         productId: product.id,
         quantity: 1,
         selectedOptions: selections,
+        latitude: location.latitude,
+        longitude: location.longitude,
       });
       const updatedQuantity = updatedCart.items.reduce(
         (total, item) => total + (item.productId === product.id ? item.quantity : 0),
@@ -165,6 +173,24 @@ export function RestaurantPage({ slug }: Props) {
       notify.success("addedToCart", { product: getLocalizedProductName(product, locale) });
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) requireSignIn();
+      else if (error instanceof ApiError && error.code === "STORE_OUTSIDE_DELIVERY_AREA") toast.error(t("outsideAreaMessage"));
+      else if (
+        error instanceof ApiError &&
+        error.code === "INSUFFICIENT_PRODUCT_STOCK" &&
+        error.availableQuantity !== undefined &&
+        error.requestedQuantity !== undefined
+      ) {
+        toast.error(t("cartStockLimitError", {
+          product: error.productName || getLocalizedProductName(product, locale),
+          available: error.availableQuantity,
+          requested: error.requestedQuantity,
+        }));
+      }
+      else if (error instanceof ApiError && error.code === "PRODUCT_OUT_OF_STOCK") {
+        toast.error(t("cartOutOfStockError", {
+          product: error.productName || getLocalizedProductName(product, locale),
+        }));
+      }
       else if (error instanceof ApiError && error.status === 409) setSelectedProductId(product.id);
       else toast.error(t("cartError"));
     } finally {
@@ -220,7 +246,11 @@ export function RestaurantPage({ slug }: Props) {
         <div className="mx-auto grid min-h-[700px] max-w-[1540px] grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)]">
           <CategoryNavigation activeCategoryId={activeCategoryId} categories={categories} categoryLabel={t("categories")} onSelect={scrollToCategory} />
           <section className="min-w-0 px-[18px] py-6 sm:px-7 lg:px-7 xl:px-9">
-            {!store.isAvailable ? <StoreClosedNotice onViewOpeningHours={() => setDetailsSection("opening-hours")} /> : null}
+            {!store.isWithinDeliveryArea ? (
+              <StoreOutOfAreaNotice />
+            ) : !store.isAvailable ? (
+              <StoreClosedNotice onViewOpeningHours={() => setDetailsSection("opening-hours")} />
+            ) : null}
             <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-2xl font-bold text-ink">{t("menu")}</h2>
               <div className="flex items-center gap-2">
@@ -282,7 +312,7 @@ export function RestaurantPage({ slug }: Props) {
                       ) : null}
                       {visibleProducts.length > 0 ? (
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                          {visibleProducts.map((product) => <RestaurantProductCard cartQuantity={cartQuantityByProduct.get(product.id) ?? 0} isQuickAddBlocked={quickAddingProductId !== null} isQuickAdding={quickAddingProductId === product.id} isStoreAvailable={store.isAvailable} key={product.id} onQuickAdd={quickAddProduct} onSelect={setSelectedProductId} product={product} />)}
+                          {visibleProducts.map((product) => <RestaurantProductCard cartQuantity={cartQuantityByProduct.get(product.id) ?? 0} isQuickAddBlocked={quickAddingProductId !== null} isQuickAdding={quickAddingProductId === product.id} isStoreAvailable={store.isAvailable} isWithinDeliveryArea={store.isWithinDeliveryArea} key={product.id} onQuickAdd={quickAddProduct} onSelect={setSelectedProductId} product={product} />)}
                         </div>
                       ) : (
                         <p className="rounded-xl bg-soft-surface px-4 py-5 text-sm text-body">{t("noSubcategoryProducts")}</p>
@@ -295,7 +325,7 @@ export function RestaurantPage({ slug }: Props) {
             )}
           </section>
 
-          {selectedProductId ? <ProductConfigurator isStoreAvailable={store.isAvailable} isAuthenticated={authenticated} key={selectedProductId} onClose={() => setSelectedProductId(null)} onRequireSignIn={requireSignIn} previewProduct={products.find((product) => product.id === selectedProductId)} productId={selectedProductId} storeName={store.name} /> : null}
+          {selectedProductId ? <ProductConfigurator isStoreAvailable={store.isAvailable} isWithinDeliveryArea={store.isWithinDeliveryArea} isAuthenticated={authenticated} key={selectedProductId} onClose={() => setSelectedProductId(null)} onRequireSignIn={requireSignIn} previewProduct={products.find((product) => product.id === selectedProductId)} productId={selectedProductId} storeName={store.name} /> : null}
         </div>
         {detailsSection ? <RestaurantInfo focusOpeningHours={detailsSection === "opening-hours"} onClose={() => setDetailsSection(null)} store={store} /> : null}
       </main>

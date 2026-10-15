@@ -33,18 +33,29 @@ function safeErrorPayload(payload: unknown, fallback: string) {
       ? (payload as {
           message?: string | string[];
           error?: string;
-          code?: string;
           status?: string;
           applicationId?: string;
           fields?: unknown;
+          productName?: string;
+          requestedQuantity?: number;
+          availableQuantity?: number;
         })
       : {};
   return {
     message: errorMessage(payload, fallback),
-    ...(candidate.code ? { code: candidate.code } : {}),
+    ...stableErrorCode(payload),
     ...(candidate.status ? { status: candidate.status } : {}),
     ...(candidate.applicationId
       ? { applicationId: candidate.applicationId }
+      : {}),
+    ...(candidate.productName
+      ? { productName: candidate.productName }
+      : {}),
+    ...(Number.isFinite(candidate.requestedQuantity)
+      ? { requestedQuantity: candidate.requestedQuantity }
+      : {}),
+    ...(Number.isFinite(candidate.availableQuantity)
+      ? { availableQuantity: candidate.availableQuantity }
       : {}),
     ...(Array.isArray(candidate.fields)
       ? { fields: candidate.fields.filter((field) => field === "email" || field === "phone") }
@@ -56,10 +67,11 @@ type CallOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   request?: NextRequest;
+  timeoutMs?: number;
 };
 
 export async function callApi(path: string, options: CallOptions = {}) {
-  const { method = "GET", body, request } = options;
+  const { method = "GET", body, request, timeoutMs = 20_000 } = options;
   const token = request?.cookies.get(authCookieNames.token)?.value;
 
   try {
@@ -75,16 +87,13 @@ export async function callApi(path: string, options: CallOptions = {}) {
       },
       body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store",
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     const data = await upstream.json().catch(() => null);
 
     if (!upstream.ok) {
       return NextResponse.json(
-        {
-          message: errorMessage(data, "We could not complete that request."),
-          ...stableErrorCode(data),
-        },
+        safeErrorPayload(data, "We could not complete that request."),
         { status: upstream.status },
       );
     }

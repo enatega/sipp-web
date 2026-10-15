@@ -132,6 +132,7 @@ export async function proxyPlaceOrder(request: NextRequest) {
   return callApi("/apps/deliveries/orders", {
     method: "POST",
     request,
+    timeoutMs: 60_000,
     body: { ...input, paymentMethod: source.paymentMethod, ...(paymentMethodId ? { paymentMethodId } : {}), ...(customerNote ? { customerNote } : {}), ...(source.paymentMethod === "stripe" && !paymentMethodId ? { successUrl, cancelUrl } : {}) },
   });
 }

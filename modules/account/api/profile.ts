@@ -15,6 +15,17 @@ import type {
 } from "@/modules/account/types";
 
 export const profileApi = {
+  sendEmailVerification() {
+    return postJson<{
+      message: string;
+      email: string;
+      expiresInSeconds: number;
+      resendAfterSeconds: number;
+    }>("/api/profile/email/send");
+  },
+  verifyEmailVerification(payload: { email: string; otp: string }) {
+    return postJson<{ message: string }>("/api/profile/email/verify", payload);
+  },
   sendPhoneVerification(payload: { phone: string }) {
     return postJson<{ message: string }>("/api/profile/phone/send", payload);
   },

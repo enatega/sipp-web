@@ -38,7 +38,19 @@ function parseAddItemBody(value: unknown) {
     ) return null;
     selectedOptions.push({ groupId: option.groupId, optionId: option.optionId });
   }
-  return { productId: source.productId, quantity, ...(selectedOptions.length ? { selectedOptions } : {}) };
+  const latitude = source.latitude === undefined ? undefined : Number(source.latitude);
+  const longitude = source.longitude === undefined ? undefined : Number(source.longitude);
+  if (
+    (latitude === undefined) !== (longitude === undefined) ||
+    (latitude !== undefined && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) ||
+    (longitude !== undefined && (!Number.isFinite(longitude) || longitude < -180 || longitude > 180))
+  ) return null;
+  return {
+    productId: source.productId,
+    quantity,
+    ...(selectedOptions.length ? { selectedOptions } : {}),
+    ...(latitude !== undefined && longitude !== undefined ? { latitude, longitude } : {}),
+  };
 }
 
 export async function proxyCartCollection(request: NextRequest) {

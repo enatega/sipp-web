@@ -33,7 +33,7 @@ export function CheckoutAlertStack({
       >
         {notices.map((notice) => (
           <DeliveryNotice
-            className={`pointer-events-auto shadow-pop ${styles.alertEnter}`}
+            className={`pointer-events-auto border border-danger/25 bg-card text-danger shadow-pop [overflow-wrap:anywhere] ${styles.alertEnter}`}
             actionHref={notice.actionHref}
             actionLabel={notice.actionLabel}
             dismissLabel={dismissLabel}
