@@ -1,4 +1,26 @@
 export type CouponDiscountType = "PERCENTAGE" | "FIXED" | "FLAT" | "ALL";
+export type CouponPaymentMethod = "CARD" | "WALLET" | "COD";
+export type CouponDeliveryType = "ALL" | "DELIVERY" | "PICKUP";
+
+/** Stable server reasons a coupon cannot be used (see sipp-server coupon-eligibility.error.ts). */
+export type CouponIssueCode =
+  | "COUPON_INACTIVE"
+  | "COUPON_EXPIRED"
+  | "COUPON_MIN_ORDER"
+  | "COUPON_STORE"
+  | "COUPON_PRODUCTS"
+  | "COUPON_ORDER_TYPE"
+  | "COUPON_PAYMENT_METHOD"
+  | "COUPON_PREMIUM_ONLY"
+  | "COUPON_NEW_USERS_ONLY"
+  | "COUPON_USAGE_LIMIT"
+  | "COUPON_USER_LIMIT"
+  | "STORE_MINIMUM_AFTER_COUPON";
+
+export interface CouponIssue {
+  code: string;
+  details?: Record<string, unknown>;
+}
 
 export interface ClaimedCoupon {
   id: string;
@@ -14,6 +36,12 @@ export interface ClaimedCoupon {
   status: string;
   is_active: boolean;
   claimed_at: string;
+  payment_method?: CouponPaymentMethod[];
+  delivery_type?: CouponDeliveryType[];
+  usage_per_user?: number;
+  total_usage_limit?: number;
+  user_usage_count?: number;
+  total_usage_count?: number;
   offered_by: Array<{
     store_id: string;
     store_name: string;

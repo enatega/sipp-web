@@ -45,7 +45,7 @@ export function AuthMenu({ cartCount = 0 }: { cartCount?: number }) {
   const isOnCartFlow = pathname === "/cart" || pathname.startsWith("/checkout");
   const cartAction =
     user && cart.data && !cart.data.isEmpty && cart.data.totalItems > 0 && !isOnCartFlow ? (
-      <HeaderCartButton itemCount={cart.data.totalItems} total={cart.data.finalPrice} />
+      <HeaderCartButton itemCount={cart.data.totalItems} total={cart.data.itemsTotal} />
     ) : undefined;
 
   if (session.isPending) {

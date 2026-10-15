@@ -9,6 +9,7 @@ import { ApiError } from "@/services/api/client";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileBackLink } from "./ProfileBackLink";
 import { CouponListItem } from "./CouponListItem";
+import { useCouponText } from "@/modules/account/hooks/useCouponText";
 import { useClaimCouponMutation, useClaimedCouponsQuery, useCouponActivationMutation } from "@/modules/account/queries/useCouponQueries";
 import { useSessionQuery } from "@/modules/account/queries/useAccountQueries";
 
@@ -22,6 +23,7 @@ export function CouponsPage() {
   const activation = useCouponActivationMutation();
   const [code, setCode] = useState("");
   const notify = useActionToast();
+  const couponText = useCouponText();
   const [notice, setNotice] = useState<{ kind: "error"; text: string } | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const items = useMemo(() => coupons.data?.pages.flatMap((page) => page.data) ?? [], [coupons.data]);
@@ -31,6 +33,8 @@ export function CouponsPage() {
   }, [authenticated, router, session.isPending]);
 
   function claimErrorDetail(error: unknown) {
+    const issue = couponText.errorIssue(error);
+    if (issue) return couponText.issueMessage(issue);
     if (error instanceof ApiError && error.status === 409) return t("alreadyClaimed");
     if (error instanceof ApiError && error.status === 400) return t("invalidCode");
     return undefined;
@@ -52,6 +56,12 @@ export function CouponsPage() {
     }
   }
 
+  function couponErrorDetail(error: unknown, id: string) {
+    const issue = couponText.errorIssue(error);
+    if (issue) return couponText.issueMessage(issue, items.find((coupon) => coupon.id === id));
+    return error instanceof ApiError && error.status === 400 ? t("notApplicable") : undefined;
+  }
+
   async function toggleCoupon(id: string, isActive: boolean) {
     setNotice(null);
     setBusyId(id);
@@ -62,7 +72,7 @@ export function CouponsPage() {
       notify.error(
         error,
         "couponUpdateFailed",
-        error instanceof ApiError && error.status === 400 ? t("notApplicable") : undefined,
+        couponErrorDetail(error, id),
       );
     } finally {
       setBusyId(null);
