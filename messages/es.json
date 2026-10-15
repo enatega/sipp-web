@@ -274,12 +274,11 @@
     "unavailable": "No disponible",
     "upcoming": "Subiendo",
     "expired": "Gastos",
-    "copyCode": "Copiar código de oferta {code}",
     "validUntil": "Válido hasta {date}",
     "minimumOrder": "Orden mínima {value}",
     "selectedStores": "At {stores}",
     "allStores": "Disponible para participar SIPP negocios",
-    "activate": "Activate oferta",
+    "activate": "Usar oferta",
     "deactivate": "Sacar la oferta",
     "claimedSuccess": "Oferta reclamada. Puedes practicarvatAhora mismo.",
     "activatedSuccess": "Oferta activated para su carrito elegible.",
@@ -287,7 +286,37 @@
     "alreadyClaimed": "Ya has reclamado esta oferta.",
     "invalidCode": "Ese código de oferta no es válido o ya no está disponible.",
     "notApplicable": "Esta oferta no coincide con su carrito actual. Compruebe su tienda, fechas y orden mínimo.",
-    "genericError": "No pudimos actualizar sus ofertas. Por favor, inténtalo de nuevo."
+    "genericError": "No pudimos actualizar sus ofertas. Por favor, inténtalo de nuevo.",
+    "notApplied": "No aplicada",
+    "fullyRedeemed": "Agotada",
+    "limitReached": "Límite alcanzado",
+    "requirementsPayment": "Paga con {methods}",
+    "requirementsOrderType": "Válida para {types}",
+    "usesLeft": "{count, plural, =0 {Sin usos disponibles} one {# uso disponible} other {# usos disponibles}}",
+    "paymentMethods": {
+      "any": "cualquier método de pago",
+      "CARD": "tarjeta",
+      "WALLET": "billetera SIPP"
+    },
+    "deliveryTypes": {
+      "ALL": "entrega y recogida",
+      "DELIVERY": "entrega",
+      "PICKUP": "recogida"
+    },
+    "issues": {
+      "COUPON_INACTIVE": "Esta oferta ya no está activa.",
+      "COUPON_EXPIRED": "Esta oferta ha caducado o aún no ha comenzado.",
+      "COUPON_MIN_ORDER": "Esta oferta requiere un pedido mínimo de {amount}. Añade más artículos para usarla.",
+      "COUPON_STORE": "Esta oferta no se puede usar en este negocio.",
+      "COUPON_PRODUCTS": "Esta oferta solo se aplica a artículos específicos que no están en tu carrito.",
+      "COUPON_ORDER_TYPE": "Esta oferta solo es válida para pedidos de {types}. Cambia el tipo de pedido o quita la oferta.",
+      "COUPON_PAYMENT_METHOD": "Esta oferta solo se puede usar pagando con {methods}. Cambia el método de pago o quita la oferta.",
+      "COUPON_PREMIUM_ONLY": "Esta oferta solo es válida en negocios premium.",
+      "COUPON_NEW_USERS_ONLY": "Esta oferta es solo para tu primer pedido.",
+      "COUPON_USAGE_LIMIT": "Esta oferta se ha agotado y ya no se puede usar.",
+      "COUPON_USER_LIMIT": "Ya usaste esta oferta el número máximo de veces ({count, plural, one {# uso} other {# usos}}).",
+      "STORE_MINIMUM_AFTER_COUPON": "Con esta oferta tu pedido queda en {total}, por debajo del pedido mínimo de {minimum} de este negocio. Añade {remaining} más o quita la oferta."
+    }
   },
   "accountSecurity": {
     "title": "Seguridad de la cuenta",
@@ -1580,15 +1609,12 @@
       "couponCodePlaceholder": "Introduzca el código de oferta",
       "claimCoupon": "Reclamación",
       "couponClaimed": "Oferta reclamada. Elija a continuación para aplicarlo.",
-      "couponApplied": "Oferta aplicada. Su total ha sido actualizado.",
       "couponRemoved": "Oferta retirada. Su total ha sido actualizado.",
       "couponNotApplicable": "Esta oferta no es elegible para el carrito actual.",
-      "couponMinimumNotMet": "Añadir más artículos para llegar a {amount} mínimo.",
+      "couponMinimumNotMet": "Añade más artículos para alcanzar el subtotal mínimo de {amount}.",
       "couponWrongStore": "Esta oferta no está disponible en este negocio.",
-      "couponPaymentMethodMismatch": "Esta oferta no es válida para el método de pago seleccionado, por lo que no se aplica ningún descuento.",
       "loadingCoupons": "Cargando ofertas...",
       "retryCoupons": "Las ofertas no se pueden cargar. Prueba otra vez.",
-      "activeCoupon": "Oferta activa: {code}",
       "chooseCoupon": "Elige entre {count, plural, one {# oferta reclamada} other {# ofertas reclamadas}}",
       "moreCoupons": "Mostrar más ofertas",
       "noClaimedCoupons": "Todavía no hay ofertas reclamadas. Introduzca un código arriba para añadir uno.",
@@ -1665,7 +1691,13 @@
       "completeDetails": "Completa tus datos de entrega para ver el total confirmado en el backend.",
       "placeOrder": "Realizar pedido",
       "placingOrder": "Orden de localización...",
-      "securePayment": "Pago seguro y precios confirmados por backend"
+      "securePayment": "Pago seguro y precios confirmados por backend",
+      "couponChecking": "Comprobando tu oferta…",
+      "couponAppliedCode": "Oferta {code} aplicada. Tu total se ha actualizado.",
+      "couponNotAppliedCode": "La oferta {code} no se aplicó.",
+      "couponFixToContinue": "Quita la oferta o cambia tu pedido para que cumpla los requisitos y continuar.",
+      "chooseOtherCoupon": "{count, plural, one {Cambiar a # otra oferta} other {Cambiar a una de # otras ofertas}}",
+      "storeMinimumNotMet": "Tu pedido está por debajo del mínimo de este negocio. Añade más artículos para continuar."
     }
   },
   "about": {

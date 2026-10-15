@@ -425,7 +425,7 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
                     </span>
                   </span>
                   <b className="shrink-0 text-sm tabular-nums">
-                    {formatAppCurrency(format, cart.data.finalPrice)}
+                    {formatAppCurrency(format, cart.data.itemsTotal)}
                   </b>
                   <ChevronRight aria-hidden="true" className="size-4 shrink-0 rtl:rotate-180" />
                 </Link>

@@ -44,7 +44,20 @@ export interface CheckoutPreview {
     totalAmount: number;
   };
   bucket: { itemCount: number; items: unknown[] };
-  coupon?: { id: string; code: string; isApplied: boolean } | null;
+  coupon?: CheckoutPreviewCoupon | null;
+}
+
+export interface CheckoutPreviewCoupon {
+  id: string;
+  code: string;
+  isApplied: boolean;
+  /** Why the server left the coupon out of this priced total. */
+  issue?: { code: string; message: string; details: Record<string, unknown> } | null;
+  requirements?: {
+    paymentMethods: Array<"CARD" | "WALLET">;
+    deliveryTypes: Array<"ALL" | "DELIVERY" | "PICKUP">;
+    minOrderValue: number;
+  };
 }
 
 export interface CheckoutScheduleSlot {

@@ -73,6 +73,7 @@ export function parseCart(value: unknown): CartResponse {
     totalPrice: number(source.totalPrice),
     discountAmount: number(source.discountAmount),
     finalPrice: number(source.finalPrice),
+    itemsTotal: Math.round(items.reduce((total, item) => total + item.lineTotal, 0) * 100) / 100,
     appliedCouponId: optionalText(source.appliedCouponId),
     appliedCouponCode: optionalText(source.appliedCouponCode),
     isEmpty: source.isEmpty === true || totalItems === 0 || items.length === 0,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { checkoutApi } from "../api/checkout";
 import { deliveryQueryKeys } from "../queries/queryKeys";
 import type { CheckoutPreviewInput, PlaceOrderInput } from "../types/checkout";
@@ -12,6 +12,8 @@ export function useCheckoutPreview(input: CheckoutPreviewInput | null) {
     enabled: Boolean(input),
     staleTime: 10_000,
     retry: 1,
+    // Keep the last priced checkout on screen while a tip or address change reprices it.
+    placeholderData: keepPreviousData,
   });
 }
 

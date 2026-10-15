@@ -1,6 +1,6 @@
 "use client";
 
-import { LoaderCircle, LockKeyhole } from "lucide-react";
+import { CircleAlert, LoaderCircle, LockKeyhole } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import type { CheckoutPreview } from "../../types/checkout";
@@ -12,9 +12,11 @@ interface Props {
   isPlacing: boolean;
   disabled: boolean;
   paymentMethod: CheckoutPaymentMethod;
+  /** An applied coupon that the server refused for this checkout. */
+  couponIssue?: { code: string; message: string } | null;
 }
 
-export function CheckoutSummary({ preview, isLoading, isPlacing, disabled, paymentMethod }: Props) {
+export function CheckoutSummary({ preview, isLoading, isPlacing, disabled, paymentMethod, couponIssue }: Props) {
   const t = useTranslations("deliveries.checkout");
   const format = useFormatter();
   const formatAppCurrency = useAppCurrencyFormatter();
@@ -44,6 +46,13 @@ export function CheckoutSummary({ preview, isLoading, isPlacing, disabled, payme
           <div className="flex items-end justify-between gap-4"><dt className="text-base font-bold text-ink">{t("total")}</dt><dd className="text-2xl font-bold text-brand">{price(pricing.totalAmount)}</dd></div>
         </>
       ) : <p className="mt-5 rounded-xl bg-[var(--soft-surface)] p-4 text-sm leading-6 text-body">{t("completeDetails")}</p>}
+
+      {couponIssue && !isLoading ? (
+        <div role="alert" className="mt-5 flex items-start gap-2 rounded-xl bg-danger-soft p-4 text-xs leading-5 text-danger">
+          <CircleAlert className="mt-0.5 size-4 flex-none" aria-hidden="true" />
+          <p><strong className="block font-bold">{t("couponNotAppliedCode", { code: couponIssue.code })}</strong>{couponIssue.message} {t("couponFixToContinue")}</p>
+        </div>
+      ) : null}
 
       <button type="submit" disabled={disabled || !preview || isLoading || isPlacing} className="mt-6 inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-brand px-5 text-sm font-bold text-ink shadow-[0_10px_24px_rgba(102,192,242,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-brand/85 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0">
         {isPlacing ? <><LoaderCircle aria-hidden="true" className="size-4 animate-spin" />{paymentMethod === "stripe" ? t("preparingPayment") : t("placingOrder")}</> : paymentMethod === "stripe" ? t("continueToPayment") : t("placeOrder")}

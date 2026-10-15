@@ -274,12 +274,11 @@
     "unavailable": "Nicht verfügbar",
     "upcoming": "Demnächst",
     "expired": "Abgelaufen",
-    "copyCode": "Angebotscode {code} kopieren",
     "validUntil": "Gültig bis {date}",
     "minimumOrder": "Mindestbestellwert {value}",
     "selectedStores": "Bei {stores}",
     "allStores": "Bei teilnehmenden SIPP-Unternehmen verfügbar",
-    "activate": "Angebot aktivieren",
+    "activate": "Angebot nutzen",
     "deactivate": "Angebot entfernen",
     "claimedSuccess": "Angebot eingelöst. Sie können es jetzt aktivieren.",
     "activatedSuccess": "Angebot für Ihren passenden Warenkorb aktiviert.",
@@ -287,7 +286,37 @@
     "alreadyClaimed": "Sie haben dieses Angebot bereits eingelöst.",
     "invalidCode": "Dieser Angebotscode ist ungültig oder nicht mehr verfügbar.",
     "notApplicable": "Dieses Angebot passt nicht zu Ihrem aktuellen Warenkorb. Prüfen Sie Geschäft, Zeitraum und Mindestbestellwert.",
-    "genericError": "Ihre Angebote konnten nicht aktualisiert werden. Bitte versuchen Sie es erneut."
+    "genericError": "Ihre Angebote konnten nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+    "notApplied": "Nicht angewendet",
+    "fullyRedeemed": "Vollständig eingelöst",
+    "limitReached": "Limit erreicht",
+    "requirementsPayment": "Bezahlen mit {methods}",
+    "requirementsOrderType": "Gültig für {types}",
+    "usesLeft": "{count, plural, =0 {Keine Nutzung mehr übrig} one {# Nutzung übrig} other {# Nutzungen übrig}}",
+    "paymentMethods": {
+      "any": "jeder Zahlungsart",
+      "CARD": "Karte",
+      "WALLET": "SIPP-Wallet"
+    },
+    "deliveryTypes": {
+      "ALL": "Lieferung und Abholung",
+      "DELIVERY": "Lieferung",
+      "PICKUP": "Abholung"
+    },
+    "issues": {
+      "COUPON_INACTIVE": "Dieses Angebot ist nicht mehr aktiv.",
+      "COUPON_EXPIRED": "Dieses Angebot ist abgelaufen oder hat noch nicht begonnen.",
+      "COUPON_MIN_ORDER": "Dieses Angebot gilt erst ab einem Bestellwert von {amount}. Füge weitere Artikel hinzu.",
+      "COUPON_STORE": "Dieses Angebot kann bei diesem Geschäft nicht verwendet werden.",
+      "COUPON_PRODUCTS": "Dieses Angebot gilt nur für bestimmte Artikel, die nicht in deinem Warenkorb sind.",
+      "COUPON_ORDER_TYPE": "Dieses Angebot gilt nur für Bestellungen per {types}. Ändere die Bestellart oder entferne das Angebot.",
+      "COUPON_PAYMENT_METHOD": "Dieses Angebot gilt nur bei Zahlung mit {methods}. Ändere die Zahlungsart oder entferne das Angebot.",
+      "COUPON_PREMIUM_ONLY": "Dieses Angebot gilt nur bei Premium-Geschäften.",
+      "COUPON_NEW_USERS_ONLY": "Dieses Angebot gilt nur für deine erste Bestellung.",
+      "COUPON_USAGE_LIMIT": "Dieses Angebot wurde vollständig eingelöst und kann nicht mehr verwendet werden.",
+      "COUPON_USER_LIMIT": "Du hast dieses Angebot bereits so oft wie erlaubt verwendet ({count, plural, one {# Nutzung} other {# Nutzungen}}).",
+      "STORE_MINIMUM_AFTER_COUPON": "Mit diesem Angebot beträgt deine Bestellung {total} und liegt unter dem Mindestbestellwert von {minimum}. Füge {remaining} hinzu oder entferne das Angebot."
+    }
   },
   "accountSecurity": {
     "title": "Kontosicherheit",
@@ -1580,15 +1609,12 @@
       "couponCodePlaceholder": "Angebotscode eingeben",
       "claimCoupon": "Einlösen",
       "couponClaimed": "Angebot eingelöst. Wählen Sie es unten aus, um es anzuwenden.",
-      "couponApplied": "Angebot angewendet. Der Gesamtbetrag wurde aktualisiert.",
       "couponRemoved": "Angebot entfernt. Der Gesamtbetrag wurde aktualisiert.",
       "couponNotApplicable": "Dieses Angebot gilt nicht für den aktuellen Warenkorb.",
-      "couponMinimumNotMet": "Fügen Sie weitere Artikel hinzu, um den Mindestwert von {amount} zu erreichen.",
+      "couponMinimumNotMet": "Füge weitere Artikel hinzu, um die Mindestzwischensumme von {amount} zu erreichen.",
       "couponWrongStore": "Dieses Angebot ist bei diesem Unternehmen nicht verfügbar.",
-      "couponPaymentMethodMismatch": "Dieses Angebot gilt nicht für die gewählte Zahlungsmethode, daher wird kein Rabatt angewendet.",
       "loadingCoupons": "Angebote werden geladen…",
       "retryCoupons": "Angebote konnten nicht geladen werden. Erneut versuchen.",
-      "activeCoupon": "Aktives Angebot: {code}",
       "chooseCoupon": "Aus {count, plural, one {# eingelöstem Angebot} other {# eingelösten Angeboten}} wählen",
       "moreCoupons": "Weitere Angebote anzeigen",
       "noClaimedCoupons": "Noch keine Angebote eingelöst. Geben Sie oben einen Code ein.",
@@ -1665,7 +1691,13 @@
       "completeDetails": "Vervollständigen Sie die Lieferangaben, um die bestätigte Gesamtsumme zu sehen.",
       "placeOrder": "Bestellen",
       "placingOrder": "Bestellung wird aufgegeben…",
-      "securePayment": "Sichere Zahlung und bestätigte Preise"
+      "securePayment": "Sichere Zahlung und bestätigte Preise",
+      "couponChecking": "Dein Angebot wird geprüft…",
+      "couponAppliedCode": "Angebot {code} angewendet. Dein Gesamtbetrag wurde aktualisiert.",
+      "couponNotAppliedCode": "Angebot {code} wurde nicht angewendet.",
+      "couponFixToContinue": "Entferne das Angebot oder passe deine Bestellung an, um fortzufahren.",
+      "chooseOtherCoupon": "{count, plural, one {Zu # anderen Angebot wechseln} other {Zu einem von # anderen Angeboten wechseln}}",
+      "storeMinimumNotMet": "Deine Bestellung liegt unter dem Mindestbestellwert dieses Geschäfts. Füge weitere Artikel hinzu."
     }
   },
   "about": {
