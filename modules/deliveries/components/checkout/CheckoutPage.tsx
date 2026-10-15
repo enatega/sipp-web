@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormik } from "formik";
 import { ArrowLeft, Bike, ChevronRight, CreditCard, LoaderCircle, MapPin, MessageSquareText, ShoppingBag, Store, Truck, WalletCards } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useAppCurrency } from "@/lib/useAppCurrency";
 import { useAddressesQuery, useProfileQuery, useSavedCardsQuery, useSessionQuery, useStoredPlace, useWalletQuery, type ChosenPlace, type SavedAddress, type SavedCard } from "@/modules/account";
@@ -26,7 +26,8 @@ import { StripePaymentModal } from "./StripePaymentModal";
 import { clearCheckoutNotesDraft, readCheckoutNotesDraft, writeCheckoutNotesDraft } from "../../utils/checkoutNotesDraft";
 import { isStripeCheckoutUrl } from "../../utils/stripeCheckoutUrl";
 
-const TIP_OPTIONS = [0, 5, 10, 20];
+const CRC_TIP_OPTIONS = [0, 500, 1_000, 2_000];
+const DEFAULT_TIP_OPTIONS = [0, 5, 10, 20];
 
 function buildNote(values: CheckoutFormValues) {
   const restaurant = values.restaurantNote.trim();
@@ -81,7 +82,11 @@ interface Props {
 
 export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = false }: Props) {
   const t = useTranslations("deliveries.checkout");
-  const { symbol: currencySymbol } = useAppCurrency();
+  const format = useFormatter();
+  const { code: currencyCode, symbol: currencySymbol } = useAppCurrency();
+  const tipOptions = currencyCode.toUpperCase() === "CRC"
+    ? CRC_TIP_OPTIONS
+    : DEFAULT_TIP_OPTIONS;
   const couponText = useCouponText();
   const router = useRouter();
   const session = useSessionQuery();
@@ -533,7 +538,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
 
               <CheckoutCouponSection enabled={authenticated} storeId={cart.data.storeId} subtotal={cart.data.totalPrice} orderType={formik.values.orderType} paymentMethod={formik.values.paymentMethod} appliedCouponIds={cart.data.appliedCouponIds} previewCoupons={preview.data?.coupons ?? (preview.data?.coupon ? [preview.data.coupon] : [])} isPreviewLoading={isCouponPreviewLoading} />
 
-              {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><h2 className="font-bold text-ink">{t("tipTitle")}</h2><p className="mt-1 text-xs text-muted">{t("tipDescription")}</p><div className="mt-4 flex flex-wrap gap-2">{TIP_OPTIONS.map((tip) => <button key={tip} type="button" onClick={() => void formik.setFieldValue("riderTip", tip)} className={`min-h-10 rounded-full border px-4 text-sm font-semibold ${formik.values.riderTip === tip ? "border-brand bg-brand text-ink" : "border-line text-ink hover:border-brand/40"}`}>{tip === 0 ? t("noTip") : `${tip}${currencySymbol}`}</button>)}<label className="flex h-11 min-w-36 items-center rounded-full border border-line bg-surface px-4 text-sm text-muted transition-colors focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10"><input aria-label={t("customTip")} inputMode="decimal" type="number" min="0" max="10000" step="0.01" name="riderTip" value={TIP_OPTIONS.includes(formik.values.riderTip) ? "" : formik.values.riderTip} onChange={(event) => void formik.setFieldValue("riderTip", Number(event.target.value) || 0)} placeholder={t("customTip")} className="w-24 appearance-none bg-transparent px-1 text-base text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" /><span>{currencySymbol}</span></label></div><FieldError message={formik.touched.riderTip ? formik.errors.riderTip : undefined} /></section> : null}
+              {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><h2 className="font-bold text-ink">{t("tipTitle")}</h2><p className="mt-1 text-xs text-muted">{t("tipDescription")}</p><div className="mt-4 flex flex-wrap gap-2">{tipOptions.map((tip) => <button key={tip} type="button" onClick={() => void formik.setFieldValue("riderTip", tip)} className={`min-h-10 rounded-full border px-4 text-sm font-semibold ${formik.values.riderTip === tip ? "border-brand bg-brand text-ink" : "border-line text-ink hover:border-brand/40"}`}>{tip === 0 ? t("noTip") : `${format.number(tip, { maximumFractionDigits: 2 })}${currencySymbol}`}</button>)}<label className="flex h-11 min-w-36 items-center rounded-full border border-line bg-surface px-4 text-sm text-muted transition-colors focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10"><input aria-label={t("customTip")} inputMode="decimal" type="number" min="0" max="10000" step="0.01" name="riderTip" value={tipOptions.includes(formik.values.riderTip) ? "" : formik.values.riderTip} onChange={(event) => void formik.setFieldValue("riderTip", Number(event.target.value) || 0)} placeholder={t("customTip")} className="w-24 appearance-none bg-transparent px-1 text-base text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" /><span>{currencySymbol}</span></label></div><FieldError message={formik.touched.riderTip ? formik.errors.riderTip : undefined} /></section> : null}
 
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MessageSquareText aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("notesTitle")}</h2><p className="text-xs text-muted">{t("notesDescription")}</p></div></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-xs font-semibold text-ink">{t("restaurantNote")}<textarea name="restaurantNote" maxLength={250} rows={3} value={formik.values.restaurantNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("restaurantNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.restaurantNote ? formik.errors.restaurantNote : undefined} /></label>{formik.values.orderType === "delivery" ? <label className="text-xs font-semibold text-ink">{t("courierNote")}<textarea name="courierNote" maxLength={250} rows={3} value={formik.values.courierNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("courierNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.courierNote ? formik.errors.courierNote : undefined} /></label> : null}</div></section>
 
