@@ -316,7 +316,8 @@
       "COUPON_USAGE_LIMIT": "Cette offre est épuisée et ne peut plus être utilisée.",
       "COUPON_USER_LIMIT": "Vous avez déjà utilisé cette offre le nombre maximal de fois ({count, plural, one {# utilisation} other {# utilisations}}).",
       "STORE_MINIMUM_AFTER_COUPON": "Avec cette offre, votre commande s’élève à {total}, sous le minimum de {minimum} de cet établissement. Ajoutez {remaining} ou retirez l’offre."
-    }
+    },
+    "youSave": "Vous économisez {amount}"
   },
   "accountSecurity": {
     "title": "Sécurité du compte",
@@ -1693,11 +1694,11 @@
       "placingOrder": "Commande...",
       "securePayment": "Paiement sécurisé et prix confirmé",
       "couponChecking": "Vérification de votre offre…",
-      "couponAppliedCode": "Offre {code} appliquée. Votre total a été mis à jour.",
       "couponNotAppliedCode": "L’offre {code} n’a pas été appliquée.",
       "couponFixToContinue": "Retirez l’offre ou modifiez votre commande pour qu’elle soit éligible afin de continuer.",
-      "chooseOtherCoupon": "{count, plural, one {Passer à # autre offre} other {Passer à l’une des # autres offres}}",
-      "storeMinimumNotMet": "Votre commande est inférieure au minimum de cet établissement. Ajoutez des articles pour continuer."
+      "storeMinimumNotMet": "Votre commande est inférieure au minimum de cet établissement. Ajoutez des articles pour continuer.",
+      "couponsAppliedSaving": "{count, plural, one {# offre appliquée} other {# offres appliquées}}. Vous économisez {amount}.",
+      "addAnotherCoupon": "{count, plural, one {Ajouter # autre offre} other {Ajouter une autre offre (# disponibles)}}"
     }
   },
   "about": {

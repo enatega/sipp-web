@@ -12,11 +12,11 @@ interface Props {
   isPlacing: boolean;
   disabled: boolean;
   paymentMethod: CheckoutPaymentMethod;
-  /** An applied coupon that the server refused for this checkout. */
-  couponIssue?: { code: string; message: string } | null;
+  /** Applied coupons the server refused for this checkout. */
+  couponIssues?: Array<{ code: string; message: string }>;
 }
 
-export function CheckoutSummary({ preview, isLoading, isPlacing, disabled, paymentMethod, couponIssue }: Props) {
+export function CheckoutSummary({ preview, isLoading, isPlacing, disabled, paymentMethod, couponIssues = [] }: Props) {
   const t = useTranslations("deliveries.checkout");
   const format = useFormatter();
   const formatAppCurrency = useAppCurrencyFormatter();
@@ -47,10 +47,15 @@ export function CheckoutSummary({ preview, isLoading, isPlacing, disabled, payme
         </>
       ) : <p className="mt-5 rounded-xl bg-[var(--soft-surface)] p-4 text-sm leading-6 text-body">{t("completeDetails")}</p>}
 
-      {couponIssue && !isLoading ? (
-        <div role="alert" className="mt-5 flex items-start gap-2 rounded-xl bg-danger-soft p-4 text-xs leading-5 text-danger">
-          <CircleAlert className="mt-0.5 size-4 flex-none" aria-hidden="true" />
-          <p><strong className="block font-bold">{t("couponNotAppliedCode", { code: couponIssue.code })}</strong>{couponIssue.message} {t("couponFixToContinue")}</p>
+      {couponIssues.length && !isLoading ? (
+        <div role="alert" className="mt-5 grid gap-3 rounded-xl bg-danger-soft p-4 text-xs leading-5 text-danger">
+          {couponIssues.map((issue) => (
+            <div key={issue.code} className="flex items-start gap-2">
+              <CircleAlert className="mt-0.5 size-4 flex-none" aria-hidden="true" />
+              <p><strong className="block font-bold">{t("couponNotAppliedCode", { code: issue.code })}</strong>{issue.message}</p>
+            </div>
+          ))}
+          <p className="font-semibold">{t("couponFixToContinue")}</p>
         </div>
       ) : null}
 

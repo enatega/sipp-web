@@ -316,7 +316,8 @@
       "COUPON_USAGE_LIMIT": "نفد هذا العرض ولم يعد بالإمكان استخدامه.",
       "COUPON_USER_LIMIT": "لقد استخدمت هذا العرض الحد الأقصى من المرات ({count, plural, one {مرة واحدة} other {# مرات}}).",
       "STORE_MINIMUM_AFTER_COUPON": "مع هذا العرض يصبح طلبك {total}، وهو أقل من الحد الأدنى للطلب لدى هذا المتجر ({minimum}). أضف {remaining} أو أزل العرض."
-    }
+    },
+    "youSave": "توفّر {amount}"
   },
   "accountSecurity": {
     "title": "الضمان",
@@ -1693,11 +1694,11 @@
       "placingOrder": "طلب التعبئة...",
       "securePayment": "تأمين الدفع والتسعير المدعم",
       "couponChecking": "جارٍ التحقق من عرضك…",
-      "couponAppliedCode": "تم تطبيق العرض {code}. تم تحديث الإجمالي.",
       "couponNotAppliedCode": "لم يتم تطبيق العرض {code}.",
       "couponFixToContinue": "أزل العرض أو عدّل طلبك ليصبح مؤهلًا للمتابعة.",
-      "chooseOtherCoupon": "{count, plural, one {التبديل إلى عرض آخر} other {التبديل إلى أحد # عروض أخرى}}",
-      "storeMinimumNotMet": "طلبك أقل من الحد الأدنى للطلب لدى هذا المتجر. أضف المزيد من المنتجات للمتابعة."
+      "storeMinimumNotMet": "طلبك أقل من الحد الأدنى للطلب لدى هذا المتجر. أضف المزيد من المنتجات للمتابعة.",
+      "couponsAppliedSaving": "{count, plural, one {تم تطبيق عرض واحد} other {تم تطبيق # عروض}}. توفّر {amount}.",
+      "addAnotherCoupon": "{count, plural, one {أضف عرضًا آخر} other {أضف عرضًا آخر (# متاحة)}}"
     }
   },
   "about": {

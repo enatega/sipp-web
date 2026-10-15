@@ -13,6 +13,7 @@ export const couponsApi = {
   claim(code: string) {
     return postJson<ClaimCouponResponse>(apiRoutes.profileCoupons, { code });
   },
+  /** The web stacks coupons: activating adds one, deactivating removes only that one. */
   setActive(id: string, isActive: boolean) {
     return postJson<{ success: boolean; message: string }>(
       `${apiRoutes.profileCoupons}/${encodeURIComponent(id)}`,

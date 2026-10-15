@@ -316,7 +316,8 @@
       "COUPON_USAGE_LIMIT": "This offer has been fully redeemed and can’t be used anymore.",
       "COUPON_USER_LIMIT": "You’ve already used this offer the maximum number of times ({count, plural, one {# use} other {# uses}}).",
       "STORE_MINIMUM_AFTER_COUPON": "With this offer your order comes to {total}, below this business’s {minimum} minimum order. Add {remaining} more or remove the offer."
-    }
+    },
+    "youSave": "You save {amount}"
   },
   "accountSecurity": {
     "title": "Account security",
@@ -1693,11 +1694,11 @@
       "placingOrder": "Placing order…",
       "securePayment": "Secure payment and backend-confirmed pricing",
       "couponChecking": "Checking your offer…",
-      "couponAppliedCode": "Offer {code} applied. Your total has been updated.",
       "couponNotAppliedCode": "Offer {code} was not applied.",
       "couponFixToContinue": "Remove the offer, or change your order so it qualifies, to continue.",
-      "chooseOtherCoupon": "{count, plural, one {Switch to # other offer} other {Switch to one of # other offers}}",
-      "storeMinimumNotMet": "Your order is below this business’s minimum order amount. Add more items to continue."
+      "storeMinimumNotMet": "Your order is below this business’s minimum order amount. Add more items to continue.",
+      "couponsAppliedSaving": "{count, plural, one {# offer applied} other {# offers applied}}. You save {amount}.",
+      "addAnotherCoupon": "{count, plural, one {Add # more offer} other {Add another offer (# available)}}"
     }
   },
   "about": {
