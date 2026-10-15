@@ -1727,6 +1727,8 @@
       "placingOrderMessage": "We are confirming your items, total, and payment securely.",
       "orderTakingLongerTitle": "Your order is still processing",
       "orderTakingLongerMessage": "This is taking a little longer than usual. Keep this window open—we are checking the same order and will not charge you twice.",
+      "paymentNavigationBlockedTitle": "Please wait for confirmation",
+      "paymentNavigationBlockedMessage": "Your order and payment are still being confirmed. Stay on this page until we show the result.",
       "checkingOrderTitle": "Checking your order",
       "checkingOrderMessage": "The response was delayed, so we are safely checking whether your order was already placed.",
       "doNotRetryOrder": "Please do not refresh or submit another payment.",

@@ -129,6 +129,8 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const [isCancellationNoticeVisible, setIsCancellationNoticeVisible] = useState(wasCardPaymentCancelled);
   const [checkoutProgressStage, setCheckoutProgressStage] =
     useState<Exclude<CheckoutProgressStage, "success"> | null>(null);
+  const [wasPaymentNavigationBlocked, setWasPaymentNavigationBlocked] =
+    useState(false);
   const [completedOrder, setCompletedOrder] = useState<{
     orderId: string;
     paymentMethod: "wallet" | "stripe";
@@ -174,6 +176,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           return;
         }
       }
+      setWasPaymentNavigationBlocked(false);
       setSubmitError("");
       setIsOrderConfirmationUnknown(false);
       const input: PlaceOrderInput = {
@@ -347,6 +350,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     preview.isError &&
     !isAddressPreviewError &&
     preview.error !== dismissedPreviewError;
+  const isCheckoutRequestActive = checkoutProgressStage !== null;
 
 
   useEffect(() => {
@@ -355,6 +359,33 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       router.replace("/cart");
     }
   }, [authenticated, router, session.isPending]);
+
+  useEffect(() => {
+    if (!isCheckoutRequestActive) return;
+
+    const currentState = window.history.state;
+    window.history.pushState(
+      { ...currentState, sippCheckoutRequestGuard: true },
+      "",
+      window.location.href,
+    );
+
+    const keepCheckoutOpen = () => {
+      setWasPaymentNavigationBlocked(true);
+      window.history.forward();
+    };
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("popstate", keepCheckoutOpen);
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => {
+      window.removeEventListener("popstate", keepCheckoutOpen);
+      window.removeEventListener("beforeunload", warnBeforeLeaving);
+    };
+  }, [isCheckoutRequestActive]);
 
   useEffect(() => {
     const orderId = stripeOrderStatus.data?.orderId;
@@ -610,7 +641,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         />
       ) : null}
       {isWalletDialogOpen ? <div className="fixed inset-0 z-[90] grid place-items-center bg-black/55 p-4" role="dialog" aria-modal="true" aria-labelledby="wallet-insufficient-title"><div className="w-full max-w-sm rounded-3xl border border-line bg-card p-6 shadow-pop"><span className="grid size-11 place-items-center rounded-full bg-brand/10 text-brand"><WalletCards aria-hidden="true" className="size-5" /></span><h2 id="wallet-insufficient-title" className="mt-4 text-lg font-bold text-ink">{t("walletInsufficientTitle")}</h2><p className="mt-2 text-sm leading-6 text-body">{t("walletInsufficientMessage")}</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setIsWalletDialogOpen(false)} className="min-h-10 rounded-full px-4 text-sm font-semibold text-body hover:bg-[var(--soft-surface)]">{t("close")}</button><Link href={walletTopUpHref} onClick={() => setIsWalletDialogOpen(false)} className="inline-flex min-h-10 items-center rounded-full bg-brand px-5 text-sm font-bold text-ink">{t("upgradeWallet")}</Link></div></div></div> : null}
-      {checkoutProgressStage ? <CheckoutOrderProgressDialog paymentMethod={formik.values.paymentMethod} stage={checkoutProgressStage} onViewOrder={() => undefined} /> : null}
+      {checkoutProgressStage ? <CheckoutOrderProgressDialog navigationAttempted={wasPaymentNavigationBlocked} paymentMethod={formik.values.paymentMethod} stage={checkoutProgressStage} onViewOrder={() => undefined} /> : null}
     </>
   );
 }

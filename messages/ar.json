@@ -1696,6 +1696,8 @@
       "placingOrderMessage": "نتحقق بأمان من العناصر والمبلغ الإجمالي والدفع.",
       "orderTakingLongerTitle": "لا يزال طلبك قيد المعالجة",
       "orderTakingLongerMessage": "يستغرق الأمر وقتًا أطول من المعتاد. أبقِ هذه النافذة مفتوحة؛ نحن نتحقق من الطلب نفسه ولن نفرض الرسوم مرتين.",
+      "paymentNavigationBlockedTitle": "يرجى انتظار التأكيد",
+      "paymentNavigationBlockedMessage": "لا يزال طلبك والدفع قيد التأكيد. ابقَ في هذه الصفحة حتى نعرض النتيجة.",
       "checkingOrderTitle": "جارٍ التحقق من طلبك",
       "checkingOrderMessage": "تأخرت الاستجابة، لذلك نتحقق بأمان مما إذا كان طلبك قد تم تقديمه بالفعل.",
       "doNotRetryOrder": "يرجى عدم تحديث الصفحة أو إرسال دفعة أخرى.",

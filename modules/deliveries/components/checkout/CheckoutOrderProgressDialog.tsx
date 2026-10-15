@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 export type CheckoutProgressStage = "placing" | "checking" | "success";
 
 interface Props {
+  navigationAttempted?: boolean;
   orderId?: string;
   paymentMethod: "wallet" | "stripe";
   stage: CheckoutProgressStage;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function CheckoutOrderProgressDialog({
+  navigationAttempted = false,
   orderId,
   paymentMethod,
   stage,
@@ -38,7 +40,9 @@ export function CheckoutOrderProgressDialog({
     ? paymentMethod === "stripe"
       ? t("paymentSuccessTitle")
       : t("orderSuccessTitle")
-    : stage === "checking"
+    : navigationAttempted
+      ? t("paymentNavigationBlockedTitle")
+      : stage === "checking"
       ? t("checkingOrderTitle")
       : isTakingLonger
         ? t("orderTakingLongerTitle")
@@ -47,7 +51,9 @@ export function CheckoutOrderProgressDialog({
     ? paymentMethod === "stripe"
       ? t("paymentSuccessMessage")
       : t("orderSuccessMessage")
-    : stage === "checking"
+    : navigationAttempted
+      ? t("paymentNavigationBlockedMessage")
+      : stage === "checking"
       ? t("checkingOrderMessage")
       : isTakingLonger
         ? t("orderTakingLongerMessage")

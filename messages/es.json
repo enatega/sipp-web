@@ -1696,6 +1696,8 @@
       "placingOrderMessage": "Estamos confirmando tus artículos, el total y el pago de forma segura.",
       "orderTakingLongerTitle": "Tu pedido aún se está procesando",
       "orderTakingLongerMessage": "Está tardando un poco más de lo normal. Mantén esta ventana abierta; verificamos el mismo pedido y no cobraremos dos veces.",
+      "paymentNavigationBlockedTitle": "Espera la confirmación",
+      "paymentNavigationBlockedMessage": "Tu pedido y el pago aún se están confirmando. Permanece en esta página hasta que mostremos el resultado.",
       "checkingOrderTitle": "Comprobando tu pedido",
       "checkingOrderMessage": "La respuesta se retrasó, así que estamos comprobando de forma segura si el pedido ya fue realizado.",
       "doNotRetryOrder": "No actualices ni envíes otro pago.",

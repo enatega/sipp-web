@@ -1694,6 +1694,8 @@
       "placingOrderMessage": "Nous confirmons vos articles, le total et le paiement de façon sécurisée.",
       "orderTakingLongerTitle": "Votre commande est toujours en cours",
       "orderTakingLongerMessage": "Cela prend un peu plus de temps que prévu. Gardez cette fenêtre ouverte : nous vérifions la même commande sans vous facturer deux fois.",
+      "paymentNavigationBlockedTitle": "Veuillez attendre la confirmation",
+      "paymentNavigationBlockedMessage": "Votre commande et votre paiement sont toujours en cours de confirmation. Restez sur cette page jusqu’à l’affichage du résultat.",
       "checkingOrderTitle": "Vérification de votre commande",
       "checkingOrderMessage": "La réponse est retardée. Nous vérifions en toute sécurité si votre commande a déjà été passée.",
       "doNotRetryOrder": "N’actualisez pas la page et n’effectuez pas un autre paiement.",

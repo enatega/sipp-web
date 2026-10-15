@@ -1725,6 +1725,8 @@
       "placingOrderMessage": "Wir bestätigen Ihre Artikel, den Gesamtbetrag und die Zahlung sicher.",
       "orderTakingLongerTitle": "Ihre Bestellung wird noch verarbeitet",
       "orderTakingLongerMessage": "Dies dauert etwas länger als üblich. Lassen Sie dieses Fenster geöffnet – wir prüfen dieselbe Bestellung und belasten Sie nicht doppelt.",
+      "paymentNavigationBlockedTitle": "Bitte warten Sie auf die Bestätigung",
+      "paymentNavigationBlockedMessage": "Ihre Bestellung und Zahlung werden noch bestätigt. Bleiben Sie auf dieser Seite, bis das Ergebnis angezeigt wird.",
       "checkingOrderTitle": "Bestellung wird geprüft",
       "checkingOrderMessage": "Die Antwort hat sich verzögert. Wir prüfen sicher, ob Ihre Bestellung bereits aufgegeben wurde.",
       "doNotRetryOrder": "Bitte nicht aktualisieren oder eine weitere Zahlung absenden.",
