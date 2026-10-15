@@ -115,37 +115,31 @@ export function OrderRouteMap({ order, storeName }: Props) {
     () => point(details?.storeLatitude, details?.storeLongitude),
     [details?.storeLatitude, details?.storeLongitude],
   );
-  const destinationPoint = useMemo(
-    () => point(details?.latitude, details?.longitude),
-    [details?.latitude, details?.longitude],
-  );
+  const isPickup = order.orderType === "pickup";
+  const destinationPoint = useMemo(() => {
+    if (isPickup) return store;
+    return point(details?.latitude, details?.longitude);
+  }, [details?.latitude, details?.longitude, isPickup, store]);
   const rider = useMemo(
     () => plausibleRiderPoint(riderPoint(order), [store, destinationPoint]),
-    [
-      store,
-      destinationPoint,
-      order.eta?.riderLocation?.latitude,
-      order.eta?.riderLocation?.longitude,
-      order.rider?.currentLocation?.latitude,
-      order.rider?.currentLocation?.longitude,
-      order.rider?.latitude,
-      order.rider?.longitude,
-    ],
+    [destinationPoint, order, store],
   );
-  const isPickup = order.orderType === "pickup";
   const isPostPickup =
     order.orderType === "delivery" &&
     POST_PICKUP_STATUSES.has(order.status.trim().toLowerCase());
-  const routeOrigin = isPostPickup ? rider : store;
-  const routeDestination = destinationPoint;
+  const routeOrigin = isPickup ? null : isPostPickup ? rider : store;
+  const routeDestination = isPickup ? null : destinationPoint;
   const routePathQuery = useOrderRoutePath(routeOrigin, routeDestination, {
     staleTime: order.orderType === "delivery" ? 2 * 60 * 1_000 : 10 * 60 * 1_000,
   });
-  const routePath = routePathQuery.data ?? [];
-  const visibleEndpoints = useMemo(
-    () => [routeOrigin, routeDestination].filter(Boolean) as Coordinate[],
-    [routeDestination, routeOrigin],
+  const routePath = useMemo(
+    () => routePathQuery.data ?? [],
+    [routePathQuery.data],
   );
+  const visibleEndpoints = useMemo(() => {
+    if (isPickup) return store ? [store] : [];
+    return [routeOrigin, routeDestination].filter(Boolean) as Coordinate[];
+  }, [isPickup, routeDestination, routeOrigin, store]);
   const fitCoordinates = useMemo(
     () =>
       routePath.length >= 2
@@ -172,14 +166,14 @@ export function OrderRouteMap({ order, storeName }: Props) {
       routeOrigin.lat === routeDestination.lat &&
       routeOrigin.lng === routeDestination.lng,
   );
-  const destination = details?.address || t("notAvailable");
+  const destination =
+    (isPickup ? order.store?.address : details?.address) || t("notAvailable");
   const canRenderMap = Boolean(
     apiKey &&
       isLoaded &&
       !loadError &&
       center &&
-      destinationPoint &&
-      (store || rider),
+      (isPickup ? store : destinationPoint && (store || rider)),
   );
 
   const handleMapLoad = useCallback(
@@ -233,10 +227,10 @@ export function OrderRouteMap({ order, storeName }: Props) {
                 icon={createMarkerIcon("#66c0f2")}
                 label={{ color: "#ffffff", fontSize: "12px", fontWeight: "700", text: "S" }}
                 position={store}
-                title={t("mapStore")}
+                title={isPickup ? t("mapPickup") : t("mapStore")}
               />
             ) : null}
-            {destinationPoint ? (
+            {!isPickup && destinationPoint ? (
               <MarkerF
                 icon={createMarkerIcon("#177456")}
                 label={{ color: "#ffffff", fontSize: "12px", fontWeight: "700", text: "D" }}
@@ -281,15 +275,21 @@ export function OrderRouteMap({ order, storeName }: Props) {
             {(!isPostPickup && store) || (isPostPickup && rider) ? (
               <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-bold text-body">
                 <span className={`grid size-5 place-items-center rounded-full text-[9px] text-white ${isPostPickup ? "bg-danger" : "bg-brand"}`}>
-                  {isPostPickup ? "R" : "S"}
+                  {isPostPickup ? "R" : isPickup ? "P" : "S"}
                 </span>
-                {isPostPickup ? t("mapRider") : t("mapStore")}
+                {isPostPickup
+                  ? t("mapRider")
+                  : isPickup
+                    ? t("mapPickup")
+                    : t("mapStore")}
               </span>
             ) : null}
-            <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-bold text-body">
-              <span className="grid size-5 place-items-center rounded-full bg-success text-[9px] text-white">D</span>
-              {isPickup ? t("mapPickup") : t("mapDestination")}
-            </span>
+            {!isPickup ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-bold text-body">
+                <span className="grid size-5 place-items-center rounded-full bg-success text-[9px] text-white">D</span>
+                {t("mapDestination")}
+              </span>
+            ) : null}
           </div>
         ) : null}
       </div>

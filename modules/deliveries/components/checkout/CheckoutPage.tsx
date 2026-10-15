@@ -21,6 +21,10 @@ import { CheckoutCouponSection } from "./CheckoutCouponSection";
 import { CheckoutSavedCardPicker } from "./CheckoutSavedCardPicker";
 import { CheckoutSummary } from "./CheckoutSummary";
 import { CheckoutPhoneVerification } from "./CheckoutPhoneVerification";
+import {
+  CheckoutOrderProgressDialog,
+  type CheckoutProgressStage,
+} from "./CheckoutOrderProgressDialog";
 import { StripePaymentModal } from "./StripePaymentModal";
 import { clearCheckoutNotesDraft, readCheckoutNotesDraft, writeCheckoutNotesDraft } from "../../utils/checkoutNotesDraft";
 import { isStripeCheckoutUrl } from "../../utils/stripeCheckoutUrl";
@@ -123,6 +127,12 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const [isStripeConfirmed, setIsStripeConfirmed] = useState(false);
   const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
   const [isCancellationNoticeVisible, setIsCancellationNoticeVisible] = useState(wasCardPaymentCancelled);
+  const [checkoutProgressStage, setCheckoutProgressStage] =
+    useState<Exclude<CheckoutProgressStage, "success"> | null>(null);
+  const [completedOrder, setCompletedOrder] = useState<{
+    orderId: string;
+    paymentMethod: "wallet" | "stripe";
+  } | null>(null);
   const addressTriggerRef = useRef<HTMLButtonElement>(null);
   const checkoutAlertRegionRef = useRef<HTMLDivElement>(null);
   const activeAddressOverride =
@@ -182,6 +192,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           : {}),
         customerNote: buildNote(values),
       };
+      setCheckoutProgressStage("placing");
       try {
         const response = await placeOrder.mutateAsync({
           storeId: cart.data.storeId,
@@ -202,11 +213,17 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         clearCheckoutNotesDraft(cart.data.bucketId);
         if (response.mode === "stripe") {
           if (response.orderId) {
-            router.push(`/orders/${response.orderId}`);
+            setCheckoutProgressStage(null);
+            setCompletedOrder({
+              orderId: response.orderId,
+              paymentMethod: "stripe",
+            });
+            void refetchCart();
             return;
           }
           if (response.checkoutUrl) {
             if (!isStripeCheckoutUrl(response.checkoutUrl)) {
+              setCheckoutProgressStage(null);
               showSubmitError(t("paymentRedirectError"));
               return;
             }
@@ -214,9 +231,11 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
             return;
           }
           if (!response.clientSecret) {
+            setCheckoutProgressStage(null);
             showSubmitError(t("paymentRedirectError"));
             return;
           }
+          setCheckoutProgressStage(null);
           setStripePayment({
             clientSecret: response.clientSecret,
             draftId: response.draftId,
@@ -229,39 +248,54 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           );
           return;
         }
-        router.push(`/orders/${response.orderId}`);
+        setCheckoutProgressStage(null);
+        setCompletedOrder({
+          orderId: response.orderId,
+          paymentMethod: "wallet",
+        });
+        void refetchCart();
         unconfirmedAttemptRef.current = null;
       } catch (error) {
         if (error instanceof ApiError && /PHONE_VERIFICATION_REQUIRED/.test(error.message)) {
+          setCheckoutProgressStage(null);
           await profile.refetch();
           showSubmitError(t("phoneVerificationNeededAgain"));
           return;
         }
         if (!(error instanceof ApiError) || error.status === 408 || error.status >= 500) {
-          for (let attempt = 0; attempt < 3; attempt += 1) {
-            if (attempt > 0) {
-              await new Promise<void>((resolve) => window.setTimeout(resolve, 1_500));
+          setCheckoutProgressStage("checking");
+          const lookupDelays = [0, 1_500, 3_000, 5_000];
+          for (const delay of lookupDelays) {
+            if (delay > 0) {
+              await new Promise<void>((resolve) => window.setTimeout(resolve, delay));
             }
             try {
               const placed = await lookupPlacedOrder({ bucketId: input.bucketId, storeId: input.storeId });
               if (placed.orderId) {
                 void refetchCart();
-                router.push(`/orders/${placed.orderId}`);
+                setCheckoutProgressStage(null);
+                setCompletedOrder({
+                  orderId: placed.orderId,
+                  paymentMethod: input.paymentMethod,
+                });
                 return;
               }
             } catch (lookupError) {
               if (lookupError instanceof ApiError && (lookupError.status === 401 || lookupError.status === 403)) {
+                setCheckoutProgressStage(null);
                 setIsOrderConfirmationUnknown(true);
                 showSubmitError(checkoutErrorMessage(lookupError));
                 return;
               }
             }
           }
+          setCheckoutProgressStage(null);
           unconfirmedAttemptRef.current = { bucketId: input.bucketId, paymentMethod: input.paymentMethod };
           setIsOrderConfirmationUnknown(true);
           showSubmitError(t("orderConfirmationUnknown"));
           return;
         }
+        setCheckoutProgressStage(null);
         if (isMissingCartBucketError(error)) {
           await refetchCart();
           showSubmitError(t("orderChangedError"));
@@ -325,9 +359,24 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   useEffect(() => {
     const orderId = stripeOrderStatus.data?.orderId;
     if (!orderId) return;
-    void refetchCart();
-    router.push(`/orders/${orderId}`);
-  }, [refetchCart, router, stripeOrderStatus.data?.orderId]);
+    const timeout = window.setTimeout(() => {
+      setCheckoutProgressStage(null);
+      setCompletedOrder((current) =>
+        current ?? { orderId, paymentMethod: "stripe" },
+      );
+      void refetchCart();
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [refetchCart, stripeOrderStatus.data?.orderId]);
+
+  useEffect(() => {
+    if (!completedOrder) return;
+    const timeout = window.setTimeout(
+      () => router.replace(`/orders/${completedOrder.orderId}`),
+      1_800,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [completedOrder, router]);
 
   useEffect(() => {
     if (isMissingCartBucketError(preview.error)) {
@@ -438,6 +487,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   }
   if (cart.isError || !cart.data) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button type="button" onClick={() => void cart.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
   if (profile.isError || !profile.data?.data?.user) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("phoneVerificationProfileError")}</h1><button type="button" onClick={() => void profile.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
+  if (completedOrder) return <><Header /><main className="min-h-[65vh] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_320px)]" /><CheckoutOrderProgressDialog orderId={completedOrder.orderId} paymentMethod={completedOrder.paymentMethod} stage="success" onViewOrder={() => router.replace(`/orders/${completedOrder.orderId}`)} /></>;
   if (cart.data.isEmpty) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><ShoppingBag aria-hidden="true" className="mx-auto size-10 text-brand" /><h1 className="mt-4 text-xl font-bold text-ink">{t("emptyTitle")}</h1><p className="mt-2 text-sm text-body">{t("emptyMessage")}</p><div className="mt-5 flex flex-wrap justify-center gap-3"><Link href="/orders" className="inline-flex rounded-full border border-line px-6 py-3 text-sm font-bold text-ink">{t("viewOrders")}</Link><Link href="/discovery" className="inline-flex rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("browseFood")}</Link></div></div></main></>;
   if (profile.data.data.user.phone_verification_required ?? (!profile.data.data.user.phone || !profile.data.data.user.phone_is_verified)) return <CheckoutPhoneVerification initialPhone={profile.data.data.user.phone} onVerified={() => profile.refetch()} />;
 
@@ -560,6 +610,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         />
       ) : null}
       {isWalletDialogOpen ? <div className="fixed inset-0 z-[90] grid place-items-center bg-black/55 p-4" role="dialog" aria-modal="true" aria-labelledby="wallet-insufficient-title"><div className="w-full max-w-sm rounded-3xl border border-line bg-card p-6 shadow-pop"><span className="grid size-11 place-items-center rounded-full bg-brand/10 text-brand"><WalletCards aria-hidden="true" className="size-5" /></span><h2 id="wallet-insufficient-title" className="mt-4 text-lg font-bold text-ink">{t("walletInsufficientTitle")}</h2><p className="mt-2 text-sm leading-6 text-body">{t("walletInsufficientMessage")}</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setIsWalletDialogOpen(false)} className="min-h-10 rounded-full px-4 text-sm font-semibold text-body hover:bg-[var(--soft-surface)]">{t("close")}</button><Link href={walletTopUpHref} onClick={() => setIsWalletDialogOpen(false)} className="inline-flex min-h-10 items-center rounded-full bg-brand px-5 text-sm font-bold text-ink">{t("upgradeWallet")}</Link></div></div></div> : null}
+      {checkoutProgressStage ? <CheckoutOrderProgressDialog paymentMethod={formik.values.paymentMethod} stage={checkoutProgressStage} onViewOrder={() => undefined} /> : null}
     </>
   );
 }
