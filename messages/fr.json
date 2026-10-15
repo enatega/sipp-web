@@ -567,6 +567,7 @@
     "addCard": "Ajouter une carte",
     "preparingCard": "Préparation de la carte...",
     "manageCards": "Gérer les cartes",
+    "viewAllCards": "Tout afficher ({count})",
     "prepareCardError": "Nous n'avons pas pu préparer une entrée sécurisée. Veuillez réessayer.",
     "transactionsTitle": "Opérations récentes",
     "transactionsSubtitle": "Paiements, remboursements et activité de solde à partir des commandes de livraison.",

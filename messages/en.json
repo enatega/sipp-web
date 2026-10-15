@@ -585,6 +585,7 @@
     "addCard": "Add card",
     "preparingCard": "Preparing card…",
     "manageCards": "Manage cards",
+    "viewAllCards": "View all ({count})",
     "prepareCardError": "We could not prepare secure card entry. Please try again.",
     "transactionsTitle": "Recent transactions",
     "transactionsSubtitle": "Payments, refunds, and balance activity from delivery orders.",

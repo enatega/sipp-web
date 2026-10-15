@@ -396,8 +396,9 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
                   <h2 className="text-lg font-bold text-ink">{t("cardsTitle")}</h2>
                   <p className="mt-0.5 text-xs text-muted">{t("cardsSubtitle")}</p>
                 </div>
-                <Link aria-label={t("manageCards")} className="grid size-10 place-items-center rounded-full text-brand transition-colors hover:bg-brand/5" href="/profile/saved-cards">
-                  <ChevronRight aria-hidden="true" className="size-5" />
+                <Link aria-label={savedCards.length ? t("viewAllCards", { count: savedCards.length }) : t("manageCards")} className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full px-3 text-xs font-bold text-brand transition-colors hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" href="/profile/saved-cards">
+                  <span>{savedCards.length ? t("viewAllCards", { count: savedCards.length }) : t("manageCards")}</span>
+                  <ChevronRight aria-hidden="true" className="size-4 rtl:rotate-180" />
                 </Link>
               </div>
 
@@ -423,7 +424,7 @@ export function WalletDashboard({ initialTopUpAmount = null, returnToCheckout = 
                 </div>
               ) : savedCards.length ? (
                 <div className="mt-3">
-                  {savedCards.slice(0, 3).map((card) => (
+                  {savedCards.slice(0, 2).map((card) => (
                     <SavedCardRow card={card} isBusy={setDefault.isPending} isCurrent={setDefault.isPending && setDefault.variables === card.id} key={card.id} onSetDefault={() => void makeDefault(card)} />
                   ))}
                 </div>

@@ -585,6 +585,7 @@
     "addCard": "Karte hinzufügen",
     "preparingCard": "Karte wird vorbereitet…",
     "manageCards": "Karten verwalten",
+    "viewAllCards": "Alle anzeigen ({count})",
     "prepareCardError": "Die sichere Karteneingabe konnte nicht vorbereitet werden. Bitte versuchen Sie es erneut.",
     "transactionsTitle": "Letzte Transaktionen",
     "transactionsSubtitle": "Zahlungen, Erstattungen und Guthabenaktivitäten aus Lieferbestellungen.",

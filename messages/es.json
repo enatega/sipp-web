@@ -567,6 +567,7 @@
     "addCard": "Añadir tarjeta",
     "preparingCard": "Preparando la tarjeta...",
     "manageCards": "Gestionar tarjetas",
+    "viewAllCards": "Ver todas ({count})",
     "prepareCardError": "No podríamos preparar la entrada segura de la tarjeta. Por favor, inténtalo de nuevo.",
     "transactionsTitle": "Transacciones recientes",
     "transactionsSubtitle": "Pagos, reembolsos y actividad de balance de las órdenes de entrega.",

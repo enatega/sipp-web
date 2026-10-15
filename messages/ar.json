@@ -567,6 +567,7 @@
     "addCard": "بطاقة",
     "preparingCard": "بطاقة تحضير...",
     "manageCards": "بطاقات إدارة",
+    "viewAllCards": "عرض الكل ({count})",
     "prepareCardError": "لا يمكننا أن نجهز دخولاً آمناً حاول مرة أخرى",
     "transactionsTitle": "المعاملات الأخيرة",
     "transactionsSubtitle": "المدفوعات والمبالغ المستردة والنشاط المتوازن من أوامر التسليم.",
