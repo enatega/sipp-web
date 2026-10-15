@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   CalendarDays,
@@ -22,6 +22,7 @@ import { OrderRiderChatDialog } from "./order-detail/OrderRiderChatDialog";
 import { OrderItemsPanel } from "./order-detail/OrderItemsPanel";
 import { OrderRouteMap } from "./order-detail/OrderRouteMap";
 import { OrderReviewDrawer } from "./order-detail/OrderReviewDrawer";
+import { OrderCompletionDialog } from "./order-detail/OrderCompletionDialog";
 import { OrderStatusPanel } from "./order-detail/OrderStatusPanel";
 import { OrderSummaryPanel } from "./order-detail/OrderSummaryPanel";
 import {
@@ -41,6 +42,10 @@ import {
   RATEABLE_ORDER_STATUSES,
   TERMINAL_ORDER_STATUSES,
 } from "../utils/orderDetail";
+import {
+  hasSeenOrderCompletionPrompt,
+  markOrderCompletionPromptSeen,
+} from "../utils/orderCompletionPrompt";
 
 interface Props {
   orderId: string;
@@ -63,14 +68,40 @@ export function OrderDetailExperience({ orderId }: Props) {
   );
   const orderAgain = useOrderAgain();
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isCompletionOpen, setIsCompletionOpen] = useState(false);
+  const completionPromptCheckedRef = useRef<string | null>(null);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [cancelStage, setCancelStage] = useState<CancelOrderStage>("confirm");
   const [cancelRefundAmount, setCancelRefundAmount] = useState<number | null>(null);
   const [isRiderChatOpen, setIsRiderChatOpen] = useState(false);
   const chatUnread = useOrderChatUnread(Boolean(orderQuery.data?.rider?.userId));
   const cancelOrder = useCancelOrder();
-  const isRateable = RATEABLE_ORDER_STATUSES.has(orderQuery.data?.status ?? "");
+  const isRateable = RATEABLE_ORDER_STATUSES.has(
+    orderQuery.data?.status?.trim().toLowerCase() ?? "",
+  );
   const reviewQuery = useOrderReviewQuery(orderId, isRateable);
+
+  const closeCompletionDialog = useCallback(() => {
+    setIsCompletionOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (!isRateable || reviewQuery.isPending) return;
+    if (completionPromptCheckedRef.current === orderId) return;
+
+    if (reviewQuery.data?.is_reviewed) return;
+    if (hasSeenOrderCompletionPrompt(orderId)) return;
+
+    const openPrompt = window.setTimeout(() => {
+      if (completionPromptCheckedRef.current === orderId) return;
+
+      completionPromptCheckedRef.current = orderId;
+      markOrderCompletionPromptSeen(orderId);
+      setIsCompletionOpen(true);
+    }, 0);
+
+    return () => window.clearTimeout(openPrompt);
+  }, [isRateable, orderId, reviewQuery.data?.is_reviewed, reviewQuery.isPending]);
 
   function openCancelDialog() {
     cancelOrder.reset();
@@ -240,6 +271,18 @@ export function OrderDetailExperience({ orderId }: Props) {
           onClose={() => setIsReviewOpen(false)}
           orderId={order.orderId}
           review={reviewQuery.data}
+          storeName={storeName}
+        />
+      ) : null}
+
+      {isCompletionOpen ? (
+        <OrderCompletionDialog
+          onClose={closeCompletionDialog}
+          onRateOrder={() => {
+            closeCompletionDialog();
+            setIsReviewOpen(true);
+          }}
+          orderType={order.orderType}
           storeName={storeName}
         />
       ) : null}
