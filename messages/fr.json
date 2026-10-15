@@ -1380,6 +1380,7 @@
       "viewWallet": "Voir les transactions du portefeuille",
       "paymentTitle": "Mode de paiement",
       "paymentCard": "Carte de crédit ou de débit",
+      "paymentWallet": "Portefeuille",
       "paymentCash": "Encaisse à la livraison",
       "paymentOther": "Autre mode de paiement",
       "paymentPaid": "Paiement",

@@ -1380,6 +1380,7 @@
       "viewWallet": "عرض معاملات المحفظة",
       "paymentTitle": "طريقة الدفع",
       "paymentCard": "بطاقات الائتمان أو الديون",
+      "paymentWallet": "المحفظة",
       "paymentCash": "المبالغ النقدية عند الإنجاز",
       "paymentOther": "طريقة الدفع الأخرى",
       "paymentPaid": "دفع",

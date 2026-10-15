@@ -1406,6 +1406,7 @@
       "viewWallet": "View wallet transactions",
       "paymentTitle": "Payment method",
       "paymentCard": "Credit or debit card",
+      "paymentWallet": "Wallet",
       "paymentCash": "Cash on delivery",
       "paymentOther": "Other payment method",
       "paymentPaid": "Paid",

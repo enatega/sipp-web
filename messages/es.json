@@ -1380,6 +1380,7 @@
       "viewWallet": "Ver transacciones del monedero",
       "paymentTitle": "Método de pago",
       "paymentCard": "Tarjeta de crédito o débito",
+      "paymentWallet": "Billetera",
       "paymentCash": "Efectivo en concepto de ejecución",
       "paymentOther": "Otro método de pago",
       "paymentPaid": "Pagado",
