@@ -37,6 +37,9 @@ function safeErrorPayload(payload: unknown, fallback: string) {
           status?: string;
           applicationId?: string;
           fields?: unknown;
+          productName?: string;
+          requestedQuantity?: number;
+          availableQuantity?: number;
         })
       : {};
   return {
@@ -45,6 +48,15 @@ function safeErrorPayload(payload: unknown, fallback: string) {
     ...(candidate.status ? { status: candidate.status } : {}),
     ...(candidate.applicationId
       ? { applicationId: candidate.applicationId }
+      : {}),
+    ...(candidate.productName
+      ? { productName: candidate.productName }
+      : {}),
+    ...(Number.isFinite(candidate.requestedQuantity)
+      ? { requestedQuantity: candidate.requestedQuantity }
+      : {}),
+    ...(Number.isFinite(candidate.availableQuantity)
+      ? { availableQuantity: candidate.availableQuantity }
       : {}),
     ...(Array.isArray(candidate.fields)
       ? { fields: candidate.fields.filter((field) => field === "email" || field === "phone") }
@@ -81,7 +93,7 @@ export async function callApi(path: string, options: CallOptions = {}) {
 
     if (!upstream.ok) {
       return NextResponse.json(
-        { message: errorMessage(data, "We could not complete that request.") },
+        safeErrorPayload(data, "We could not complete that request."),
         { status: upstream.status },
       );
     }

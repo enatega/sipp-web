@@ -1176,6 +1176,8 @@
       "chooseVariation": "Option auswählen",
       "productLoadError": "Die Optionen dieses Produkts konnten nicht geladen werden. Bitte schließen und erneut versuchen.",
       "cartError": "Dieser Artikel konnte nicht zum Warenkorb hinzugefügt werden. Bitte versuchen Sie es erneut.",
+      "cartStockLimitError": "Von {product} sind nur {available} verfügbar, Ihr Warenkorb würde jedoch {requested} enthalten. Reduzieren Sie die Gesamtmenge dieses Produkts auf {available} oder weniger.",
+      "cartOutOfStockError": "{product} ist derzeit ausverkauft. Entfernen Sie es aus dem Warenkorb oder wählen Sie einen anderen Artikel.",
       "cartOfflineError": "Sie scheinen offline zu sein. Stellen Sie die Verbindung wieder her und versuchen Sie es erneut.",
       "cartSignInError": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an und versuchen Sie es noch einmal.",
       "cartConflictError": "Ihr Warenkorb wurde während des Hinzufügens geändert. Prüfen Sie ihn und versuchen Sie es erneut.",

@@ -50,6 +50,15 @@ function parseItem(value: unknown): CartItem {
       : [],
     storeId: text(source.storeId),
     inStock: source.inStock !== false,
+    availableQuantity:
+      source.availableQuantity === null || source.availableQuantity === undefined
+        ? null
+        : number(source.availableQuantity),
+    inventoryIssue:
+      source.inventoryIssue === "out_of_stock" ||
+      source.inventoryIssue === "insufficient_stock"
+        ? source.inventoryIssue
+        : null,
   };
 }
 

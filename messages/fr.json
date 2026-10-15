@@ -1150,6 +1150,8 @@
       "chooseVariation": "Choisissez une option",
       "productLoadError": "Les options de ce produit n'ont pas pu être chargées. S'il vous plaît fermez-le et essayez à nouveau.",
       "cartError": "Nous ne pouvons pas ajouter cet article à votre panier. Veuillez réessayer.",
+      "cartStockLimitError": "Il ne reste que {available} unités de {product}, mais votre panier en contiendrait {requested}. Réduisez la quantité totale de ce produit à {available} ou moins.",
+      "cartOutOfStockError": "{product} est actuellement en rupture de stock. Retirez-le du panier ou choisissez un autre article.",
       "cartOfflineError": "Vous semblez être hors ligne. Reconnectez-vous et essayez d'ajouter cet élément à nouveau.",
       "cartSignInError": "Votre session a expiré. Connectez-vous à nouveau, puis essayez d'ajouter cet article.",
       "cartConflictError": "Votre panier a changé pendant que cet article était ajouté. Revoyez-le et essayez encore.",

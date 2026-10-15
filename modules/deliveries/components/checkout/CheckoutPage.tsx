@@ -349,6 +349,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     }
     if (error instanceof ApiError) {
       if (isOutsideDeliveryAreaError(error)) return t("addressUnavailable");
+      if (error.code === "CART_INVENTORY_CHANGED") return error.message;
       if (/store is currently closed/i.test(error.message)) return t("storeClosedMessage");
       if (
         /USD conversion rate|Active currency configuration|USD minimum charge/i.test(
@@ -446,7 +447,12 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     ...(hasPreviewError
       ? [{
         id: "preview",
-        title: preview.error instanceof ApiError && /store is currently closed/i.test(preview.error.message) ? t("storeClosedTitle") : t("previewErrorTitle"),
+        title:
+          preview.error instanceof ApiError && /store is currently closed/i.test(preview.error.message)
+            ? t("storeClosedTitle")
+            : preview.error instanceof ApiError && preview.error.code === "CART_INVENTORY_CHANGED"
+              ? t("inventoryChangedTitle")
+              : t("previewErrorTitle"),
         message: checkoutErrorMessage(preview.error),
         onDismiss: () => setDismissedPreviewError(preview.error),
       }]

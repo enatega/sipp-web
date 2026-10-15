@@ -4,11 +4,22 @@ export class ApiError extends Error {
   readonly fieldErrors?: Record<string, string>;
   readonly fields?: Array<"email" | "phone">;
   readonly retryAfterSeconds?: number;
+  readonly productName?: string;
+  readonly requestedQuantity?: number;
+  readonly availableQuantity?: number;
 
   constructor(
     message: string,
     status: number,
-    options?: { code?: string; fieldErrors?: Record<string, string>; fields?: Array<"email" | "phone">; retryAfterSeconds?: number },
+    options?: {
+      code?: string;
+      fieldErrors?: Record<string, string>;
+      fields?: Array<"email" | "phone">;
+      retryAfterSeconds?: number;
+      productName?: string;
+      requestedQuantity?: number;
+      availableQuantity?: number;
+    },
   ) {
     super(message);
     this.name = "ApiError";
@@ -17,6 +28,9 @@ export class ApiError extends Error {
     this.fieldErrors = options?.fieldErrors;
     this.fields = options?.fields;
     this.retryAfterSeconds = options?.retryAfterSeconds;
+    this.productName = options?.productName;
+    this.requestedQuantity = options?.requestedQuantity;
+    this.availableQuantity = options?.availableQuantity;
   }
 }
 
@@ -86,6 +100,9 @@ export async function requestJson<T>(
     fieldErrors?: Record<string, string>;
     fields?: Array<"email" | "phone">;
     retryAfterSeconds?: number;
+    productName?: string;
+    requestedQuantity?: number;
+    availableQuantity?: number;
   };
 
   if (!response.ok) {
@@ -108,7 +125,15 @@ export async function requestJson<T>(
     throw new ApiError(
       data.message || "Something went wrong. Please try again.",
       response.status,
-      { code: data.code, fieldErrors: data.fieldErrors, fields: data.fields, retryAfterSeconds: data.retryAfterSeconds },
+      {
+        code: data.code,
+        fieldErrors: data.fieldErrors,
+        fields: data.fields,
+        retryAfterSeconds: data.retryAfterSeconds,
+        productName: data.productName,
+        requestedQuantity: data.requestedQuantity,
+        availableQuantity: data.availableQuantity,
+      },
     );
   }
 

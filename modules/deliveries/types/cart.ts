@@ -32,6 +32,8 @@ export interface CartItem {
   selectedOptions: CartSelectedOption[];
   storeId: string;
   inStock: boolean;
+  availableQuantity: number | null;
+  inventoryIssue: "out_of_stock" | "insufficient_stock" | null;
 }
 
 export interface CartResponse {

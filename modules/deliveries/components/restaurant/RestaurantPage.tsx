@@ -174,6 +174,23 @@ export function RestaurantPage({ slug }: Props) {
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) requireSignIn();
       else if (error instanceof ApiError && error.code === "STORE_OUTSIDE_DELIVERY_AREA") toast.error(t("outsideAreaMessage"));
+      else if (
+        error instanceof ApiError &&
+        error.code === "INSUFFICIENT_PRODUCT_STOCK" &&
+        error.availableQuantity !== undefined &&
+        error.requestedQuantity !== undefined
+      ) {
+        toast.error(t("cartStockLimitError", {
+          product: error.productName || getLocalizedProductName(product, locale),
+          available: error.availableQuantity,
+          requested: error.requestedQuantity,
+        }));
+      }
+      else if (error instanceof ApiError && error.code === "PRODUCT_OUT_OF_STOCK") {
+        toast.error(t("cartOutOfStockError", {
+          product: error.productName || getLocalizedProductName(product, locale),
+        }));
+      }
       else if (error instanceof ApiError && error.status === 409) setSelectedProductId(product.id);
       else toast.error(t("cartError"));
     } finally {

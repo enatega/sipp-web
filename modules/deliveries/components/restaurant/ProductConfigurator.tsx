@@ -147,6 +147,22 @@ export function ProductConfigurator({ isStoreAvailable, isWithinDeliveryArea, is
     }
     if (error instanceof ApiError) {
       if (error.code === "STORE_OUTSIDE_DELIVERY_AREA") return t("outsideAreaMessage");
+      if (
+        error.code === "INSUFFICIENT_PRODUCT_STOCK" &&
+        error.availableQuantity !== undefined &&
+        error.requestedQuantity !== undefined
+      ) {
+        return t("cartStockLimitError", {
+          product: error.productName || productName,
+          available: error.availableQuantity,
+          requested: error.requestedQuantity,
+        });
+      }
+      if (error.code === "PRODUCT_OUT_OF_STOCK") {
+        return t("cartOutOfStockError", {
+          product: error.productName || productName,
+        });
+      }
       if (/store is currently closed/i.test(error.message)) return t("closedMessage");
       if (error.status === 401) return t("cartSignInError");
       if (error.status === 409) return t("cartConflictError");
@@ -225,7 +241,10 @@ export function ProductConfigurator({ isStoreAvailable, isWithinDeliveryArea, is
     );
     // A 2xx response may report a skipped/unavailable item instead of adding it.
     if (updatedQuantity < cartQuantity + quantity) {
-      throw new ApiError("Cart item was not added.", 422);
+      throw new ApiError(`${productName} is currently unavailable.`, 422, {
+        code: "PRODUCT_OUT_OF_STOCK",
+        productName,
+      });
     }
     setSubmitError(null);
     notify.success("addedToCart", { product: productName });
