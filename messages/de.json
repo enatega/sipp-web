@@ -1,4 +1,11 @@
 {
+  "notFound": {
+    "codeLabel": "Fehler 404",
+    "title": "Diese Seite ist nicht auf der Karte",
+    "description": "Die Adresse ist möglicherweise falsch oder die Seite wurde verschoben. Kehren Sie zur Startseite zurück oder entdecken Sie Geschäfte in Ihrer Nähe.",
+    "homeAction": "Zur Startseite",
+    "browseAction": "In der Nähe stöbern"
+  },
   "impersonation": {
     "banner": "Sie imitieren derzeit ein Kundenkonto.",
     "exit": "Imitation beenden",

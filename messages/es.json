@@ -1,4 +1,11 @@
 {
+  "notFound": {
+    "codeLabel": "Error 404",
+    "title": "Esta página no está en el mapa",
+    "description": "La dirección puede ser incorrecta o la página puede haberse movido. Vuelve al inicio o explora los negocios disponibles cerca de ti.",
+    "homeAction": "Ir a la página de inicio",
+    "browseAction": "Explorar cerca"
+  },
   "impersonation": {
     "banner": "Estás imitando una cuenta de cliente.",
     "exit": "Exit impersonation",

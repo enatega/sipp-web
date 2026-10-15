@@ -1,4 +1,11 @@
 {
+  "notFound": {
+    "codeLabel": "Erreur 404",
+    "title": "Cette page n’est pas sur la carte",
+    "description": "L’adresse est peut-être incorrecte ou la page a été déplacée. Revenez à l’accueil ou parcourez les commerces disponibles près de chez vous.",
+    "homeAction": "Retour à l’accueil",
+    "browseAction": "Explorer à proximité"
+  },
   "impersonation": {
     "banner": "Vous incarnez un compte client.",
     "exit": "Importation de sortie",
