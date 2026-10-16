@@ -379,7 +379,8 @@ export function ProductConfigurator({ isStoreAvailable, isWithinDeliveryArea, is
                     ))}
                   </div>
                 ) : null}
-                {variationChoices.length > 0 ? (
+                {/* A sole variation is selected implicitly; only show a selector when there is a choice. */}
+                {variationChoices.length > 1 ? (
                   <fieldset
                     aria-invalid={hasSubmitted && missingGroups.includes("__variation__")}
                     className="rounded-2xl border border-line bg-card p-4"
