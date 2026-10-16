@@ -239,7 +239,8 @@
     "offline": "Sie scheinen offline zu sein. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
     "timeout": "Das dauert länger als erwartet. Bitte versuchen Sie es erneut.",
     "rateLimited": "Zu viele Versuche. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
-    "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+    "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+    "couponReplaced": "{next} hat {previous} ersetzt. Es kann immer nur ein Angebot angewendet werden."
   },
   "favouritesPage": {
     "title": "Favoriten",
@@ -316,8 +317,7 @@
       "COUPON_USAGE_LIMIT": "Dieses Angebot wurde vollständig eingelöst und kann nicht mehr verwendet werden.",
       "COUPON_USER_LIMIT": "Du hast dieses Angebot bereits so oft wie erlaubt verwendet ({count, plural, one {# Nutzung} other {# Nutzungen}}).",
       "STORE_MINIMUM_AFTER_COUPON": "Mit diesem Angebot beträgt deine Bestellung {total} und liegt unter dem Mindestbestellwert von {minimum}. Füge {remaining} hinzu oder entferne das Angebot."
-    },
-    "youSave": "Du sparst {amount}"
+    }
   },
   "accountSecurity": {
     "title": "Kontosicherheit",
@@ -1776,8 +1776,10 @@
       "couponNotAppliedCode": "Angebot {code} wurde nicht angewendet.",
       "couponFixToContinue": "Entferne das Angebot oder passe deine Bestellung an, um fortzufahren.",
       "storeMinimumNotMet": "Deine Bestellung liegt unter dem Mindestbestellwert dieses Geschäfts. Füge weitere Artikel hinzu.",
-      "couponsAppliedSaving": "{count, plural, one {# Angebot angewendet} other {# Angebote angewendet}}. Du sparst {amount}.",
-      "addAnotherCoupon": "{count, plural, one {# weiteres Angebot hinzufügen} other {Weiteres Angebot hinzufügen (# verfügbar)}}"
+      "couponAppliedCode": "Angebot {code} angewendet. Dein Gesamtbetrag wurde aktualisiert.",
+      "chooseOtherCoupon": "{count, plural, one {Zu # anderen Angebot wechseln} other {Zu einem von # anderen Angeboten wechseln}}",
+      "couponReplaced": "{next} hat {previous} ersetzt. Es kann immer nur ein Angebot angewendet werden.",
+      "oneCouponAtATime": "Es kann immer nur ein Angebot angewendet werden. Ein anderes Angebot ersetzt das aktuelle."
     }
   },
   "about": {

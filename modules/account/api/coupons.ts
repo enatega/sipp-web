@@ -1,6 +1,6 @@
 import { apiRoutes } from "@/config/api";
 import { postJson, requestJson } from "@/services/api/client";
-import type { ClaimCouponResponse, ClaimedCouponsResponse } from "@/modules/account/types/coupons";
+import type { ClaimCouponResponse, ClaimedCouponsResponse, CouponActivationResponse } from "@/modules/account/types/coupons";
 
 export const couponsApi = {
   claimed(offset = 0, limit = 12, signal?: AbortSignal) {
@@ -13,9 +13,8 @@ export const couponsApi = {
   claim(code: string) {
     return postJson<ClaimCouponResponse>(apiRoutes.profileCoupons, { code });
   },
-  /** The web stacks coupons: activating adds one, deactivating removes only that one. */
   setActive(id: string, isActive: boolean) {
-    return postJson<{ success: boolean; message: string }>(
+    return postJson<CouponActivationResponse>(
       `${apiRoutes.profileCoupons}/${encodeURIComponent(id)}`,
       { isActive },
     );

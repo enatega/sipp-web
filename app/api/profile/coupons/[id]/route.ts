@@ -15,7 +15,6 @@ export async function POST(request: NextRequest, context: RouteContext<"/api/pro
   return callApi(`/apps/deliveries/customer-coupons/use/${encodeURIComponent(id)}`, {
     method: "POST",
     request,
-    // The web stacks coupons (D-015); the mobile app keeps the default replace mode.
-    body: { isActive: body.isActive, mode: "add" },
+    body: { isActive: body.isActive },
   });
 }

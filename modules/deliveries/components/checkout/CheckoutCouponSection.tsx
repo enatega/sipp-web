@@ -3,6 +3,7 @@
 import { ChevronDown, CircleCheck, LoaderCircle, TicketPercent } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { CouponListItem, couponUsability } from "@/modules/account/components/profile/CouponListItem";
 import { useCouponText } from "@/modules/account/hooks/useCouponText";
@@ -10,6 +11,7 @@ import { useClaimCouponMutation, useClaimedCouponsQuery, useCouponActivationMuta
 import { ApiError } from "@/services/api/client";
 import type { ClaimedCoupon } from "@/modules/account/types/coupons";
 import type { CheckoutOrderType, CheckoutPaymentMethod, CheckoutPreviewCoupon } from "../../types/checkout";
+import { time } from "node:console";
 
 interface Props {
   enabled: boolean;
@@ -17,14 +19,13 @@ interface Props {
   subtotal: number;
   orderType: CheckoutOrderType;
   paymentMethod: CheckoutPaymentMethod;
-  /** Coupons applied to the cart, in the order they were applied. */
-  appliedCouponIds: string[];
-  /** The server-priced status of each cart coupon. */
-  previewCoupons: CheckoutPreviewCoupon[];
+  appliedCouponId: string | null;
+  appliedCouponCode: string | null;
+  previewCoupon?: CheckoutPreviewCoupon | null;
   isPreviewLoading: boolean;
 }
 
-export function CheckoutCouponSection({ enabled, storeId, subtotal, orderType, paymentMethod, appliedCouponIds, previewCoupons, isPreviewLoading }: Props) {
+export function CheckoutCouponSection({ enabled, storeId, subtotal, orderType, paymentMethod, appliedCouponId: cartCouponId, appliedCouponCode, previewCoupon, isPreviewLoading }: Props) {
   const t = useTranslations("deliveries.checkout");
   const couponT = useTranslations("coupons");
   const format = useFormatter();
@@ -37,16 +38,14 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, orderType, p
   const [busyId, setBusyId] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const items = useMemo(() => coupons.data?.pages.flatMap((page) => page.data) ?? [], [coupons.data]);
-  // The cart holds the chosen coupons; only the server-priced preview can
-  // confirm which of them actually discount this checkout, and why not.
-  const selectedIds = useMemo(
-    () => [...new Set(appliedCouponIds.length ? appliedCouponIds : previewCoupons.map((coupon) => coupon.id))],
-    [appliedCouponIds, previewCoupons],
-  );
-  const previewById = new Map(previewCoupons.map((coupon) => [coupon.id, coupon]));
-  const otherCoupons = items.filter((coupon) => !selectedIds.includes(coupon.id));
-  const appliedPreview = previewCoupons.filter((coupon) => coupon.isApplied && selectedIds.includes(coupon.id));
-  const totalSaved = appliedPreview.reduce((sum, coupon) => sum + (coupon.appliedDiscount ?? 0), 0);
+  // The cart holds the customer's chosen coupon; only the server-priced preview
+  // can confirm that it actually discounts this checkout.
+  const selectedCouponId = cartCouponId ?? previewCoupon?.id ?? null;
+  const selectedCoupon = items.find((coupon) => coupon.id === selectedCouponId) ?? null;
+  const otherCoupons = items.filter((coupon) => coupon.id !== selectedCouponId);
+  const isApplied = Boolean(selectedCouponId && previewCoupon?.isApplied && previewCoupon.id === selectedCouponId);
+  const selectedName = selectedCoupon?.name ?? previewCoupon?.code ?? appliedCouponCode ?? "";
+  const issueText = previewCoupon?.issue && previewCoupon.id === selectedCouponId ? couponText.issueMessage(previewCoupon.issue, selectedCoupon) : null;
 
   function disabledReason(coupon: ClaimedCoupon) {
     const usability = couponUsability(coupon);
@@ -86,10 +85,22 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, orderType, p
   async function toggleCoupon(couponId: string, coupon?: ClaimedCoupon) {
     setNotice(null);
     setBusyId(couponId);
-    const isRemoving = selectedIds.includes(couponId);
+    const isRemoving = couponId === selectedCouponId;
     try {
-      await activation.mutateAsync({ id: couponId, isActive: !isRemoving });
-      // Applying is confirmed (or explained) by the refreshed checkout preview.
+      const result = await activation.mutateAsync({ id: couponId, isActive: !isRemoving });
+      // Only one offer applies at a time; say so when a new one takes over.
+      if (!isRemoving && result.replacedCoupon) {
+        toast.info(
+          t("couponReplaced", {
+            previous: result.replacedCoupon.name,
+            next: coupon?.name ?? "",
+          }),
+          {
+            duration: 6000,
+          }
+        );
+      }
+      // Applying is otherwise confirmed (or explained) by the refreshed preview.
       if (isRemoving) setNotice({ kind: "success", text: t("couponRemoved") });
     } catch (error) {
       const issue = couponText.errorIssue(error);
@@ -98,6 +109,8 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, orderType, p
       setBusyId(null);
     }
   }
+
+  const isSelectedBusy = activation.isPending && busyId === selectedCouponId;
 
   return (
     <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6" aria-labelledby="checkout-coupon-title">
@@ -114,41 +127,33 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, orderType, p
 
       {notice ? <p role={notice.kind === "error" ? "alert" : "status"} className={`mt-3 rounded-xl px-4 py-3 text-xs font-medium ${notice.kind === "error" ? "bg-danger-soft text-danger" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"}`}>{notice.text}</p> : null}
 
-      {selectedIds.length ? (
+      {selectedCouponId ? (
         <div className="mt-4 grid gap-3">
           {isPreviewLoading ? (
             <p role="status" className="flex items-center gap-2 text-xs text-muted"><LoaderCircle className="size-4 animate-spin text-brand" aria-hidden="true" />{t("couponChecking")}</p>
-          ) : appliedPreview.length ? (
-            <p role="status" className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"><CircleCheck className="size-4 flex-none" aria-hidden="true" />{t("couponsAppliedSaving", { count: appliedPreview.length, amount: formatAppCurrency(format, totalSaved) })}</p>
+          ) : isApplied ? (
+            <p role="status" className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"><CircleCheck className="size-4 flex-none" aria-hidden="true" />{t("couponAppliedCode", { code: selectedName })}</p>
           ) : null}
-          {selectedIds.map((couponId) => {
-            const claimed = items.find((coupon) => coupon.id === couponId);
-            const preview = previewById.get(couponId);
-            const issue = !isPreviewLoading && preview?.issue ? couponText.issueMessage(preview.issue, claimed) : null;
-            const savings = !isPreviewLoading && preview?.isApplied && preview.appliedDiscount ? formatAppCurrency(format, preview.appliedDiscount) : undefined;
-            const isBusy = activation.isPending && busyId === couponId;
-            if (claimed) {
-              return <CouponListItem key={couponId} coupon={{ ...claimed, is_active: true }} compact isBusy={isBusy} issue={issue ?? undefined} savings={savings} onToggle={(coupon) => void toggleCoupon(coupon.id, coupon)} />;
-            }
-            // Not on a loaded page of claimed offers; still explain and allow removal.
-            const label = preview?.name ?? preview?.code ?? "";
-            return (
-              <div key={couponId} role={issue ? "alert" : undefined} className={`flex flex-col gap-3 rounded-xl p-4 text-xs font-semibold sm:flex-row sm:items-center sm:justify-between ${issue ? "bg-danger-soft text-danger" : "border border-line text-ink"}`}>
-                <span>{issue ? `${t("couponNotAppliedCode", { code: label })} ${issue}` : label}</span>
-                <button type="button" disabled={isBusy} onClick={() => void toggleCoupon(couponId)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 font-bold text-ink disabled:opacity-50">{isBusy ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}{couponT("deactivate")}</button>
-              </div>
-            );
-          })}
+          {selectedCoupon ? (
+            <CouponListItem coupon={{ ...selectedCoupon, is_active: true }} compact isBusy={isSelectedBusy} issue={!isPreviewLoading && issueText ? issueText : undefined} onToggle={(coupon) => void toggleCoupon(coupon.id, coupon)} />
+          ) : !isPreviewLoading && issueText ? (
+            // The selected coupon is not on a loaded page; still explain and allow removal.
+            <div role="alert" className="flex flex-col gap-3 rounded-xl bg-danger-soft p-4 text-xs font-semibold text-danger sm:flex-row sm:items-center sm:justify-between">
+              <span>{t("couponNotAppliedCode", { code: selectedName })} {issueText}</span>
+              <button type="button" disabled={isSelectedBusy} onClick={() => void toggleCoupon(selectedCouponId)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 font-bold text-ink disabled:opacity-50">{isSelectedBusy ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}{couponT("deactivate")}</button>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
       {coupons.isPending ? <div className="mt-4 flex items-center gap-2 text-xs text-muted" role="status"><LoaderCircle className="size-4 animate-spin text-brand" aria-hidden="true" />{t("loadingCoupons")}</div> : coupons.isError ? <button type="button" onClick={() => void coupons.refetch()} className="mt-4 text-xs font-bold text-brand">{t("retryCoupons")}</button> : otherCoupons.length ? (
         <details className="group mt-4">
           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 rounded-xl bg-[var(--soft-surface)] px-4 text-xs font-bold text-ink outline-none focus-visible:ring-4 focus-visible:ring-brand/10 [&::-webkit-details-marker]:hidden">
-            <span>{selectedIds.length ? t("addAnotherCoupon", { count: otherCoupons.length }) : t("chooseCoupon", { count: otherCoupons.length })}</span>
+            <span>{selectedCouponId ? t("chooseOtherCoupon", { count: otherCoupons.length }) : t("chooseCoupon", { count: otherCoupons.length })}</span>
             <ChevronDown className="size-4 text-brand transition-transform group-open:rotate-180" aria-hidden="true" />
           </summary>
           <div className="mt-3 grid gap-3">
+            {selectedCouponId ? <p className="text-[11px] leading-5 text-muted">{t("oneCouponAtATime")}</p> : null}
             {otherCoupons.map((coupon) => <CouponListItem key={coupon.id} coupon={{ ...coupon, is_active: false }} compact isBusy={activation.isPending && busyId === coupon.id} disabledReason={disabledReason(coupon)} onToggle={(selected) => void toggleCoupon(selected.id, selected)} />)}
             {coupons.hasNextPage ? <button type="button" onClick={() => void coupons.fetchNextPage()} disabled={coupons.isFetchingNextPage} className="min-h-10 rounded-lg border border-line text-xs font-bold text-ink hover:border-brand/30 disabled:opacity-50">{coupons.isFetchingNextPage ? t("loadingCoupons") : t("moreCoupons")}</button> : null}
           </div>

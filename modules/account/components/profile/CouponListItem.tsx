@@ -15,8 +15,6 @@ interface Props {
   disabledReason?: string;
   /** Why the applied coupon is not discounting this checkout. */
   issue?: string;
-  /** Formatted amount this coupon takes off the current checkout. */
-  savings?: string;
 }
 
 export function couponUsability(coupon: ClaimedCoupon) {
@@ -29,7 +27,7 @@ export function couponUsability(coupon: ClaimedCoupon) {
   return "available" as const;
 }
 
-export function CouponListItem({ coupon, isBusy = false, onToggle, compact = false, disabledReason, issue, savings }: Props) {
+export function CouponListItem({ coupon, isBusy = false, onToggle, compact = false, disabledReason, issue }: Props) {
   const t = useTranslations("coupons");
   const couponText = useCouponText();
   const format = useFormatter();
@@ -74,7 +72,6 @@ export function CouponListItem({ coupon, isBusy = false, onToggle, compact = fal
             {usesLeft !== null && usability === "available" ? <span className="inline-flex items-center gap-1.5"><Repeat className="size-3.5 flex-none" aria-hidden="true" />{t("usesLeft", { count: usesLeft })}</span> : null}
           </div>
 
-          {savings && !problem ? <p className="mt-3 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">{t("youSave", { amount: savings })}</p> : null}
           {problem ? <p role={issue ? "alert" : undefined} className="mt-3 flex items-start gap-2 rounded-lg bg-danger-soft px-3 py-2 text-[11px] font-semibold leading-5 text-danger"><CircleAlert className="mt-0.5 size-3.5 flex-none" aria-hidden="true" />{problem}</p> : null}
           <button type="button" onClick={() => onToggle(coupon)} disabled={isBusy || unavailable || (Boolean(disabledReason) && !coupon.is_active)} className={`mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-5 text-xs font-bold transition-[background-color,color,transform] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/15 disabled:cursor-not-allowed disabled:opacity-50 ${coupon.is_active ? "border border-line text-ink hover:bg-[var(--soft-surface)]" : "bg-brand text-ink hover:-translate-y-0.5 hover:bg-brand/85"}`}>
             {isBusy ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}

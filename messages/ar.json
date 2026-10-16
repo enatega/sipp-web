@@ -239,7 +239,8 @@
     "offline": "يبدو أنك غير متصل. تحقق من اتصالك وحاول مرة أخرى.",
     "timeout": "يستغرق هذا وقتًا أطول من المتوقع. يرجى المحاولة مرة أخرى.",
     "rateLimited": "محاولات كثيرة جدًا. يرجى الانتظار قليلًا ثم المحاولة مرة أخرى.",
-    "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى."
+    "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.",
+    "couponReplaced": "حلّ {next} محل {previous}. يمكن تطبيق عرض واحد فقط في كل مرة."
   },
   "favouritesPage": {
     "title": "المفضلة",
@@ -316,8 +317,7 @@
       "COUPON_USAGE_LIMIT": "نفد هذا العرض ولم يعد بالإمكان استخدامه.",
       "COUPON_USER_LIMIT": "لقد استخدمت هذا العرض الحد الأقصى من المرات ({count, plural, one {مرة واحدة} other {# مرات}}).",
       "STORE_MINIMUM_AFTER_COUPON": "مع هذا العرض يصبح طلبك {total}، وهو أقل من الحد الأدنى للطلب لدى هذا المتجر ({minimum}). أضف {remaining} أو أزل العرض."
-    },
-    "youSave": "توفّر {amount}"
+    }
   },
   "accountSecurity": {
     "title": "الضمان",
@@ -1692,6 +1692,7 @@
       "placeOrderError": "لا يمكننا وضع طلبك حاول مرة أخرى",
       "orderConfirmationUnknownTitle": "يلزم التحقق من حالة الطلب",
       "orderConfirmationUnknown": "تعذّر علينا تأكيد ما إذا كان طلبك قد تم. تحقّق من طلباتك قبل المحاولة مرة أخرى.",
+      "checkingOrder": "جارٍ التحقق من حالة الطلب…",
       "walletLoading": "تحقق من رصيد محفظتك",
       "walletBalanceUnavailable": "رصيد محفظتك لا يمكن فحصه حاول مرة أخرى في لحظة.",
       "walletInsufficientTitle": "عدم كفاية رصيد المحفظة",
@@ -1775,8 +1776,10 @@
       "couponNotAppliedCode": "لم يتم تطبيق العرض {code}.",
       "couponFixToContinue": "أزل العرض أو عدّل طلبك ليصبح مؤهلًا للمتابعة.",
       "storeMinimumNotMet": "طلبك أقل من الحد الأدنى للطلب لدى هذا المتجر. أضف المزيد من المنتجات للمتابعة.",
-      "couponsAppliedSaving": "{count, plural, one {تم تطبيق عرض واحد} other {تم تطبيق # عروض}}. توفّر {amount}.",
-      "addAnotherCoupon": "{count, plural, one {أضف عرضًا آخر} other {أضف عرضًا آخر (# متاحة)}}"
+      "couponAppliedCode": "تم تطبيق العرض {code}. تم تحديث الإجمالي.",
+      "chooseOtherCoupon": "{count, plural, one {التبديل إلى عرض آخر} other {التبديل إلى أحد # عروض أخرى}}",
+      "couponReplaced": "حلّ {next} محل {previous}. يمكن تطبيق عرض واحد فقط في كل مرة.",
+      "oneCouponAtATime": "يمكن تطبيق عرض واحد فقط في كل مرة. استخدام عرض آخر يستبدل العرض الحالي."
     }
   },
   "about": {
