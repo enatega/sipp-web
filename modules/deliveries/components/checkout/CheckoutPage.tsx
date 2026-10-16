@@ -747,6 +747,13 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           onClose={() => {
             setStripePayment(null);
             setIsStripeConfirmed(false);
+            setPendingPlacement(null);
+            setRestoredAttempt(null);
+            setIsOrderConfirmationUnknown(false);
+            setCheckoutProgressStage(null);
+            setSubmitError("");
+            setIsCancellationNoticeVisible(true);
+            if (checkoutUserId) clearCheckoutAttempt(checkoutUserId);
             if (initialStripeDraftId) router.replace("/checkout");
           }}
           onConfirmed={() => setIsStripeConfirmed(true)}
