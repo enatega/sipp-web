@@ -8,8 +8,11 @@ import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useSessionQuery } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
+import { ApiError } from "@/services/api/client";
 import { CartItemCard } from "./CartItemCard";
+import { DeliveryNotice } from "../feedback/DeliveryNotice";
 import { useCartMutations, useCartQuery } from "../../hooks/useCart";
+import type { CartItem } from "../../types/cart";
 import { useRestaurantLocation, useRestaurantQuery } from "../../hooks/useRestaurantQueries";
 import { storeDeliveryTimeLabel } from "../../utils/storeCardLabels";
 
@@ -53,6 +56,7 @@ export function CartPage() {
   const mutations = useCartMutations();
   const [clearOpen, setClearOpen] = useState(false);
   const [error, setError] = useState("");
+  const errorRegionRef = useRef<HTMLDivElement>(null);
   const pendingRemovalIds = useRef(new Set<string>());
   const removalQueue = useRef<Promise<void>>(Promise.resolve());
   const [removingItemIds, setRemovingItemIds] = useState<ReadonlySet<string>>(() => new Set());
@@ -63,9 +67,58 @@ export function CartPage() {
 
   const price = (value: number) => formatAppCurrency(format, value);
 
-  function updateQuantity(itemId: string, quantity: number) {
+  function showCartError(message: string) {
+    setError(message);
+    requestAnimationFrame(() => {
+      errorRegionRef.current?.focus({ preventScroll: true });
+      errorRegionRef.current?.scrollIntoView({ block: "start" });
+    });
+  }
+
+  function quantityUpdateError(caught: unknown, item: CartItem, requestedQuantity: number) {
+    if (caught instanceof ApiError) {
+      if (
+        caught.code === "INSUFFICIENT_PRODUCT_STOCK" &&
+        caught.availableQuantity !== undefined
+      ) {
+        return restaurantText("cartStockLimitError", {
+          product: caught.productName || item.name,
+          available: caught.availableQuantity,
+          requested: caught.requestedQuantity ?? requestedQuantity,
+        });
+      }
+      if (caught.code === "PRODUCT_OUT_OF_STOCK") {
+        return restaurantText("cartOutOfStockError", {
+          product: caught.productName || item.name,
+        });
+      }
+    }
+    if (
+      item.availableQuantity !== null &&
+      requestedQuantity > item.availableQuantity
+    ) {
+      return t("limitedStock", { count: item.availableQuantity });
+    }
+    return t("updateError");
+  }
+
+  function updateQuantity(item: CartItem, quantity: number) {
     setError("");
-    mutations.updateQuantity.mutate({ itemId, quantity }, { onError: () => setError(t("updateError")) });
+    mutations.updateQuantity.mutate(
+      { itemId: item.id, quantity },
+      {
+        onError: (caught) => {
+          showCartError(quantityUpdateError(caught, item, quantity));
+          if (
+            caught instanceof ApiError &&
+            (caught.code === "INSUFFICIENT_PRODUCT_STOCK" ||
+              caught.code === "PRODUCT_OUT_OF_STOCK")
+          ) {
+            void cart.refetch();
+          }
+        },
+      },
+    );
   }
 
   function removeItem(itemId: string) {
@@ -78,7 +131,7 @@ export function CartPage() {
     // cannot restore an item removed by a faster response.
     const removal = removalQueue.current.then(() => mutations.removeItem.mutateAsync(itemId));
     removalQueue.current = removal.then(() => undefined, () => undefined);
-    void removal.catch(() => setError(t("removeError"))).finally(() => {
+    void removal.catch(() => showCartError(t("removeError"))).finally(() => {
       pendingRemovalIds.current.delete(itemId);
       setRemovingItemIds(new Set(pendingRemovalIds.current));
     });
@@ -102,6 +155,17 @@ export function CartPage() {
       <main className="min-h-[calc(100vh-76px)] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_300px)] pb-28 pt-7 sm:pb-12 sm:pt-10">
         <div className="section-wrap">
           <Link href={data.storeId ? `/restaurants/${data.storeId}` : "/discovery"} className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-body transition-colors hover:text-brand"><ArrowLeft aria-hidden="true" className="size-4" />{t("continueShopping")}</Link>
+          {error ? (
+            <div className="mb-5 outline-none" ref={errorRegionRef} tabIndex={-1}>
+              <DeliveryNotice
+                className="border border-danger/25 [overflow-wrap:anywhere]"
+                dismissLabel={restaurantText("dismissMessage")}
+                message={error}
+                onDismiss={() => setError("")}
+                tone="error"
+              />
+            </div>
+          ) : null}
           {isStoreClosed ? <div role="status" className="mb-5 rounded-xl border border-line bg-soft-surface p-4 text-body"><strong className="block text-ink">{restaurantText("closed")}</strong><p className="mt-1 text-sm">{restaurantText("closedMessage")}</p></div> : null}
           {isOutsideDeliveryArea ? <div role="alert" className="mb-5 flex items-start gap-3 rounded-xl border border-danger/30 bg-danger/10 p-4 text-danger"><span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-card text-danger"><MapPinOff aria-hidden="true" className="size-4" /></span><div className="min-w-0"><strong className="block">{restaurantText("outsideAreaTitle")}</strong><p className="mt-1 text-sm leading-6">{restaurantText("outsideAreaCartMessage")}</p></div></div> : null}
           <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
@@ -111,8 +175,7 @@ export function CartPage() {
 
           <div className="mt-7 grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_360px] xl:gap-10">
             <section className="space-y-4" aria-label={t("itemsLabel")}>
-              {data.items.map((item) => <CartItemCard key={item.id} item={item} isUpdating={mutations.clear.isPending || (mutations.updateQuantity.isPending && mutations.updateQuantity.variables?.itemId === item.id) || removingItemIds.has(item.id)} onQuantityChange={(quantity) => updateQuantity(item.id, quantity)} onRemove={() => removeItem(item.id)} />)}
-              {error ? <p role="alert" className="rounded-xl border border-brand/20 bg-brand/5 px-4 py-3 text-sm text-brand">{error}</p> : null}
+              {data.items.map((item) => <CartItemCard key={item.id} item={item} isUpdating={mutations.clear.isPending || (mutations.updateQuantity.isPending && mutations.updateQuantity.variables?.itemId === item.id) || removingItemIds.has(item.id)} onQuantityChange={(quantity) => updateQuantity(item, quantity)} onRemove={() => removeItem(item.id)} />)}
             </section>
 
             <aside className="rounded-3xl border border-line bg-card p-5 shadow-card lg:sticky lg:top-24 sm:p-6">
