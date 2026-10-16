@@ -160,6 +160,7 @@
     "signingInGoogle": "Firmando con Google…",
     "googleInvalidResponse": "Google no pudo verificar su cuenta. Por favor, inténtalo de nuevo.",
     "socialLoginError": "No se puede completar el registro social. Por favor, inténtalo de nuevo.",
+    "googleAccountUsesPassword": "Esta dirección de correo ya tiene una cuenta con contraseña. Introduce tu correo arriba y continúa para iniciar sesión con tu contraseña.",
     "loginSuccess": "Inicio de sesión exitoso.",
     "phoneProtected": "Este número pertenece a una cuenta protegida o es su único método de acceso. Usa otro número o contacta con soporte.",
     "phoneTransferWarning": "Si este número pertenece a otra cuenta de cliente, al verificarlo se transferirá a esta cuenta y se desactivará el acceso por teléfono en la otra."
@@ -444,6 +445,7 @@
     "emailSuccess": "Tu correo electrónico está verificado."
   },
   "location": {
+    "headerPlaceholder": "Ubicación",
     "title": "¿Dónde debemos entregar?",
     "search": "Buscar zona o dirección",
     "current": "Usar ubicación actual",
@@ -975,6 +977,9 @@
       "coverageErrorTitle": "No pudimos comprobar la disponibilidad de entrega",
       "coverageErrorDescription": "Inténtalo de nuevo o elige otra ubicación. No mostraremos negocios hasta confirmar que la entrega está disponible.",
       "changeLocation": "Cambiar ubicación",
+      "selectLocation": "Seleccionar ubicación",
+      "locationRequiredTitle": "Elige una ubicación de entrega",
+      "locationRequiredDescription": "Selecciona una ubicación para ver restaurantes y tiendas que entregan en tu zona.",
       "foodDelivery": "SIPP entrega",
       "signInTitle": "Inicie sesión para descubrir negocios locales",
       "signInMessage": "Elija su dirección de entrega y explore restaurantes cercanos, mercados, ofertas y pedidos anteriores disponibles para usted.",
@@ -1625,8 +1630,7 @@
       "addressUnavailable": "Este negocio no entrega a esa dirección. Elija una dirección dentro de su área de entrega.",
       "addressValidationError": "No podíamos confirmar la entrega a esa dirección. Por favor, inténtalo de nuevo.",
       "leaveAtDoor": "Vete a la puerta.",
-      "leaveAtDoorHint": "Entrega sin contacto requiere pago de tarjeta.",
-      "leaveAtDoorCard": "El pago de la tarjeta se requiere cuando la orden se deja en la puerta.",
+      "leaveAtDoorHint": "El repartidor dejará el pedido en tu puerta.",
       "timeTitle": "Tiempo de entrega",
       "timeDescription": "Ordene ahora o reserve un tiempo disponible.",
       "standard": "Tan pronto como sea posible",

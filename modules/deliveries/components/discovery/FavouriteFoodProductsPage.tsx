@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Footer } from "@/components/shared/app-shell/Footer";
 import { Header } from "@/components/shared/app-shell/Header";
 import { HistoryBackButton } from "@/components/shared/HistoryBackButton";
-import { useSessionQuery } from "@/modules/account";
+import { LocationTrigger, useSessionQuery } from "@/modules/account";
 import { SearchProductCard } from "@/modules/deliveries/components/search/SearchProductCard";
 import { FavouriteFoodProductSkeleton } from "./FavouriteFoodProductSkeleton";
 import { useDiscoveryLocation } from "@/modules/deliveries/hooks/useDiscoveryQueries";
@@ -19,6 +19,7 @@ interface Props {
 
 export function FavouriteFoodProductsPage({ foodId, shopTypeId }: Props) {
   const t = useTranslations("deliveries.favouriteFoods");
+  const discoveryT = useTranslations("deliveries.discovery");
   const locale = useLocale();
   const session = useSessionQuery();
   const { location, isLocationReady } = useDiscoveryLocation(session.data?.authenticated === true);
@@ -39,7 +40,17 @@ export function FavouriteFoodProductsPage({ foodId, shopTypeId }: Props) {
           {!products.isPending && !products.isError ? <p aria-live="polite" className="mt-2 text-sm text-muted">{t("resultCount", { count: total })}</p> : null}
         </header>
         <section aria-label={t("productsTitle")} className="mt-6 sm:mt-8">
-          {!isLocationReady || products.isPending ? (
+          {!isLocationReady ? (
+            <div aria-busy="true" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }, (_, index) => <FavouriteFoodProductSkeleton key={index} />)}
+              <span className="sr-only">{t("loading")}</span>
+            </div>
+          ) : !location ? (
+            <div className="flex min-h-64 flex-col items-center justify-center gap-5 rounded-2xl bg-card p-8 text-center">
+              <p className="max-w-md text-sm text-body">{discoveryT("chooseLocation")}</p>
+              <LocationTrigger actionLabel={discoveryT("selectLocation")} />
+            </div>
+          ) : products.isPending ? (
             <div aria-busy="true" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }, (_, index) => <FavouriteFoodProductSkeleton key={index} />)}
               <span className="sr-only">{t("loading")}</span>

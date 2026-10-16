@@ -6,10 +6,11 @@ import { LocationTrigger } from "@/modules/account";
 
 interface Props {
   isError?: boolean;
+  isMissingLocation?: boolean;
   onRetry?: () => void;
 }
 
-export function DeliveryCoverageState({ isError = false, onRetry }: Props) {
+export function DeliveryCoverageState({ isError = false, isMissingLocation = false, onRetry }: Props) {
   const t = useTranslations("deliveries.discovery");
   const Icon = isError ? AlertCircle : MapPinOff;
 
@@ -20,13 +21,13 @@ export function DeliveryCoverageState({ isError = false, onRetry }: Props) {
           <Icon aria-hidden="true" className="size-9 sm:size-11" strokeWidth={1.5} />
         </span>
         <h2 className="mt-7 font-heading text-2xl font-extrabold tracking-[-0.03em] text-ink sm:text-4xl">
-          {t(isError ? "coverageErrorTitle" : "outsideAreaTitle")}
+          {t(isMissingLocation ? "locationRequiredTitle" : isError ? "coverageErrorTitle" : "outsideAreaTitle")}
         </h2>
         <p className="mt-3 max-w-md text-sm leading-6 text-body sm:text-base sm:leading-7">
-          {t(isError ? "coverageErrorDescription" : "outsideAreaDescription")}
+          {t(isMissingLocation ? "locationRequiredDescription" : isError ? "coverageErrorDescription" : "outsideAreaDescription")}
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <LocationTrigger actionLabel={t("changeLocation")} />
+          <LocationTrigger actionLabel={t(isMissingLocation ? "selectLocation" : "changeLocation")} />
           {isError && onRetry ? (
             <button className="inline-flex min-h-11 items-center gap-2 rounded-full px-5 text-sm font-semibold text-brand transition-colors hover:bg-brand-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" onClick={onRetry} type="button">
               <RefreshCw aria-hidden="true" className="size-4" />

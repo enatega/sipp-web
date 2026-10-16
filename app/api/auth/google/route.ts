@@ -22,7 +22,21 @@ export async function POST(request: NextRequest) {
     user_type: "Customer",
     device_push_token: "",
   });
-  if (!upstream.ok) return upstream;
+  if (!upstream.ok) {
+    const error = await upstream.clone().json().catch(() => null) as {
+      message?: string;
+    } | null;
+    if (
+      upstream.status === 400 &&
+      error?.message?.startsWith("This email is registered with a non-google account.")
+    ) {
+      return NextResponse.json(
+        { code: "GOOGLE_ACCOUNT_USES_PASSWORD", message: error.message },
+        { status: upstream.status },
+      );
+    }
+    return upstream;
+  }
 
   const data = (await upstream.json()) as AuthSuccess & { phoneVerificationRequired?: boolean };
   if (data.phoneVerificationRequired) {

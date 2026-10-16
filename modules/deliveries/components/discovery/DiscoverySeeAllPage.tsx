@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Header } from "@/components/shared/app-shell/Header";
 import { HistoryBackButton } from "@/components/shared/HistoryBackButton";
-import { useSessionQuery } from "@/modules/account";
+import { LocationTrigger, useSessionQuery } from "@/modules/account";
 import { loginHref } from "@/modules/account/utils/authRedirect";
 import { discoveryApi } from "@/modules/deliveries/api/discovery";
 import { useDiscoveryLocation, useShopTypesQuery } from "@/modules/deliveries/hooks/useDiscoveryQueries";
@@ -88,7 +88,7 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
   const supportsFilters = kind === "nearby" || kind === "stores";
   const source = kind === "stores" && shopTypeId ? "shop-type" : kind === "deals" ? "deals" : "nearby";
   const effectiveShopType = kind === "stores" ? shopTypeId : selectedShopType;
-  const requiresLocation = kind === "nearby" || (kind === "stores" && !shopTypeId);
+  const requiresLocation = isStoreKind || kind === "top-brands" || kind === "order-again";
 
   useEffect(() => {
     if (!session.isPending && !authenticated && kind === "order-again") {
@@ -223,7 +223,10 @@ export function DiscoverySeeAllPage({ kind }: { kind: DiscoverySeeAllKind }) {
           <section aria-live="polite" className="mt-7">
             {isLocationReady && requiresLocation && !location ? (
               <div className="grid min-h-72 place-items-center rounded-2xl bg-card p-8 text-center shadow-sm">
-                <p className="max-w-md text-sm text-body">{discoveryT("chooseLocation")}</p>
+                <div className="flex flex-col items-center gap-5">
+                  <p className="max-w-md text-sm text-body">{discoveryT("chooseLocation")}</p>
+                  <LocationTrigger actionLabel={discoveryT("selectLocation")} />
+                </div>
               </div>
             ) : (kind === "order-again" && session.isPending) || query.isPending ? (
               <div className="grid min-h-80 place-items-center"><LoaderCircle aria-hidden="true" className="size-7 animate-spin text-brand" /><span className="sr-only">{t("loading")}</span></div>

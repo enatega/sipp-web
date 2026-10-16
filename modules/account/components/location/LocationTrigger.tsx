@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/brand/Icon";
 import { LocationModal } from "@/modules/account/components/location/LocationModal";
-import { readStoredPlace } from "@/modules/account/api/location";
+import { useSelectedDeliveryPlace } from "@/modules/account/hooks/useSelectedDeliveryPlace";
 import { useSessionQuery } from "@/modules/account/queries/useAccountQueries";
-import type { ChosenPlace } from "@/modules/account/types";
 
 /**
  * Header entry point for the location picker. Signed-in visitors continue
@@ -14,17 +14,10 @@ import type { ChosenPlace } from "@/modules/account/types";
  */
 export function LocationTrigger({ actionLabel }: { actionLabel?: string }) {
   const [open, setOpen] = useState(false);
-  const [place, setPlace] = useState<ChosenPlace | null>(null);
+  const t = useTranslations("location");
   const session = useSessionQuery();
-
-  useEffect(() => {
-    const sync = () => setPlace(readStoredPlace());
-    sync();
-    window.addEventListener("shaaneiol-location-change", sync);
-    return () => window.removeEventListener("shaaneiol-location-change", sync);
-  }, []);
-
-  const summary = place?.label ?? place?.address.split(",")[0] ?? "Location";
+  const { place } = useSelectedDeliveryPlace(session.data?.authenticated === true);
+  const summary = place?.label || place?.address.split(",")[0] || t("headerPlaceholder");
 
   return (
     <>

@@ -162,6 +162,7 @@
     "signingInGoogle": "Anmeldung mit Google…",
     "googleInvalidResponse": "Google konnte Ihr Konto nicht bestätigen. Bitte versuchen Sie es erneut.",
     "socialLoginError": "Die Anmeldung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.",
+    "googleAccountUsesPassword": "Für diese E-Mail-Adresse gibt es bereits ein Konto mit Passwort. Geben Sie oben Ihre E-Mail-Adresse ein und melden Sie sich mit Ihrem Passwort an.",
     "loginSuccess": "Anmeldung erfolgreich."
   },
   "profile": {
@@ -444,6 +445,7 @@
     "nameRequired": "Geben Sie Ihren vollständigen Namen ein."
   },
   "location": {
+    "headerPlaceholder": "Standort",
     "title": "Wohin sollen wir liefern?",
     "search": "Gebiet oder Adresse suchen",
     "current": "Aktuellen Standort verwenden",
@@ -975,6 +977,9 @@
       "coverageErrorTitle": "Lieferverfügbarkeit konnte nicht geprüft werden",
       "coverageErrorDescription": "Bitte versuchen Sie es erneut oder wählen Sie einen anderen Standort. Wir zeigen erst Geschäfte an, wenn die Lieferverfügbarkeit bestätigt ist.",
       "changeLocation": "Standort ändern",
+      "selectLocation": "Standort auswählen",
+      "locationRequiredTitle": "Lieferstandort auswählen",
+      "locationRequiredDescription": "Wählen Sie einen Standort, um Restaurants und Geschäfte zu sehen, die zu Ihnen liefern.",
       "foodDelivery": "SIPP-Lieferung",
       "signInTitle": "Anmelden und lokale Unternehmen entdecken",
       "signInMessage": "Wählen Sie Ihre Lieferadresse und entdecken Sie nahe Restaurants, Märkte, Angebote und frühere Bestellungen.",
@@ -1630,8 +1635,7 @@
       "addressUnavailable": "Dieses Unternehmen liefert nicht an diese Adresse. Wählen Sie eine Adresse im Liefergebiet.",
       "addressValidationError": "Die Lieferung an diese Adresse konnte nicht bestätigt werden. Bitte versuchen Sie es erneut.",
       "leaveAtDoor": "Vor der Tür abstellen",
-      "leaveAtDoorHint": "Kontaktlose Lieferung erfordert Kartenzahlung.",
-      "leaveAtDoorCard": "Für das Abstellen vor der Tür ist Kartenzahlung erforderlich.",
+      "leaveAtDoorHint": "Der Kurier stellt die Bestellung vor Ihrer Tür ab.",
       "timeTitle": "Lieferzeit",
       "timeDescription": "Jetzt bestellen oder eine verfügbare Zeit reservieren.",
       "standard": "So bald wie möglich",

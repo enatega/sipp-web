@@ -45,10 +45,10 @@ export function DiscoveryPage() {
   const layout = useHomeLayoutQuery();
   const shopTypes = useShopTypesQuery(true, true);
   const banners = useBannersQuery(true, true);
-  const topBrands = useTopBrandsQuery(location, true, true);
+  const topBrands = useTopBrandsQuery(location, Boolean(location), true);
   const nearby = useNearbyStoresQuery(location, true, true);
-  const deals = useDealsQuery(true, true, location);
-  const orderAgain = useOrderAgainQuery(isAuthenticated, session.data?.user?.id);
+  const deals = useDealsQuery(Boolean(location), true, location);
+  const orderAgain = useOrderAgainQuery(isAuthenticated && Boolean(location), session.data?.user?.id);
   const homeSections = pinLeadSections(layout.data?.sections ?? [
     { key: 'shop-types', kind: 'shop-types', title: '' },
     { key: 'banners', kind: 'banners', title: '' },
@@ -63,11 +63,24 @@ export function DiscoveryPage() {
   const rowQueries = useShopTypeStoreQueries(
     rows.map((row) => ({ id: row.key.slice("shop-type:".length) })),
     location,
-    true,
+    Boolean(location),
     true,
   );
 
-  if (session.isPending || layout.isPending || !isLocationReady || (location && coverage.isPending)) return <DiscoveryPageSkeleton />;
+  if (session.isPending || !isLocationReady) return <DiscoveryPageSkeleton />;
+
+  if (!location) {
+    return <>
+      <Header />
+      <main className="bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_520px)]">
+        <h1 className="sr-only">{t("pageTitle")}</h1>
+        <DeliveryCoverageState isMissingLocation />
+      </main>
+      <Footer />
+    </>;
+  }
+
+  if (layout.isPending || coverage.isPending) return <DiscoveryPageSkeleton />;
 
   if (location && (coverage.isError || coverage.data?.available === false)) {
     return <>
