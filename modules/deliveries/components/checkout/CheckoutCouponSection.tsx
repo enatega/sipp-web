@@ -3,6 +3,7 @@
 import { ChevronDown, CircleCheck, LoaderCircle, TicketPercent } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { useAppCurrencyFormatter } from "@/lib/useAppCurrency";
 import { CouponListItem, couponUsability } from "@/modules/account/components/profile/CouponListItem";
 import { useCouponText } from "@/modules/account/hooks/useCouponText";
@@ -10,6 +11,7 @@ import { useClaimCouponMutation, useClaimedCouponsQuery, useCouponActivationMuta
 import { ApiError } from "@/services/api/client";
 import type { ClaimedCoupon } from "@/modules/account/types/coupons";
 import type { CheckoutOrderType, CheckoutPaymentMethod, CheckoutPreviewCoupon } from "../../types/checkout";
+import { time } from "node:console";
 
 interface Props {
   enabled: boolean;
@@ -88,7 +90,15 @@ export function CheckoutCouponSection({ enabled, storeId, subtotal, orderType, p
       const result = await activation.mutateAsync({ id: couponId, isActive: !isRemoving });
       // Only one offer applies at a time; say so when a new one takes over.
       if (!isRemoving && result.replacedCoupon) {
-        setNotice({ kind: "success", text: t("couponReplaced", { previous: result.replacedCoupon.name, next: coupon?.name ?? "" }) });
+        toast.info(
+          t("couponReplaced", {
+            previous: result.replacedCoupon.name,
+            next: coupon?.name ?? "",
+          }),
+          {
+            duration: 6000,
+          }
+        );
       }
       // Applying is otherwise confirmed (or explained) by the refreshed preview.
       if (isRemoving) setNotice({ kind: "success", text: t("couponRemoved") });
