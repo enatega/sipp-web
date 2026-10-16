@@ -34,6 +34,17 @@ function browseQuery(params: DiscoveryBrowseParams) {
 }
 
 export const discoveryApi = {
+  async coverage(location: DiscoveryLocation, signal?: AbortSignal): Promise<{ available: boolean }> {
+    const query = new URLSearchParams({
+      latitude: String(location.latitude),
+      longitude: String(location.longitude),
+    });
+    const payload = await requestJson<unknown>(`${apiRoutes.discovery.coverage}?${query}`, { signal });
+    if (!payload || typeof payload !== "object" || typeof (payload as { available?: unknown }).available !== "boolean") {
+      throw new Error("Invalid delivery coverage response");
+    }
+    return payload as { available: boolean };
+  },
   async homeLayout(signal?: AbortSignal): Promise<{ revision: number; sections: { key: string; kind: string; title: string }[] }> {
     return requestJson<{ revision: number; sections: { key: string; kind: string; title: string }[] }>(`${apiRoutes.discovery.home}`, { signal });
   },

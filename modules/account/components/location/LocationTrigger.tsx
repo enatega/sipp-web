@@ -12,7 +12,7 @@ import type { ChosenPlace } from "@/modules/account/types";
  * into the save-address step after confirming; guests just keep the pick
  * for this browser.
  */
-export function LocationTrigger() {
+export function LocationTrigger({ actionLabel }: { actionLabel?: string }) {
   const [open, setOpen] = useState(false);
   const [place, setPlace] = useState<ChosenPlace | null>(null);
   const session = useSessionQuery();
@@ -29,15 +29,17 @@ export function LocationTrigger() {
   return (
     <>
       <button
-        id="delivery-location-trigger"
-        className="flex min-h-11 min-w-0 max-w-[120px] items-center gap-1 whitespace-nowrap text-[11px] text-ink sm:max-w-[180px] sm:text-[13px]"
+        id={actionLabel ? undefined : "delivery-location-trigger"}
+        className={actionLabel
+          ? "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-ink transition-colors hover:bg-brand/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          : "flex min-h-11 min-w-0 max-w-[120px] items-center gap-1 whitespace-nowrap text-[11px] text-ink sm:max-w-[180px] sm:text-[13px]"}
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
       >
         <Icon name="pin" className="size-3 flex-none sm:size-3.5" />
-        <b className="truncate font-semibold">{summary}</b>
-        <Icon name="chevron" className="size-3 flex-none" />
+        <b className="truncate font-semibold">{actionLabel ?? summary}</b>
+        {!actionLabel ? <Icon name="chevron" className="size-3 flex-none" /> : null}
       </button>
 
       <LocationModal

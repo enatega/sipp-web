@@ -8,12 +8,16 @@ import type { AddCartItemInput, CartResponse } from "../types/cart";
 
 const CART_STALE_TIME = 15_000;
 
-export function useCartQuery(enabled = true) {
+export function useCartQuery(
+  enabled = true,
+  refetchOnMount: boolean | "always" = true,
+) {
   return useQuery({
     queryKey: deliveryQueryKeys.cart(),
     queryFn: ({ signal }) => cartApi.details(signal),
     enabled,
     staleTime: CART_STALE_TIME,
+    refetchOnMount,
     refetchOnWindowFocus: true,
   });
 }

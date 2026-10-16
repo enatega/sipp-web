@@ -27,6 +27,9 @@ export type InboxNotification = {
   createdAt: string;
   isRead: boolean;
   href: string | null;
+  type: string | null;
+  orderId: string | null;
+  status: string | null;
 };
 
 export type NotificationInboxPage = {

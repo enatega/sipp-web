@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormik } from "formik";
 import { ArrowLeft, Bike, ChevronRight, CreditCard, LoaderCircle, MapPin, MessageSquareText, ShoppingBag, Store, Truck, WalletCards } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { Header } from "@/components/shared/app-shell/Header";
 import { useAppCurrency } from "@/lib/useAppCurrency";
 import { useAddressesQuery, useProfileQuery, useSavedCardsQuery, useSessionQuery, useStoredPlace, useWalletQuery, type ChosenPlace, type SavedAddress, type SavedCard } from "@/modules/account";
 import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
+import { useCouponText } from "@/modules/account/hooks/useCouponText";
 import { ApiError } from "@/services/api/client";
 import { checkoutSchema, type CheckoutFormValues } from "../../schemas/checkoutSchema";
 import { useCartQuery } from "../../hooks/useCart";
@@ -21,11 +22,16 @@ import { CheckoutCouponSection } from "./CheckoutCouponSection";
 import { CheckoutSavedCardPicker } from "./CheckoutSavedCardPicker";
 import { CheckoutSummary } from "./CheckoutSummary";
 import { CheckoutPhoneVerification } from "./CheckoutPhoneVerification";
+import {
+  CheckoutOrderProgressDialog,
+  type CheckoutProgressStage,
+} from "./CheckoutOrderProgressDialog";
 import { StripePaymentModal } from "./StripePaymentModal";
 import { clearCheckoutNotesDraft, readCheckoutNotesDraft, writeCheckoutNotesDraft } from "../../utils/checkoutNotesDraft";
 import { isStripeCheckoutUrl } from "../../utils/stripeCheckoutUrl";
 
-const TIP_OPTIONS = [0, 5, 10, 20];
+const CRC_TIP_OPTIONS = [0, 500, 1_000, 2_000];
+const DEFAULT_TIP_OPTIONS = [0, 5, 10, 20];
 
 type StoredCheckoutAttempt = { userId: string; bucketId: string; storeId: string; draftId?: string };
 const checkoutAttemptKey = (userId: string) => `sipp_checkout_attempt_${userId}`;
@@ -38,10 +44,10 @@ function readCheckoutAttempt(userId: string): StoredCheckoutAttempt | null {
   } catch { return null; }
 }
 function saveCheckoutAttempt(attempt: StoredCheckoutAttempt) {
-  window.localStorage.setItem(checkoutAttemptKey(attempt.userId), JSON.stringify(attempt));
+  try { window.localStorage.setItem(checkoutAttemptKey(attempt.userId), JSON.stringify(attempt)); } catch { /* Recovery still runs for this session. */ }
 }
 function clearCheckoutAttempt(userId: string) {
-  window.localStorage.removeItem(checkoutAttemptKey(userId));
+  try { window.localStorage.removeItem(checkoutAttemptKey(userId)); } catch { /* Storage may be unavailable. */ }
 }
 
 function buildNote(values: CheckoutFormValues) {
@@ -90,6 +96,13 @@ function isMissingCartBucketError(error: unknown) {
   return error instanceof ApiError && error.status === 404 && /bucket not found/i.test(error.message);
 }
 
+function isOutsideDeliveryAreaError(error: unknown) {
+  return error instanceof ApiError && (
+    error.code === "STORE_OUTSIDE_DELIVERY_AREA" ||
+    /outside.*delivery area|does not deliver/i.test(error.message)
+  );
+}
+
 interface Props {
   initialStripeDraftId?: string;
   wasCardPaymentCancelled?: boolean;
@@ -97,7 +110,12 @@ interface Props {
 
 export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = false }: Props) {
   const t = useTranslations("deliveries.checkout");
-  const { symbol: currencySymbol } = useAppCurrency();
+  const format = useFormatter();
+  const { code: currencyCode, symbol: currencySymbol } = useAppCurrency();
+  const tipOptions = currencyCode.toUpperCase() === "CRC"
+    ? CRC_TIP_OPTIONS
+    : DEFAULT_TIP_OPTIONS;
+  const couponText = useCouponText();
   const router = useRouter();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
@@ -116,7 +134,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const validateAddress = useValidateCheckoutAddressMutation();
   const [submitError, setSubmitError] = useState("");
   const [isOrderConfirmationUnknown, setIsOrderConfirmationUnknown] = useState(false);
-  const [pendingPlacement, setPendingPlacement] = useState<{ bucketId: string; storeId: string } | null>(null);
+  const [pendingPlacement, setPendingPlacement] = useState<{ bucketId: string; storeId: string; paymentMethod?: "wallet" | "stripe" } | null>(null);
 
   useEffect(() => {
     if (!checkoutUserId) return;
@@ -145,8 +163,18 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const [isStripeConfirmed, setIsStripeConfirmed] = useState(false);
   const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
   const [isCancellationNoticeVisible, setIsCancellationNoticeVisible] = useState(wasCardPaymentCancelled);
+  const [checkoutProgressStage, setCheckoutProgressStage] =
+    useState<Exclude<CheckoutProgressStage, "success"> | null>(null);
+  const [wasPaymentNavigationBlocked, setWasPaymentNavigationBlocked] =
+    useState(false);
+  const [completedOrder, setCompletedOrder] = useState<{
+    orderId: string;
+    paymentMethod: "wallet" | "stripe";
+  } | null>(null);
   const addressTriggerRef = useRef<HTMLButtonElement>(null);
   const checkoutAlertRegionRef = useRef<HTMLDivElement>(null);
+  const isLeavingForStripeRef = useRef(false);
+  const completedOrderIdRef = useRef<string | null>(null);
   const activeAddressOverride =
     addressOverride?.sourcePlace === storedPlace.place ? addressOverride : null;
   const deliveryPlace = activeAddressOverride?.place ?? storedPlace.place;
@@ -167,6 +195,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     validationSchema: checkoutSchema({ addressRequired: t("addressRequired"), noteTooLong: t("noteTooLong"), invalidTip: t("invalidTip") }),
     onSubmit: async (values) => {
       if (pendingPlacement || restoredAttempt || !attemptLoaded) return;
+      if (!preview.data || preview.isFetching || couponIssues.length > 0) return;
       if (!cart.data?.bucketId || !cart.data.storeId) return;
       if (values.orderType === "delivery" && !deliveryPlace) return;
       if (values.paymentMethod === "wallet") {
@@ -183,6 +212,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           return;
         }
       }
+      setWasPaymentNavigationBlocked(false);
       setSubmitError("");
       setIsOrderConfirmationUnknown(false);
       const input: PlaceOrderInput = {
@@ -201,6 +231,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           : {}),
         customerNote: buildNote(values),
       };
+      setCheckoutProgressStage("placing");
       try {
         if (values.paymentMethod === 'stripe') {
           if (!checkoutUserId) throw new Error('Signed-in customer is unavailable');
@@ -208,27 +239,20 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           saveCheckoutAttempt(attempt);
           setRestoredAttempt(attempt);
         }
-        const response = await placeOrder.mutateAsync({
-          storeId: cart.data.storeId,
-          bucketId: cart.data.bucketId,
-          orderType: values.orderType,
-          paymentMethod: values.paymentMethod,
-          ...(values.paymentMethod === "stripe" && resolvedPaymentMethodId
-            ? { paymentMethodId: resolvedPaymentMethodId }
-            : {}),
-          ...(values.orderType === "delivery" && deliveryPlace
-            ? {
-              ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId),
-              riderTip: values.riderTip || undefined,
-            }
-            : {}),
-          customerNote: buildNote(values),
-        });
-        clearCheckoutNotesDraft(cart.data.bucketId);
+        const response = await placeOrder.mutateAsync(input);
         if (response.mode === "stripe") {
           if (response.orderId) {
+            completedOrderIdRef.current = response.orderId;
+            clearCheckoutNotesDraft(input.bucketId);
             if (checkoutUserId) clearCheckoutAttempt(checkoutUserId);
-            router.push(`/orders/${response.orderId}`);
+            setRestoredAttempt(null);
+            setPendingPlacement(null);
+            setCheckoutProgressStage(null);
+            setCompletedOrder({
+              orderId: response.orderId,
+              paymentMethod: "stripe",
+            });
+            void refetchCart();
             return;
           }
           if (checkoutUserId) {
@@ -238,16 +262,21 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           }
           if (response.checkoutUrl) {
             if (!isStripeCheckoutUrl(response.checkoutUrl)) {
+              setCheckoutProgressStage(null);
               showSubmitError(t("paymentRedirectError"));
               return;
             }
+            setCheckoutProgressStage(null);
+            isLeavingForStripeRef.current = true;
             window.location.assign(response.checkoutUrl);
             return;
           }
           if (!response.clientSecret) {
+            setCheckoutProgressStage(null);
             showSubmitError(t("paymentRedirectError"));
             return;
           }
+          setCheckoutProgressStage(null);
           setStripePayment({
             clientSecret: response.clientSecret,
             draftId: response.draftId,
@@ -260,40 +289,68 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           );
           return;
         }
-        router.push(`/orders/${response.orderId}`);
+        completedOrderIdRef.current = response.orderId;
+        clearCheckoutNotesDraft(input.bucketId);
+        setCheckoutProgressStage(null);
+        setCompletedOrder({
+          orderId: response.orderId,
+          paymentMethod: "wallet",
+        });
+        void refetchCart();
       } catch (error) {
-        if (values.paymentMethod === 'stripe') {
-          setPendingPlacement({ bucketId: input.bucketId, storeId: input.storeId });
-        }
         if (error instanceof ApiError && /PHONE_VERIFICATION_REQUIRED/.test(error.message)) {
+          setCheckoutProgressStage(null);
+          if (values.paymentMethod === "stripe" && checkoutUserId) {
+            clearCheckoutAttempt(checkoutUserId);
+            setRestoredAttempt(null);
+          }
           await profile.refetch();
           showSubmitError(t("phoneVerificationNeededAgain"));
           return;
         }
         if (!(error instanceof ApiError) || error.status === 408 || error.status >= 500) {
-          for (let attempt = 0; attempt < 3; attempt += 1) {
-            if (attempt > 0) {
-              await new Promise<void>((resolve) => window.setTimeout(resolve, 1_500));
+          setCheckoutProgressStage("checking");
+          const lookupDelays = [0, 1_500, 3_000, 5_000];
+          for (const delay of lookupDelays) {
+            if (delay > 0) {
+              await new Promise<void>((resolve) => window.setTimeout(resolve, delay));
             }
             try {
               const placed = await lookupPlacedOrder({ bucketId: input.bucketId, storeId: input.storeId });
               if (placed.orderId) {
+                completedOrderIdRef.current = placed.orderId;
+                clearCheckoutNotesDraft(input.bucketId);
+                if (checkoutUserId) clearCheckoutAttempt(checkoutUserId);
+                setRestoredAttempt(null);
+                setPendingPlacement(null);
                 void refetchCart();
-                router.push(`/orders/${placed.orderId}`);
+                setCheckoutProgressStage(null);
+                setCompletedOrder({
+                  orderId: placed.orderId,
+                  paymentMethod: input.paymentMethod,
+                });
                 return;
               }
             } catch (lookupError) {
               if (lookupError instanceof ApiError && (lookupError.status === 401 || lookupError.status === 403)) {
+                setCheckoutProgressStage(null);
                 setIsOrderConfirmationUnknown(true);
                 showSubmitError(checkoutErrorMessage(lookupError));
                 return;
               }
             }
           }
-          setPendingPlacement({ bucketId: input.bucketId, storeId: input.storeId });
+          setPendingPlacement({ bucketId: input.bucketId, storeId: input.storeId, paymentMethod: input.paymentMethod });
+          setCheckoutProgressStage(null);
           setIsOrderConfirmationUnknown(true);
           showSubmitError(t("orderConfirmationUnknown"));
           return;
+        }
+        setCheckoutProgressStage(null);
+        if (values.paymentMethod === "stripe" && checkoutUserId) {
+          clearCheckoutAttempt(checkoutUserId);
+          setRestoredAttempt(null);
+          setPendingPlacement(null);
         }
         if (isMissingCartBucketError(error)) {
           await refetchCart();
@@ -329,6 +386,14 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   }, [cart.data, deliveryPlace, formik.values.orderType, formik.values.paymentMethod, formik.values.riderTip, profile.data?.data?.user, selectedSavedAddressId]);
   const preview = useCheckoutPreview(previewInput);
   const pendingOrderLookup = usePendingPlacementLookup(pendingPlacement);
+  // Only inputs that can change coupon eligibility put the coupon card into a
+  // loading state; repricing for a tip or address keeps its last status.
+  const couponPreviewKey = `${cart.data?.bucketId}:${cart.data?.appliedCouponIds.join(",")}:${cart.data?.totalPrice}:${formik.values.orderType}:${formik.values.paymentMethod}`;
+  const [resolvedCouponPreviewKey, setResolvedCouponPreviewKey] = useState<string | null>(null);
+  if (preview.data && !preview.isFetching && resolvedCouponPreviewKey !== couponPreviewKey) {
+    setResolvedCouponPreviewKey(couponPreviewKey);
+  }
+  const isCouponPreviewLoading = preview.isPending || (preview.isFetching && resolvedCouponPreviewKey !== couponPreviewKey);
   const activeStripeDraftId = stripePayment?.draftId ?? initialStripeDraftId ?? restoredAttempt?.draftId ?? pendingOrderLookup.data?.draftId ?? null;
   const stripeOrderStatus = useStripeOrderStatus(
     activeStripeDraftId,
@@ -342,13 +407,12 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const walletTopUpHref = `/wallet?topUpAmount=${encodeURIComponent(String(walletShortfall))}&returnTo=checkout`;
   const isAddressPreviewError =
     formik.values.orderType === "delivery" &&
-    preview.error instanceof ApiError &&
-    preview.error.status === 400 &&
-    /outside.*delivery area|does not deliver/i.test(preview.error.message);
+    isOutsideDeliveryAreaError(preview.error);
   const hasPreviewError =
     preview.isError &&
     !isAddressPreviewError &&
     preview.error !== dismissedPreviewError;
+  const isCheckoutRequestActive = checkoutProgressStage !== null;
 
 
   useEffect(() => {
@@ -359,24 +423,60 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   }, [authenticated, router, session.isPending]);
 
   useEffect(() => {
+    if (!isCheckoutRequestActive) return;
+
+    const currentState = window.history.state;
+    window.history.pushState(
+      { ...currentState, sippCheckoutRequestGuard: true },
+      "",
+      window.location.href,
+    );
+
+    const keepCheckoutOpen = () => {
+      if (isLeavingForStripeRef.current) return;
+      setWasPaymentNavigationBlocked(true);
+      window.history.forward();
+    };
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
+      if (isLeavingForStripeRef.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("popstate", keepCheckoutOpen);
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => {
+      window.removeEventListener("popstate", keepCheckoutOpen);
+      window.removeEventListener("beforeunload", warnBeforeLeaving);
+    };
+  }, [isCheckoutRequestActive]);
+
+  useEffect(() => {
     const orderId = stripeOrderStatus.data?.orderId;
-    if (!orderId) return;
+    if (!orderId || completedOrderIdRef.current === orderId) return;
+    completedOrderIdRef.current = orderId;
+    const completedBucketId = restoredAttempt?.bucketId ?? pendingPlacement?.bucketId;
+    if (completedBucketId) clearCheckoutNotesDraft(completedBucketId);
     if (checkoutUserId) clearCheckoutAttempt(checkoutUserId);
     setRestoredAttempt(null);
     setPendingPlacement(null);
+    setCheckoutProgressStage(null);
+    setCompletedOrder((current) => current ?? { orderId, paymentMethod: "stripe" });
     void refetchCart();
-    router.push(`/orders/${orderId}`);
-  }, [checkoutUserId, refetchCart, router, stripeOrderStatus.data?.orderId]);
+  }, [checkoutUserId, pendingPlacement?.bucketId, refetchCart, restoredAttempt?.bucketId, stripeOrderStatus.data?.orderId]);
 
   useEffect(() => {
     const orderId = pendingOrderLookup.data?.orderId;
-    if (!orderId || !pendingPlacement) return;
+    if (!orderId || !pendingPlacement || completedOrderIdRef.current === orderId) return;
+    completedOrderIdRef.current = orderId;
+    clearCheckoutNotesDraft(pendingPlacement.bucketId);
     if (checkoutUserId) clearCheckoutAttempt(checkoutUserId);
     setRestoredAttempt(null);
     setPendingPlacement(null);
+    setCheckoutProgressStage(null);
+    setCompletedOrder((current) => current ?? { orderId, paymentMethod: pendingPlacement.paymentMethod ?? "stripe" });
     void refetchCart();
-    router.push(`/orders/${orderId}`);
-  }, [checkoutUserId, pendingOrderLookup.data?.orderId, pendingPlacement, refetchCart, router]);
+  }, [checkoutUserId, pendingOrderLookup.data?.orderId, pendingPlacement, refetchCart]);
 
   useEffect(() => {
     if (!(pendingPlacement || restoredAttempt) || !stripeOrderStatus.data || stripeOrderStatus.data.orderId) return;
@@ -403,6 +503,15 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   }, [checkoutUserId, pendingPlacement, restoredAttempt, stripeOrderStatus.data, t]);
 
   useEffect(() => {
+    if (!completedOrder) return;
+    const timeout = window.setTimeout(
+      () => router.replace(`/orders/${completedOrder.orderId}`),
+      1_800,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [completedOrder, router]);
+
+  useEffect(() => {
     if (isMissingCartBucketError(preview.error)) {
       void refetchCart();
     }
@@ -421,6 +530,11 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       return t("offlineError");
     }
     if (error instanceof ApiError) {
+      if (isOutsideDeliveryAreaError(error)) return t("addressUnavailable");
+      if (error.code === "CART_INVENTORY_CHANGED") return error.message;
+      const couponIssue = couponText.errorIssue(error);
+      if (couponIssue) return couponText.issueMessage(couponIssue);
+      if (/STORE_MINIMUM_ORDER_NOT_MET/.test(error.message)) return t("storeMinimumNotMet");
       if (/store is currently closed/i.test(error.message)) return t("storeClosedMessage");
       if (
         /USD conversion rate|Active currency configuration|USD minimum charge/i.test(
@@ -431,12 +545,6 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       }
       if (error.status === 401) return t("sessionError");
       if (error.status === 403) return t("permissionError");
-      if (
-        error.status === 400 &&
-        /outside.*delivery area|does not deliver/i.test(error.message)
-      ) {
-        return t("addressUnavailable");
-      }
       if (error.status === 409) return t("orderChangedError");
       if (isMissingCartBucketError(error)) return t("orderChangedError");
       if (/insufficient.*wallet|wallet.*balance/i.test(error.message)) {
@@ -496,9 +604,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       setIsAddressPickerOpen(false);
       window.requestAnimationFrame(() => addressTriggerRef.current?.focus());
     } catch (error) {
-      const isOutsideDeliveryArea =
-        error instanceof ApiError &&
-        /outside.*delivery area|does not deliver/i.test(error.message);
+      const isOutsideDeliveryArea = isOutsideDeliveryAreaError(error);
       setAddressPickerError(
         isOutsideDeliveryArea
           ? t("addressUnavailable")
@@ -521,16 +627,26 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   }
   if (cart.isError || !cart.data) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button type="button" onClick={() => void cart.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
   if (profile.isError || !profile.data?.data?.user) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("phoneVerificationProfileError")}</h1><button type="button" onClick={() => void profile.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
+  if (completedOrder) return <><Header /><main className="min-h-[65vh] bg-[linear-gradient(180deg,var(--soft-surface)_0,transparent_320px)]" /><CheckoutOrderProgressDialog orderId={completedOrder.orderId} paymentMethod={completedOrder.paymentMethod} stage="success" onViewOrder={() => router.replace(`/orders/${completedOrder.orderId}`)} /></>;
   if (cart.data.isEmpty) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><ShoppingBag aria-hidden="true" className="mx-auto size-10 text-brand" /><h1 className="mt-4 text-xl font-bold text-ink">{t("emptyTitle")}</h1><p className="mt-2 text-sm text-body">{t("emptyMessage")}</p><div className="mt-5 flex flex-wrap justify-center gap-3"><Link href="/orders" className="inline-flex rounded-full border border-line px-6 py-3 text-sm font-bold text-ink">{t("viewOrders")}</Link><Link href="/discovery" className="inline-flex rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("browseFood")}</Link></div></div></main></>;
   if (profile.data.data.user.phone_verification_required ?? (!profile.data.data.user.phone || !profile.data.data.user.phone_is_verified)) return <CheckoutPhoneVerification initialPhone={profile.data.data.user.phone} onVerified={() => profile.refetch()} />;
 
   const store = preview.data?.store;
+  // Every applied coupon the server refused must be fixed or removed before ordering.
+  const couponIssues = (preview.data?.coupons ?? (preview.data?.coupon ? [preview.data.coupon] : []))
+    .filter((coupon) => coupon.issue)
+    .map((coupon) => ({ code: coupon.name ?? coupon.code, message: couponText.issueMessage(coupon.issue!) }));
   const checkoutAlerts: CheckoutAlert[] = [
     ...(isCancellationNoticeVisible ? [{ id: "card-cancelled", title: t("cardPaymentTitle"), message: t("cardPaymentCancelled"), onDismiss: () => { setIsCancellationNoticeVisible(false); router.replace("/checkout"); } }] : []),
     ...(hasPreviewError
       ? [{
         id: "preview",
-        title: preview.error instanceof ApiError && /store is currently closed/i.test(preview.error.message) ? t("storeClosedTitle") : t("previewErrorTitle"),
+        title:
+          preview.error instanceof ApiError && /store is currently closed/i.test(preview.error.message)
+            ? t("storeClosedTitle")
+            : preview.error instanceof ApiError && preview.error.code === "CART_INVENTORY_CHANGED"
+              ? t("inventoryChangedTitle")
+              : t("previewErrorTitle"),
         message: checkoutErrorMessage(preview.error),
         onDismiss: () => setDismissedPreviewError(preview.error),
       }]
@@ -564,7 +680,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6">
                 <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><Truck aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("fulfilmentTitle")}</h2><p className="text-xs text-muted">{t("fulfilmentDescription")}</p></div></div>
                 <div className="mt-5 grid grid-cols-2 gap-3">
-                  {(["delivery", "pickup"] as const).map((type) => { const disabled = type === "delivery" ? store?.deliveryAllowed === false : store?.pickupAllowed === false; const Icon = type === "delivery" ? Bike : Store; return <button key={type} type="button" disabled={disabled} onClick={() => { void formik.setFieldValue("orderType", type); if (type === "pickup") { void formik.setFieldValue("leaveAtDoor", false); void formik.setFieldValue("riderTip", 0); } }} className={`flex min-h-16 items-center gap-3 rounded-2xl border px-4 text-left transition-[border-color,background-color,transform] ${formik.values.orderType === type ? "border-brand bg-brand/5 text-brand" : "border-line text-body hover:border-brand/30"} disabled:cursor-not-allowed disabled:opacity-40`}><Icon aria-hidden="true" className="size-5 shrink-0" /><span><strong className="block text-sm text-ink">{t(type)}</strong><small className="text-[11px]">{t(`${type}Hint`)}</small></span></button>; })}
+                  {(["delivery", "pickup"] as const).map((type) => { const disabled = type === "delivery" ? store?.deliveryAllowed === false : store?.pickupAllowed === false; const Icon = type === "delivery" ? Bike : Store; return <button key={type} type="button" disabled={disabled} onClick={() => { void formik.setFieldValue("orderType", type); if (type === "pickup") { void formik.setFieldValue("leaveAtDoor", false); void formik.setFieldValue("riderTip", 0); } }} className={`flex min-h-16 items-center gap-3 rounded-2xl border px-4 text-left transition-[border-color,background-color,transform] ${formik.values.orderType === type ? "border-brand bg-brand/5 text-brand" : "border-line text-body hover:border-brand/30"} disabled:cursor-not-allowed disabled:opacity-60`}><Icon aria-hidden="true" className="size-5 shrink-0" /><span><strong className="block text-sm text-ink">{t(type)}</strong><small className="text-[11px]">{t(disabled ? `${type}Unavailable` : `${type}Hint`)}</small></span></button>; })}
                 </div>
               </section>
 
@@ -572,7 +688,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
 
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6">
                 <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><CreditCard aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("paymentTitle")}</h2><p className="text-xs text-muted">{t("paymentDescription")}</p></div></div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">{(["wallet", "stripe"] as const).map((method) => { const disabled = method === "stripe" && store?.stripeAllowed === false; const Icon = method === "wallet" ? WalletCards : CreditCard; return <label key={method} className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-colors ${disabled ? "cursor-not-allowed opacity-40" : ""} ${formik.values.paymentMethod === method ? "border-brand bg-brand/5" : "border-line"}`}><input type="radio" name="paymentMethod" value={method} checked={formik.values.paymentMethod === method} disabled={disabled} onChange={formik.handleChange} className="accent-[var(--color-brand)]" /><Icon aria-hidden="true" className="size-5 text-brand" /><span><strong className="block text-sm text-ink">{t(method)}</strong><small className="text-xs text-muted">{t(`${method}Hint`)}</small></span></label>; })}</div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">{(["wallet", "stripe"] as const).map((method) => { const disabled = method === "stripe" && store?.stripeAllowed === false; const Icon = method === "wallet" ? WalletCards : CreditCard; return <label key={method} className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition-colors ${disabled ? "cursor-not-allowed opacity-60" : ""} ${formik.values.paymentMethod === method ? "border-brand bg-brand/5" : "border-line"}`}><input type="radio" name="paymentMethod" value={method} checked={formik.values.paymentMethod === method} disabled={disabled} onChange={formik.handleChange} className="accent-[var(--color-brand)]" /><Icon aria-hidden="true" className="size-5 text-brand" /><span><strong className="block text-sm text-ink">{t(method)}</strong><small className="text-xs text-muted">{t(disabled ? "stripeUnavailable" : `${method}Hint`)}</small></span></label>; })}</div>
                 {formik.values.paymentMethod === "stripe" ? (
                   <CheckoutSavedCardPicker
                     cards={savedCards.data?.cards ?? []}
@@ -596,14 +712,14 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
                 {formik.values.leaveAtDoor ? <p className="mt-3 text-xs text-muted">{t("leaveAtDoorCard")}</p> : null}
               </section>
 
-              <CheckoutCouponSection enabled={authenticated} storeId={cart.data.storeId} subtotal={cart.data.totalPrice} appliedCouponId={cart.data.appliedCouponId} appliedCouponCode={cart.data.appliedCouponCode} isCouponNotApplicable={preview.data?.coupon?.isApplied === false} previewCoupon={preview.data?.coupon} />
+              <CheckoutCouponSection enabled={authenticated} storeId={cart.data.storeId} subtotal={cart.data.totalPrice} orderType={formik.values.orderType} paymentMethod={formik.values.paymentMethod} appliedCouponIds={cart.data.appliedCouponIds} previewCoupons={preview.data?.coupons ?? (preview.data?.coupon ? [preview.data.coupon] : [])} isPreviewLoading={isCouponPreviewLoading} />
 
-              {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><h2 className="font-bold text-ink">{t("tipTitle")}</h2><p className="mt-1 text-xs text-muted">{t("tipDescription")}</p><div className="mt-4 flex flex-wrap gap-2">{TIP_OPTIONS.map((tip) => <button key={tip} type="button" onClick={() => void formik.setFieldValue("riderTip", tip)} className={`min-h-10 rounded-full border px-4 text-sm font-semibold ${formik.values.riderTip === tip ? "border-brand bg-brand text-ink" : "border-line text-ink hover:border-brand/40"}`}>{tip === 0 ? t("noTip") : `${tip}${currencySymbol}`}</button>)}<label className="flex h-11 min-w-36 items-center rounded-full border border-line bg-surface px-4 text-sm text-muted transition-colors focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10"><input aria-label={t("customTip")} inputMode="decimal" type="number" min="0" max="10000" step="0.01" name="riderTip" value={TIP_OPTIONS.includes(formik.values.riderTip) ? "" : formik.values.riderTip} onChange={(event) => void formik.setFieldValue("riderTip", Number(event.target.value) || 0)} placeholder={t("customTip")} className="w-24 appearance-none bg-transparent px-1 text-base text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" /><span>{currencySymbol}</span></label></div><FieldError message={formik.touched.riderTip ? formik.errors.riderTip : undefined} /></section> : null}
+              {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><h2 className="font-bold text-ink">{t("tipTitle")}</h2><p className="mt-1 text-xs text-muted">{t("tipDescription")}</p><div className="mt-4 flex flex-wrap gap-2">{tipOptions.map((tip) => <button key={tip} type="button" onClick={() => void formik.setFieldValue("riderTip", tip)} className={`min-h-10 rounded-full border px-4 text-sm font-semibold ${formik.values.riderTip === tip ? "border-brand bg-brand text-ink" : "border-line text-ink hover:border-brand/40"}`}>{tip === 0 ? t("noTip") : `${format.number(tip, { maximumFractionDigits: 2 })}${currencySymbol}`}</button>)}<label className="flex h-11 min-w-36 items-center rounded-full border border-line bg-surface px-4 text-sm text-muted transition-colors focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10"><input aria-label={t("customTip")} inputMode="decimal" type="number" min="0" max="10000" step="0.01" name="riderTip" value={tipOptions.includes(formik.values.riderTip) ? "" : formik.values.riderTip} onChange={(event) => void formik.setFieldValue("riderTip", Number(event.target.value) || 0)} placeholder={t("customTip")} className="w-24 appearance-none bg-transparent px-1 text-base text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" /><span>{currencySymbol}</span></label></div><FieldError message={formik.touched.riderTip ? formik.errors.riderTip : undefined} /></section> : null}
 
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MessageSquareText aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("notesTitle")}</h2><p className="text-xs text-muted">{t("notesDescription")}</p></div></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-xs font-semibold text-ink">{t("restaurantNote")}<textarea name="restaurantNote" maxLength={250} rows={3} value={formik.values.restaurantNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("restaurantNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.restaurantNote ? formik.errors.restaurantNote : undefined} /></label>{formik.values.orderType === "delivery" ? <label className="text-xs font-semibold text-ink">{t("courierNote")}<textarea name="courierNote" maxLength={250} rows={3} value={formik.values.courierNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("courierNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.courierNote ? formik.errors.courierNote : undefined} /></label> : null}</div></section>
 
             </div>
-            <CheckoutSummary preview={preview.data} isLoading={preview.isFetching} isPlacing={placeOrder.isPending || formik.isSubmitting} isChecking={Boolean(pendingPlacement)} disabled={!formik.isValid || !previewInput || cart.data.items.some((item) => !item.inStock)} paymentMethod={formik.values.paymentMethod} />
+            <CheckoutSummary preview={preview.data} isLoading={preview.isFetching} isPlacing={placeOrder.isPending || formik.isSubmitting} isChecking={Boolean(pendingPlacement || restoredAttempt)} disabled={!formik.isValid || !previewInput || cart.data.items.some((item) => !item.inStock) || couponIssues.length > 0} paymentMethod={formik.values.paymentMethod} couponIssues={couponIssues} />
           </div>
         </form>
       </main>
@@ -643,6 +759,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         />
       ) : null}
       {isWalletDialogOpen ? <div className="fixed inset-0 z-[90] grid place-items-center bg-black/55 p-4" role="dialog" aria-modal="true" aria-labelledby="wallet-insufficient-title"><div className="w-full max-w-sm rounded-3xl border border-line bg-card p-6 shadow-pop"><span className="grid size-11 place-items-center rounded-full bg-brand/10 text-brand"><WalletCards aria-hidden="true" className="size-5" /></span><h2 id="wallet-insufficient-title" className="mt-4 text-lg font-bold text-ink">{t("walletInsufficientTitle")}</h2><p className="mt-2 text-sm leading-6 text-body">{t("walletInsufficientMessage")}</p><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setIsWalletDialogOpen(false)} className="min-h-10 rounded-full px-4 text-sm font-semibold text-body hover:bg-[var(--soft-surface)]">{t("close")}</button><Link href={walletTopUpHref} onClick={() => setIsWalletDialogOpen(false)} className="inline-flex min-h-10 items-center rounded-full bg-brand px-5 text-sm font-bold text-ink">{t("upgradeWallet")}</Link></div></div></div> : null}
+      {checkoutProgressStage ? <CheckoutOrderProgressDialog navigationAttempted={wasPaymentNavigationBlocked} paymentMethod={formik.values.paymentMethod} stage={checkoutProgressStage} onViewOrder={() => undefined} /> : null}
     </>
   );
 }

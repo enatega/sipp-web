@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { Quote } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { StarRating } from "./StarRating";
 import type { RestaurantReview } from "../../types/restaurant";
+import { getReviewerInitials } from "../../utils/reviewerInitials";
 
 const AVATAR_TINTS = [
   "bg-brand/15 text-brand",
@@ -13,11 +15,6 @@ const AVATAR_TINTS = [
   "bg-secondary/12 text-secondary",
   "bg-violet-500/15 text-violet-600 dark:text-violet-400",
 ];
-
-function initials(name: string | null) {
-  const parts = name?.replace(".", "").split(/\s+/).filter(Boolean) ?? [];
-  return (parts[0]?.[0] ?? "S") + (parts[1]?.[0] ?? "");
-}
 
 function tintFor(seed: string) {
   let hash = 0;
@@ -34,19 +31,32 @@ export function RestaurantReviewCard({ review }: Props) {
   const format = useFormatter();
   const name = review.reviewer.name ?? t("reviewAnonymous");
   const date = review.createdAt ? new Date(review.createdAt) : null;
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const imageUrl = review.reviewer.image;
+  const shouldShowImage = Boolean(imageUrl && imageUrl !== failedImageUrl);
 
   return (
     <article className="relative overflow-hidden rounded-2xl border border-line bg-card p-4 sm:p-5">
       <Quote aria-hidden="true" className="pointer-events-none absolute -end-1 -top-1 size-16 rotate-180 text-brand/[0.07]" />
       <div className="flex items-center gap-3">
-        {review.reviewer.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={review.reviewer.image} alt="" className="size-10 shrink-0 rounded-full object-cover" />
-        ) : (
-          <span className={cn("grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold uppercase", tintFor(review.id))}>
-            {initials(review.reviewer.name)}
-          </span>
-        )}
+        <span
+          aria-hidden="true"
+          className={cn(
+            "relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full text-sm font-bold uppercase",
+            tintFor(review.id),
+          )}
+        >
+          {getReviewerInitials(name)}
+          {shouldShowImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageUrl ?? undefined}
+              alt=""
+              className="absolute inset-0 size-full object-cover"
+              onError={() => setFailedImageUrl(imageUrl)}
+            />
+          ) : null}
+        </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold text-ink">{name}</p>
           <div className="mt-0.5 flex items-center gap-2">

@@ -33,18 +33,29 @@ function safeErrorPayload(payload: unknown, fallback: string) {
       ? (payload as {
           message?: string | string[];
           error?: string;
-          code?: string;
           status?: string;
           applicationId?: string;
           fields?: unknown;
+          productName?: string;
+          requestedQuantity?: number;
+          availableQuantity?: number;
         })
       : {};
   return {
     message: errorMessage(payload, fallback),
-    ...(candidate.code ? { code: candidate.code } : {}),
+    ...stableErrorCode(payload),
     ...(candidate.status ? { status: candidate.status } : {}),
     ...(candidate.applicationId
       ? { applicationId: candidate.applicationId }
+      : {}),
+    ...(candidate.productName
+      ? { productName: candidate.productName }
+      : {}),
+    ...(Number.isFinite(candidate.requestedQuantity)
+      ? { requestedQuantity: candidate.requestedQuantity }
+      : {}),
+    ...(Number.isFinite(candidate.availableQuantity)
+      ? { availableQuantity: candidate.availableQuantity }
       : {}),
     ...(Array.isArray(candidate.fields)
       ? { fields: candidate.fields.filter((field) => field === "email" || field === "phone") }
@@ -82,7 +93,7 @@ export async function callApi(path: string, options: CallOptions = {}) {
 
     if (!upstream.ok) {
       return NextResponse.json(
-        { message: errorMessage(data, "We could not complete that request.") },
+        safeErrorPayload(data, "We could not complete that request."),
         { status: upstream.status },
       );
     }
@@ -93,6 +104,17 @@ export async function callApi(path: string, options: CallOptions = {}) {
       { status: 503 },
     );
   }
+}
+
+// Only constant-style business codes (e.g. COUPON_USAGE_LIMIT) reach the browser.
+function stableErrorCode(payload: unknown) {
+  const code =
+    payload && typeof payload === "object"
+      ? (payload as { code?: unknown }).code
+      : undefined;
+  return typeof code === "string" && /^[A-Z][A-Z0-9_]{2,63}$/.test(code)
+    ? { code }
+    : {};
 }
 
 export async function callPublicApi(path: string, payload: unknown) {

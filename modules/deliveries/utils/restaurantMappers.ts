@@ -162,6 +162,7 @@ export function parseRestaurantStore(value: unknown): RestaurantStore {
     tagLine: optionalText(source.tagLine),
     description: optionalText(source.description),
     isAvailable: source.isAvailable !== false && source.isClosed !== true,
+    isWithinDeliveryArea: source.isWithinDeliveryArea !== false,
     openingHours: parseOpeningHours(source.storeTimings),
     isAdministrativelyAvailable: source.isAvailable !== false,
     timezone: optionalText(source.timezone),

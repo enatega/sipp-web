@@ -50,6 +50,15 @@ function parseItem(value: unknown): CartItem {
       : [],
     storeId: text(source.storeId),
     inStock: source.inStock !== false,
+    availableQuantity:
+      source.availableQuantity === null || source.availableQuantity === undefined
+        ? null
+        : number(source.availableQuantity),
+    inventoryIssue:
+      source.inventoryIssue === "out_of_stock" ||
+      source.inventoryIssue === "insufficient_stock"
+        ? source.inventoryIssue
+        : null,
   };
 }
 
@@ -73,9 +82,14 @@ export function parseCart(value: unknown): CartResponse {
     totalPrice: number(source.totalPrice),
     discountAmount: number(source.discountAmount),
     finalPrice: number(source.finalPrice),
+    itemsTotal: Math.round(items.reduce((total, item) => total + item.lineTotal, 0) * 100) / 100,
     appliedCouponId: optionalText(source.appliedCouponId),
     appliedCouponCode: optionalText(source.appliedCouponCode),
+    appliedCouponIds: Array.isArray(source.appliedCouponIds)
+      ? source.appliedCouponIds.filter((id): id is string => typeof id === "string" && id.length > 0)
+      : [],
     isEmpty: source.isEmpty === true || totalItems === 0 || items.length === 0,
+    pricesUpdated: source.pricesUpdated === true,
     items,
   };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { io } from "socket.io-client";
 import { notificationInboxApi } from "@/modules/account/api/notificationInbox";
@@ -8,8 +9,8 @@ import { useSessionQuery } from "@/modules/account/queries/useAccountQueries";
 import { notificationInboxKeys } from "@/modules/account/queries/useNotificationInboxQueries";
 
 interface SocketSession { token: string; userId: string; url: string; path: string }
-interface NotificationEvent { id?: unknown; title?: unknown; body?: unknown; href?: unknown }
-export interface LiveNotificationAlert { id: string; title: string; body: string; href: string | null }
+interface NotificationEvent { id?: unknown; type?: unknown; orderId?: unknown; status?: unknown; title?: unknown; body?: unknown; href?: unknown }
+export interface LiveNotificationAlert { id: string; type: string | null; orderId: string | null; status: string | null; title: string; body: string; href: string | null }
 
 function safeHref(value: unknown): string | null {
   return typeof value === "string" && /^\/orders\/[0-9a-f-]{36}$/i.test(value) ? value : null;
@@ -28,7 +29,18 @@ function claimAlert(userId: string, id: string, localSeen: Set<string>): boolean
   return true;
 }
 
+function isCurrentOrderCompletion(
+  item: LiveNotificationAlert,
+  pathname: string,
+): boolean {
+  return item.type === "order_status_update"
+    && item.status?.trim().toLowerCase() === "delivered"
+    && Boolean(item.orderId)
+    && pathname === `/orders/${item.orderId}`;
+}
+
 export function useNotificationLiveSync() {
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
@@ -36,7 +48,7 @@ export function useNotificationLiveSync() {
   const dismiss = useCallback(() => setAlert(null), []);
   const audioContext = useRef<AudioContext | null>(null);
   const seenIds = useRef(new Set<string>());
-  const lastSeenAt = useRef(Date.now());
+  const lastSeenAt = useRef(0);
 
   useEffect(() => {
     const unlock = () => {
@@ -78,16 +90,21 @@ export function useNotificationLiveSync() {
   }, []);
 
   useEffect(() => {
-    if (!authenticated) { setAlert(null); return; }
+    if (!authenticated) {
+      const clearAlertTimer = window.setTimeout(() => setAlert(null), 0);
+      return () => window.clearTimeout(clearAlertTimer);
+    }
     const controller = new AbortController();
     let socket: ReturnType<typeof io> | null = null;
     let userId = "";
+    lastSeenAt.current = Date.now();
     const refresh = () => void queryClient.invalidateQueries({ queryKey: notificationInboxKeys.all });
     const present = (item: LiveNotificationAlert) => {
       if (!userId || !item.title.trim() || !item.body.trim() || !claimAlert(userId, item.id, seenIds.current)) return;
+      refresh();
+      if (isCurrentOrderCompletion(item, pathname)) return;
       setAlert(item);
       void playSound();
-      refresh();
     };
     const reconcile = async (wantedId?: string) => {
       const startedAt = Date.now();
@@ -100,7 +117,15 @@ export function useNotificationLiveSync() {
         const newest = [...today.items, ...past.items]
           .filter((item) => !item.isRead && (item.id === wantedId || new Date(item.createdAt).getTime() > lastSeenAt.current))
           .sort((left, right) => right.createdAt.localeCompare(left.createdAt))[0];
-        if (newest) present({ id: newest.id, title: newest.title, body: newest.description, href: newest.href });
+        if (newest) present({
+          id: newest.id,
+          type: newest.type,
+          orderId: newest.orderId,
+          status: newest.status,
+          title: newest.title,
+          body: newest.description,
+          href: newest.href,
+        });
         lastSeenAt.current = startedAt;
         refresh();
       } catch { /* The inbox and unread query recover on their next refresh. */ }
@@ -124,7 +149,15 @@ export function useNotificationLiveSync() {
             void reconcile(event.id);
             return;
           }
-          present({ id: event.id, title: event.title, body: event.body, href: safeHref(event.href) });
+          present({
+            id: event.id,
+            type: typeof event.type === "string" ? event.type : null,
+            orderId: typeof event.orderId === "string" ? event.orderId : null,
+            status: typeof event.status === "string" ? event.status : null,
+            title: event.title,
+            body: event.body,
+            href: safeHref(event.href),
+          });
         });
         socket.connect();
       }).catch(() => { /* Polling and focus reconciliation remain available. */ });
@@ -144,7 +177,7 @@ export function useNotificationLiveSync() {
       window.removeEventListener("online", onVisible);
       socket?.disconnect();
     };
-  }, [authenticated, playSound, queryClient]);
+  }, [authenticated, pathname, playSound, queryClient]);
 
   return { authenticated, alert, dismiss };
 }

@@ -12,6 +12,7 @@ import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSide
 import { ProfilePhotoManager } from "@/modules/account/components/profile/ProfilePhotoManager";
 import { ProfileBackLink } from "@/modules/account/components/profile/ProfileBackLink";
 import { ProfilePhoneVerification } from "@/modules/account/components/profile/ProfilePhoneVerification";
+import { ProfileEmailVerification } from "@/modules/account/components/profile/ProfileEmailVerification";
 import type {
   ProfileGender,
   ProfileUpdateInput,
@@ -95,7 +96,15 @@ function GenderChoices({ value }: { value?: ProfileGender | null }) {
   );
 }
 
-function ProfileDetails({ user, onEditPhone }: { user: ProfileUser; onEditPhone: () => void }) {
+function ProfileDetails({
+  user,
+  onEditPhone,
+  onVerifyEmail,
+}: {
+  user: ProfileUser;
+  onEditPhone: () => void;
+  onVerifyEmail: () => void;
+}) {
   const t = useTranslations("profileInformation");
   const locale = useLocale();
   const formattedDate = useMemo(() => {
@@ -133,6 +142,16 @@ function ProfileDetails({ user, onEditPhone }: { user: ProfileUser; onEditPhone:
               {t(user.email_is_verified ? "verified" : "unverified")}
             </span>
           ) : null}
+          {user.email && !user.email_is_verified ? (
+            <button
+              id="profile-email-verify"
+              type="button"
+              onClick={onVerifyEmail}
+              className="ms-3 min-h-8 shrink-0 rounded-full border border-brand px-3 text-[10px] font-semibold text-brand transition-colors hover:bg-brand/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            >
+              {t("emailVerifyAction")}
+            </button>
+          ) : null}
         </Field>
         <Field label={t("phoneNumber")}>
           <span className="min-w-0 flex-1 truncate">{user.phone || t("notProvided")}</span>
@@ -160,7 +179,15 @@ function ProfileDetails({ user, onEditPhone }: { user: ProfileUser; onEditPhone:
   );
 }
 
-function EditProfileForm({ user, onEditPhone }: { user: ProfileUser; onEditPhone: () => void }) {
+function EditProfileForm({
+  user,
+  onEditPhone,
+  onVerifyEmail,
+}: {
+  user: ProfileUser;
+  onEditPhone: () => void;
+  onVerifyEmail: () => void;
+}) {
   const t = useTranslations("profileInformation");
   const router = useRouter();
   const updateProfile = useUpdateProfileMutation();
@@ -215,14 +242,26 @@ function EditProfileForm({ user, onEditPhone }: { user: ProfileUser; onEditPhone
           <span className="relative block">
             <input
               value={user.email ?? ""}
-              className={`${inputClass} pr-20`}
+              className={`${inputClass} ${user.email && !user.email_is_verified ? "pe-44" : "pe-24"}`}
               autoComplete="email"
               disabled
             />
             {user.email ? (
-              <span className={`absolute end-4 top-1/2 mt-1 inline-flex -translate-y-1/2 items-center gap-1 text-[10px] font-semibold ${user.email_is_verified ? "text-[#137e52] dark:text-[#63d8a5]" : "text-body"}`}>
-                {user.email_is_verified ? <Icon name="shield" className="size-3" /> : null}
-                {t(user.email_is_verified ? "verified" : "unverified")}
+              <span className="absolute end-2 top-1/2 mt-1 flex -translate-y-1/2 items-center gap-2 normal-case">
+                <span className={`inline-flex items-center gap-1 text-[10px] font-semibold ${user.email_is_verified ? "text-[#137e52] dark:text-[#63d8a5]" : "text-body"}`}>
+                  {user.email_is_verified ? <Icon name="shield" className="size-3" /> : null}
+                  {t(user.email_is_verified ? "verified" : "unverified")}
+                </span>
+                {!user.email_is_verified ? (
+                  <button
+                    id="profile-email-verify"
+                    type="button"
+                    onClick={onVerifyEmail}
+                    className="min-h-8 rounded-full border border-brand bg-card px-3 text-[10px] font-semibold text-brand transition-colors hover:bg-brand/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                  >
+                    {t("emailVerifyAction")}
+                  </button>
+                ) : null}
               </span>
             ) : null}
           </span>
@@ -359,10 +398,16 @@ export function PersonalInformation({ editing = false }: PersonalInformationProp
   const profile = useProfileQuery(authenticated);
   const savedCards = useSavedCardsQuery(authenticated);
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
 
   const closePhoneModal = () => {
     setPhoneModalOpen(false);
     window.requestAnimationFrame(() => document.getElementById("profile-phone-edit")?.focus());
+  };
+
+  const closeEmailModal = () => {
+    setEmailModalOpen(false);
+    window.requestAnimationFrame(() => document.getElementById("profile-email-verify")?.focus());
   };
 
   useEffect(() => {
@@ -405,7 +450,19 @@ export function PersonalInformation({ editing = false }: PersonalInformationProp
                 <PrivacyNotice />
               </div>
               <div className="space-y-6">
-                {editing ? <EditProfileForm user={user} onEditPhone={() => setPhoneModalOpen(true)} /> : <ProfileDetails user={user} onEditPhone={() => setPhoneModalOpen(true)} />}
+                {editing ? (
+                  <EditProfileForm
+                    user={user}
+                    onEditPhone={() => setPhoneModalOpen(true)}
+                    onVerifyEmail={() => setEmailModalOpen(true)}
+                  />
+                ) : (
+                  <ProfileDetails
+                    user={user}
+                    onEditPhone={() => setPhoneModalOpen(true)}
+                    onVerifyEmail={() => setEmailModalOpen(true)}
+                  />
+                )}
                 <SummaryCards
                   addresses={addresses}
                   savedCard={
@@ -417,6 +474,13 @@ export function PersonalInformation({ editing = false }: PersonalInformationProp
             </div>
           )}
           {phoneModalOpen && user ? <ProfilePhoneVerification initialPhone={user.phone} onClose={closePhoneModal} onVerified={() => profile.refetch()} /> : null}
+          {emailModalOpen && user?.email ? (
+            <ProfileEmailVerification
+              email={user.email}
+              onClose={closeEmailModal}
+              onVerified={() => profile.refetch()}
+            />
+          ) : null}
         </div>
       </div>
     </main>

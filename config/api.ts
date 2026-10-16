@@ -46,6 +46,7 @@ export const apiRoutes = {
   orderReviews: "/api/orders/reviews",
   discovery: {
     home: "/api/deliveries/discovery/home",
+    coverage: "/api/deliveries/discovery/coverage",
     shopTypes: "/api/deliveries/discovery/shop-types",
     banners: "/api/deliveries/discovery/banners",
     topBrands: "/api/deliveries/discovery/top-brands",

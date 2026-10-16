@@ -44,7 +44,26 @@ export interface CheckoutPreview {
     totalAmount: number;
   };
   bucket: { itemCount: number; items: unknown[] };
-  coupon?: { id: string; code: string; isApplied: boolean } | null;
+  /** First applied coupon; kept for single-coupon clients. */
+  coupon?: CheckoutPreviewCoupon | null;
+  /** Every coupon on the cart, in the order the customer applied them. */
+  coupons?: CheckoutPreviewCoupon[];
+}
+
+export interface CheckoutPreviewCoupon {
+  id: string;
+  code: string;
+  name?: string;
+  isApplied: boolean;
+  /** What this coupon took off the total; 0 when not applied. */
+  appliedDiscount?: number;
+  /** Why the server left the coupon out of this priced total. */
+  issue?: { code: string; message: string; details: Record<string, unknown> } | null;
+  requirements?: {
+    paymentMethods: Array<"CARD" | "WALLET">;
+    deliveryTypes: Array<"ALL" | "DELIVERY" | "PICKUP">;
+    minOrderValue: number;
+  };
 }
 
 export interface CheckoutScheduleSlot {

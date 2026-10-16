@@ -23,7 +23,7 @@ export const checkoutApi = {
     return requestJson<CheckoutScheduleResponse>(`${apiRoutes.deliveryCheckout}/schedule/${encodeURIComponent(storeId)}?${query}`, { signal, cache: "no-store" });
   },
   placeOrder(input: PlaceOrderInput) {
-    return requestJson<PlaceOrderResponse>(apiRoutes.deliveryCheckout, { method: "POST", body: JSON.stringify(input), timeoutMs: 50_000 });
+    return requestJson<PlaceOrderResponse>(apiRoutes.deliveryCheckout, { method: "POST", body: JSON.stringify(input), timeoutMs: 65_000 });
   },
   placedOrderByBucket(input: { bucketId: string; storeId: string }, signal?: AbortSignal) {
     const query = new URLSearchParams({ bucketId: input.bucketId, storeId: input.storeId });

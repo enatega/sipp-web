@@ -17,6 +17,8 @@ export function OrderSummaryPanel({ order }: Props) {
   const formatAppCurrency = useAppCurrencyFormatter();
   const summary = order.summary;
   const isCancelled = order.status.trim().toLowerCase() === "cancelled";
+  const paymentMethod = order.paymentMethod?.trim().toLowerCase();
+  const paymentStatus = order.paymentStatus?.trim().toLowerCase();
   const hasAppliedCoupon = Boolean(
     summary?.couponCode && hasAmount(summary.discountAmount),
   );
@@ -90,18 +92,20 @@ export function OrderSummaryPanel({ order }: Props) {
           <div className="min-w-0">
             <h2 className="text-sm font-bold text-ink">{t("paymentTitle")}</h2>
             <p className="mt-0.5 text-xs text-body">
-              {order.paymentMethod === "stripe" || order.paymentMethod === "card"
+              {paymentMethod === "stripe" || paymentMethod === "card"
                 ? t("paymentCard")
-                : order.paymentMethod === "cod" || order.paymentMethod === "cash"
+                : paymentMethod === "wallet"
+                  ? t("paymentWallet")
+                : paymentMethod === "cod" || paymentMethod === "cash"
                   ? t("paymentCash")
                   : t("paymentOther")}
             </p>
           </div>
           <span className="ml-auto rounded-full bg-[var(--soft-surface)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-body">
             {isCancelled ? t("paymentCancelled")
-              : order.paymentStatus === "paid" || order.paymentStatus === "succeeded"
+              : paymentStatus === "paid" || paymentStatus === "succeeded" || paymentStatus === "completed"
               ? t("paymentPaid")
-              : order.paymentStatus === "failed"
+              : paymentStatus === "failed"
                 ? t("paymentFailed")
                 : t("paymentPending")}
           </span>
