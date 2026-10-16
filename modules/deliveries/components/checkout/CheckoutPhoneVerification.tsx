@@ -73,7 +73,6 @@ export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initia
         <span className="grid size-12 place-items-center rounded-xl bg-brand/10 text-brand"><ShieldCheck className="size-6" aria-hidden="true" /></span>
         <h1 id="checkout-phone-title" className="mt-5 text-2xl font-bold tracking-tight text-ink">{t("phoneVerificationTitle")}</h1>
         <p className="mt-2 text-sm leading-6 text-body">{t("phoneVerificationDescription")}</p>
-        {!sentPhone ? <p className="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-950" role="note">{t("phoneTransferWarning")}</p> : null}
         {sentPhone ? <div className="mt-7">
           <p className="text-sm font-semibold text-ink">{t("phoneVerificationSentTo", { phone: sentPhone })}</p>
           <OtpInput value={otp} onChange={(value) => {

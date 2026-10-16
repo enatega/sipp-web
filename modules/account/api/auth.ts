@@ -38,7 +38,7 @@ export const authApi = {
     return requestJson<CountryRegion>("/api/auth/region").catch(() => ({ country: null }));
   },
   emailExists(payload: { email: string }) {
-    return postJson<{ exists: boolean; uncertain?: boolean }>(
+    return postJson<{ exists: boolean }>(
       apiRoutes.auth.exists,
       payload,
     );

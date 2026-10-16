@@ -105,7 +105,6 @@ export function ProfilePhoneVerification({ initialPhone, onClose, onVerified }: 
       </div>
       <button type="button" onClick={onClose} disabled={busy} aria-label={t("phoneClose")} className="grid size-10 shrink-0 place-items-center rounded-full bg-[var(--soft-surface)] text-body transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-brand disabled:opacity-50"><X aria-hidden="true" className="size-5" /></button>
     </div>
-    {!sentPhone && !success ? <p className="mt-5 rounded-xl bg-[var(--soft-surface)] p-3 text-sm leading-6 text-body">{t("phoneTransferWarning")}</p> : null}
     {sentPhone ? <div className="mt-6">
       <p className="text-sm font-medium">{t("phoneCodeSent", { phone: sentPhone })}</p>
       <OtpInput value={otp} onChange={(value) => { setOtp(value); setError(""); if (value.length < 4) attempted.current = ""; if (/^\d{4}$/.test(value) && attempted.current !== value) { attempted.current = value; void verifyCode(value); } }} disabled={busy} />
