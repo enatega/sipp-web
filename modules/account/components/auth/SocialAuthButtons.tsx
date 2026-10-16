@@ -4,6 +4,7 @@ import Script from "next/script";
 import { LoaderCircle } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { AuthApiError } from "@/modules/account/api/auth";
 import { useGoogleLoginMutation } from "@/modules/account/queries/useAccountQueries";
 
 type GoogleCredentialResponse = { credential?: string };
@@ -53,11 +54,17 @@ export function SocialAuthButtons({ onAuthenticated, onPhoneRequired, onError }:
       if (result.phoneVerificationRequired) onPhoneRequired(response.credential);
       else if (result.user) onAuthenticated();
       else onError(t("socialLoginError"));
-    } catch {
-      onError(t("socialLoginError"));
+    } catch (error) {
+      onError(
+        error instanceof AuthApiError && error.code === "GOOGLE_ACCOUNT_USES_PASSWORD"
+          ? t("googleAccountUsesPassword")
+          : t("socialLoginError"),
+      );
     }
   }, [googleLogin, onAuthenticated, onPhoneRequired, onError, t]);
-  finishGoogleRef.current = finishGoogle;
+  useEffect(() => {
+    finishGoogleRef.current = finishGoogle;
+  }, [finishGoogle]);
 
   useEffect(() => {
     const container = googleButton.current;

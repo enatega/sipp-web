@@ -24,7 +24,7 @@ export function useFavouriteFoodProductsQuery(
     queryFn: ({ pageParam, signal }) =>
       favouriteFoodsApi.products(foodId, pageParam, location, shopTypeId, signal),
     initialPageParam: 0,
-    enabled: enabled && Boolean(foodId),
+    enabled: enabled && Boolean(foodId) && Boolean(location),
     getNextPageParam: (lastPage) =>
       lastPage.isEnd ? undefined : (lastPage.nextOffset ?? undefined),
   });

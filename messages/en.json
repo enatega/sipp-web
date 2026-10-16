@@ -162,6 +162,7 @@
     "signingInGoogle": "Signing in with Google…",
     "googleInvalidResponse": "Google could not verify your account. Please try again.",
     "socialLoginError": "Social sign-in could not be completed. Please try again.",
+    "googleAccountUsesPassword": "This email already has a password account. Enter your email above and continue to sign in with your password.",
     "loginSuccess": "Login successful."
   },
   "profile": {
@@ -444,6 +445,7 @@
     "nameRequired": "Enter your full name."
   },
   "location": {
+    "headerPlaceholder": "Location",
     "title": "Where should we deliver?",
     "search": "Search area or address",
     "current": "Use current location",
@@ -975,6 +977,9 @@
       "coverageErrorTitle": "We couldn't check delivery availability",
       "coverageErrorDescription": "Please try again or choose another location. We won't show businesses until we can confirm delivery is available.",
       "changeLocation": "Change location",
+      "selectLocation": "Select location",
+      "locationRequiredTitle": "Choose a delivery location",
+      "locationRequiredDescription": "Select a location to see restaurants and shops that deliver to you.",
       "foodDelivery": "SIPP delivery",
       "signInTitle": "Sign in to discover local businesses",
       "signInMessage": "Choose your delivery address and explore nearby restaurants, markets, offers, and past orders available to you.",
@@ -1630,8 +1635,7 @@
       "addressUnavailable": "This business does not deliver to that address. Choose an address within its delivery area.",
       "addressValidationError": "We could not confirm delivery to that address. Please try again.",
       "leaveAtDoor": "Leave at the door",
-      "leaveAtDoorHint": "Contact-free delivery requires card payment.",
-      "leaveAtDoorCard": "Card payment is required when the order is left at the door.",
+      "leaveAtDoorHint": "Your courier will leave the order at your door.",
       "timeTitle": "Delivery time",
       "timeDescription": "Order now or reserve an available time.",
       "standard": "As soon as possible",

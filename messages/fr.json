@@ -160,6 +160,7 @@
     "signingInGoogle": "Signature avec Google…",
     "googleInvalidResponse": "Google ne pouvait pas vérifier votre compte. Veuillez réessayer.",
     "socialLoginError": "L'inscription sociale n'a pas pu être achevée. Veuillez réessayer.",
+    "googleAccountUsesPassword": "Cette adresse e-mail possède déjà un compte avec mot de passe. Saisissez votre adresse ci-dessus, puis continuez pour vous connecter avec votre mot de passe.",
     "loginSuccess": "Connexion réussie.",
     "phoneProtected": "Ce numéro appartient à un compte protégé ou constitue son seul moyen de connexion. Utilisez un autre numéro ou contactez l’assistance.",
     "phoneTransferWarning": "Si ce numéro appartient à un autre compte client, sa vérification le transférera ici et désactivera la connexion par téléphone sur cet autre compte."
@@ -444,6 +445,7 @@
     "emailSuccess": "Votre adresse e-mail est vérifiée."
   },
   "location": {
+    "headerPlaceholder": "Lieu",
     "title": "Où devons-nous livrer ?",
     "search": "Rechercher une zone ou une adresse",
     "current": "Utiliser la position actuelle",
@@ -975,6 +977,9 @@
       "coverageErrorTitle": "Impossible de vérifier la disponibilité de la livraison",
       "coverageErrorDescription": "Réessayez ou choisissez un autre lieu. Nous n'afficherons pas de commerces tant que la livraison n'aura pas été confirmée.",
       "changeLocation": "Changer de lieu",
+      "selectLocation": "Choisir un lieu",
+      "locationRequiredTitle": "Choisissez un lieu de livraison",
+      "locationRequiredDescription": "Choisissez un lieu pour voir les restaurants et commerces qui livrent chez vous.",
       "foodDelivery": "SIPP livraison",
       "signInTitle": "Connectez-vous pour découvrir les entreprises locales",
       "signInMessage": "Choisissez votre adresse de livraison et explorez les restaurants, les marchés, les offres et les commandes passées à votre disposition.",
@@ -1625,8 +1630,7 @@
       "addressUnavailable": "Cette entreprise ne livre pas à cette adresse. Choisissez une adresse dans sa zone de livraison.",
       "addressValidationError": "Nous ne pouvions pas confirmer la livraison à cette adresse. Veuillez réessayer.",
       "leaveAtDoor": "Partez à la porte.",
-      "leaveAtDoorHint": "La livraison sans contact nécessite un paiement par carte.",
-      "leaveAtDoorCard": "Le paiement par carte est nécessaire lorsque la commande est laissée à la porte.",
+      "leaveAtDoorHint": "Le livreur déposera la commande devant votre porte.",
       "timeTitle": "Délai de livraison",
       "timeDescription": "Commandez maintenant ou réservez une heure disponible.",
       "standard": "Dès que possible",
