@@ -16,6 +16,7 @@ const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 
 interface PaymentFormProps {
+  billingDetails: { name: string; email?: string; phone?: string };
   clientSecret: string;
   draftId: string;
   total: number;
@@ -26,6 +27,7 @@ interface PaymentFormProps {
 }
 
 function PaymentForm({
+  billingDetails,
   clientSecret,
   draftId,
   total,
@@ -67,7 +69,10 @@ function PaymentForm({
         result = await stripe.confirmPayment({
           elements: elements!,
           clientSecret,
-          confirmParams: { return_url: returnUrl },
+          confirmParams: {
+            return_url: returnUrl,
+            payment_method_data: { billing_details: billingDetails },
+          },
           redirect: "if_required",
         });
       }
@@ -102,7 +107,19 @@ function PaymentForm({
           <span className="min-w-0"><strong className="block truncate text-sm text-ink">{selectedCard.brand.toUpperCase()} •••• {selectedCard.last4}</strong><small className="mt-0.5 block text-xs text-muted">{t("payingWithSavedCard")}</small></span>
         </div>
       ) : (
-        <PaymentElement options={{ layout: { type: "tabs", defaultCollapsed: false } }} />
+        <PaymentElement
+          options={{
+            layout: { type: "tabs", defaultCollapsed: false },
+            fields: {
+              billingDetails: {
+                name: "never",
+                email: "never",
+                phone: "never",
+                address: "if_required",
+              },
+            },
+          }}
+        />
       )}
       <dl className="mt-5 grid gap-2 rounded-xl bg-[var(--soft-surface)] p-4 text-sm">
         <div className="flex items-center justify-between gap-4">
@@ -149,6 +166,7 @@ function PaymentForm({
 }
 
 interface Props {
+  billingDetails: { name: string; email?: string; phone?: string };
   clientSecret: string;
   draftId: string;
   error: string;
@@ -161,6 +179,7 @@ interface Props {
 }
 
 export function StripePaymentModal({
+  billingDetails,
   clientSecret,
   draftId,
   error,
@@ -317,6 +336,7 @@ export function StripePaymentModal({
         ) : (
           <Elements key={`${clientSecret}:${isDark}:${locale}`} options={options} stripe={stripePromise}>
             <PaymentForm
+              billingDetails={billingDetails}
               clientSecret={clientSecret}
               draftId={draftId}
               onConfirmed={onConfirmed}

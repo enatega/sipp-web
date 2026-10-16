@@ -149,10 +149,10 @@ export async function disableBrowserNotifications() {
     preparedPush = null;
     return;
   }
-  try {
-    await requestJson("/api/notifications/web-push/subscriptions", { method: "DELETE", body: JSON.stringify({ endpoint: subscription.endpoint }), timeoutMs: 2000 });
-  } finally {
-    await subscription.unsubscribe();
-    preparedPush = null;
-  }
+  await requestJson("/api/notifications/web-push/subscriptions", {
+    method: "DELETE",
+    body: JSON.stringify({ endpoint: subscription.endpoint }),
+  });
+  await subscription.unsubscribe();
+  preparedPush = null;
 }

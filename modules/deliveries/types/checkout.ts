@@ -81,6 +81,9 @@ export interface StripeOrderDraftStatus {
   draftId: string;
   status: string;
   orderId: string | null;
+  checkoutUrl?: string;
+  clientSecret?: string;
+  paymentQuote?: StripePaymentQuote;
 }
 
 export interface StripePaymentQuote {

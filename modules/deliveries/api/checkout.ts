@@ -23,11 +23,11 @@ export const checkoutApi = {
     return requestJson<CheckoutScheduleResponse>(`${apiRoutes.deliveryCheckout}/schedule/${encodeURIComponent(storeId)}?${query}`, { signal, cache: "no-store" });
   },
   placeOrder(input: PlaceOrderInput) {
-    return requestJson<PlaceOrderResponse>(apiRoutes.deliveryCheckout, { method: "POST", body: JSON.stringify(input), timeoutMs: 25_000 });
+    return requestJson<PlaceOrderResponse>(apiRoutes.deliveryCheckout, { method: "POST", body: JSON.stringify(input), timeoutMs: 50_000 });
   },
   placedOrderByBucket(input: { bucketId: string; storeId: string }, signal?: AbortSignal) {
     const query = new URLSearchParams({ bucketId: input.bucketId, storeId: input.storeId });
-    return requestJson<{ orderId: string | null }>(`${apiRoutes.deliveryCheckout}?${query}`, { signal, cache: "no-store", timeoutMs: 4_000 });
+    return requestJson<{ orderId: string | null; draftId: string | null }>(`${apiRoutes.deliveryCheckout}?${query}`, { signal, cache: "no-store", timeoutMs: 5_000 });
   },
   stripeOrderStatus(draftId: string, signal?: AbortSignal) {
     return requestJson<StripeOrderDraftStatus>(

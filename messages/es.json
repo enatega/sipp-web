@@ -1646,6 +1646,7 @@
       "paymentConfirmationDelayed": "Su pago todavía puede ser procesado. Revisa tus pedidos antes de probar otro pago.",
       "viewOrders": "Ver pedidos",
       "backToCheckout": "Volver a la salida",
+      "continuePayment": "Continuar el pago",
       "stripeNotConfigured": "El pago de la tarjeta no está configurado ahora mismo. Elige otro método de pago o prueba de nuevo más tarde.",
       "stripeSecurityNote": "Los detalles de la tarjeta son cifrados y manejados directamente por Stripe.",
       "close": "Cerca",

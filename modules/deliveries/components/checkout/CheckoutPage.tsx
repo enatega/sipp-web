@@ -13,7 +13,7 @@ import { openAuthRequiredDialog } from "@/components/shared/authRequiredEvent";
 import { ApiError } from "@/services/api/client";
 import { checkoutSchema, type CheckoutFormValues } from "../../schemas/checkoutSchema";
 import { useCartQuery } from "../../hooks/useCart";
-import { useCheckoutPreview, usePlaceOrderMutation, usePlacedOrderLookup, useStripeOrderStatus, useValidateCheckoutAddressMutation } from "../../hooks/useCheckout";
+import { useCheckoutPreview, usePendingPlacementLookup, usePlaceOrderMutation, usePlacedOrderLookup, useStripeOrderStatus, useValidateCheckoutAddressMutation } from "../../hooks/useCheckout";
 import type { CheckoutPreviewInput, PlaceOrderInput, StripePaymentQuote } from "../../types/checkout";
 import { CheckoutAddressPicker } from "./CheckoutAddressPicker";
 import { CheckoutAlertStack, type CheckoutAlert } from "./CheckoutAlertStack";
@@ -26,6 +26,23 @@ import { clearCheckoutNotesDraft, readCheckoutNotesDraft, writeCheckoutNotesDraf
 import { isStripeCheckoutUrl } from "../../utils/stripeCheckoutUrl";
 
 const TIP_OPTIONS = [0, 5, 10, 20];
+
+type StoredCheckoutAttempt = { userId: string; bucketId: string; storeId: string; draftId?: string };
+const checkoutAttemptKey = (userId: string) => `sipp_checkout_attempt_${userId}`;
+function readCheckoutAttempt(userId: string): StoredCheckoutAttempt | null {
+  try {
+    const raw = window.localStorage.getItem(checkoutAttemptKey(userId));
+    if (!raw) return null;
+    const attempt = JSON.parse(raw) as StoredCheckoutAttempt;
+    return attempt.userId === userId && attempt.bucketId && attempt.storeId ? attempt : null;
+  } catch { return null; }
+}
+function saveCheckoutAttempt(attempt: StoredCheckoutAttempt) {
+  window.localStorage.setItem(checkoutAttemptKey(attempt.userId), JSON.stringify(attempt));
+}
+function clearCheckoutAttempt(userId: string) {
+  window.localStorage.removeItem(checkoutAttemptKey(userId));
+}
 
 function buildNote(values: CheckoutFormValues) {
   const restaurant = values.restaurantNote.trim();
@@ -88,6 +105,9 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const refetchCart = cart.refetch;
   const addresses = useAddressesQuery(authenticated);
   const profile = useProfileQuery(authenticated);
+  const checkoutUserId = profile.data?.data?.user?.id;
+  const [restoredAttempt, setRestoredAttempt] = useState<StoredCheckoutAttempt | null>(null);
+  const [attemptLoaded, setAttemptLoaded] = useState(false);
   const savedCards = useSavedCardsQuery(authenticated);
   const wallet = useWalletQuery(authenticated);
   const storedPlace = useStoredPlace();
@@ -96,7 +116,16 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const validateAddress = useValidateCheckoutAddressMutation();
   const [submitError, setSubmitError] = useState("");
   const [isOrderConfirmationUnknown, setIsOrderConfirmationUnknown] = useState(false);
-  const unconfirmedAttemptRef = useRef<Pick<PlaceOrderInput, "bucketId" | "paymentMethod"> | null>(null);
+  const [pendingPlacement, setPendingPlacement] = useState<{ bucketId: string; storeId: string } | null>(null);
+
+  useEffect(() => {
+    if (!checkoutUserId) return;
+    setAttemptLoaded(false);
+    const attempt = readCheckoutAttempt(checkoutUserId);
+    setRestoredAttempt(attempt);
+    if (attempt) setPendingPlacement({ bucketId: attempt.bucketId, storeId: attempt.storeId });
+    setAttemptLoaded(true);
+  }, [checkoutUserId]);
   const [dismissedPreviewError, setDismissedPreviewError] = useState<unknown>(null);
   const [isAddressPickerOpen, setIsAddressPickerOpen] = useState(false);
   const [addressPickerError, setAddressPickerError] = useState("");
@@ -137,13 +166,10 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     initialValues: { orderType: "delivery", deliveryLocationKey: locationKey(storedPlace.place), paymentMethod: "wallet", restaurantNote: "", courierNote: "", leaveAtDoor: false, riderTip: 0 },
     validationSchema: checkoutSchema({ addressRequired: t("addressRequired"), noteTooLong: t("noteTooLong"), invalidTip: t("invalidTip") }),
     onSubmit: async (values) => {
+      if (pendingPlacement || restoredAttempt || !attemptLoaded) return;
       if (!cart.data?.bucketId || !cart.data.storeId) return;
       if (values.orderType === "delivery" && !deliveryPlace) return;
-      const retryingUnconfirmedWalletOrder =
-        values.paymentMethod === "wallet" &&
-        unconfirmedAttemptRef.current?.bucketId === cart.data.bucketId &&
-        unconfirmedAttemptRef.current.paymentMethod === "wallet";
-      if (values.paymentMethod === "wallet" && !retryingUnconfirmedWalletOrder) {
+      if (values.paymentMethod === "wallet") {
         if (wallet.isPending) {
           showSubmitError(t("walletLoading"));
           return;
@@ -176,6 +202,12 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         customerNote: buildNote(values),
       };
       try {
+        if (values.paymentMethod === 'stripe') {
+          if (!checkoutUserId) throw new Error('Signed-in customer is unavailable');
+          const attempt = { userId: checkoutUserId, bucketId: input.bucketId, storeId: input.storeId };
+          saveCheckoutAttempt(attempt);
+          setRestoredAttempt(attempt);
+        }
         const response = await placeOrder.mutateAsync({
           storeId: cart.data.storeId,
           bucketId: cart.data.bucketId,
@@ -195,8 +227,14 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         clearCheckoutNotesDraft(cart.data.bucketId);
         if (response.mode === "stripe") {
           if (response.orderId) {
+            if (checkoutUserId) clearCheckoutAttempt(checkoutUserId);
             router.push(`/orders/${response.orderId}`);
             return;
+          }
+          if (checkoutUserId) {
+            const attempt = { userId: checkoutUserId, bucketId: input.bucketId, storeId: input.storeId, draftId: response.draftId };
+            saveCheckoutAttempt(attempt);
+            setRestoredAttempt(attempt);
           }
           if (response.checkoutUrl) {
             if (!isStripeCheckoutUrl(response.checkoutUrl)) {
@@ -223,8 +261,10 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           return;
         }
         router.push(`/orders/${response.orderId}`);
-        unconfirmedAttemptRef.current = null;
       } catch (error) {
+        if (values.paymentMethod === 'stripe') {
+          setPendingPlacement({ bucketId: input.bucketId, storeId: input.storeId });
+        }
         if (error instanceof ApiError && /PHONE_VERIFICATION_REQUIRED/.test(error.message)) {
           await profile.refetch();
           showSubmitError(t("phoneVerificationNeededAgain"));
@@ -250,7 +290,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
               }
             }
           }
-          unconfirmedAttemptRef.current = { bucketId: input.bucketId, paymentMethod: input.paymentMethod };
+          setPendingPlacement({ bucketId: input.bucketId, storeId: input.storeId });
           setIsOrderConfirmationUnknown(true);
           showSubmitError(t("orderConfirmationUnknown"));
           return;
@@ -288,10 +328,11 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     return { storeId: cart.data.storeId, bucketId: cart.data.bucketId, orderType: formik.values.orderType, paymentMethod: formik.values.paymentMethod, ...(formik.values.orderType === "delivery" && deliveryPlace ? { ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId), riderTip: formik.values.riderTip || undefined } : {}) };
   }, [cart.data, deliveryPlace, formik.values.orderType, formik.values.paymentMethod, formik.values.riderTip, profile.data?.data?.user, selectedSavedAddressId]);
   const preview = useCheckoutPreview(previewInput);
-  const activeStripeDraftId = stripePayment?.draftId ?? initialStripeDraftId ?? null;
+  const pendingOrderLookup = usePendingPlacementLookup(pendingPlacement);
+  const activeStripeDraftId = stripePayment?.draftId ?? initialStripeDraftId ?? restoredAttempt?.draftId ?? pendingOrderLookup.data?.draftId ?? null;
   const stripeOrderStatus = useStripeOrderStatus(
     activeStripeDraftId,
-    isStripeConfirmed || Boolean(initialStripeDraftId),
+    isStripeConfirmed || Boolean(initialStripeDraftId) || Boolean(pendingPlacement) || Boolean(restoredAttempt),
   );
   const walletBalance = Number(wallet.data?.data?.wallet_balance ?? 0);
   const walletShortfall = Math.max(
@@ -320,9 +361,46 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   useEffect(() => {
     const orderId = stripeOrderStatus.data?.orderId;
     if (!orderId) return;
+    if (checkoutUserId) clearCheckoutAttempt(checkoutUserId);
+    setRestoredAttempt(null);
+    setPendingPlacement(null);
     void refetchCart();
     router.push(`/orders/${orderId}`);
-  }, [refetchCart, router, stripeOrderStatus.data?.orderId]);
+  }, [checkoutUserId, refetchCart, router, stripeOrderStatus.data?.orderId]);
+
+  useEffect(() => {
+    const orderId = pendingOrderLookup.data?.orderId;
+    if (!orderId || !pendingPlacement) return;
+    if (checkoutUserId) clearCheckoutAttempt(checkoutUserId);
+    setRestoredAttempt(null);
+    setPendingPlacement(null);
+    void refetchCart();
+    router.push(`/orders/${orderId}`);
+  }, [checkoutUserId, pendingOrderLookup.data?.orderId, pendingPlacement, refetchCart, router]);
+
+  useEffect(() => {
+    if (!(pendingPlacement || restoredAttempt) || !stripeOrderStatus.data || stripeOrderStatus.data.orderId) return;
+    const draft = stripeOrderStatus.data;
+    if (draft.status === "payment_failed" || draft.status === "cancelled") {
+      setPendingPlacement(null);
+      if (checkoutUserId) clearCheckoutAttempt(checkoutUserId);
+      setRestoredAttempt(null);
+      setIsOrderConfirmationUnknown(false);
+      showSubmitError(t("cardPaymentError"));
+      return;
+    }
+    if (draft.clientSecret && draft.paymentQuote) {
+      setStripePayment({
+        clientSecret: draft.clientSecret,
+        draftId: draft.draftId,
+        paymentStatus: draft.status,
+        paymentQuote: draft.paymentQuote,
+      });
+      setPendingPlacement(null);
+      setIsOrderConfirmationUnknown(false);
+      setSubmitError("");
+    }
+  }, [checkoutUserId, pendingPlacement, restoredAttempt, stripeOrderStatus.data, t]);
 
   useEffect(() => {
     if (isMissingCartBucketError(preview.error)) {
@@ -431,11 +509,15 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     }
   }
 
-  if (session.isPending || cart.isPending || addresses.isPending || profile.isPending || !storedPlace.isReady || !authenticated) return <><Header /><main className="grid min-h-[65vh] place-items-center text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>;
+  if (session.isPending || profile.isPending || (Boolean(checkoutUserId) && !attemptLoaded) || (!restoredAttempt && (cart.isPending || addresses.isPending || !storedPlace.isReady)) || !authenticated) return <><Header /><main className="grid min-h-[65vh] place-items-center text-brand"><LoaderCircle aria-hidden="true" className="size-8 animate-spin" /><span className="sr-only">{t("loading")}</span></main></>;
   if (initialStripeDraftId && !stripeOrderStatus.data?.orderId) {
     const hasFailed = stripeOrderStatus.data?.status === "payment_failed" || stripeOrderStatus.data?.status === "cancelled";
     const needsAttention = hasFailed || stripeOrderStatus.isError;
     return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div role={needsAttention ? "alert" : "status"}>{needsAttention ? null : <LoaderCircle aria-hidden="true" className="mx-auto size-8 animate-spin text-brand" />}<h1 className="mt-5 text-xl font-bold text-ink">{hasFailed ? t("cardPaymentError") : stripeOrderStatus.isError ? t("paymentConfirmationDelayedTitle") : t("confirmingPayment")}</h1><p className="mt-2 max-w-sm text-sm text-body">{hasFailed ? t("cardPaymentRetryHint") : stripeOrderStatus.isError ? t("paymentConfirmationDelayed") : t("confirmingPaymentHint")}</p>{needsAttention ? <div className="mt-5 flex justify-center gap-3"><Link href="/orders" className="inline-flex rounded-full bg-brand px-5 py-3 text-sm font-bold text-ink">{t("viewOrders")}</Link><Link href="/checkout" className="inline-flex rounded-full border border-line px-5 py-3 text-sm font-bold text-ink">{t("backToCheckout")}</Link></div> : null}</div></main></>;
+  }
+  if ((pendingPlacement || restoredAttempt) && !stripePayment && !placeOrder.isPending && !formik.isSubmitting) {
+    const checkoutUrl = stripeOrderStatus.data?.checkoutUrl;
+    return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div role="status" className="max-w-md"><LoaderCircle aria-hidden="true" className="mx-auto size-8 animate-spin text-brand" /><h1 className="mt-5 text-xl font-bold text-ink">{t('confirmingPayment')}</h1><p className="mt-2 text-sm text-body">{t('confirmingPaymentHint')}</p><div className="mt-5 flex flex-wrap justify-center gap-3"><button type="button" onClick={() => { void pendingOrderLookup.refetch(); if (activeStripeDraftId) void stripeOrderStatus.refetch(); }} className="rounded-full border border-line px-5 py-3 text-sm font-bold text-ink">{t('retry')}</button>{checkoutUrl && isStripeCheckoutUrl(checkoutUrl) ? <button type="button" onClick={() => window.location.assign(checkoutUrl)} className="rounded-full bg-brand px-5 py-3 text-sm font-bold text-ink">{t('continuePayment')}</button> : null}</div></div></main></>;
   }
   if (cart.isError || !cart.data) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button type="button" onClick={() => void cart.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
   if (profile.isError || !profile.data?.data?.user) return <><Header /><main className="section-wrap grid min-h-[65vh] place-items-center text-center"><div><h1 className="text-xl font-bold text-ink">{t("phoneVerificationProfileError")}</h1><button type="button" onClick={() => void profile.refetch()} className="mt-5 rounded-full bg-brand px-6 py-3 text-sm font-bold text-ink">{t("retry")}</button></div></main></>;
@@ -459,7 +541,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
         title: t(isOrderConfirmationUnknown ? "orderConfirmationUnknownTitle" : "placeOrderErrorTitle"),
         message: submitError,
         ...(isOrderConfirmationUnknown ? { actionHref: "/orders", actionLabel: t("viewOrders") } : {}),
-        onDismiss: () => { setSubmitError(""); setIsOrderConfirmationUnknown(false); },
+        onDismiss: () => { setSubmitError(""); if (!pendingPlacement) setIsOrderConfirmationUnknown(false); },
       }]
       : []),
   ];
@@ -521,13 +603,18 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MessageSquareText aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("notesTitle")}</h2><p className="text-xs text-muted">{t("notesDescription")}</p></div></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-xs font-semibold text-ink">{t("restaurantNote")}<textarea name="restaurantNote" maxLength={250} rows={3} value={formik.values.restaurantNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("restaurantNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.restaurantNote ? formik.errors.restaurantNote : undefined} /></label>{formik.values.orderType === "delivery" ? <label className="text-xs font-semibold text-ink">{t("courierNote")}<textarea name="courierNote" maxLength={250} rows={3} value={formik.values.courierNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("courierNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.courierNote ? formik.errors.courierNote : undefined} /></label> : null}</div></section>
 
             </div>
-            <CheckoutSummary preview={preview.data} isLoading={preview.isFetching} isPlacing={placeOrder.isPending || formik.isSubmitting} disabled={!formik.isValid || !previewInput || cart.data.items.some((item) => !item.inStock)} paymentMethod={formik.values.paymentMethod} />
+            <CheckoutSummary preview={preview.data} isLoading={preview.isFetching} isPlacing={placeOrder.isPending || formik.isSubmitting} isChecking={Boolean(pendingPlacement)} disabled={!formik.isValid || !previewInput || cart.data.items.some((item) => !item.inStock)} paymentMethod={formik.values.paymentMethod} />
           </div>
         </form>
       </main>
       {isAddressPickerOpen ? <CheckoutAddressPicker addresses={addresses.data ?? []} error={addressPickerError} isOpen onClose={closeAddressPicker} onSelect={(address) => void selectDeliveryAddress(address)} selectedAddressId={selectedSavedAddressId ?? ""} validatingAddressId={validatingAddressId} /> : null}
       {(stripePayment || initialStripeDraftId) && preview.data ? (
         <StripePaymentModal
+          billingDetails={{
+            name: profile.data.data.user.name,
+            ...(profile.data.data.user.email ? { email: profile.data.data.user.email } : {}),
+            ...(profile.data.data.user.phone ? { phone: profile.data.data.user.phone } : {}),
+          }}
           clientSecret={stripePayment?.clientSecret ?? ""}
           draftId={activeStripeDraftId ?? ""}
           error={

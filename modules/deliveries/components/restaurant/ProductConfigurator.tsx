@@ -345,7 +345,7 @@ export function ProductConfigurator({ isStoreAvailable, isAuthenticated, onClose
                     ))}
                   </div>
                 ) : null}
-                {variationChoices.length > 1 ? (
+                {variationChoices.length > 0 ? (
                   <fieldset
                     aria-invalid={hasSubmitted && missingGroups.includes("__variation__")}
                     className="rounded-2xl border border-line bg-card p-4"

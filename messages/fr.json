@@ -1646,6 +1646,7 @@
       "paymentConfirmationDelayed": "Votre paiement peut être encore en cours de traitement. Vérifiez vos commandes avant d'essayer un autre paiement.",
       "viewOrders": "Afficher les commandes",
       "backToCheckout": "Retour à la caisse",
+      "continuePayment": "Continuer le paiement",
       "stripeNotConfigured": "Le paiement par carte n'est pas configuré en ce moment. Choisissez un autre mode de paiement ou essayez à nouveau plus tard.",
       "stripeSecurityNote": "Les détails de la carte sont cryptés et traités directement par Stripe.",
       "close": "Fermer",

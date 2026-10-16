@@ -1646,6 +1646,7 @@
       "paymentConfirmationDelayed": "الدفع الخاص بك قد لا تزال تجهيز. تحقق من أوامرك قبل محاولة دفع آخر.",
       "viewOrders": "أوامر المراقبة",
       "backToCheckout": "العودة إلى المراقبة",
+      "continuePayment": "متابعة الدفع",
       "stripeNotConfigured": "دفع البطاقة لا يتم تشكيله الآن اختر طريقة دفع أخرى أو حاول مرة أخرى في وقت لاحق.",
       "stripeSecurityNote": "تفاصيل البطاقات مشفرة ومعالجتها مباشرة Stripe.",
       "close": "اقترب",

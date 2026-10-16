@@ -73,3 +73,14 @@ export function usePlacedOrderLookup() {
       retry: false,
     });
 }
+
+export function usePendingPlacementLookup(input: { bucketId: string; storeId: string } | null) {
+  return useQuery({
+    queryKey: deliveryQueryKeys.placedOrderByBucket(input?.bucketId ?? null, input?.storeId ?? null),
+    queryFn: ({ signal }) => checkoutApi.placedOrderByBucket(input!, signal),
+    enabled: Boolean(input),
+    staleTime: 0,
+    refetchInterval: 5_000,
+    retry: false,
+  });
+}

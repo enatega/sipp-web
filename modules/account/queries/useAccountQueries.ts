@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { authApi } from "@/modules/account/api/auth";
+import { disableBrowserNotifications } from "@/modules/account/api/browserNotifications";
 import { locationApi } from "@/modules/account/api/location";
 import { paymentApi } from "@/modules/account/api/payment";
 import { profileApi } from "@/modules/account/api/profile";
@@ -165,7 +166,10 @@ export function useDeleteAccountMutation() {
 export function useLogoutMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => authApi.logout(),
+    mutationFn: async () => {
+      await disableBrowserNotifications();
+      return authApi.logout();
+    },
     onSuccess: () => {
       queryClient.setQueryData(accountQueryKeys.session(), {
         authenticated: false,

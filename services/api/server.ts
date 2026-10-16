@@ -56,10 +56,11 @@ type CallOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   request?: NextRequest;
+  timeoutMs?: number;
 };
 
 export async function callApi(path: string, options: CallOptions = {}) {
-  const { method = "GET", body, request } = options;
+  const { method = "GET", body, request, timeoutMs = 20_000 } = options;
   const token = request?.cookies.get(authCookieNames.token)?.value;
 
   try {
@@ -75,7 +76,7 @@ export async function callApi(path: string, options: CallOptions = {}) {
       },
       body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store",
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     const data = await upstream.json().catch(() => null);
 
