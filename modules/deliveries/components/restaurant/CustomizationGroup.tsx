@@ -27,6 +27,9 @@ export function CustomizationGroup({
   const format = useFormatter();
   const formatAppCurrency = useAppCurrencyFormatter();
   const isRequired = section.required || section.minSelect > 0;
+  const description = isRequired && section.description?.trim().toLowerCase() === "optional"
+    ? ""
+    : section.description;
   const errorId = `customization-${section.groupId}-error`;
 
   const isComplete = selectedOptionIds.length >= Math.max(1, section.minSelect);
@@ -47,10 +50,10 @@ export function CustomizationGroup({
       <div aria-hidden="true" className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[15px] font-bold text-ink">{section.name}</p>
-          {section.description || hasLimit ? (
+          {description || hasLimit ? (
             <p className="mt-0.5 text-xs text-muted">
-              {section.description}
-              {section.description && hasLimit ? " · " : null}
+              {description}
+              {description && hasLimit ? " · " : null}
               {hasLimit ? t("chooseUpTo", { count: section.maxSelect ?? 0, selected: selectedOptionIds.length }) : null}
             </p>
           ) : null}

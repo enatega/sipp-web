@@ -27,7 +27,7 @@ export const checkoutApi = {
   },
   placedOrderByBucket(input: { bucketId: string; storeId: string }, signal?: AbortSignal) {
     const query = new URLSearchParams({ bucketId: input.bucketId, storeId: input.storeId });
-    return requestJson<{ orderId: string | null }>(`${apiRoutes.deliveryCheckout}?${query}`, { signal, cache: "no-store", timeoutMs: 4_000 });
+    return requestJson<{ orderId: string | null; draftId: string | null }>(`${apiRoutes.deliveryCheckout}?${query}`, { signal, cache: "no-store", timeoutMs: 5_000 });
   },
   stripeOrderStatus(draftId: string, signal?: AbortSignal) {
     return requestJson<StripeOrderDraftStatus>(

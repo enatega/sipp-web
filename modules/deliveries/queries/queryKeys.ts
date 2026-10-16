@@ -69,7 +69,7 @@ export const deliveryQueryKeys = {
   checkout: () => [...deliveryQueryKeys.all, "checkout"] as const,
   checkoutPreview: (input: CheckoutPreviewInput | null) =>
     [...deliveryQueryKeys.checkout(), "preview", input] as const,
-  placedOrderByBucket: (bucketId: string, storeId: string) =>
+  placedOrderByBucket: (bucketId: string | null, storeId: string | null) =>
     [...deliveryQueryKeys.checkout(), "placed-order", bucketId, storeId] as const,
   checkoutSchedule: (storeId: string | null) =>
     [...deliveryQueryKeys.checkout(), "schedule", storeId] as const,

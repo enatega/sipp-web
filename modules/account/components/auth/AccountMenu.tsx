@@ -8,7 +8,6 @@ import type { AuthUser } from "@/modules/account/types";
 import { userInitials } from "@/modules/account/utils/userInitials";
 import { userPhotoUrl } from "@/modules/account/utils/userPhotoUrl";
 import { useUnreadNotificationsCountQuery } from "@/modules/account/queries/useNotificationInboxQueries";
-import { disableBrowserNotifications } from "@/modules/account/api/browserNotifications";
 
 /** The signed-in destinations, in the order the design lists them. */
 const LINKS: Array<{ labelKey: "profile" | "orders" | "wallet" | "support"; href: string; icon: IconName }> = [
@@ -154,7 +153,7 @@ export function AccountMenu({
                 className={ROW}
                 onClick={() => {
                   setOpen(false);
-                  void disableBrowserNotifications().catch(() => undefined).finally(onSignOut);
+                  onSignOut();
                 }}
               >
                 <Icon name="logout" className="size-5 flex-none text-brand max-sm:size-[18px]" />

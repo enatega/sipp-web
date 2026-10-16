@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { BellRing, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 import { useNotificationLiveSync } from "@/modules/account/hooks/useNotificationLiveSync";
 import { useMarkNotificationReadMutation } from "@/modules/account/queries/useNotificationInboxQueries";
 
@@ -10,6 +11,22 @@ export function NotificationAlerts() {
   const t = useTranslations("notificationInbox");
   const { authenticated, alert, dismiss } = useNotificationLiveSync();
   const markRead = useMarkNotificationReadMutation();
+  const alertId = alert?.id;
+
+  useEffect(() => {
+    if (!alertId) return;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const scheduleDismiss = () => {
+      if (timeout) clearTimeout(timeout);
+      if (document.visibilityState === "visible") timeout = setTimeout(dismiss, 5_000);
+    };
+    scheduleDismiss();
+    document.addEventListener("visibilitychange", scheduleDismiss);
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      document.removeEventListener("visibilitychange", scheduleDismiss);
+    };
+  }, [alertId, dismiss]);
 
   if (!authenticated || !alert) return null;
 

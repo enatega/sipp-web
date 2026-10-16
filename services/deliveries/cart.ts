@@ -62,7 +62,12 @@ export async function proxyCartCollection(request: NextRequest) {
   }
   const body = parseAddItemBody(await request.json().catch(() => null));
   if (!body) return invalid("Invalid cart item.");
-  return callApi("/apps/deliveries/buckets/cart/items", { method: "POST", request, body });
+  return callApi("/apps/deliveries/buckets/cart/items", {
+    method: "POST",
+    request,
+    body,
+    timeoutMs: 45_000,
+  });
 }
 
 export async function proxyCartItem(request: NextRequest, itemId: string) {
@@ -78,4 +83,3 @@ export async function proxyCartItem(request: NextRequest, itemId: string) {
   }
   return callApi(`${path}/quantity`, { method: "PATCH", request, body: { quantity } });
 }
-

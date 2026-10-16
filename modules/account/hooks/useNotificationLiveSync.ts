@@ -45,6 +45,7 @@ export function useNotificationLiveSync() {
   const session = useSessionQuery();
   const authenticated = session.data?.authenticated === true;
   const [alert, setAlert] = useState<LiveNotificationAlert | null>(null);
+  const dismiss = useCallback(() => setAlert(null), []);
   const audioContext = useRef<AudioContext | null>(null);
   const seenIds = useRef(new Set<string>());
   const lastSeenAt = useRef(0);
@@ -178,5 +179,5 @@ export function useNotificationLiveSync() {
     };
   }, [authenticated, pathname, playSound, queryClient]);
 
-  return { authenticated, alert, dismiss: () => setAlert(null) };
+  return { authenticated, alert, dismiss };
 }
