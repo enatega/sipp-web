@@ -1,8 +1,8 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { loadStripe, type StripeElementsOptions } from "@stripe/stripe-js";
+import { CardElement, Elements, useElements, useStripe } from "@stripe/react-stripe-js";
+import { loadStripe, type StripeCardElementOptions, type StripeElementsOptions } from "@stripe/stripe-js";
 import { CreditCard, LoaderCircle, LockKeyhole, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { resolveCurrencySymbol } from "@/config/currency";
@@ -18,7 +18,7 @@ const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 interface PaymentFormProps {
   billingDetails: { name: string; email?: string; phone?: string };
   clientSecret: string;
-  draftId: string;
+  isDark: boolean;
   total: number;
   paymentQuote: StripePaymentQuote;
   onConfirmed: () => void;
@@ -29,7 +29,7 @@ interface PaymentFormProps {
 function PaymentForm({
   billingDetails,
   clientSecret,
-  draftId,
+  isDark,
   total,
   paymentQuote,
   onConfirmed,
@@ -37,11 +37,29 @@ function PaymentForm({
   selectedCard,
 }: PaymentFormProps) {
   const t = useTranslations("deliveries.checkout");
+  const savedCardsT = useTranslations("savedCards");
   const format = useFormatter();
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCardComplete, setIsCardComplete] = useState(false);
+  const cardOptions = useMemo<StripeCardElementOptions>(
+    () => ({
+      hidePostalCode: true,
+      disableLink: true,
+      style: {
+        base: {
+          color: isDark ? "#f6f7f8" : "#14161a",
+          fontFamily: "system-ui, sans-serif",
+          fontSize: "16px",
+          "::placeholder": { color: isDark ? "#aeb4bd" : "#747983" },
+        },
+        invalid: { color: "#e33935" },
+      },
+    }),
+    [isDark],
+  );
   const usdSymbol = resolveCurrencySymbol(undefined, paymentQuote.paymentCurrency);
   const businessSymbol = resolveCurrencySymbol(paymentQuote.businessCurrencySymbol, paymentQuote.businessCurrencyCode);
   const usdTotal = `${usdSymbol} ${format.number(paymentQuote.paymentAmount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -49,31 +67,24 @@ function PaymentForm({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!stripe || (!selectedCard && !elements) || isSubmitting) return;
+    if (!stripe || !elements || isSubmitting) return;
+    const card = selectedCard ? null : elements.getElement(CardElement);
+    if (!selectedCard && (!card || !isCardComplete)) {
+      setError(savedCardsT("cardDetailsRequired"));
+      return;
+    }
 
     setError("");
     setIsSubmitting(true);
     onProcessingChange(true);
 
     try {
-      const returnUrl = `${window.location.origin}/checkout?payment=return&draft=${encodeURIComponent(draftId)}`;
       let result;
       if (selectedCard) {
         result = await stripe.handleNextAction({ clientSecret });
       } else {
-        const submitResult = await elements!.submit();
-        if (submitResult.error) {
-          setError(submitResult.error.message || t("cardPaymentError"));
-          return;
-        }
-        result = await stripe.confirmPayment({
-          elements: elements!,
-          clientSecret,
-          confirmParams: {
-            return_url: returnUrl,
-            payment_method_data: { billing_details: billingDetails },
-          },
-          redirect: "if_required",
+        result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card: card!, billing_details: billingDetails },
         });
       }
 
@@ -107,19 +118,15 @@ function PaymentForm({
           <span className="min-w-0"><strong className="block truncate text-sm text-ink">{selectedCard.brand.toUpperCase()} •••• {selectedCard.last4}</strong><small className="mt-0.5 block text-xs text-muted">{t("payingWithSavedCard")}</small></span>
         </div>
       ) : (
-        <PaymentElement
-          options={{
-            layout: { type: "tabs", defaultCollapsed: false },
-            fields: {
-              billingDetails: {
-                name: "never",
-                email: "never",
-                phone: "never",
-                address: "if_required",
-              },
-            },
-          }}
-        />
+        <div aria-label={t("cardPaymentTitle")} className="rounded-xl border border-line bg-[var(--soft-surface)] px-4 py-4 focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10" role="group">
+          <CardElement
+            options={cardOptions}
+            onChange={(event) => {
+              setIsCardComplete(event.complete);
+              setError(event.error?.message ?? "");
+            }}
+          />
+        </div>
       )}
       <dl className="mt-5 grid gap-2 rounded-xl bg-[var(--soft-surface)] p-4 text-sm">
         <div className="flex items-center justify-between gap-4">
@@ -151,7 +158,7 @@ function PaymentForm({
       ) : null}
       <button
         className="mt-5 inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-55"
-        disabled={!stripe || (!selectedCard && !elements) || isSubmitting}
+        disabled={!stripe || !elements || isSubmitting}
         type="submit"
       >
         {isSubmitting ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : <LockKeyhole aria-hidden="true" className="size-4" />}
@@ -168,7 +175,6 @@ function PaymentForm({
 interface Props {
   billingDetails: { name: string; email?: string; phone?: string };
   clientSecret: string;
-  draftId: string;
   error: string;
   isFinalizing: boolean;
   onClose: () => void;
@@ -181,7 +187,6 @@ interface Props {
 export function StripePaymentModal({
   billingDetails,
   clientSecret,
-  draftId,
   error,
   isFinalizing,
   onClose,
@@ -338,7 +343,7 @@ export function StripePaymentModal({
             <PaymentForm
               billingDetails={billingDetails}
               clientSecret={clientSecret}
-              draftId={draftId}
+              isDark={isDark}
               onConfirmed={onConfirmed}
               onProcessingChange={(isProcessing) => {
                 if (isProcessing) setIsClosing(false);

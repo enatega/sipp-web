@@ -730,7 +730,6 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
             ...(profile.data.data.user.phone ? { phone: profile.data.data.user.phone } : {}),
           }}
           clientSecret={stripePayment?.clientSecret ?? ""}
-          draftId={activeStripeDraftId ?? ""}
           error={
             stripeOrderStatus.data?.status === "payment_failed" ||
               stripeOrderStatus.data?.status === "cancelled"
