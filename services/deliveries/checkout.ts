@@ -127,13 +127,12 @@ export async function proxyPlaceOrder(request: NextRequest) {
       !PAYMENT_METHOD_ID_PATTERN.test(paymentMethodId) ||
       paymentMethodId.length > 255)
   ) return invalid("Invalid saved card selection.");
-  const successUrl = new URL("/checkout?payment=return", request.url).toString();
-  const cancelUrl = new URL("/checkout?payment=cancelled", request.url).toString();
+  // Do not send hosted Checkout URLs: new web card payments use Payment Element.
   return callApi("/apps/deliveries/orders", {
     method: "POST",
     request,
     timeoutMs: 60_000,
-    body: { ...input, paymentMethod: source.paymentMethod, ...(paymentMethodId ? { paymentMethodId } : {}), ...(customerNote ? { customerNote } : {}), ...(source.paymentMethod === "stripe" && !paymentMethodId ? { successUrl, cancelUrl } : {}) },
+    body: { ...input, paymentMethod: source.paymentMethod, ...(paymentMethodId ? { paymentMethodId } : {}), ...(customerNote ? { customerNote } : {}) },
   });
 }
 
