@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { parsePhoneNumberFromString } from "libphonenumber-js/max";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, Phone, ShieldCheck } from "lucide-react";
@@ -15,6 +15,7 @@ import { ApiError } from "@/services/api/client";
 
 export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initialPhone?: string | null; onVerified: () => Promise<unknown> }) {
   const t = useTranslations("deliveries.checkout");
+  const authText = useTranslations("auth");
   const parsed = parsePhoneNumberFromString(initialPhone ?? "");
   const [country, setCountry] = useState(() => parsed?.country ? countryByIso(parsed.country) ?? defaultCountry : defaultCountry);
   const [phone, setPhone] = useState(() => parsed?.formatNational() ?? "");
@@ -23,6 +24,16 @@ export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initia
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const attemptedOtp = useRef("");
+  const requestInFlight = useRef(false);
+  const [resendAt, setResendAt] = useState(0);
+  const [resendIn, setResendIn] = useState(0);
+  useEffect(() => {
+    const update = () => setResendIn(Math.max(0, Math.ceil((resendAt - Date.now()) / 1000)));
+    update();
+    const timer = window.setInterval(update, 1000);
+    document.addEventListener("visibilitychange", update);
+    return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", update); };
+  }, [resendAt]);
   const validPhone = validateNationalPhone(phone, country).e164;
   const messageFor = (reason: unknown, fallback: string) => {
     if (reason instanceof ApiError) {
@@ -36,23 +47,33 @@ export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initia
   };
 
   async function sendCode() {
-    if (!validPhone || busy) return;
+    const recipient = sentPhone || validPhone;
+    if (!recipient || requestInFlight.current || Date.now() < resendAt) return;
+    requestInFlight.current = true;
     setBusy(true);
     setError("");
     try {
-      await profileApi.sendPhoneVerification({ phone: validPhone });
-      setSentPhone(validPhone);
+      await profileApi.sendPhoneVerification({ phone: recipient });
+      setSentPhone(recipient);
+      setResendAt(Date.now() + 30_000);
+      setResendIn(30);
       setOtp("");
       attemptedOtp.current = "";
     } catch (caught) {
+      if (caught instanceof ApiError && caught.status === 429) {
+        setResendAt(Date.now() + 30_000);
+        setResendIn(30);
+      }
       setError(messageFor(caught, t("phoneVerificationSendError")));
     } finally {
+      requestInFlight.current = false;
       setBusy(false);
     }
   }
 
   async function verifyCode(code: string) {
-    if (!/^\d{4}$/.test(code) || busy || !sentPhone) return;
+    if (!/^\d{4}$/.test(code) || requestInFlight.current || !sentPhone) return;
+    requestInFlight.current = true;
     setBusy(true);
     setError("");
     try {
@@ -61,6 +82,7 @@ export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initia
     } catch (caught) {
       setError(messageFor(caught, t("phoneVerificationCodeError")));
     } finally {
+      requestInFlight.current = false;
       setBusy(false);
     }
   }
@@ -84,6 +106,9 @@ export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initia
               void verifyCode(value);
             }
           }} disabled={busy} />
+          <button type="button" disabled={busy || resendIn > 0} onClick={() => void sendCode()} className="mt-3 min-h-11 text-sm font-semibold text-brand disabled:text-body disabled:opacity-60">
+            {resendIn > 0 ? authText("resendIn", { time: `0:${String(resendIn).padStart(2, "0")}` }) : authText("resendCode")}
+          </button>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <button type="button" disabled={busy || otp.length !== 4} onClick={() => void verifyCode(otp)} className="min-h-11 rounded-full bg-brand px-6 text-sm font-bold text-ink disabled:opacity-50">{busy ? t("phoneVerificationWorking") : t("phoneVerificationConfirm")}</button>
             <button type="button" disabled={busy} onClick={() => { setSentPhone(""); setOtp(""); setError(""); }} className="min-h-11 px-3 text-sm font-semibold text-brand">{t("phoneVerificationChange")}</button>
@@ -94,7 +119,7 @@ export function CheckoutPhoneVerification({ initialPhone, onVerified }: { initia
             <CountrySelect value={country} onChange={(next) => { setCountry(next); setPhone(formatNationalPhoneInput(phone, next)); setError(""); }} disabled={busy} />
             <input id="checkout-phone-number" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(event) => { setPhone(formatNationalPhoneInput(event.target.value, country)); setError(""); }} disabled={busy} className="min-w-0 flex-1 bg-transparent px-4 text-base text-ink outline-none" />
           </div>
-          <button type="submit" disabled={busy || !validPhone} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-bold text-ink disabled:opacity-50"><Phone className="size-4" aria-hidden="true" />{busy ? t("phoneVerificationWorking") : t("phoneVerificationSend")}</button>
+          <button type="submit" disabled={busy || !validPhone || resendIn > 0} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-bold text-ink disabled:opacity-50"><Phone className="size-4" aria-hidden="true" />{busy ? t("phoneVerificationWorking") : resendIn > 0 ? authText("resendIn", { time: `0:${String(resendIn).padStart(2, "0")}` }) : t("phoneVerificationSend")}</button>
         </form>}
         {error ? <p role="alert" className="mt-4 text-sm font-medium text-danger">{error}</p> : null}
       </section>
