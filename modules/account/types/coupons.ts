@@ -62,3 +62,10 @@ export interface ClaimCouponResponse {
   message: string;
   data: Pick<ClaimedCoupon, "id" | "code" | "name" | "description" | "discount_type" | "discount_value" | "max_discount_cap" | "min_order_value" | "start_date" | "end_date">;
 }
+
+/** Only one coupon applies at a time; activating another one replaces it. */
+export interface CouponActivationResponse {
+  success: boolean;
+  message: string;
+  replacedCoupon?: { id: string; code: string; name: string } | null;
+}

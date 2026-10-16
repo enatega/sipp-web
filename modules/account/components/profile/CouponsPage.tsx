@@ -66,8 +66,16 @@ export function CouponsPage() {
     setNotice(null);
     setBusyId(id);
     try {
-      await activation.mutateAsync({ id, isActive });
-      notify.success(isActive ? "couponActivated" : "couponDeactivated");
+      const result = await activation.mutateAsync({ id, isActive });
+      // Only one offer applies at a time; say which one a new offer replaced.
+      if (isActive && result.replacedCoupon) {
+        notify.success("couponReplaced", {
+          previous: result.replacedCoupon.name,
+          next: items.find((coupon) => coupon.id === id)?.name ?? "",
+        });
+      } else {
+        notify.success(isActive ? "couponActivated" : "couponDeactivated");
+      }
     } catch (error) {
       notify.error(
         error,

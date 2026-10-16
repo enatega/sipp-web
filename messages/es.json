@@ -239,7 +239,8 @@
     "offline": "Parece que no tienes conexión. Revísala e inténtalo de nuevo.",
     "timeout": "Esto está tardando más de lo esperado. Inténtalo de nuevo.",
     "rateLimited": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
-    "sessionExpired": "Tu sesión ha caducado. Vuelve a iniciar sesión."
+    "sessionExpired": "Tu sesión ha caducado. Vuelve a iniciar sesión.",
+    "couponReplaced": "{next} reemplazó a {previous}. Solo se puede aplicar una oferta a la vez."
   },
   "favouritesPage": {
     "title": "Favoritos",
@@ -316,8 +317,7 @@
       "COUPON_USAGE_LIMIT": "Esta oferta se ha agotado y ya no se puede usar.",
       "COUPON_USER_LIMIT": "Ya usaste esta oferta el número máximo de veces ({count, plural, one {# uso} other {# usos}}).",
       "STORE_MINIMUM_AFTER_COUPON": "Con esta oferta tu pedido queda en {total}, por debajo del pedido mínimo de {minimum} de este negocio. Añade {remaining} más o quita la oferta."
-    },
-    "youSave": "Ahorras {amount}"
+    }
   },
   "accountSecurity": {
     "title": "Seguridad de la cuenta",
@@ -1774,8 +1774,10 @@
       "couponNotAppliedCode": "La oferta {code} no se aplicó.",
       "couponFixToContinue": "Quita la oferta o cambia tu pedido para que cumpla los requisitos y continuar.",
       "storeMinimumNotMet": "Tu pedido está por debajo del mínimo de este negocio. Añade más artículos para continuar.",
-      "couponsAppliedSaving": "{count, plural, one {# oferta aplicada} other {# ofertas aplicadas}}. Ahorras {amount}.",
-      "addAnotherCoupon": "{count, plural, one {Añadir # oferta más} other {Añadir otra oferta (# disponibles)}}"
+      "couponAppliedCode": "Oferta {code} aplicada. Tu total se ha actualizado.",
+      "chooseOtherCoupon": "{count, plural, one {Cambiar a # otra oferta} other {Cambiar a una de # otras ofertas}}",
+      "couponReplaced": "{next} reemplazó a {previous}. Solo se puede aplicar una oferta a la vez.",
+      "oneCouponAtATime": "Solo se puede aplicar una oferta a la vez. Usar otra oferta reemplaza la actual."
     }
   },
   "about": {

@@ -18,7 +18,7 @@ export type ToastKey =
   | "defaultCardUpdated" | "defaultCardUpdateFailed"
   | "walletToppedUp" | "walletTopUpFailed"
   | "couponClaimed" | "couponClaimFailed"
-  | "couponActivated" | "couponDeactivated" | "couponUpdateFailed"
+  | "couponActivated" | "couponReplaced" | "couponDeactivated" | "couponUpdateFailed"
   | "codeSent" | "codeSendFailed" | "codeVerifyFailed"
   | "passwordUpdated" | "passwordUpdateFailed"
   | "accountDeleted" | "accountDeleteFailed"

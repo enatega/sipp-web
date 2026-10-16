@@ -51,8 +51,6 @@ export interface CartResponse {
   itemsTotal: number;
   appliedCouponId: string | null;
   appliedCouponCode: string | null;
-  /** Every coupon applied to the cart, in the order it was applied. */
-  appliedCouponIds: string[];
   isEmpty: boolean;
   pricesUpdated?: boolean;
   items: CartItem[];

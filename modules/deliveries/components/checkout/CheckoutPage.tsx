@@ -341,7 +341,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const preview = useCheckoutPreview(previewInput);
   // Only inputs that can change coupon eligibility put the coupon card into a
   // loading state; repricing for a tip or address keeps its last status.
-  const couponPreviewKey = `${cart.data?.bucketId}:${cart.data?.appliedCouponIds.join(",")}:${cart.data?.totalPrice}:${formik.values.orderType}:${formik.values.paymentMethod}`;
+  const couponPreviewKey = `${cart.data?.bucketId}:${cart.data?.appliedCouponId}:${cart.data?.totalPrice}:${formik.values.orderType}:${formik.values.paymentMethod}`;
   const [resolvedCouponPreviewKey, setResolvedCouponPreviewKey] = useState<string | null>(null);
   if (preview.data && !preview.isFetching && resolvedCouponPreviewKey !== couponPreviewKey) {
     setResolvedCouponPreviewKey(couponPreviewKey);
@@ -541,10 +541,8 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   if (profile.data.data.user.phone_verification_required ?? (!profile.data.data.user.phone || !profile.data.data.user.phone_is_verified)) return <CheckoutPhoneVerification initialPhone={profile.data.data.user.phone} onVerified={() => profile.refetch()} />;
 
   const store = preview.data?.store;
-  // Every applied coupon the server refused must be fixed or removed before ordering.
-  const couponIssues = (preview.data?.coupons ?? (preview.data?.coupon ? [preview.data.coupon] : []))
-    .filter((coupon) => coupon.issue)
-    .map((coupon) => ({ code: coupon.name ?? coupon.code, message: couponText.issueMessage(coupon.issue!) }));
+  const couponIssue = preview.data?.coupon?.issue ?? null;
+  const couponIssueText = couponIssue ? couponText.issueMessage(couponIssue) : null;
   const checkoutAlerts: CheckoutAlert[] = [
     ...(isCancellationNoticeVisible ? [{ id: "card-cancelled", title: t("cardPaymentTitle"), message: t("cardPaymentCancelled"), onDismiss: () => { setIsCancellationNoticeVisible(false); router.replace("/checkout"); } }] : []),
     ...(hasPreviewError
@@ -621,14 +619,14 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
                 {formik.values.leaveAtDoor ? <p className="mt-3 text-xs text-muted">{t("leaveAtDoorCard")}</p> : null}
               </section>
 
-              <CheckoutCouponSection enabled={authenticated} storeId={cart.data.storeId} subtotal={cart.data.totalPrice} orderType={formik.values.orderType} paymentMethod={formik.values.paymentMethod} appliedCouponIds={cart.data.appliedCouponIds} previewCoupons={preview.data?.coupons ?? (preview.data?.coupon ? [preview.data.coupon] : [])} isPreviewLoading={isCouponPreviewLoading} />
+              <CheckoutCouponSection enabled={authenticated} storeId={cart.data.storeId} subtotal={cart.data.totalPrice} orderType={formik.values.orderType} paymentMethod={formik.values.paymentMethod} appliedCouponId={cart.data.appliedCouponId} appliedCouponCode={cart.data.appliedCouponCode} previewCoupon={preview.data?.coupon} isPreviewLoading={isCouponPreviewLoading} />
 
               {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><h2 className="font-bold text-ink">{t("tipTitle")}</h2><p className="mt-1 text-xs text-muted">{t("tipDescription")}</p><div className="mt-4 flex flex-wrap gap-2">{tipOptions.map((tip) => <button key={tip} type="button" onClick={() => void formik.setFieldValue("riderTip", tip)} className={`min-h-10 rounded-full border px-4 text-sm font-semibold ${formik.values.riderTip === tip ? "border-brand bg-brand text-ink" : "border-line text-ink hover:border-brand/40"}`}>{tip === 0 ? t("noTip") : `${format.number(tip, { maximumFractionDigits: 2 })}${currencySymbol}`}</button>)}<label className="flex h-11 min-w-36 items-center rounded-full border border-line bg-surface px-4 text-sm text-muted transition-colors focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10"><input aria-label={t("customTip")} inputMode="decimal" type="number" min="0" max="10000" step="0.01" name="riderTip" value={tipOptions.includes(formik.values.riderTip) ? "" : formik.values.riderTip} onChange={(event) => void formik.setFieldValue("riderTip", Number(event.target.value) || 0)} placeholder={t("customTip")} className="w-24 appearance-none bg-transparent px-1 text-base text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" /><span>{currencySymbol}</span></label></div><FieldError message={formik.touched.riderTip ? formik.errors.riderTip : undefined} /></section> : null}
 
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MessageSquareText aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("notesTitle")}</h2><p className="text-xs text-muted">{t("notesDescription")}</p></div></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-xs font-semibold text-ink">{t("restaurantNote")}<textarea name="restaurantNote" maxLength={250} rows={3} value={formik.values.restaurantNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("restaurantNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.restaurantNote ? formik.errors.restaurantNote : undefined} /></label>{formik.values.orderType === "delivery" ? <label className="text-xs font-semibold text-ink">{t("courierNote")}<textarea name="courierNote" maxLength={250} rows={3} value={formik.values.courierNote} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={t("courierNotePlaceholder")} className={`${fieldClass} resize-none`} /><FieldError message={formik.touched.courierNote ? formik.errors.courierNote : undefined} /></label> : null}</div></section>
 
             </div>
-            <CheckoutSummary preview={preview.data} isLoading={preview.isFetching} isPlacing={placeOrder.isPending || formik.isSubmitting} disabled={!formik.isValid || !previewInput || cart.data.items.some((item) => !item.inStock) || couponIssues.length > 0} paymentMethod={formik.values.paymentMethod} couponIssues={couponIssues} />
+            <CheckoutSummary preview={preview.data} isLoading={preview.isFetching} isPlacing={placeOrder.isPending || formik.isSubmitting} disabled={!formik.isValid || !previewInput || cart.data.items.some((item) => !item.inStock) || Boolean(couponIssue)} paymentMethod={formik.values.paymentMethod} couponIssue={couponIssueText && preview.data?.coupon ? { code: preview.data.coupon.code, message: couponIssueText } : null} />
           </div>
         </form>
       </main>
