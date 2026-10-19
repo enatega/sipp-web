@@ -23,19 +23,6 @@ import {
 } from "@/modules/deliveries/hooks/useDiscoveryQueries";
 import { decodeDisplayText } from "@/modules/deliveries/utils/discoveryMappers";
 
-/** Banners and shop types lead the configured section order. */
-const PINNED_SECTION_KINDS = ["banners", "shop-types"];
-
-function pinLeadSections<T extends { kind: string }>(sections: T[]) {
-  const pinned = PINNED_SECTION_KINDS.flatMap((kind) =>
-    sections.filter((section) => section.kind === kind),
-  );
-  return [
-    ...pinned,
-    ...sections.filter((section) => !PINNED_SECTION_KINDS.includes(section.kind)),
-  ];
-}
-
 export function DiscoveryPage() {
   const t = useTranslations("deliveries.discovery");
   const session = useSessionQuery();
@@ -49,8 +36,9 @@ export function DiscoveryPage() {
   const nearby = useNearbyStoresQuery(location, true, true);
   const deals = useDealsQuery(Boolean(location), true, location);
   const orderAgain = useOrderAgainQuery(isAuthenticated && Boolean(location), session.data?.user?.id);
-  const homeSections = pinLeadSections(layout.data?.sections ?? [
+  const homeSections = layout.data?.sections ?? [
     { key: 'shop-types', kind: 'shop-types', title: '' },
+    { key: 'favourite-foods', kind: 'favourite-foods', title: '' },
     { key: 'banners', kind: 'banners', title: '' },
     { key: 'quick-actions', kind: 'quick-actions', title: '' },
     { key: 'top-brands', kind: 'top-brands', title: '' },
@@ -58,7 +46,7 @@ export function DiscoveryPage() {
     { key: 'deals', kind: 'deals', title: '' },
     ...(shopTypes.data?.items ?? []).map((type) => ({ key: `shop-type:${type.id}`, kind: 'shop-type-stores', title: type.name })),
     { key: 'order-again', kind: 'order-again', title: '' },
-  ]);
+  ];
   const rows = homeSections.filter((section) => section.kind === "shop-type-stores");
   const rowQueries = useShopTypeStoreQueries(
     rows.map((row) => ({ id: row.key.slice("shop-type:".length) })),
@@ -109,10 +97,10 @@ export function DiscoveryPage() {
                 : null;
           }
           if (section.kind === "shop-types") {
-            return <div className="space-y-6 sm:space-y-8" key={section.key}>
-              <ShopTypesSection errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={shopTypes.isError} isLoading={shopTypes.isPending} items={shopTypes.data?.items ?? []} totalItems={shopTypes.data?.total} onRetry={() => void shopTypes.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/shop-types" seeAllLabel={t("seeAll")} description={t("shopTypesDescription")} title={t("shopTypesTitle")} />
-              <FavouriteFoodsCarousel />
-            </div>;
+            return <ShopTypesSection key={section.key} errorMessage={t("errorMessage")} errorTitle={t("errorTitle")} isError={shopTypes.isError} isLoading={shopTypes.isPending} items={shopTypes.data?.items ?? []} totalItems={shopTypes.data?.total} onRetry={() => void shopTypes.refetch()} retryLabel={t("retry")} seeAllHref="/discovery/all/shop-types" seeAllLabel={t("seeAll")} description={t("shopTypesDescription")} title={t("shopTypesTitle")} />;
+          }
+          if (section.kind === "favourite-foods") {
+            return <FavouriteFoodsCarousel key={section.key} />;
           }
           if (section.kind === "quick-actions") {
             return <QuickActionsNav key={section.key} />;
