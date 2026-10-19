@@ -1,4 +1,5 @@
 "use client";
+import { AddressDetailsView } from "../AddressDetailsView";
 
 import { useEffect, useRef } from "react";
 import { LocateFixed, MapPin, Search } from "lucide-react";
@@ -57,6 +58,7 @@ export function LocationSearchStep({
   onClose,
 }: Props) {
   const t = useTranslations("location");
+  const tAddress = useTranslations("saveAddress");
   const common = useTranslations("common");
   const searchRef = useRef<HTMLInputElement>(null);
   const hasQuery = Boolean(query.trim());
@@ -131,16 +133,16 @@ export function LocationSearchStep({
                   </div>
                 ) : savedAddresses.length ? (
                   savedAddresses.map((address) => (
-                    <LocationRow
+                    <div key={address.id}><LocationRow
                       key={address.id}
                       icon={<SavedAddressIcon type={address.type} className={ROW_ICON} />}
-                      title={address.location_name || address.type.toLowerCase()}
+                      title={address.location_name || tAddress(address.type === "OFFICE" ? "work" : address.type.toLowerCase())}
                       subtitle={address.address}
                       badge={address.is_selected ? t("selected") : undefined}
                       onClick={() => onOpenSavedAddress(address)}
                       isHighlighted={address.is_selected}
                       isCapitalized
-                    />
+                    /><AddressDetailsView details={address.addressDetails} compact={!address.is_selected} /></div>
                   ))
                 ) : (
                   <p className="py-3.5 text-sm text-muted">{t("noSavedAddresses")}</p>

@@ -1,7 +1,11 @@
+import type { AddressDetails } from "@/modules/account";
 export type OrderStatus = string;
 
 export interface OrderCard {
   orderId: string;
+  deliveryAddressDetails?: AddressDetails | null;
+  deliveryAddressIsHistoricalFallback?: boolean;
+  deliveryAddressExtras?: string | null;
   orderCode?: string;
   status?: OrderStatus;
   orderStatus?: OrderStatus;
@@ -66,6 +70,9 @@ export interface OrderEta {
 
 export interface OrderDetail {
   orderId: string;
+  deliveryAddressDetails?: AddressDetails | null;
+  deliveryAddressIsHistoricalFallback?: boolean;
+  deliveryAddressExtras?: string | null;
   orderCode?: string | null;
   status: OrderStatus;
   statusTitle?: string;
@@ -97,6 +104,9 @@ export interface OrderDetail {
     longitude?: number | null;
     storeLatitude?: number | null;
     storeLongitude?: number | null;
+    deliveryAddressDetails?: AddressDetails | null;
+  deliveryAddressIsHistoricalFallback?: boolean;
+    deliveryAddressExtras?: string | null;
   };
   rider?: {
     id?: string;
@@ -149,6 +159,9 @@ export interface OrderDetail {
 
 export interface ReviewInput {
   orderId: string;
+  deliveryAddressDetails?: AddressDetails | null;
+  deliveryAddressIsHistoricalFallback?: boolean;
+  deliveryAddressExtras?: string | null;
   rating: number;
   description?: string;
 }

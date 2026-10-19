@@ -1,4 +1,5 @@
 "use client";
+import { AddressDetailsView } from "@/modules/account";
 
 import Link from "next/link";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
@@ -110,7 +111,7 @@ export function CheckoutAddressPicker({
               const isSelected = address.id === selectedAddressId;
               const isValidating = validatingAddressId === address.id;
               return (
-                <button
+                <div key={address.id}><button
                   className={`flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-[border-color,background-color] ${isSelected ? "border-brand bg-brand/5" : "border-line hover:border-brand/30 hover:bg-[var(--soft-surface)]"}`}
                   disabled={Boolean(validatingAddressId)}
                   key={address.id}
@@ -127,7 +128,7 @@ export function CheckoutAddressPicker({
                     <span className="mt-1 block text-xs leading-5 text-body">{address.address}</span>
                   </span>
                   {isSelected ? <span className="shrink-0 pt-1 text-[10px] font-bold uppercase tracking-[0.08em] text-brand">{t("selected")}</span> : null}
-                </button>
+                </button><div className="px-4 pb-2"><AddressDetailsView details={address.addressDetails} compact /></div></div>
               );
             })}
           </div>

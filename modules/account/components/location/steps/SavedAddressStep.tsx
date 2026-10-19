@@ -1,3 +1,4 @@
+import { AddressDetailsView } from "../AddressDetailsView";
 "use client";
 
 import { useTranslations } from "next-intl";
@@ -32,6 +33,7 @@ export function SavedAddressStep({
   onClose,
 }: Props) {
   const t = useTranslations("location");
+  const tAddress = useTranslations("saveAddress");
   const [longitude, latitude] = address.location?.coordinates ?? [];
   const hasPoint = Number.isFinite(latitude) && Number.isFinite(longitude);
 
@@ -58,7 +60,7 @@ export function SavedAddressStep({
           />
           <div className="min-w-0">
             <strong className="block text-sm font-medium capitalize text-ink">
-              {address.location_name || address.type.toLowerCase()}
+              {address.location_name || tAddress(address.type === "OFFICE" ? "work" : address.type.toLowerCase())}
             </strong>
             <p className="mt-1 text-[13px] leading-relaxed text-muted">
               {address.address}
@@ -66,6 +68,7 @@ export function SavedAddressStep({
           </div>
         </div>
 
+        <AddressDetailsView details={address.addressDetails} />
         <LocationAlert message={error} />
 
         <button

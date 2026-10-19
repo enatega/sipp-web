@@ -44,7 +44,11 @@ function commonInput(source: Record<string, unknown>) {
   const deliveryLabel = typeof source.deliveryLabel === "string"
     ? source.deliveryLabel.trim()
     : undefined;
+  const deliveryAddressDetails = source.deliveryAddressDetails;
+  const addressDetailsVersion = source.addressDetailsVersion;
   const hasDirectAddressValue =
+    addressDetailsVersion !== undefined ||
+    deliveryAddressDetails !== undefined ||
     source.deliveryAddress !== undefined ||
     source.deliveryLatitude !== undefined ||
     source.deliveryLongitude !== undefined ||
@@ -81,6 +85,8 @@ function commonInput(source: Record<string, unknown>) {
     orderType,
     paymentMethod,
     ...(addressId ? { addressId } : {}),
+    ...(addressDetailsVersion !== undefined ? { addressDetailsVersion } : {}),
+    ...(deliveryAddressDetails !== undefined ? { deliveryAddressDetails } : {}),
     ...(deliveryAddress ? { deliveryAddress } : {}),
     ...(deliveryLatitude !== undefined ? { deliveryLatitude } : {}),
     ...(deliveryLongitude !== undefined ? { deliveryLongitude } : {}),
@@ -103,6 +109,15 @@ export function proxyCheckoutPreview(request: NextRequest) {
   Object.entries(input).forEach(([key, value]) => query.set(key, String(value)));
   query.set("paymentMethod", source.paymentMethod);
   return callApi(`/apps/deliveries/orders/place-order/preview?${query}`, { request });
+}
+
+export async function proxyCheckoutPreviewBody(request: NextRequest) {
+  const unauthorized = requireSession(request);
+  if (unauthorized) return unauthorized;
+  const source = await request.json().catch(() => null) as Record<string, unknown> | null;
+  const input = source ? commonInput(source) : null;
+  if (!input) return invalid("Invalid checkout details.");
+  return callApi("/apps/deliveries/orders/place-order/preview", { request, method: "POST", body: input });
 }
 
 export async function proxyPlaceOrder(request: NextRequest) {

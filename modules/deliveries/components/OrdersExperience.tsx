@@ -1,4 +1,5 @@
 "use client";
+import { AddressDetailsView } from "@/modules/account";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -292,6 +293,7 @@ function OrderRow({ order, past, scheduled, expanded, onToggle, onRate }: OrderR
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">{detail?.orderType === "pickup" ? t("pickupAddress") : t("deliveryAddress")}</p>
           <p className="line-clamp-2 text-xs text-body" title={address}>{address}</p>
+          {detail?.orderType !== "pickup" ? <AddressDetailsView isHistoricalFallback={detail?.deliveryAddressIsHistoricalFallback} details={order.deliveryAddressDetails ?? detail?.deliveryAddressDetails} legacyText={order.deliveryAddressExtras ?? detail?.deliveryAddressExtras} compact /> : null}
         </div>
         <div className="min-[800px]:text-right">
           <p className="text-[10px] text-muted">{t("totalAmount")}</p>

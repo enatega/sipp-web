@@ -1,5 +1,8 @@
 "use client";
+import { ApiError } from "@/services/api/client";
 
+import { useEffect, useState } from "react";
+import { locationApi } from "@/modules/account/api/location";
 import { useFormik } from "formik";
 import { MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -14,7 +17,11 @@ import { LocationAlert } from "@/modules/account/components/location/steps/Locat
 import { LocationStepHeader } from "@/modules/account/components/location/steps/LocationStepHeader";
 import { PRIMARY_BUTTON, SUMMARY_CARD } from "@/modules/account/components/location/steps/styles";
 
+export type DeliveryAddressDraft = { type: AddressType; placeName: string; howToFindYou: string; deliveryInstructions: string; shouldSave: boolean };
+
 interface Props {
+  initialDraft?: DeliveryAddressDraft;
+  onDraftChange?: (draft: DeliveryAddressDraft) => void;
   place: ChosenPlace;
   /** Signed-in visitors can save; guests only pick a place. */
   canSaveAddress: boolean;
@@ -30,7 +37,9 @@ interface Props {
 }
 
 export function DeliveryConfirmStep({
-  place,
+  initialDraft,
+  onDraftChange,
+  place: initialPlace,
   canSaveAddress,
   isSaveRequired,
   addressToEdit,
@@ -42,21 +51,23 @@ export function DeliveryConfirmStep({
   onClose,
 }: Props) {
   const t = useTranslations("location");
+  const [reloadedPlace, setReloadedPlace] = useState<ChosenPlace | null>(null);
+  const place = reloadedPlace ?? initialPlace;
   const tSave = useTranslations("saveAddress");
   const saveAddress = useSaveAddressMutation();
-  const details = addressToEdit?.additional_fields;
+  const details = addressToEdit?.addressDetails;
+  const [expectedUpdatedAt, setExpectedUpdatedAt] = useState(addressToEdit?.updatedAt);
 
   const formik = useFormik({
     initialValues: {
       shouldSave: isSaveRequired,
       type: (addressToEdit?.type ?? "HOME") as AddressType,
-      locationName:
-        addressToEdit?.type === "OTHER" ? (addressToEdit.location_name ?? "") : "",
-      houseNo: details?.houseNo ?? "",
-      building: details?.building ?? "",
-      landmark: details?.landmark ?? "",
+      placeName: details?.placeName ?? "",
+      howToFindYou: details?.howToFindYou ?? "",
+      deliveryInstructions: details?.deliveryInstructions ?? "",
+      ...initialDraft,
     },
-    validationSchema: deliveryAddressSchema,
+    validationSchema: deliveryAddressSchema(tSave),
     onSubmit: async (values, helpers) => {
       helpers.setStatus(undefined);
       if (!canSaveAddress || !values.shouldSave) {
@@ -67,15 +78,17 @@ export function DeliveryConfirmStep({
       try {
         const savedAddress = await saveAddress.mutateAsync({
           id: addressToEdit?.id,
-          payload: buildAddressPayload(place, values),
+          payload: buildAddressPayload(place, values, expectedUpdatedAt),
         });
-        storePlace({ ...place, savedAddressId: savedAddress.id });
+        storePlace({ ...place, label: savedAddress.location_name ?? undefined, savedAddressId: savedAddress.id, addressDetails: savedAddress.addressDetails });
         onDone(true);
       } catch (caught) {
-        helpers.setStatus(caught instanceof Error ? caught.message : tSave("saveError"));
+        helpers.setStatus(tSave(caught instanceof ApiError && caught.code === "ADDRESS_EDIT_CONFLICT" ? "editConflict" : caught instanceof ApiError && caught.code === "ADDRESS_APP_UPDATE_REQUIRED" ? "updateRequired" : "saveRetry"));
       }
     },
   });
+
+  useEffect(() => { onDraftChange?.(formik.values); }, [formik.values, onDraftChange]);
 
   const isSaving = canSaveAddress && formik.values.shouldSave;
   const submitLabel = formik.isSubmitting
@@ -102,7 +115,7 @@ export function DeliveryConfirmStep({
         <InteractiveLocationMap
           latitude={place.latitude}
           longitude={place.longitude}
-          onSelect={onMapSelect}
+          onSelect={(lat, lng) => { setReloadedPlace(null); onMapSelect(lat, lng); }}
           ariaLabel={t("interactiveMap")}
         />
         <p className="mb-4 mt-2 text-xs leading-relaxed text-muted">{t("mapInstruction")}</p>
@@ -124,6 +137,7 @@ export function DeliveryConfirmStep({
               name="shouldSave"
               checked={formik.values.shouldSave}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               disabled={formik.isSubmitting}
               className="size-4.25 accent-brand"
             />
@@ -135,12 +149,23 @@ export function DeliveryConfirmStep({
           <AddressSaveFields
             values={formik.values}
             onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            errors={formik.submitCount ? formik.errors : {}}
             onTypeChange={(type) => void formik.setFieldValue("type", type)}
             isDisabled={formik.isSubmitting}
           />
         ) : null}
 
         <LocationAlert message={formik.status ?? error} />
+        {formik.status && addressToEdit ? <button type="button" disabled={formik.isSubmitting} className="mt-3 min-h-11 text-sm font-semibold" onClick={async () => {
+          try {
+            const latest = await locationApi.getAddress(addressToEdit.id);
+            setExpectedUpdatedAt(latest.updatedAt);
+            setReloadedPlace({ address: latest.address, latitude: latest.location.coordinates[1], longitude: latest.location.coordinates[0], savedAddressId: latest.id, addressDetails: latest.addressDetails });
+            formik.resetForm({ values: { ...formik.values, type: latest.type, placeName: latest.addressDetails?.placeName ?? "", howToFindYou: latest.addressDetails?.howToFindYou ?? "", deliveryInstructions: latest.addressDetails?.deliveryInstructions ?? "" } });
+          } catch { formik.setStatus(tSave("saveRetry")); }
+        }}>{tSave("reload")}</button> : null}
+
 
         <button
           type="submit"

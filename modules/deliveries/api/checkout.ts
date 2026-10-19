@@ -2,21 +2,9 @@ import { apiRoutes } from "@/config/api";
 import { requestJson } from "@/services/api/client";
 import type { CheckoutPreview, CheckoutPreviewInput, CheckoutScheduleResponse, PlaceOrderInput, PlaceOrderResponse, StripeOrderDraftStatus } from "../types/checkout";
 
-function previewQuery(input: CheckoutPreviewInput) {
-  const query = new URLSearchParams({ storeId: input.storeId, bucketId: input.bucketId, orderType: input.orderType, paymentMethod: input.paymentMethod });
-  if (input.addressId) query.set("addressId", input.addressId);
-  if (input.deliveryAddress) query.set("deliveryAddress", input.deliveryAddress);
-  if (input.deliveryLatitude !== undefined) query.set("deliveryLatitude", String(input.deliveryLatitude));
-  if (input.deliveryLongitude !== undefined) query.set("deliveryLongitude", String(input.deliveryLongitude));
-  if (input.deliveryLabel) query.set("deliveryLabel", input.deliveryLabel);
-  if (input.scheduledAt) query.set("scheduledAt", input.scheduledAt);
-  if (input.riderTip && input.riderTip > 0) query.set("riderTip", String(input.riderTip));
-  return query;
-}
-
 export const checkoutApi = {
   preview(input: CheckoutPreviewInput, signal?: AbortSignal) {
-    return requestJson<CheckoutPreview>(`${apiRoutes.deliveryCheckout}/preview?${previewQuery(input)}`, { signal, cache: "no-store" });
+    return requestJson<CheckoutPreview>(`${apiRoutes.deliveryCheckout}/preview`, { method: "POST", body: JSON.stringify(input), signal, cache: "no-store" });
   },
   schedule(storeId: string, signal?: AbortSignal) {
     const query = new URLSearchParams({ days: "5", slotMinutes: "60" });

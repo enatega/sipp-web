@@ -1,4 +1,5 @@
 "use client";
+import { AddressDetailsView } from "@/modules/account";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -311,6 +312,7 @@ export function OrderRouteMap({ order, storeName }: Props) {
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">{isPickup ? t("pickupAddress") : t("deliveryAddress")}</p>
             <p className="mt-1 line-clamp-2 text-sm leading-5 text-ink">{destination}</p>
+            {!isPickup ? <AddressDetailsView isHistoricalFallback={order.deliveryAddressIsHistoricalFallback} details={order.deliveryAddressDetails ?? order.deliveryDetails?.deliveryAddressDetails} legacyText={order.deliveryAddressExtras ?? order.deliveryDetails?.deliveryAddressExtras} /> : null}
           </div>
         </div>
       </div>

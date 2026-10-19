@@ -1,4 +1,5 @@
 "use client";
+import { AddressDetailsView } from "../location/AddressDetailsView";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -63,10 +64,7 @@ function AddressCard({
   const t = useTranslations("addressBook");
   const typeLabel = t(TYPE_KEYS[address.type] ?? "typeOther");
   const name = address.location_name || typeLabel;
-  // Migrated addresses also carry a non-text `legacy` record; show text only.
-  const details = Object.values<unknown>(address.additional_fields ?? {}).filter(
-    (value): value is string => typeof value === "string" && value.trim() !== "",
-  );
+
 
   return (
     <article
@@ -100,11 +98,7 @@ function AddressCard({
         <p className={`mt-4 text-[12px] leading-[1.65] ${address.is_selected ? "text-white/90" : "text-foreground"}`}>
           {address.address}
         </p>
-        {details.length ? (
-          <p className={`mt-2 line-clamp-2 text-[10px] leading-relaxed ${address.is_selected ? "text-white/70" : "text-body"}`}>
-            {details.join(" · ")}
-          </p>
-        ) : null}
+        <AddressDetailsView details={address.addressDetails} />
       </div>
 
       <footer className={`grid grid-cols-2 border-t ${address.is_selected ? "border-white/20" : "border-line"}`}>

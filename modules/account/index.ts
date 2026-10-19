@@ -25,3 +25,7 @@ export {
   useSessionQuery,
   useWalletQuery,
 } from "./queries/useAccountQueries";
+
+export { AddressDetailsView } from "./components/location/AddressDetailsView";
+export type { AddressDetails } from "./types/location";
+export { AddressSaveFields } from "./components/location/steps/AddressSaveFields";

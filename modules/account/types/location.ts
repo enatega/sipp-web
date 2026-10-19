@@ -1,3 +1,5 @@
+export type AddressDetails = { placeName: string | null; howToFindYou: string | null; deliveryInstructions: string | null };
+
 export type Prediction = {
   place_id: string;
   description: string;
@@ -15,6 +17,7 @@ export type ChosenPlace = {
   longitude: number;
   label?: string;
   savedAddressId?: string;
+  addressDetails?: AddressDetails | null;
 };
 
 export type AddressType = "HOME" | "OFFICE" | "APARTMENT" | "OTHER";
@@ -25,7 +28,10 @@ export type SavedAddress = {
   location_name?: string | null;
   type: AddressType;
   is_selected?: boolean;
-  additional_fields?: Record<string, string> | null;
+  addressDetails?: AddressDetails | null;
+  addressDetailsVersion?: number;
+  updatedAt?: string;
+  additional_fields?: Record<string, unknown> | null;
   location: {
     type: "Point";
     coordinates: [number, number];

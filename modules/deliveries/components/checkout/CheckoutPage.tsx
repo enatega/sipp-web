@@ -1,4 +1,5 @@
 "use client";
+import { AddressDetailsView, AddressSaveFields, type AddressDetails } from "@/modules/account";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -69,18 +70,22 @@ function placeFromSavedAddress(address: SavedAddress): ChosenPlace | null {
     address: address.address,
     latitude,
     longitude,
-    label: address.location_name || address.type.toLowerCase(),
+    label: address.location_name || address.address.split(",")[0],
     savedAddressId: address.id,
+    addressDetails: address.addressDetails,
   };
 }
 
 function deliveryLocationInput(
   place: ChosenPlace,
   selectedSavedAddressId: string | null,
+  details?: AddressDetails,
 ) {
   return selectedSavedAddressId
     ? { addressId: selectedSavedAddressId }
     : {
+      addressDetailsVersion: 2 as const,
+      deliveryAddressDetails: details,
       deliveryAddress: place.address,
       deliveryLatitude: place.latitude,
       deliveryLongitude: place.longitude,
@@ -129,6 +134,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const savedCards = useSavedCardsQuery(authenticated);
   const wallet = useWalletQuery(authenticated);
   const storedPlace = useStoredPlace();
+  const tAddress = useTranslations("saveAddress");
   const placeOrder = usePlaceOrderMutation();
   const lookupPlacedOrder = usePlacedOrderLookup();
   const validateAddress = useValidateCheckoutAddressMutation();
@@ -177,9 +183,14 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
   const completedOrderIdRef = useRef<string | null>(null);
   const activeAddressOverride =
     addressOverride?.sourcePlace === storedPlace.place ? addressOverride : null;
-  const deliveryPlace = activeAddressOverride?.place ?? storedPlace.place;
   const selectedSavedAddressId =
     activeAddressOverride?.savedAddressId ?? storedPlace.place?.savedAddressId ?? null;
+  const currentSavedAddress = addresses.data?.find(address => address.id === selectedSavedAddressId);
+  const deliveryPlace = useMemo(() => (currentSavedAddress ? placeFromSavedAddress(currentSavedAddress) : null) ?? activeAddressOverride?.place ?? storedPlace.place, [currentSavedAddress, activeAddressOverride, storedPlace.place]);
+  const [directDraft, setDirectDraft] = useState<{ key: string; details: AddressDetails } | null>(null);
+  const directLocationKey = deliveryPlace ? `${deliveryPlace.latitude},${deliveryPlace.longitude},${deliveryPlace.address}` : "";
+  const directDetails: AddressDetails = directDraft ? directDraft.details : { placeName: "", howToFindYou: "", deliveryInstructions: "" };
+  const directDetailsValid = Boolean(directDetails.howToFindYou?.trim()) && (directDetails.placeName?.length ?? 0) <= 255 && (directDetails.howToFindYou?.length ?? 0) <= 1000 && (directDetails.deliveryInstructions?.length ?? 0) <= 1000;
   const availableSavedCards = savedCards.data?.cards ?? [];
   const resolvedPaymentMethodId = selectedCardChoice === null
     ? null
@@ -197,7 +208,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       if (pendingPlacement || restoredAttempt || !attemptLoaded) return;
       if (!preview.data || preview.isFetching || preview.data.coupon?.issue) return;
       if (!cart.data?.bucketId || !cart.data.storeId) return;
-      if (values.orderType === "delivery" && !deliveryPlace) return;
+      if (values.orderType === "delivery" && (!deliveryPlace || (!selectedSavedAddressId && !directDetailsValid))) return;
       if (values.paymentMethod === "wallet") {
         if (wallet.isPending) {
           showSubmitError(t("walletLoading"));
@@ -225,7 +236,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
           : {}),
         ...(values.orderType === "delivery" && deliveryPlace
           ? {
-            ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId),
+            ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId, directDetails),
             riderTip: values.riderTip || undefined,
           }
           : {}),
@@ -382,9 +393,12 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
     if (!profile.data?.data?.user || (profile.data.data.user.phone_verification_required ?? (!profile.data.data.user.phone || !profile.data.data.user.phone_is_verified))) return null;
     if (!cart.data?.bucketId || !cart.data.storeId) return null;
     if (formik.values.orderType === "delivery" && !deliveryPlace) return null;
-    return { storeId: cart.data.storeId, bucketId: cart.data.bucketId, orderType: formik.values.orderType, paymentMethod: formik.values.paymentMethod, ...(formik.values.orderType === "delivery" && deliveryPlace ? { ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId), riderTip: formik.values.riderTip || undefined } : {}) };
-  }, [cart.data, deliveryPlace, formik.values.orderType, formik.values.paymentMethod, formik.values.riderTip, profile.data?.data?.user, selectedSavedAddressId]);
+    if (formik.values.orderType === "delivery" && !selectedSavedAddressId && !directDetailsValid) return null;
+    return { storeId: cart.data.storeId, bucketId: cart.data.bucketId, orderType: formik.values.orderType, paymentMethod: formik.values.paymentMethod, ...(formik.values.orderType === "delivery" && deliveryPlace ? { ...deliveryLocationInput(deliveryPlace, selectedSavedAddressId, directDetails), riderTip: formik.values.riderTip || undefined } : {}) };
+  }, [cart.data, deliveryPlace, formik.values.orderType, formik.values.paymentMethod, formik.values.riderTip, profile.data?.data?.user, selectedSavedAddressId, directDetails, directDetailsValid]);
   const preview = useCheckoutPreview(previewInput);
+  const savedAddressUpdatedAt = addresses.data?.find(address => address.id === selectedSavedAddressId)?.updatedAt;
+  useEffect(() => { if (previewInput && selectedSavedAddressId) void preview.refetch(); }, [savedAddressUpdatedAt]);
   const pendingOrderLookup = usePendingPlacementLookup(pendingPlacement);
   // Only inputs that can change coupon eligibility put the coupon card into a
   // loading state; repricing for a tip or address keeps its last status.
@@ -598,6 +612,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       setAddressOverride({
         place,
         savedAddressId: address.id,
+    addressDetails: address.addressDetails,
         sourcePlace: storedPlace.place,
       });
       await formik.setFieldValue("deliveryLocationKey", locationKey(place));
@@ -682,7 +697,7 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
                 </div>
               </section>
 
-              {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MapPin aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("addressTitle")}</h2><p className="text-xs text-muted">{t("addressDescription")}</p></div></div>{deliveryPlace ? <button ref={addressTriggerRef} type="button" onClick={() => { setAddressPickerError(""); setIsAddressPickerOpen(true); }} className={`mt-5 flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-[border-color,background-color] hover:border-brand/30 hover:bg-[var(--soft-surface)] ${isAddressPreviewError ? "border-red-300 bg-red-50" : "border-line"}`}><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand"><MapPin aria-hidden="true" className="size-4" /></span><span className="min-w-0 flex-1"><strong className="block text-sm text-ink">{deliveryPlace.label || t("delivery")}</strong><span className="mt-1 block line-clamp-2 text-xs leading-5 text-body">{deliveryPlace.address}</span></span><span className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-brand">{t("changeAddress")}<ChevronRight aria-hidden="true" className="size-4" /></span></button> : <div className="mt-5 rounded-xl border border-dashed border-line p-5 text-center"><p className="text-sm text-body">{t("noAddress")}</p><Link href="/profile/address-book" className="mt-3 inline-flex text-sm font-bold text-brand">{t("addAddress")}</Link></div>}{isAddressPreviewError ? <p role="alert" className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium leading-5 text-red-700">{t("addressUnavailable")}</p> : null}<FieldError message={formik.touched.deliveryLocationKey ? formik.errors.deliveryLocationKey : undefined} /><label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl bg-[var(--soft-surface)] p-4"><input type="checkbox" name="leaveAtDoor" checked={formik.values.leaveAtDoor} onChange={formik.handleChange} className="size-4 accent-[var(--color-brand)]" /><span><strong className="block text-sm text-ink">{t("leaveAtDoor")}</strong><small className="text-xs text-muted">{t("leaveAtDoorHint")}</small></span></label></section> : null}
+              {formik.values.orderType === "delivery" ? <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><MapPin aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("addressTitle")}</h2><p className="text-xs text-muted">{t("addressDescription")}</p></div></div>{deliveryPlace ? <button ref={addressTriggerRef} type="button" onClick={() => { setAddressPickerError(""); setIsAddressPickerOpen(true); }} className={`mt-5 flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-[border-color,background-color] hover:border-brand/30 hover:bg-[var(--soft-surface)] ${isAddressPreviewError ? "border-red-300 bg-red-50" : "border-line"}`}><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand"><MapPin aria-hidden="true" className="size-4" /></span><span className="min-w-0 flex-1"><strong className="block text-sm text-ink">{deliveryPlace.label || t("delivery")}</strong><span className="mt-1 block line-clamp-2 text-xs leading-5 text-body">{deliveryPlace.address}</span></span><span className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-brand">{t("changeAddress")}<ChevronRight aria-hidden="true" className="size-4" /></span></button> : <div className="mt-5 rounded-xl border border-dashed border-line p-5 text-center"><p className="text-sm text-body">{t("noAddress")}</p><Link href="/profile/address-book" className="mt-3 inline-flex text-sm font-bold text-brand">{t("addAddress")}</Link></div>}{selectedSavedAddressId ? <AddressDetailsView details={preview.data?.fulfillment.delivery?.deliveryAddressDetails ?? deliveryPlace?.addressDetails} /> : <AddressSaveFields showType={false} values={{ type: "HOME", placeName: directDetails.placeName ?? "", howToFindYou: directDetails.howToFindYou ?? "", deliveryInstructions: directDetails.deliveryInstructions ?? "" }} onChange={event => { const { name, value } = event.target; setDirectDraft({ key: directLocationKey, details: { ...directDetails, [name]: value } }); }} onTypeChange={() => {}} errors={{ ...(directDraft && !directDetails.howToFindYou?.trim() ? { howToFindYou: tAddress("directionsRequired") } : {}), ...((directDetails.howToFindYou?.length ?? 0) > 1000 ? { howToFindYou: tAddress("tooLong") } : {}), ...((directDetails.placeName?.length ?? 0) > 255 ? { placeName: tAddress("tooLong") } : {}), ...((directDetails.deliveryInstructions?.length ?? 0) > 1000 ? { deliveryInstructions: tAddress("tooLong") } : {}) }} isDisabled={formik.isSubmitting} />}{isAddressPreviewError ? <p role="alert" className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium leading-5 text-red-700">{t("addressUnavailable")}</p> : null}<FieldError message={formik.touched.deliveryLocationKey ? formik.errors.deliveryLocationKey : undefined} /><label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl bg-[var(--soft-surface)] p-4"><input type="checkbox" name="leaveAtDoor" checked={formik.values.leaveAtDoor} onChange={formik.handleChange} className="size-4 accent-[var(--color-brand)]" /><span><strong className="block text-sm text-ink">{t("leaveAtDoor")}</strong><small className="text-xs text-muted">{t("leaveAtDoorHint")}</small></span></label></section> : null}
 
               <section className="rounded-3xl border border-line bg-card p-5 shadow-[0_8px_26px_rgba(35,22,26,0.045)] sm:p-6">
                 <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand"><CreditCard aria-hidden="true" className="size-5" /></span><div><h2 className="font-bold text-ink">{t("paymentTitle")}</h2><p className="text-xs text-muted">{t("paymentDescription")}</p></div></div>

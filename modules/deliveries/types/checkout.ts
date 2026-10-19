@@ -1,3 +1,4 @@
+import type { AddressDetails } from "@/modules/account";
 export type CheckoutOrderType = "delivery" | "pickup";
 export type CheckoutPaymentMethod = "wallet" | "stripe";
 
@@ -7,6 +8,9 @@ export interface CheckoutPreviewInput {
   orderType: CheckoutOrderType;
   paymentMethod: CheckoutPaymentMethod;
   addressId?: string;
+  addressDetailsVersion?: 2;
+  deliveryAddressDetails?: AddressDetails;
+  deliveryAddressIsHistoricalFallback?: boolean;
   deliveryAddress?: string;
   deliveryLatitude?: number;
   deliveryLongitude?: number;
@@ -31,7 +35,7 @@ export interface CheckoutPreview {
   fulfillment: {
     orderType: CheckoutOrderType;
     pickup: { address: string | null; latitude: number | null; longitude: number | null } | null;
-    delivery: { addressId: string | null; label: string | null; address: string; latitude: number; longitude: number } | null;
+    delivery: { addressId: string | null; label: string | null; address: string; latitude: number; longitude: number; deliveryAddressDetails?: AddressDetails | null; deliveryAddressExtras?: string | null } | null;
   };
   schedule: { isScheduled: boolean; scheduledAt: string | null; scheduleAllowed: boolean };
   pricing: {

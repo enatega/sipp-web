@@ -1,13 +1,19 @@
 "use client";
 
+import { ApiError } from "@/services/api/client";
+import { useRef, useState } from "react";
+import { locationApi } from "@/modules/account/api/location";
 import { useFormik } from "formik";
 import { useTranslations } from "next-intl";
 import { useActionToast } from "@/components/shared/useActionToast";
+import { InteractiveLocationMap } from "@/modules/account/components/location/InteractiveLocationMap";
 import { MapThumb } from "@/modules/account/components/location/MapThumb";
 import type { AddressType, ChosenPlace, SavedAddress } from "@/modules/account/types";
 import { addressDetailsSchema } from "@/modules/account/schemas/addressSchema";
 import { useSaveAddressMutation } from "@/modules/account/queries/useAccountQueries";
 import { buildAddressPayload } from "@/modules/account/utils/addressPayload";
+
+import { AddressSaveFields } from "./steps/AddressSaveFields";
 
 type SaveAddressModalProps = {
   place: ChosenPlace;
@@ -16,48 +22,42 @@ type SaveAddressModalProps = {
   addressToEdit?: SavedAddress | null;
 };
 
-/**
- * "Work" maps to the platform's OFFICE enum; APARTMENT exists upstream but
- * the design offers three choices, so it is not surfaced here.
- */
-const TYPE_CHOICES: Array<{ label: string; value: AddressType }> = [
-  { label: "Home", value: "HOME" },
-  { label: "Work", value: "OFFICE" },
-  { label: "Other", value: "OTHER" },
-];
-
-const FIELD =
-  "h-12 w-full rounded-lg border border-brand bg-[var(--soft-surface)] px-3.5 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-brand focus:bg-card";
-
-const LABEL = "text-xs font-medium text-foreground";
-
 export function SaveAddressModal({
-  place,
+  place: initialPlace,
   onClose,
   onSaved,
   addressToEdit,
 }: SaveAddressModalProps) {
   const t = useTranslations("saveAddress");
+  const [reloadedPlace, setReloadedPlace] = useState<ChosenPlace | null>(null);
+  const place = reloadedPlace ?? initialPlace;
+  const [isEditingLocation, setIsEditingLocation] = useState(false);
+  const [isResolvingLocation, setIsResolvingLocation] = useState(false);
+  const mapRequest = useRef(0);
   const saveAddress = useSaveAddressMutation();
   const notify = useActionToast();
-  const details = addressToEdit?.additional_fields;
+  const details = addressToEdit?.addressDetails;
+  const [expectedUpdatedAt, setExpectedUpdatedAt] = useState(addressToEdit?.updatedAt);
   const formik = useFormik({
     initialValues: {
       type: (addressToEdit?.type ?? "HOME") as AddressType,
-      houseNo: details?.houseNo ?? "",
-      building: details?.building ?? "",
-      landmark: details?.landmark ?? "",
+      placeName: details?.placeName ?? "",
+      howToFindYou: details?.howToFindYou ?? "",
+      deliveryInstructions: details?.deliveryInstructions ?? "",
     },
-    validationSchema: addressDetailsSchema,
-    onSubmit: async (values) => {
+    validationSchema: addressDetailsSchema(t),
+    onSubmit: async (values, helpers) => {
+      if (isResolvingLocation) return;
+      helpers.setStatus(undefined);
       try {
         const savedAddress = await saveAddress.mutateAsync({
           id: addressToEdit?.id,
-          payload: buildAddressPayload(place, values),
+          payload: buildAddressPayload(place, values, expectedUpdatedAt),
         });
         onSaved(savedAddress);
       } catch (caught) {
         notify.error(caught, "addressSaveFailed");
+        helpers.setStatus(t(caught instanceof ApiError && caught.code === "ADDRESS_EDIT_CONFLICT" ? "editConflict" : caught instanceof ApiError && caught.code === "ADDRESS_APP_UPDATE_REQUIRED" ? "updateRequired" : "saveRetry"));
       }
     },
   });
@@ -115,79 +115,42 @@ export function SaveAddressModal({
             </span>
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => setIsEditingLocation(value => !value)}
+              disabled={formik.isSubmitting}
               className="h-8 flex-none rounded-full bg-brand px-4 text-xs font-semibold text-ink"
             >
               {t("edit")}
             </button>
           </div>
 
-          <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9a9da4]">
-            {t("saveAs")}
-          </p>
-          <div className="mt-2 flex gap-2 border-b border-dashed border-[#e6e8ec] pb-4">
-            {TYPE_CHOICES.map((choice) => (
-              <button
-                key={choice.value}
-                type="button"
-                onClick={() => void formik.setFieldValue("type", choice.value)}
-                aria-pressed={formik.values.type === choice.value}
-                className={`h-10 flex-1 rounded-lg border text-sm font-semibold transition-colors ${
-                  formik.values.type === choice.value
-                    ? "border-brand bg-brand/10 text-brand"
-                    : "border-line bg-card text-body"
-                }`}
-              >
-                {t(choice.value.toLowerCase() as "home" | "office" | "other")}
-              </button>
-            ))}
-          </div>
+          {isEditingLocation ? <InteractiveLocationMap latitude={place.latitude} longitude={place.longitude} ariaLabel={t("edit")} onSelect={async (latitude, longitude) => {
+            if (formik.isSubmitting) return;
+            const request = ++mapRequest.current;
+            setIsResolvingLocation(true);
+            try {
+              const result = await locationApi.addressFromPoint(latitude, longitude);
+              if (request === mapRequest.current) setReloadedPlace({ ...place, address: result.address, latitude, longitude });
+            } catch { if (request === mapRequest.current) formik.setStatus(t("saveRetry")); }
+            finally { if (request === mapRequest.current) setIsResolvingLocation(false); }
+          }} /> : null}
+          <AddressSaveFields values={formik.values} onChange={formik.handleChange} onBlur={formik.handleBlur} onTypeChange={type => void formik.setFieldValue("type", type)} isDisabled={formik.isSubmitting} errors={formik.submitCount ? formik.errors : {}} />
+          {formik.status ? <p role="alert" className="mt-3 text-sm text-danger">{formik.status}</p> : null}
+        {formik.status && addressToEdit ? <button type="button" disabled={formik.isSubmitting} className="mt-3 min-h-11 text-sm font-semibold" onClick={async () => {
+          try {
+            const latest = await locationApi.getAddress(addressToEdit.id);
+            setExpectedUpdatedAt(latest.updatedAt);
+            setReloadedPlace({ address: latest.address, latitude: latest.location.coordinates[1], longitude: latest.location.coordinates[0], savedAddressId: latest.id, addressDetails: latest.addressDetails });
+            formik.resetForm({ values: { ...formik.values, type: latest.type, placeName: latest.addressDetails?.placeName ?? "", howToFindYou: latest.addressDetails?.howToFindYou ?? "", deliveryInstructions: latest.addressDetails?.deliveryInstructions ?? "" } });
+          } catch { formik.setStatus(t("saveRetry")); }
+        }}>{t("reload")}</button> : null}
 
-          <div className="mt-4 flex flex-col gap-3">
-            <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>{t("houseLabel")}</span>
-              <input
-                className={FIELD}
-                name="houseNo"
-                value={formik.values.houseNo}
-                onChange={formik.handleChange}
-                placeholder={t("housePlaceholder")}
-                maxLength={100}
-                disabled={formik.isSubmitting}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>{t("buildingLabel")}</span>
-              <input
-                className={FIELD}
-                name="building"
-                value={formik.values.building}
-                onChange={formik.handleChange}
-                placeholder={t("buildingPlaceholder")}
-                maxLength={150}
-                disabled={formik.isSubmitting}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>{t("landmarkLabel")}</span>
-              <input
-                className={FIELD}
-                name="landmark"
-                value={formik.values.landmark}
-                onChange={formik.handleChange}
-                placeholder={t("landmarkPlaceholder")}
-                maxLength={255}
-                disabled={formik.isSubmitting}
-              />
-            </label>
-          </div>
 
         </div>
 
         <footer className="border-t border-line px-5 py-4">
           <button
             type="submit"
-            disabled={formik.isSubmitting}
+            disabled={formik.isSubmitting || isResolvingLocation}
             className="h-12 w-full rounded-lg bg-brand text-sm font-semibold text-ink transition-colors hover:bg-brand/85 disabled:cursor-wait disabled:opacity-70"
           >
             {formik.isSubmitting

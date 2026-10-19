@@ -13,8 +13,8 @@ export function useSelectedDeliveryPlace(isAuthenticated: boolean) {
     Number.isFinite(stored.place.longitude)
       ? stored.place
       : null;
-  const addresses = useAddressesQuery(isAuthenticated && stored.isReady && !storedPlace);
-  const selectedAddress = addresses.data?.find((address) => address.is_selected);
+  const addresses = useAddressesQuery(isAuthenticated && stored.isReady);
+  const selectedAddress = addresses.data?.find((address) => storedPlace?.savedAddressId ? address.id === storedPlace.savedAddressId : address.is_selected);
   const [longitude, latitude] = selectedAddress?.location?.coordinates ?? [];
   const savedPlace: ChosenPlace | null =
     selectedAddress &&
@@ -28,10 +28,11 @@ export function useSelectedDeliveryPlace(isAuthenticated: boolean) {
           longitude,
           label: selectedAddress.address.split(",")[0] || selectedAddress.location_name || undefined,
           savedAddressId: selectedAddress.id,
+          addressDetails: selectedAddress.addressDetails,
         }
       : null;
   return {
-    place: storedPlace ?? savedPlace,
+    place: storedPlace?.savedAddressId ? savedPlace ?? storedPlace : storedPlace ?? savedPlace,
     isReady: stored.isReady && (!isAuthenticated || Boolean(storedPlace) || !addresses.isPending),
   };
 }

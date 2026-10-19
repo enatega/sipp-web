@@ -1,113 +1,33 @@
 "use client";
 
-import type { ChangeEvent } from "react";
+import { useId, type ChangeEvent, type FocusEvent } from "react";
 import { useTranslations } from "next-intl";
 import type { AddressType } from "@/modules/account/types";
-import {
-  FIELD_INPUT,
-  FIELD_LABEL,
-} from "@/modules/account/components/location/steps/styles";
+import type { AddressFormValues } from "@/modules/account/utils/addressPayload";
+import { FIELD_INPUT, FIELD_LABEL } from "./styles";
 
-export type AddressSaveValues = {
-  type: AddressType;
-  locationName: string;
-  houseNo: string;
-  building: string;
-  landmark: string;
-};
-
+export type AddressSaveValues = AddressFormValues;
 interface Props {
   values: AddressSaveValues;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onBlur?: (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onTypeChange: (type: AddressType) => void;
   isDisabled: boolean;
+  errors?: Partial<Record<keyof AddressSaveValues, string>>;
+  showType?: boolean;
 }
-
-/** "Work" maps to the platform's OFFICE enum; APARTMENT is not offered. */
-const TYPE_CHOICES: Array<{ key: "home" | "office" | "other"; value: AddressType }> = [
-  { key: "home", value: "HOME" },
-  { key: "office", value: "OFFICE" },
-  { key: "other", value: "OTHER" },
-];
-
-export function AddressSaveFields({ values, onChange, onTypeChange, isDisabled }: Props) {
+export function AddressSaveFields({ values, onChange, onBlur, onTypeChange, isDisabled, errors, showType = true }: Props) {
   const t = useTranslations("saveAddress");
-
-  return (
-    <>
-      <div className="mt-3 flex gap-2" role="group" aria-label={t("saveAs")}>
-        {TYPE_CHOICES.map((choice) => {
-          const isActive = values.type === choice.value;
-          return (
-            <button
-              key={choice.value}
-              type="button"
-              onClick={() => onTypeChange(choice.value)}
-              aria-pressed={isActive}
-              disabled={isDisabled}
-              className={`min-h-11 flex-1 rounded-lg border px-2 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand ${
-                isActive
-                  ? "border-brand bg-brand-soft text-brand"
-                  : "border-line bg-transparent text-ink hover:bg-soft-surface"
-              }`}
-            >
-              {t(choice.key)}
-            </button>
-          );
-        })}
-      </div>
-
-      {values.type === "OTHER" ? (
-        <label className={FIELD_LABEL}>
-          {t("nameLabel")}
-          <input
-            className={FIELD_INPUT}
-            name="locationName"
-            value={values.locationName}
-            onChange={onChange}
-            placeholder={t("namePlaceholder")}
-            maxLength={100}
-            disabled={isDisabled}
-          />
-        </label>
-      ) : null}
-
-      <label className={FIELD_LABEL}>
-        {t("houseLabel")}
-        <input
-          className={FIELD_INPUT}
-          name="houseNo"
-          value={values.houseNo}
-          onChange={onChange}
-          placeholder={t("housePlaceholder")}
-          maxLength={100}
-          disabled={isDisabled}
-        />
-      </label>
-      <label className={FIELD_LABEL}>
-        {t("buildingLabel")}
-        <input
-          className={FIELD_INPUT}
-          name="building"
-          value={values.building}
-          onChange={onChange}
-          placeholder={t("buildingPlaceholder")}
-          maxLength={150}
-          disabled={isDisabled}
-        />
-      </label>
-      <label className={FIELD_LABEL}>
-        {t("landmarkLabel")}
-        <input
-          className={FIELD_INPUT}
-          name="landmark"
-          value={values.landmark}
-          onChange={onChange}
-          placeholder={t("landmarkPlaceholder")}
-          maxLength={255}
-          disabled={isDisabled}
-        />
-      </label>
-    </>
-  );
+  const id = useId();
+  return <>
+    {showType ? <div className="mt-3 flex gap-2" role="group" aria-label={t("saveAs")}>
+      {(["HOME", "OFFICE", "OTHER"] as const).map(type => <button key={type} type="button" aria-pressed={values.type === type} disabled={isDisabled} onClick={() => onTypeChange(type)} className={`min-h-11 flex-1 rounded-lg border px-2 text-sm focus-visible:ring-2 focus-visible:ring-brand ${values.type === type ? "border-brand bg-brand-soft text-brand" : "border-line text-ink"}`}>{t(type === "OFFICE" ? "work" : type.toLowerCase())}</button>)}
+    </div> : null}
+    {errors?.type ? <p role="alert" className="mt-2 text-sm text-danger">{errors.type}</p> : null}
+    {(["placeName", "howToFindYou", "deliveryInstructions"] as const).map(key => <label key={key} className={FIELD_LABEL} htmlFor={`${id}-${key}`}>
+      {t(`${key}Label`)}
+      <textarea id={`${id}-${key}`} name={key} value={values[key]} onChange={onChange} onBlur={onBlur} rows={key === "placeName" ? 1 : 3} placeholder={t(`${key}Placeholder`)} disabled={isDisabled} aria-required={key === "howToFindYou"} aria-invalid={Boolean(errors?.[key])} aria-describedby={errors?.[key] ? `${id}-${key}-error` : undefined} className={`${FIELD_INPUT} h-auto min-h-12 resize-y py-3`} />
+      {errors?.[key] ? <span id={`${id}-${key}-error`} role="alert" className="text-sm text-danger">{errors[key]}</span> : null}
+    </label>)}
+  </>;
 }

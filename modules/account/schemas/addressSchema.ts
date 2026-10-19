@@ -1,16 +1,19 @@
 import * as yup from "yup";
 
-export const addressDetailsSchema = yup.object({
-  type: yup.mixed<"HOME" | "OFFICE" | "OTHER">().oneOf(["HOME", "OFFICE", "OTHER"]).required(),
-  houseNo: yup.string().trim().max(100),
-  building: yup.string().trim().max(150),
-  landmark: yup.string().trim().max(255),
-});
-
-export type AddressDetailsValues = yup.InferType<typeof addressDetailsSchema>;
-
-/** Delivery confirmation: saving is optional, details only matter when saving. */
-export const deliveryAddressSchema = addressDetailsSchema.shape({
-  shouldSave: yup.boolean().required(),
-  locationName: yup.string().trim().max(100),
-});
+export function addressDetailsSchema(t: (key: string) => string) {
+  return yup.object({
+    type: yup.mixed<"HOME" | "OFFICE" | "APARTMENT" | "OTHER">().oneOf(["HOME", "OFFICE", "OTHER"], t("chooseType")).required(t("chooseType")),
+    placeName: yup.string().trim().max(255, t("tooLong")).defined(),
+    howToFindYou: yup.string().trim().max(1000, t("tooLong")).required(t("directionsRequired")),
+    deliveryInstructions: yup.string().trim().max(1000, t("tooLong")).defined(),
+  });
+}
+export function deliveryAddressSchema(t: (key: string) => string) {
+  return yup.object({
+    shouldSave: yup.boolean().required(),
+    type: yup.mixed<"HOME" | "OFFICE" | "APARTMENT" | "OTHER">().defined().when("shouldSave", { is: true, then: schema => schema.oneOf(["HOME", "OFFICE", "OTHER"], t("chooseType")) }),
+    placeName: yup.string().trim().max(255, t("tooLong")).defined(),
+    howToFindYou: yup.string().trim().max(1000, t("tooLong")).defined().when("shouldSave", { is: true, then: schema => schema.required(t("directionsRequired")) }),
+    deliveryInstructions: yup.string().trim().max(1000, t("tooLong")).defined(),
+  });
+}

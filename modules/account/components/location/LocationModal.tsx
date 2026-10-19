@@ -18,7 +18,7 @@ import {
   useSelectAddressMutation,
 } from "@/modules/account/queries/useAccountQueries";
 import { CurrentLocationStep } from "@/modules/account/components/location/steps/CurrentLocationStep";
-import { DeliveryConfirmStep } from "@/modules/account/components/location/steps/DeliveryConfirmStep";
+import { DeliveryConfirmStep, type DeliveryAddressDraft } from "@/modules/account/components/location/steps/DeliveryConfirmStep";
 import { LocationDoneStep } from "@/modules/account/components/location/steps/LocationDoneStep";
 import {
   LocationSearchStep,
@@ -64,6 +64,7 @@ export function LocationModal({
   showSavedAddresses = true,
 }: LocationModalProps) {
   const t = useTranslations("location");
+  const tAddress = useTranslations("saveAddress");
   const router = useRouter();
   const pathname = usePathname();
   const [step, setStep] = useState<Step>({ name: "search" });
@@ -73,6 +74,7 @@ export function LocationModal({
   const [busy, setBusy] = useState<"locate" | "address" | "resolve" | null>(null);
   const [error, setError] = useState("");
   const [addressToEdit, setAddressToEdit] = useState<SavedAddress | null>(null);
+  const detailDrafts = useRef<Record<string, DeliveryAddressDraft>>({});
   const mapSelectionRef = useRef(0);
   const locationRequestRef = useRef(0);
   const isLocatingRef = useRef(false);
@@ -98,6 +100,7 @@ export function LocationModal({
   };
 
   const close = () => {
+    detailDrafts.current = {};
     backToSearch();
     onClose();
   };
@@ -304,8 +307,9 @@ export function LocationModal({
       address: address.address,
       latitude,
       longitude,
-      label: address.location_name || address.type.toLowerCase(),
+      label: address.location_name || tAddress(address.type === "OFFICE" ? "work" : address.type.toLowerCase()),
       savedAddressId: address.id,
+      addressDetails: address.addressDetails,
     };
   };
 
@@ -387,6 +391,8 @@ export function LocationModal({
         return chosen ? (
           <DeliveryConfirmStep
             key={addressToEdit?.id ?? "new"}
+            initialDraft={detailDrafts.current[addressToEdit?.id ?? "new"]}
+            onDraftChange={draft => { detailDrafts.current[addressToEdit?.id ?? "new"] = draft; }}
             place={chosen}
             canSaveAddress={canSaveAddress}
             isSaveRequired={isAddressBookMode || Boolean(addressToEdit)}
@@ -397,7 +403,7 @@ export function LocationModal({
             onDone={(didSave) =>
               isAddressBookMode ? setStep({ name: "done", didSave }) : deliverHere()
             }
-            onBack={backToSearch}
+            onBack={() => { mapSelectionRef.current += 1; setStep({ name: "search" }); setError(""); setBusy(null); }}
             onClose={close}
           />
         ) : null;
