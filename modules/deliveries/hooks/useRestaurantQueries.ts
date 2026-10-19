@@ -77,6 +77,11 @@ export function useRestaurantProductsQuery(
       lastPage.isEnd ? undefined : lastPage.offset + lastPage.items.length,
     enabled: Boolean(storeId && location),
     staleTime: RESTAURANT_STALE_TIME,
+    // Category hours are evaluated on the server in the store's timezone.
+    // Refresh an open menu so a time-bound category disappears or returns
+    // without requiring the customer to reload the page.
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: "always",
   });
 }
 
