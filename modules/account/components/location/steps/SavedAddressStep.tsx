@@ -1,5 +1,5 @@
-import { AddressDetailsView } from "../AddressDetailsView";
 "use client";
+import { AddressDetailsView } from "../AddressDetailsView";
 
 import { useTranslations } from "next-intl";
 import type { SavedAddress } from "@/modules/account/types";

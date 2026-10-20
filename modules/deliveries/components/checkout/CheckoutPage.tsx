@@ -612,7 +612,6 @@ export function CheckoutPage({ initialStripeDraftId, wasCardPaymentCancelled = f
       setAddressOverride({
         place,
         savedAddressId: address.id,
-    addressDetails: address.addressDetails,
         sourcePlace: storedPlace.place,
       });
       await formik.setFieldValue("deliveryLocationKey", locationKey(place));

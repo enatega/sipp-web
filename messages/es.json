@@ -2181,6 +2181,145 @@
       }
     ]
   },
+  "privacy": {
+    "metaTitle": "Política de privacidad | SIPP",
+    "metaDescription": "Conozca cómo SIPP Delivery recolecta, usa, comparte y protege los datos personales de Usuarios, Socios Restaurante y Socios Repartidores en Costa Rica.",
+    "hero": {
+      "eyebrow": "Legal",
+      "title": "Política de privacidad",
+      "subtitle": "Costa Rica — Aplicable a Usuarios, Socios Restaurante y Socios Repartidores."
+    },
+    "lastUpdated": "Última actualización: 14 de julio de 2026",
+    "sections": [
+      {
+        "heading": "1. Responsable del Tratamiento",
+        "paragraphs": [
+          "El responsable del tratamiento de sus datos personales es SIPP Delivery S.A., sociedad anónima constituida conforme a las leyes de la República de Costa Rica, cédula jurídica 3-101-954829 (\"SIPP CR\", \"SIPP\", \"nosotros\"), con domicilio en Santa Teresa, Provincia de Puntarenas, Puntarenas, Costa Rica.",
+          "SIPP CR opera la aplicación y plataforma SIPP Delivery (la \"Aplicación\") bajo licencia de SIPP Delivery LLC, sociedad de responsabilidad limitada organizada bajo las leyes del Estado de Delaware, Estados Unidos de América, EIN 36-5182139, con oficina de agente registrado en 8 The Green, Suite B, Dover, Delaware 19901 (\"SIPP US\"), titular global de la Aplicación, el software y la infraestructura tecnológica de la Plataforma. SIPP US actúa como encargado del tratamiento respecto de la infraestructura técnica global que aloja y procesa determinados datos, en los términos descritos en la Sección 7."
+        ]
+      },
+      {
+        "heading": "2. Alcance de esta Política",
+        "paragraphs": [
+          "Esta Política de Privacidad (la \"Política\") describe cómo SIPP CR recolecta, usa, comparte, conserva y protege los datos personales de: (a) Usuarios que solicitan Servicios de Entrega; (b) Socios Restaurante; y (c) Socios Repartidores, en su interacción con la Aplicación. Los términos con mayúscula inicial no definidos aquí tienen el significado asignado en los Términos y Condiciones de la Plataforma."
+        ]
+      },
+      {
+        "heading": "3. Datos que Recopilamos",
+        "groups": [
+          {
+            "title": "3.1 De todos los roles",
+            "items": [
+              "Datos de identificación: nombre completo, número de cédula, correo electrónico, número de teléfono.",
+              "Datos de la Cuenta: credenciales de acceso, historial de pedidos o entregas, calificaciones.",
+              "Datos técnicos: dirección IP, identificador del dispositivo, sistema operativo, registros de uso de la Aplicación.",
+              "Comunicaciones: mensajes enviados al canal de soporte de SIPP."
+            ]
+          },
+          {
+            "title": "3.2 De Usuarios",
+            "items": [
+              "Dirección(es) de entrega y, con su autorización, ubicación en tiempo real durante el uso activo de la Aplicación.",
+              "Datos de pago: SIPP CR no almacena el número completo de su tarjeta; los pagos son procesados por un procesador de pagos externo (Sección 7). SIPP CR conserva únicamente el historial de transacciones y, cuando aplique, los últimos dígitos de la tarjeta utilizada."
+            ]
+          },
+          {
+            "title": "3.3 De Socios Repartidores",
+            "items": [
+              "Ubicación GPS en tiempo real mientras la Aplicación esté activa, con fines de asignación de pedidos, seguridad y soporte.",
+              "Documentación de elegibilidad: licencia de conducir, registro del medio de transporte, información fiscal.",
+              "Cuenta bancaria para efectos de liquidación de pagos."
+            ]
+          },
+          {
+            "title": "3.4 De Socios Restaurante",
+            "items": [
+              "Datos del establecimiento: cédula jurídica, régimen fiscal, dirección comercial, cuenta bancaria.",
+              "Datos de los representantes autorizados que gestionan la cuenta en la Aplicación."
+            ]
+          }
+        ]
+      },
+      {
+        "heading": "4. Base Legal y Consentimiento",
+        "paragraphs": [
+          "El tratamiento de sus datos personales se basa en: (a) su consentimiento expreso, informado e inequívoco, otorgado al aceptar esta Política; (b) la necesidad de ejecutar el contrato (Términos y Condiciones, Acuerdo de Socio Restaurante o Acuerdo de Socio Repartidor, según corresponda); y (c) el cumplimiento de obligaciones legales aplicables a SIPP CR, incluyendo obligaciones fiscales. Usted podrá retirar su consentimiento en cualquier momento conforme a la Sección 11, sin perjuicio de que ello pueda implicar la imposibilidad de continuar prestándole el servicio."
+        ]
+      },
+      {
+        "heading": "5. Finalidades del Tratamiento",
+        "items": [
+          "Crear y administrar su Cuenta y verificar su identidad y elegibilidad.",
+          "Procesar y coordinar Servicios de Entrega, incluyendo la asignación de pedidos y el cálculo de rutas.",
+          "Procesar pagos, liquidaciones y facturación, y actuar como agente limitado de cobro conforme a los Términos y Condiciones.",
+          "Brindar soporte al cliente y resolver disputas, reclamos o incidencias.",
+          "Garantizar la seguridad de la Plataforma, prevenir fraude y hacer cumplir los Términos y Condiciones.",
+          "Cumplir obligaciones legales, fiscales y regulatorias.",
+          "Mejorar la Aplicación y, con su consentimiento adicional cuando la ley lo exija, enviarle comunicaciones comerciales."
+        ]
+      },
+      {
+        "heading": "6. Compartición de Datos entre Roles de la Plataforma",
+        "paragraphs": [
+          "Para permitir la ejecución del Servicio de Entrega, SIPP CR comparte, de forma limitada a lo estrictamente necesario: con el Socio Restaurante, el contenido del pedido y el nombre e información de contacto del Usuario necesarios para prepararlo y coordinarlo; con el Socio Repartidor, la dirección de entrega y el contacto del Usuario necesarios para completar la entrega; y con el Usuario, el nombre y la ubicación aproximada en tiempo real del Socio Repartidor asignado, así como el nombre y la ubicación del Socio Restaurante. SIPP CR no comparte con un Socio Restaurante los datos de otro Socio Restaurante, ni con un Socio Repartidor los datos de otro Socio Repartidor."
+        ]
+      },
+      {
+        "heading": "7. Transferencia a SIPP US, Procesadores de Pago y Transferencia Internacional",
+        "paragraphs": [
+          "Determinados datos son alojados y procesados en infraestructura técnica administrada por SIPP US, en su calidad de encargado del tratamiento, para fines de operación global de la Aplicación. Adicionalmente, el procesamiento de pagos electrónicos se realiza a través de un procesador de pagos internacional, conforme al cual los pagos de los Usuarios ingresan inicialmente a una cuenta bancaria en Estados Unidos antes de ser remitidos a SIPP CR para su liquidación local. Esto implica una transferencia internacional de determinados datos (incluyendo datos de pago y, en su caso, datos de identificación) a Estados Unidos. SIPP CR adopta medidas contractuales y técnicas razonables para que dicha transferencia internacional cuente con un nivel de protección adecuado, conforme a la Ley N.º 8968 y su Reglamento."
+        ]
+      },
+      {
+        "heading": "8. Conservación de Datos",
+        "paragraphs": [
+          "SIPP CR conservará sus datos personales durante la vigencia de su Cuenta y, tras la terminación de esta, durante el plazo adicional necesario para cumplir obligaciones legales, fiscales y contables, atender reclamos, y ejercer o defender derechos, de conformidad con los plazos de prescripción aplicables bajo la legislación costarricense. Transcurridos dichos plazos, los datos serán eliminados o anonimizados de forma segura."
+        ]
+      },
+      {
+        "heading": "9. Seguridad de la Información",
+        "paragraphs": [
+          "SIPP CR implementa medidas técnicas, físicas y organizativas razonables para proteger sus datos personales contra acceso no autorizado, pérdida, alteración o divulgación indebida. En caso de un incidente de seguridad que afecte sus datos personales, SIPP CR lo notificará conforme a la legislación aplicable."
+        ]
+      },
+      {
+        "heading": "10. Menores de Edad",
+        "paragraphs": [
+          "La Aplicación no está dirigida a personas menores de dieciocho (18) años, y SIPP CR no recolecta intencionalmente datos personales de menores de edad. Si SIPP CR tiene conocimiento de que ha recolectado datos de un menor sin el consentimiento correspondiente de su representante legal, procederá a eliminarlos."
+        ]
+      },
+      {
+        "heading": "11. Sus Derechos (Derechos ARCO)",
+        "paragraphs": [
+          "Conforme a la Ley N.º 8968, Usted tiene derecho a: (a) Acceso — conocer qué datos personales suyos son tratados por SIPP CR; (b) Rectificación — solicitar la corrección de datos inexactos o desactualizados; (c) Cancelación — solicitar la eliminación de sus datos cuando ya no sean necesarios para las finalidades de esta Política o cuando retire su consentimiento; y (d) Oposición — oponerse al tratamiento de sus datos para finalidades específicas. Usted podrá ejercer estos derechos escribiendo a support@sippdelivery.com. SIPP CR responderá dentro del plazo establecido por la Ley N.º 8968 y su Reglamento."
+        ]
+      },
+      {
+        "heading": "12. Cookies y Tecnologías Similares",
+        "paragraphs": [
+          "La Aplicación y el sitio web de SIPP utilizan cookies y tecnologías similares para recordar sus preferencias, mantener su sesión activa, y analizar el uso de la Plataforma con fines de mejora del servicio. Usted podrá gestionar sus preferencias de cookies desde la configuración de su navegador o dispositivo."
+        ]
+      },
+      {
+        "heading": "13. Cambios a esta Política",
+        "paragraphs": [
+          "SIPP CR podrá actualizar esta Política de tiempo en tiempo, con aviso razonable a través de la Aplicación o por correo electrónico. El uso continuado de la Aplicación tras la entrada en vigencia de una actualización implica su aceptación."
+        ]
+      },
+      {
+        "heading": "14. Contacto",
+        "paragraphs": [
+          "Para consultas sobre esta Política o el tratamiento de sus datos personales, puede contactar a SIPP CR a través de: support@sippdelivery.com o Santa Teresa, Provincia de Puntarenas, Puntarenas, Costa Rica."
+        ]
+      },
+      {
+        "heading": "15. Idioma que Controla",
+        "paragraphs": [
+          "Esta Política se ha redactado en español y en inglés. En caso de discrepancia, prevalecerá la versión en español."
+        ]
+      }
+    ]
+  },
   "contact": {
     "metaTitle": "Contacta con nosotros SIPP",
     "metaDescription": "Alcanza el SIPP Equipo de entrega por WhatsApp, teléfono o correo electrónico: estamos encantados de ayudar con pedidos, ideas o preguntas de asociación.",
@@ -2437,6 +2576,7 @@
     "getInTouch": "CONTÁCTANOS",
     "legalTitle": "LEGAL Y SOPORTE",
     "terms": "Términos y condiciones",
+    "privacy": "Política de privacidad",
     "contact": "Contacto",
     "rights": "Todos los derechos reservados",
     "downloadApp": "DESCARGAR LA APP"
