@@ -12,6 +12,7 @@ const COMPANY_LINKS = [
 
 const LEGAL_LINKS = [
   { key: "terms", href: "/terms" },
+  { key: "privacy", href: "/privacy" },
   { key: "contact", href: "/contact" },
 ] as const;
 
