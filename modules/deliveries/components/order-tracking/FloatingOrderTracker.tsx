@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ArrowRight, PackageCheck, X } from "lucide-react";
@@ -14,7 +15,10 @@ const POSITION_CLASS = "fixed bottom-20 end-4 z-40 sm:bottom-5 sm:end-5 [body:ha
 
 export function FloatingOrderTracker() {
   const t = useTranslations("deliveries.tracker");
-  const [isExpanded, setIsExpanded] = useState(false);
+  const pathname = usePathname();
+  // Expansion belongs to the page it was opened on, so every new page starts minimized.
+  const [expandedPath, setExpandedPath] = useState<string | null>(null);
+  const isExpanded = expandedPath === pathname;
   const orders = useInfiniteQuery({
     queryKey: deliveryQueryKeys.orderList("active"),
     queryFn: ({ pageParam, signal }) => ordersApi.list("active", pageParam, signal),
@@ -47,7 +51,7 @@ export function FloatingOrderTracker() {
         aria-label={t("openTracker")}
         aria-expanded="false"
         aria-controls="live-order-tracker"
-        onClick={() => setIsExpanded(true)}
+        onClick={() => setExpandedPath(pathname)}
         className={`${POSITION_CLASS} group grid size-14 place-items-center rounded-full bg-brand text-ink shadow-[0_14px_30px_color-mix(in_srgb,var(--color-brand)_38%,transparent),inset_0_2px_1px_rgb(255_255_255/0.38)] ring-4 ring-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:bg-brand/85 hover:shadow-[0_18px_34px_color-mix(in_srgb,var(--color-brand)_46%,transparent),inset_0_2px_1px_rgb(255_255_255/0.42)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand active:translate-y-0 active:scale-95 motion-reduce:transition-none`}
       >
         <PackageCheck aria-hidden="true" className="size-6 drop-shadow-[0_1px_1px_rgb(0_0_0/0.16)]" />
@@ -66,7 +70,7 @@ export function FloatingOrderTracker() {
     <aside
       id="live-order-tracker"
       aria-label={t("label")}
-      className={`${POSITION_CLASS} w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-line bg-card p-4 text-ink shadow-pop`}
+      className={`${POSITION_CLASS} w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-line bg-card p-4 text-ink shadow-pop [@media(max-height:500px)]:w-[min(300px,calc(100vw-2rem))] [@media(max-height:500px)]:p-3`}
     >
       <div className="flex items-start gap-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand/15 text-brand"><PackageCheck aria-hidden="true" className="size-5" /></span>
@@ -80,13 +84,13 @@ export function FloatingOrderTracker() {
           aria-label={t("closeTracker")}
           aria-expanded="true"
           aria-controls="live-order-tracker"
-          onClick={() => setIsExpanded(false)}
+          onClick={() => setExpandedPath(null)}
           className="grid size-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-soft-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           <X aria-hidden="true" className="size-4" />
         </button>
       </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3 text-xs font-semibold">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3 text-xs font-semibold [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:pt-2">
         <Link className="inline-flex items-center gap-1 text-brand hover:underline" href={`/orders/${encodeURIComponent(latest.orderId)}`}>{t("trackOrder")}<ArrowRight aria-hidden="true" className="size-3.5 rtl:rotate-180" /></Link>
         {first.total > 1 ? <Link className="text-body hover:text-brand hover:underline" href="/orders">{t("moreActive", { count: first.total - 1 })}</Link> : null}
       </div>

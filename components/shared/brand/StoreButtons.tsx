@@ -68,6 +68,7 @@ export function StoreButtons({
   style?: CSSProperties;
 }) {
   const t = useTranslations("storeButtons");
+  if (!appStoreLinks.apple && !appStoreLinks.google) return null;
   const button = `inline-flex items-center rounded-[7px] bg-[#050608] text-white transition-transform duration-200 hover:-translate-y-0.5 ${BUTTON[size]}`;
 
   return (
@@ -75,7 +76,7 @@ export function StoreButtons({
       className={`flex flex-wrap gap-3 sm:flex-nowrap ${className}`.trim()}
       style={style}
     >
-      <a
+      {appStoreLinks.apple ? <a
         href={appStoreLinks.apple}
         target="_blank"
         rel="noreferrer"
@@ -94,8 +95,8 @@ export function StoreButtons({
             {t("appStore")}
           </strong>
         </span>
-      </a>
-      <a
+      </a> : null}
+      {appStoreLinks.google ? <a
         href={appStoreLinks.google}
         target="_blank"
         rel="noreferrer"
@@ -114,7 +115,7 @@ export function StoreButtons({
             {t("googlePlay")}
           </strong>
         </span>
-      </a>
+      </a> : null}
     </div>
   );
 }

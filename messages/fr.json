@@ -805,6 +805,8 @@
     "past": "Plus tôt",
     "count": "{count, plural, one {# notification} other {Nombre de notifications}}",
     "loading": "Chargement des notifications",
+    "loadErrorTitle": "Impossible de charger les notifications",
+    "loadErrorMessage": "Nous n’avons pas pu charger vos notifications pour le moment. Veuillez réessayer.",
     "sectionError": "Nous n'avons pas pu charger ces notifications.",
     "retry": "Essaie encore",
     "showMore": "Afficher plus",
@@ -1216,7 +1218,7 @@
       "chooseLocationTitle": "Choisissez votre lieu de livraison",
       "chooseLocationMessage": "Sélectionnez une adresse dans l'en-tête pour voir le catalogue et la disponibilité de cette entreprise.",
       "loadErrorTitle": "Entreprises non disponibles",
-      "loadErrorMessage": "Nous n'avons pas pu charger cette entreprise pour votre emplacement actuel.",
+      "loadErrorMessage": "Nous n’avons pas pu charger ce commerce pour le moment. Veuillez réessayer.",
       "retry": "Essaie encore",
       "menu": "Menu & produits",
       "searchLabel": "Fouillez cette entreprise",
@@ -1276,7 +1278,10 @@
       "cartConflictTitle": "Commencer un nouveau chariot ?",
       "cartConflictMessage": "Votre panier contient des articles d'un autre magasin. Remplacez-les par ordre de {store}.",
       "keepCart": "Gardez votre panier",
-      "replaceCart": "Remplacer le panier"
+      "replaceCart": "Remplacer le panier",
+      "notFoundTitle": "Commerce introuvable",
+      "notFoundMessage": "Ce lien ne correspond à aucun commerce sur SIPP. Il a peut-être été supprimé ou le lien est incorrect.",
+      "backToHome": "Retour à l’accueil"
     },
     "orders": {
       "title": "Vos ordres",
@@ -1330,10 +1335,13 @@
       },
       "status": {
         "pending": "En attente",
+        "accepted": "Acceptée",
         "preparing": "Préparation",
         "ready": "Prêt",
+        "riderAssigned": "Livreur assigné",
         "pickedUp": "Découvert",
         "outForDelivery": "Sortie pour livraison",
+        "arrived": "Livreur arrivé",
         "delivered": "délivré",
         "cancelled": "Annulé",
         "rejected": "Rejeté",
@@ -1443,6 +1451,8 @@
       "minutes": "{count, plural, one {# minute} other {♪ minutes}}",
       "distance": "Distance de livraison",
       "kilometres": "{distance} km",
+      "arrivingNow": "Arrive maintenant",
+      "lessThanTenthKm": "Moins de 0,1 km",
       "courier": "Votre messager",
       "courierContact": "Adresse du Courrier",
       "callCourier": "Appeler {name}",
@@ -1557,7 +1567,9 @@
           "title": "État actualisé",
           "message": "Le dernier état de l'ordre est affiché ici."
         }
-      }
+      },
+      "notFoundTitle": "Commande introuvable",
+      "notFoundMessage": "Nous n’avons pas trouvé cette commande sur votre compte. Vérifiez le lien ou retrouvez-la dans vos commandes."
     },
     "cart": {
       "headerCartLabel": "Voir le panier",

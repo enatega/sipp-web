@@ -16,6 +16,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useAppCurrency } from "@/lib/useAppCurrency";
 import { HistoryBackButton } from "@/components/shared/HistoryBackButton";
 import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSidebar";
+import { ResourceNotFound } from "./feedback/ResourceNotFound";
 import { OrderDetailSkeleton } from "./order-detail/OrderDetailSkeleton";
 import { OrderFulfilmentPanel } from "./order-detail/OrderFulfilmentPanel";
 import { OrderRiderChatDialog } from "./order-detail/OrderRiderChatDialog";
@@ -42,6 +43,7 @@ import {
   RATEABLE_ORDER_STATUSES,
   TERMINAL_ORDER_STATUSES,
 } from "../utils/orderDetail";
+import { isNotFoundError } from "../utils/notFoundError";
 import {
   hasSeenOrderCompletionPrompt,
   markOrderCompletionPromptSeen,
@@ -129,6 +131,19 @@ export function OrderDetailExperience({ orderId }: Props) {
   }
 
   if (orderQuery.isPending) return <OrderDetailSkeleton />;
+
+  // A wrong or someone else's order link resolves to 404 (or 400 when the ID is
+  // malformed); retrying cannot help, so send the customer back to their orders.
+  if (!orderQuery.data && isNotFoundError(orderQuery.error, { isBadIdMissing: true })) {
+    return (
+      <div className="min-[700px]:grid min-[700px]:grid-cols-[240px_1fr]">
+        <ProfileSidebar />
+        <main className="grid min-h-[65vh] place-items-center bg-background px-5 py-12">
+          <ResourceNotFound actionHref="/orders" actionLabel={t("backToOrders")} message={t("notFoundMessage")} title={t("notFoundTitle")} />
+        </main>
+      </div>
+    );
+  }
 
   if (orderQuery.isError || !orderQuery.data) {
     return (

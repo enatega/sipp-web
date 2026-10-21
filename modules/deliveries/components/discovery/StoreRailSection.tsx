@@ -95,7 +95,7 @@ export function StoreRailSection(props: Props) {
         description={props.description}
       />
       {isDeal ? (
-        <div className="relative -mx-4 mt-6 sm:mx-0 sm:mt-8">
+        <div className="relative -mx-4 mt-6 max-sm:overflow-x-clip sm:mx-0 sm:mt-8">
           <DealPercentBadge />
           {/* Top padding keeps the cards clear of the corner tile. */}
           <div className="overflow-hidden bg-[linear-gradient(180deg,color-mix(in_srgb,var(--color-brand)_16%,var(--color-surface)),color-mix(in_srgb,var(--color-brand)_10%,var(--color-surface)))] px-5 pt-5 shadow-[0_24px_50px_color-mix(in_srgb,var(--color-brand)_16%,transparent),inset_0_0_0_1px_rgb(255_255_255/0.6),inset_0_2px_12px_rgb(255_255_255/0.5)] sm:rounded-[2rem] sm:px-7 sm:pt-6 dark:shadow-none dark:ring-1 dark:ring-brand/20">

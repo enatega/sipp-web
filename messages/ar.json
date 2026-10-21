@@ -805,6 +805,8 @@
     "past": "في وقت سابق",
     "count": "{count, plural, one {# إشعار} other {# إشعارات}}",
     "loading": "إخطارات تحديد الموقع",
+    "loadErrorTitle": "تعذّر تحميل الإشعارات",
+    "loadErrorMessage": "تعذّر تحميل إشعاراتك الآن. يُرجى المحاولة مرة أخرى.",
     "sectionError": "لا يمكننا تحميل هذه الإخطارات",
     "retry": "حاول مرة أخرى",
     "showMore": "أظهر المزيد",
@@ -1216,7 +1218,7 @@
       "chooseLocationTitle": "اختر موقع التسليم",
       "chooseLocationMessage": "إختار عنواناً من الرئيس ليرى فهرس هذا العمل وتوافره",
       "loadErrorTitle": "الأعمال التجارية غير المتاحة",
-      "loadErrorMessage": "لا يمكننا تحميل هذا العمل لموقعك الحالي",
+      "loadErrorMessage": "تعذّر تحميل هذا المتجر الآن. يُرجى المحاولة مرة أخرى.",
       "retry": "حاول مرة أخرى",
       "menu": "منتجات منو",
       "searchLabel": "ابحث عن هذا العمل",
@@ -1276,7 +1278,10 @@
       "cartConflictTitle": "نبدأ عربة جديدة؟",
       "cartConflictMessage": "عربتك تحتوي على مواد من متجر آخر يستعاض عنها بالترتيب {store}.",
       "keepCart": "حافظ على العربة",
-      "replaceCart": "استبدال العربة"
+      "replaceCart": "استبدال العربة",
+      "notFoundTitle": "المتجر غير موجود",
+      "notFoundMessage": "هذا الرابط لا يطابق أي متجر على SIPP. ربما تمت إزالته أو أن الرابط غير صحيح.",
+      "backToHome": "العودة إلى الرئيسية"
     },
     "orders": {
       "title": "أوامرك",
@@ -1330,10 +1335,13 @@
       },
       "status": {
         "pending": "تنتهي",
+        "accepted": "تم القبول",
         "preparing": "الإعداد",
         "ready": "جاهز",
+        "riderAssigned": "تم تعيين المندوب",
         "pickedUp": "التقطت",
         "outForDelivery": "خارج للتسليم",
+        "arrived": "وصل المندوب",
         "delivered": "المبلغ",
         "cancelled": "ألغيت",
         "rejected": "Rejected",
@@ -1443,6 +1451,8 @@
       "minutes": "{count, plural, one {# دقيقة} other {# دقائق}}",
       "distance": "مسافة التسليم",
       "kilometres": "{distance} km",
+      "arrivingNow": "يصل الآن",
+      "lessThanTenthKm": "أقل من 0.1 كم",
       "courier": "ساعتك",
       "courierContact": "الاتصال بالسعاة",
       "callCourier": "اتصل {name}",
@@ -1557,7 +1567,9 @@
           "title": "آخر المستجدات",
           "message": "وترد آخر حالة الطلب هنا."
         }
-      }
+      },
+      "notFoundTitle": "الطلب غير موجود",
+      "notFoundMessage": "لم نعثر على هذا الطلب في حسابك. تحقّق من الرابط أو ابحث عنه في طلباتك."
     },
     "cart": {
       "headerCartLabel": "عرض السلة",

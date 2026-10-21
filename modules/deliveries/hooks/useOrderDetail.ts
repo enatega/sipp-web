@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ordersApi } from "../api/orders";
 import { deliveryQueryKeys } from "../queries/queryKeys";
+import { isNotFoundError } from "../utils/notFoundError";
 import type { ReviewInput } from "../types/orders";
 
 const TERMINAL_STATUSES = new Set([
@@ -18,6 +19,7 @@ export function useOrderDetailQuery(orderId: string) {
     queryFn: ({ signal }) => ordersApi.detail(orderId, signal),
     enabled: Boolean(orderId),
     refetchInterval: (query) =>
+      isNotFoundError(query.state.error, { isBadIdMissing: true }) ||
       TERMINAL_STATUSES.has(
         query.state.data?.status?.trim().toLowerCase() ?? "",
       )

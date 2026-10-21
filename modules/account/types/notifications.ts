@@ -29,6 +29,9 @@ export type InboxNotification = {
   href: string | null;
   type: string | null;
   orderId: string | null;
+  /** Customer-facing order number, e.g. "#48E5D8E5", derived like the backend's orderCode. */
+  orderCode: string | null;
+  storeName: string | null;
   status: string | null;
 };
 
