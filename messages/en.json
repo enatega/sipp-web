@@ -807,6 +807,8 @@
     "past": "Earlier",
     "count": "{count, plural, one {# notification} other {# notifications}}",
     "loading": "Loading notifications",
+    "loadErrorTitle": "Notifications could not be loaded",
+    "loadErrorMessage": "We couldn't load your notifications right now. Please try again.",
     "sectionError": "We could not load these notifications.",
     "retry": "Try again",
     "showMore": "Show more",
@@ -1216,7 +1218,7 @@
       "chooseLocationTitle": "Choose your delivery location",
       "chooseLocationMessage": "Select an address from the header to see this business's catalog and availability.",
       "loadErrorTitle": "Business unavailable",
-      "loadErrorMessage": "We could not load this business for your current location.",
+      "loadErrorMessage": "We couldn't load this business right now. Please try again.",
       "retry": "Try again",
       "menu": "Menu & products",
       "searchLabel": "Search this business",
@@ -1276,7 +1278,10 @@
       "cartConflictTitle": "Start a new cart?",
       "cartConflictMessage": "Your cart contains items from another store. Replace them to order from {store}.",
       "keepCart": "Keep cart",
-      "replaceCart": "Replace cart"
+      "replaceCart": "Replace cart",
+      "notFoundTitle": "Store not found",
+      "notFoundMessage": "This store link doesn't match any business on SIPP. It may have been removed or the link may be incorrect.",
+      "backToHome": "Back to Home"
     },
     "orders": {
       "title": "Your orders",
@@ -1330,10 +1335,13 @@
       },
       "status": {
         "pending": "Pending",
+        "accepted": "Accepted",
         "preparing": "Preparing",
         "ready": "Ready",
+        "riderAssigned": "Courier assigned",
         "pickedUp": "Picked up",
         "outForDelivery": "Out for delivery",
+        "arrived": "Courier arrived",
         "delivered": "Delivered",
         "cancelled": "Cancelled",
         "rejected": "Rejected",
@@ -1443,6 +1451,8 @@
       "minutes": "{count, plural, one {# minute} other {# minutes}}",
       "distance": "Delivery distance",
       "kilometres": "{distance} km",
+      "arrivingNow": "Arriving now",
+      "lessThanTenthKm": "Less than 0.1 km",
       "courier": "Your courier",
       "courierContact": "Courier contact",
       "callCourier": "Call {name}",
@@ -1557,7 +1567,9 @@
           "title": "Status updated",
           "message": "The latest order status is shown here."
         }
-      }
+      },
+      "notFoundTitle": "Order not found",
+      "notFoundMessage": "We couldn't find this order on your account. Check the link or find it in your orders."
     },
     "cart": {
       "headerCartLabel": "View cart",

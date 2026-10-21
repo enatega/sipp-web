@@ -805,6 +805,8 @@
     "past": "Anteriormente",
     "count": "{count, plural, one {# notificación} other {# notificaciones}}",
     "loading": "Notificaciones de carga",
+    "loadErrorTitle": "No se pudieron cargar las notificaciones",
+    "loadErrorMessage": "No pudimos cargar tus notificaciones en este momento. Inténtalo de nuevo.",
     "sectionError": "No podíamos cargar estas notificaciones.",
     "retry": "Inténtalo de nuevo.",
     "showMore": "Mostrar más",
@@ -1216,7 +1218,7 @@
       "chooseLocationTitle": "Elija su ubicación de entrega",
       "chooseLocationMessage": "Seleccione una dirección desde el encabezado para ver el catálogo y disponibilidad de este negocio.",
       "loadErrorTitle": "Negocios no disponibles",
-      "loadErrorMessage": "No podríamos cargar este negocio para su ubicación actual.",
+      "loadErrorMessage": "No pudimos cargar este negocio en este momento. Inténtalo de nuevo.",
       "retry": "Inténtalo de nuevo.",
       "menu": "Menú &amp; productos",
       "searchLabel": "Buscar este negocio",
@@ -1276,7 +1278,10 @@
       "cartConflictTitle": "¿Empezar un carro nuevo?",
       "cartConflictMessage": "Su carrito contiene artículos de otra tienda. Reemplazarlos para ordenar desde {store}.",
       "keepCart": "Carrito",
-      "replaceCart": "Carrito de repuesto"
+      "replaceCart": "Carrito de repuesto",
+      "notFoundTitle": "Tienda no encontrada",
+      "notFoundMessage": "Este enlace no corresponde a ningún negocio en SIPP. Puede que se haya eliminado o que el enlace sea incorrecto.",
+      "backToHome": "Volver al inicio"
     },
     "orders": {
       "title": "Sus órdenes",
@@ -1330,10 +1335,13 @@
       },
       "status": {
         "pending": "Pendiente",
+        "accepted": "Aceptado",
         "preparing": "Preparación",
         "ready": "Listo",
+        "riderAssigned": "Repartidor asignado",
         "pickedUp": "Recibido",
         "outForDelivery": "Saldo para entrega",
+        "arrived": "El repartidor ha llegado",
         "delivered": "Entrega",
         "cancelled": "Cancelada",
         "rejected": "Rechazado",
@@ -1443,6 +1451,8 @@
       "minutes": "{count, plural, one {# minuto} other {# minutos}}",
       "distance": "Distancia de entrega",
       "kilometres": "{distance} km",
+      "arrivingNow": "Llegando ahora",
+      "lessThanTenthKm": "Menos de 0,1 km",
       "courier": "Tu correo",
       "courierContact": "Contacto de mensajería",
       "callCourier": "Call {name}",
@@ -1557,7 +1567,9 @@
           "title": "Estado actualizado",
           "message": "El último estado de pedido se muestra aquí."
         }
-      }
+      },
+      "notFoundTitle": "Pedido no encontrado",
+      "notFoundMessage": "No encontramos este pedido en tu cuenta. Revisa el enlace o búscalo en tus pedidos."
     },
     "cart": {
       "headerCartLabel": "Ver carrito",

@@ -186,7 +186,7 @@ function HeaderSearchField({ initialQuery }: { initialQuery: string }) {
   }, [activeIndex, listboxId]);
 
   return (
-    <div ref={containerRef} className="flex-none md:ml-auto md:flex md:min-w-0 md:flex-1 md:justify-end">
+    <div ref={containerRef} className="ml-auto flex-none md:flex md:min-w-0 md:flex-1 md:justify-end">
       <button
         aria-expanded={isMobileOpen}
         aria-label={t("label")}

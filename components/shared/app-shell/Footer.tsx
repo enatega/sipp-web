@@ -46,7 +46,7 @@ const SOCIALS = [
   },
   {
     label: "LinkedIn",
-    url: "https://www.linkedin.com/login/?session_redirect=https%3A%2F%2Fwww.linkedin.com%2Fcompany%2Fsipp-delivery%2Fabout%2F%3FviewAsMember%3Dtrue",
+    url: "https://www.linkedin.com/company/sipp-delivery/",
     icon: (
       <path
         d="M4 8h2.4v9H4zM5.2 4.2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8zM9 8h2.3v1.2A2.7 2.7 0 0 1 13.6 8C15.6 8 17 9.3 17 11.9V17h-2.4v-4.6c0-1.3-.5-2.1-1.6-2.1s-1.7.8-1.7 2.1V17H9z"
@@ -91,7 +91,7 @@ export function Footer() {
           <div className="flex flex-col gap-[11px]">
             <b className="text-[11px] tracking-[0.14em] text-ink">{t("getInTouch")}</b>
             <span className="text-xs leading-[1.5] text-body">{CONTACT_DETAILS.address}</span>
-            <span className="inline-flex items-start gap-1.5 text-xs text-body">
+            <a href={`mailto:${CONTACT_DETAILS.email}`} className="inline-flex items-start gap-1.5 break-all text-xs text-body hover:text-brand">
               <svg viewBox="0 0 20 20" aria-hidden="true" className="mt-0.5 size-3 shrink-0">
                 <path
                   d="M3.5 5.5h13a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z"
@@ -102,8 +102,8 @@ export function Footer() {
                 <path d="M3.8 6.2l6.2 4.6 6.2-4.6" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
               </svg>
               {CONTACT_DETAILS.email}
-            </span>
-            <span className="inline-flex items-start gap-1.5 text-xs text-body">
+            </a>
+            <a href={`tel:${CONTACT_DETAILS.phone}`} className="inline-flex items-start gap-1.5 text-xs text-body hover:text-brand">
               <svg viewBox="0 0 20 20" aria-hidden="true" className="mt-0.5 size-3 shrink-0">
                 <path
                   d="M5 3.5c-1 0-1.5.6-1.5 1.6 0 6.4 5 11.4 11.4 11.4 1 0 1.6-.5 1.6-1.5v-1.7c0-.5-.3-.8-.8-.9l-2.4-.5c-.4-.1-.8.1-1 .4l-.6.9a8.6 8.6 0 0 1-4.4-4.4l.9-.6c.3-.2.5-.6.4-1l-.5-2.4c-.1-.5-.4-.8-.9-.8H5z"
@@ -114,7 +114,7 @@ export function Footer() {
                 />
               </svg>
               {CONTACT_DETAILS.phone}
-            </span>
+            </a>
           </div>
 
           <div className="flex flex-col gap-[11px]">

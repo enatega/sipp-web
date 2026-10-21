@@ -14,7 +14,7 @@ import { useTheme } from "next-themes";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import { useOrderRoutePath } from "../../hooks/useOrderRoutePath";
 import type { OrderDetail } from "../../types/orders";
-import { plausibleRiderPoint } from "../../utils/riderLocation";
+import { distanceKm, plausibleRiderPoint } from "../../utils/riderLocation";
 
 interface Props {
   order: OrderDetail;
@@ -27,6 +27,12 @@ interface Coordinate {
 }
 
 const LIBRARIES: ("geometry" | "places")[] = ["places", "geometry"];
+// Beyond this, Google often has no tiles and renders a blank grey map.
+const MAX_MAP_ZOOM = 18;
+const FOCUS_ZOOM = 16;
+// Points closer than this are framed by centring instead of fitBounds, which
+// would otherwise zoom to the map's limit for a zero-size bounding box.
+const MIN_FIT_SPAN_KM = 0.05;
 const POST_PICKUP_STATUSES = new Set([
   "picked_up",
   "out_for_delivery",
@@ -80,9 +86,13 @@ function createMarkerIcon(color: string) {
 function fitMap(map: google.maps.Map, coordinates: Coordinate[]) {
   if (!coordinates.length) return;
 
-  if (coordinates.length === 1) {
-    map.setCenter(coordinates[0]);
-    map.setZoom(15);
+  const [first] = coordinates;
+  const isTiny = coordinates.every(
+    (coordinate) => distanceKm(first, coordinate) < MIN_FIT_SPAN_KM,
+  );
+  if (isTiny) {
+    map.setCenter(first);
+    map.setZoom(coordinates.length === 1 ? 15 : FOCUS_ZOOM);
     return;
   }
 
@@ -96,7 +106,7 @@ function fitMap(map: google.maps.Map, coordinates: Coordinate[]) {
   });
   google.maps.event.addListenerOnce(map, "idle", () => {
     const zoom = map.getZoom();
-    if (typeof zoom === "number" && zoom > 16) map.setZoom(16);
+    if (typeof zoom === "number" && zoom > FOCUS_ZOOM) map.setZoom(FOCUS_ZOOM);
   });
 }
 
@@ -177,6 +187,23 @@ export function OrderRouteMap({ order, storeName }: Props) {
       (isPickup ? store : destinationPoint && (store || rider)),
   );
 
+  // A new options object on every render makes the library call setOptions,
+  // and re-applying `styles` redraws every tile. Live rider updates re-render
+  // this component every few seconds, which left the map grey.
+  const mapOptions = useMemo<google.maps.MapOptions>(
+    () => ({
+      clickableIcons: false,
+      fullscreenControl: false,
+      gestureHandling: "cooperative",
+      mapTypeControl: false,
+      maxZoom: MAX_MAP_ZOOM,
+      streetViewControl: false,
+      styles: resolvedTheme === "dark" ? DARK_MAP_STYLES : undefined,
+      zoomControl: true,
+    }),
+    [resolvedTheme],
+  );
+
   const handleMapLoad = useCallback(
     (map: google.maps.Map) => {
       mapRef.current = map;
@@ -212,15 +239,7 @@ export function OrderRouteMap({ order, storeName }: Props) {
             mapContainerClassName="size-full"
             onLoad={handleMapLoad}
             onUnmount={handleMapUnmount}
-            options={{
-              clickableIcons: false,
-              fullscreenControl: false,
-              gestureHandling: "cooperative",
-              mapTypeControl: false,
-              streetViewControl: false,
-              styles: resolvedTheme === "dark" ? DARK_MAP_STYLES : undefined,
-              zoomControl: true,
-            }}
+            options={mapOptions}
             zoom={13}
           >
             {!isPostPickup && store ? (
@@ -245,6 +264,8 @@ export function OrderRouteMap({ order, storeName }: Props) {
                 label={{ color: "#ffffff", fontSize: "12px", fontWeight: "700", text: "R" }}
                 position={rider}
                 title={t("mapRider")}
+                // Keep the courier above the destination pin when they overlap.
+                zIndex={2}
               />
             ) : null}
             {!isSamePoint && routePath.length >= 2 ? (

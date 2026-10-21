@@ -10,6 +10,7 @@ import { useSessionQuery } from "@/modules/account";
 import { useMarkAllNotificationsReadMutation, useMarkNotificationReadMutation, useNotificationInboxQuery, useUnreadNotificationsCountQuery } from "@/modules/account/queries/useNotificationInboxQueries";
 import type { InboxNotification } from "@/modules/account/types/notifications";
 import { browserPushAvailability, enableBrowserNotifications, resolveBrowserPushState } from "@/modules/account/api/browserNotifications";
+import { NotificationInboxLoadError } from "@/modules/account/components/notifications/NotificationInboxLoadError";
 
 function NotificationRow({ item, period }: { item: InboxNotification; period: "today" | "past" }) {
   const format = useFormatter();
@@ -31,6 +32,12 @@ function NotificationRow({ item, period }: { item: InboxNotification; period: "t
               : format.dateTime(date, { day: "numeric", month: "short", year: "numeric" })}
           </time>
         </span>
+        {item.orderCode ? (
+          <span className="mt-1 flex min-w-0 items-center gap-1.5 text-[11px] font-semibold text-muted">
+            <span className="shrink-0 tabular-nums text-ink">{item.orderCode}</span>
+            {item.storeName ? <><span aria-hidden="true">·</span><span className="truncate">{item.storeName}</span></> : null}
+          </span>
+        ) : null}
         <span className="mt-1 block max-w-[70ch] text-xs leading-5 text-body">{item.description}</span>
         {!item.isRead ? <span className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-bold text-brand"><span className="size-1.5 rounded-full bg-brand" />{t("unread")}</span> : null}
       </span>
@@ -45,7 +52,7 @@ function InboxSection({ period, enabled }: { period: "today" | "past"; enabled: 
   const total = query.data?.pages[0]?.total ?? items.length;
 
   if (query.isPending) return <div className="h-36 animate-pulse rounded-2xl bg-[var(--soft-surface)]" aria-label={t("loading")} />;
-  if (query.isError) return <div role="alert" className="rounded-2xl bg-danger-soft p-5 text-sm text-danger"><p>{t("sectionError")}</p><button type="button" onClick={() => void query.refetch()} className="mt-3 inline-flex items-center gap-2 font-bold underline decoration-1 underline-offset-4"><RefreshCw className="size-4" />{t("retry")}</button></div>;
+  if (query.isError && !items.length) return <div role="alert" className="rounded-2xl bg-card p-8 text-center shadow-card"><p className="text-sm font-medium text-danger">{t("sectionError")}</p><button type="button" disabled={query.isFetching} onClick={() => void query.refetch()} className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-brand px-5 text-sm font-semibold text-ink transition-colors hover:bg-brand/85 disabled:opacity-55">{query.isFetching ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <RefreshCw className="size-4" aria-hidden="true" />}{t("retry")}</button></div>;
   if (!items.length) return null;
 
   return (
@@ -78,7 +85,14 @@ export function NotificationInbox() {
   const permissionRevision = useRef(0);
   const allItems = [...(today.data?.pages.flatMap((page) => page.items) ?? []), ...(past.data?.pages.flatMap((page) => page.items) ?? [])];
   const unread = unreadQuery.data?.unreadCount ?? allItems.filter((item) => !item.isRead).length;
-  const isEmpty = !today.isPending && !past.isPending && !today.isError && !past.isError && allItems.length === 0;
+  const isSettled = !today.isPending && !past.isPending;
+  const hasLoadError = isSettled && (today.isError || past.isError) && allItems.length === 0;
+  const isEmpty = isSettled && !today.isError && !past.isError && allItems.length === 0;
+
+  function retryInbox() {
+    if (today.isError) void today.refetch();
+    if (past.isError) void past.refetch();
+  }
 
   useEffect(() => {
     if (!session.isPending && !authenticated) router.replace("/login");
@@ -165,7 +179,7 @@ export function NotificationInbox() {
         {pushState === "enabled" ? <p className="mt-4 rounded-xl bg-[var(--soft-surface)] px-4 py-3 text-xs text-body">{t("browserEnabled")}</p> : null}
 
         {notice ? <p role="status" className="mt-4 rounded-xl bg-[var(--soft-surface)] px-4 py-3 text-xs font-medium text-body">{notice}</p> : null}
-        {isEmpty ? <div className="mx-auto grid min-h-[420px] max-w-lg place-items-center text-center"><div><span className="mx-auto grid size-16 place-items-center rounded-2xl bg-card text-muted shadow-card"><Bell className="size-7" aria-hidden="true" /></span><h2 className="mt-5 text-lg font-bold text-ink">{t("emptyTitle")}</h2><p className="mt-2 text-sm leading-6 text-body">{t("emptyDescription")}</p></div></div> : <div className="mt-8 grid gap-10"><InboxSection period="today" enabled={authenticated} /><InboxSection period="past" enabled={authenticated} /></div>}
+        {hasLoadError ? <NotificationInboxLoadError isRetrying={today.isFetching || past.isFetching} onRetry={retryInbox} /> : isEmpty ? <div className="mx-auto grid min-h-[420px] max-w-lg place-items-center text-center"><div><span className="mx-auto grid size-16 place-items-center rounded-2xl bg-card text-muted shadow-card"><Bell className="size-7" aria-hidden="true" /></span><h2 className="mt-5 text-lg font-bold text-ink">{t("emptyTitle")}</h2><p className="mt-2 text-sm leading-6 text-body">{t("emptyDescription")}</p></div></div> : <div className="mt-8 grid gap-10"><InboxSection period="today" enabled={authenticated} /><InboxSection period="past" enabled={authenticated} /></div>}
       </div>
     </main>
   );

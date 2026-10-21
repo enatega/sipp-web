@@ -17,6 +17,7 @@ import { RestaurantHero } from "./RestaurantHero";
 import { RestaurantInfo } from "./RestaurantInfo";
 import { StoreClosedNotice } from "./StoreClosedNotice";
 import { StoreOutOfAreaNotice } from "./StoreOutOfAreaNotice";
+import { ResourceNotFound } from "../feedback/ResourceNotFound";
 import { RestaurantProductCard } from "./RestaurantProductCard";
 import { useCategoryScrollSpy } from "../../hooks/useCategoryScrollSpy";
 import {
@@ -30,6 +31,7 @@ import {
 } from "../../hooks/useRestaurantQueries";
 import { restaurantApi } from "../../api/restaurant";
 import { deliveryQueryKeys } from "../../queries/queryKeys";
+import { isNotFoundError } from "../../utils/notFoundError";
 import { quickAddSelections } from "../../utils/productCustomization";
 import { getLocalizedProductName } from "../../utils/productTranslation";
 import type { RestaurantCategory, RestaurantProduct } from "../../types/restaurant";
@@ -223,9 +225,22 @@ export function RestaurantPage({ slug }: Props) {
     );
   }
 
-  if ((!isLegacyId && slugQuery.isError) || restaurant.isError || !restaurant.data) {
+  // An unknown slug or store ID can never load, so retrying is pointless; a
+  // 400 from the store request itself means a bad location, not a bad link.
+  const isStoreMissing =
+    (!isLegacyId && (isNotFoundError(slugQuery.error, { isBadIdMissing: true }) || (slugQuery.isSuccess && !storeId))) ||
+    (!restaurant.data && isNotFoundError(restaurant.error));
+  if (isStoreMissing) {
     return (
-      <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="section-wrap grid min-h-[60vh] place-items-center py-16 text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button className="mt-5 rounded-xl bg-brand px-5 py-3 text-sm font-bold text-ink" onClick={() => void restaurant.refetch()} type="button">{t("retry")}</button></div></main></>
+      <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="section-wrap grid min-h-[60vh] place-items-center py-16"><ResourceNotFound actionHref="/" actionLabel={t("backToHome")} message={t("notFoundMessage")} title={t("notFoundTitle")} /></main></>
+    );
+  }
+
+  if ((!isLegacyId && slugQuery.isError) || restaurant.isError || !restaurant.data) {
+    // Retry whichever request failed; the store request cannot run until the slug resolves.
+    const retry = () => void (!isLegacyId && slugQuery.isError ? slugQuery.refetch() : restaurant.refetch());
+    return (
+      <><Header cartCount={cart.data?.totalItems ?? 0} /><main className="section-wrap grid min-h-[60vh] place-items-center py-16 text-center"><div><h1 className="text-xl font-bold text-ink">{t("loadErrorTitle")}</h1><p className="mt-2 text-sm text-body">{t("loadErrorMessage")}</p><button className="mt-5 rounded-xl bg-brand px-5 py-3 text-sm font-bold text-ink" onClick={retry} type="button">{t("retry")}</button></div></main></>
     );
   }
 

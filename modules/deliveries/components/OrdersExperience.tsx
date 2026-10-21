@@ -15,6 +15,7 @@ import { ProfileSidebar } from "@/modules/account/components/profile/ProfileSide
 import { ordersApi } from "../api/orders";
 import { deliveryQueryKeys } from "../queries/queryKeys";
 import type { OrderCard } from "../types/orders";
+import { getOrderProgressStage, getOrderStatusKey } from "../utils/orderDetail";
 
 type OrdersTab = "active" | "past" | "scheduled";
 type SortOrder = "latest" | "oldest";
@@ -22,7 +23,7 @@ type SortOrder = "latest" | "oldest";
 const observedStages = new Map<string, number>();
 
 function rawOrderStatus(order: OrderCard) {
-  return String(order.status ?? order.orderStatus ?? "pending").toLowerCase();
+  return getOrderStatusKey(order.status ?? order.orderStatus);
 }
 
 function uniqueOrders(pages: Array<{ items: OrderCard[] }>) {
@@ -133,10 +134,13 @@ export function OrdersExperience() {
                 ) : (
                   <>
                     <option value="pending">{t("status.pending")}</option>
+                    <option value="accepted">{t("status.accepted")}</option>
                     <option value="preparing">{t("status.preparing")}</option>
                     <option value="ready">{t("status.ready")}</option>
+                    <option value="rider_assigned">{t("status.riderAssigned")}</option>
                     <option value="picked_up">{t("status.pickedUp")}</option>
                     <option value="out_for_delivery">{t("status.outForDelivery")}</option>
+                    <option value="arrived">{t("status.arrived")}</option>
                   </>
                   )}
                 </select>
@@ -246,7 +250,7 @@ function OrderRow({ order, past, scheduled, expanded, onToggle, onRate }: OrderR
     staleTime: 30_000,
   });
   const reviewed = Boolean(reviewQuery.data?.is_reviewed);
-  const mappedStage = rawStatus === "delivered" ? 3 : ["out_for_delivery", "arrived", "picked_up", "rider_assigned"].includes(rawStatus) ? 2 : ["preparing", "ready"].includes(rawStatus) ? 1 : 0;
+  const mappedStage = getOrderProgressStage(rawStatus);
   const activeStage = Math.max(observedStages.get(order.orderId) ?? 0, mappedStage);
   observedStages.set(order.orderId, activeStage);
 
@@ -257,10 +261,13 @@ function OrderRow({ order, past, scheduled, expanded, onToggle, onRate }: OrderR
       case "rejected": return t("status.rejected");
       case "failed": return t("status.failed");
       case "scheduled": return t("status.scheduled");
+      case "accepted": return t("status.accepted");
       case "preparing": return t("status.preparing");
       case "ready": return t("status.ready");
+      case "rider_assigned": return t("status.riderAssigned");
       case "picked_up": return t("status.pickedUp");
       case "out_for_delivery": return t("status.outForDelivery");
+      case "arrived": return t("status.arrived");
       default: return t("status.pending");
     }
   })();

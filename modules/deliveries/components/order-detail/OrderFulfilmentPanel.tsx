@@ -59,6 +59,21 @@ export function OrderFulfilmentPanel({ order, onOpenRiderChat, riderChatUnread =
       ? liveDistance
       : order.summary?.deliveryDistanceKm;
   const hasEta = eta !== null && eta !== undefined && eta !== "";
+  // Post-pickup, Google reports 0 once the courier is at (or within metres
+  // of) the address; "0 minutes / 0 km" reads like broken data.
+  const isPostPickup = order.eta?.phase === "post_pickup";
+  const etaLabel =
+    typeof eta === "number"
+      ? isPostPickup && eta === 0
+        ? t("arrivingNow")
+        : t("minutes", { count: eta })
+      : String(eta);
+  const distanceLabel =
+    typeof distance === "number"
+      ? distance < 0.1
+        ? t("lessThanTenthKm")
+        : t("kilometres", { distance: format.number(distance, { maximumFractionDigits: 1 }) })
+      : null;
   const riderPhone = order.rider?.phone?.trim();
   const hasDetails = Boolean(
     scheduledAt ||
@@ -95,15 +110,11 @@ export function OrderFulfilmentPanel({ order, onOpenRiderChat, riderChatUnread =
           <DetailRow
             icon={Clock3}
             label={isPickup ? t("estimatedReadyTime") : t("estimatedDeliveryTime")}
-            value={typeof eta === "number" ? t("minutes", { count: eta }) : String(eta)}
+            value={etaLabel}
           />
         ) : null}
-        {typeof distance === "number" ? (
-          <DetailRow
-            icon={Navigation}
-            label={t("distance")}
-            value={t("kilometres", { distance: format.number(distance, { maximumFractionDigits: 1 }) })}
-          />
+        {distanceLabel ? (
+          <DetailRow icon={Navigation} label={t("distance")} value={distanceLabel} />
         ) : null}
         {order.rider?.name ? (
           <div className="flex min-w-0 items-center gap-3">
