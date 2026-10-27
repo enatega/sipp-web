@@ -120,6 +120,8 @@ export interface OrderDetail {
     currentLocation?: {
       latitude?: number | null;
       longitude?: number | null;
+      /** Browser receive time of the last live socket update (client-only). */
+      receivedAt?: number;
     } | null;
   } | null;
   orderItems?: {

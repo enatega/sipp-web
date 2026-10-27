@@ -12,14 +12,18 @@ interface OrderStatusUpdatedPayload {
 }
 interface RiderLocationPayload {
   orderId?: string; riderUserId?: string; customerUserId?: string;
-  latitude?: number; longitude?: number; eta?: OrderEta | null;
+  latitude?: number; longitude?: number; timestamp?: number; eta?: OrderEta | null;
 }
 
 export function useOrderTrackingSync(orderId: string, riderUserId?: string | null, enabled = true) {
   const queryClient = useQueryClient();
   const connection = useCustomerOrderSocket();
   const riderUserIdRef = useRef(riderUserId ?? null);
-  useEffect(() => { riderUserIdRef.current = riderUserId ?? null; }, [riderUserId]);
+  const lastSampleTimestampRef = useRef<number | null>(null);
+  useEffect(() => {
+    riderUserIdRef.current = riderUserId ?? null;
+    lastSampleTimestampRef.current = null;
+  }, [riderUserId, orderId]);
 
   useEffect(() => {
     if (!connection || !orderId || !enabled) return;
@@ -59,6 +63,13 @@ export function useOrderTrackingSync(orderId: string, riderUserId?: string | nul
           (riderUserIdRef.current && payload.riderUserId && payload.riderUserId !== riderUserIdRef.current) ||
           typeof latitude !== "number" || !Number.isFinite(latitude) ||
           typeof longitude !== "number" || !Number.isFinite(longitude)) return;
+      // Ignore delayed/out-of-order samples so the pin never jumps backwards;
+      // equal timestamps pass for the server's ETA follow-up emit.
+      if (typeof payload.timestamp === "number") {
+        const last = lastSampleTimestampRef.current;
+        if (last !== null && payload.timestamp < last) return;
+        lastSampleTimestampRef.current = payload.timestamp;
+      }
       queryClient.setQueryData<OrderDetail>(deliveryQueryKeys.order(orderId), (current) => {
         if (!current) return current;
         return {
@@ -67,7 +78,7 @@ export function useOrderTrackingSync(orderId: string, riderUserId?: string | nul
           rider: {
             ...(current.rider ?? {}),
             userId: payload.riderUserId ?? current.rider?.userId ?? null,
-            currentLocation: { latitude, longitude },
+            currentLocation: { latitude, longitude, receivedAt: Date.now() },
           },
         };
       });

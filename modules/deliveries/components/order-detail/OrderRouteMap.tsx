@@ -8,11 +8,12 @@ import {
   PolylineF,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { MapPin, Navigation, Store } from "lucide-react";
+import { Clock, MapPin, Navigation, Store } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { DeliveryImage } from "../discovery/DeliveryImage";
 import { useOrderRoutePath } from "../../hooks/useOrderRoutePath";
+import { useRiderLocationStaleness } from "../../hooks/useRiderLocationStaleness";
 import type { OrderDetail } from "../../types/orders";
 import { distanceKm, plausibleRiderPoint } from "../../utils/riderLocation";
 
@@ -138,6 +139,12 @@ export function OrderRouteMap({ order, storeName }: Props) {
   const isPostPickup =
     order.orderType === "delivery" &&
     POST_PICKUP_STATUSES.has(order.status.trim().toLowerCase());
+  const riderLocationStaleness = useRiderLocationStaleness(
+    order.rider?.currentLocation?.receivedAt,
+    isPostPickup &&
+      Boolean(order.rider?.userId) &&
+      order.status.trim().toLowerCase() !== "delivered",
+  );
   const routeOrigin = isPickup ? null : isPostPickup ? rider : store;
   const routeDestination = isPickup ? null : destinationPoint;
   const routePathQuery = useOrderRoutePath(routeOrigin, routeDestination, {
@@ -312,6 +319,28 @@ export function OrderRouteMap({ order, storeName }: Props) {
                 {t("mapDestination")}
               </span>
             ) : null}
+          </div>
+        ) : null}
+
+        {canRenderMap && riderLocationStaleness ? (
+          <div
+            aria-live="polite"
+            className="absolute inset-x-3 bottom-3 flex items-start gap-2.5 rounded-xl bg-card/95 px-3 py-2.5 shadow-card sm:left-auto sm:max-w-xs"
+            role="status"
+          >
+            <Clock aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-warning" />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-ink">
+                {riderLocationStaleness.unavailable
+                  ? t("liveLocationUnavailable")
+                  : t("liveLocationDelayed")}
+              </p>
+              <p className="mt-0.5 text-[11px] leading-4 text-body">
+                {riderLocationStaleness.unavailable
+                  ? t("liveLocationUnavailableHint", { minutes: riderLocationStaleness.minutesSinceUpdate })
+                  : t("liveLocationDelayedHint", { minutes: riderLocationStaleness.minutesSinceUpdate })}
+              </p>
+            </div>
           </div>
         ) : null}
       </div>
